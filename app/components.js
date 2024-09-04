@@ -1,10 +1,23 @@
 const loadComponentFromPath = (path, componentName, callback = () => {}) => {
     const script = document.createElement('script');
     script.src = `${path}/${componentName}.js`;
-    document.body.appendChild(script);
+    try{
+        document.body.appendChild(script);
+    }catch(err){
+        console.error(`Error on loading component ${path}/${componentName}.js`);
+        const firstLetter = String(path).charAt(0).toUpperCase();
+        script.src = `${firstLetter}${String(path).slice(1)}/${componentName}.js`;
+        document.body.appendChild(script);
+    }
     setTimeout(() => {
         callback();
     }, 500);
+}
+
+const loadBaseComponent = () => {
+    const script = document.createElement('script');
+    script.src = `components/BaseComponent.js`;
+    document.body.appendChild(script);
 }
 
 const loadTemplate = async (path, placeHolder) => {
@@ -17,10 +30,6 @@ const loadTemplate = async (path, placeHolder) => {
 }
 
 class Components {
-
-    componentImport = {
-        'menu': 'components/main-menu',
-    };
 
     async loadComponent(path, placeHolder){
         try {
@@ -43,9 +52,9 @@ class Components {
 
     loadComponents(){
 
-        const components = Object.entries(this.componentImport);
+        const components = Object.entries(context.componentMap);
         components.forEach(async ([htmlElm, path]) => {
-
+            console.log(`Componente Loaing: `, {htmlElm, path});
             await this.loadComponent(path, htmlElm);
         });
 

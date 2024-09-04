@@ -1,17 +1,19 @@
 const loadComponentFromPath = (path, componentName, callback = () => {}) => {
+
     const script = document.createElement('script');
-    script.src = `${path}/${componentName}.js`;
-    try{
-        document.body.appendChild(script);
-    }catch(err){
-        console.error(`Error on loading component ${path}/${componentName}.js`);
-        const firstLetter = String(path).charAt(0).toUpperCase();
-        script.src = `${firstLetter}${String(path).slice(1)}/${componentName}.js`;
-        document.body.appendChild(script);
-    }
-    setTimeout(() => {
-        callback();
+    const className = String(componentName).charAt(0).toUpperCase()+''+String(componentName).slice(1);
+    script.src = `${path}/${className}.js`;
+    document.body.appendChild(script);
+    
+    const lazyLoadCompTimer = setInterval(() => {
+        try{
+            eval(`new ${className}({ componentName: '${className}', path: '${path}' })`);
+            clearInterval(lazyLoadCompTimer);
+        }catch(err){
+            console.error(`Error on lazy loading: `, className);
+        }
     }, 500);
+
 }
 
 const loadBaseComponent = () => {

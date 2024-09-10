@@ -1,14 +1,17 @@
 const UIComponents = {
     // Component Map setup where 
-    // Key (left side) is hte componente name and
-    // Value (right side) is the component path
+    // Key (left side) is the componente reference
+    // Value.name (right side) is the componente name
+    // Value.path (right side) is the component path
     //
-    //  Component       Component
-    //    Name             Path
-    //     |                 |
-    //     |                 |
-    //     V                 V
+    //          Component    Component
+    //            Name         Path
+    //             |             |
+    //             |             |
+    //             V             V
     map: {
-        'menu': 'components/main-menu',
-    }
+        'menu': { name: 'Menu', path: 'components/main-menu'},
+        'menuoption': { name: 'MenuOption', path: 'components/menu-option' },
+        'dashboardcard': { name: 'DashboardCard', path: 'components/dashboard-card' },
+    },
 };

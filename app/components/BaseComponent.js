@@ -6,11 +6,37 @@ class SettingType {
 
 class BaseComponent {
 
+
     /**
      * @type {SettingType}
      */
     settings = null;
-    componentClass
+    componentClass;
+    template;
+    cmpProps = [];
+
+    props(props = {}){
+        this.cmpProps = props;
+        return this;
+    }
+
+    render(){
+        
+        const fields = Object.getOwnPropertyNames(this);
+        const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
+        const currentClass = this;
+
+        fields.forEach(field => {
+            if(!excludingFields.includes(field)){
+                this.template = this.template.replace(`@${field}`,currentClass[field]);
+            }
+
+            Object.entries(this.cmpProps).forEach(([key, value]) => {
+                this.template = this.template.replace(`{{${key}}}`,value);
+            });
+        });
+        document.write(this.template);
+    }
 
     /**
      * 

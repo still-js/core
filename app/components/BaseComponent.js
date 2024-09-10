@@ -38,6 +38,42 @@ class BaseComponent {
         document.write(this.template);
     }
 
+    return(){
+        
+        const fields = Object.getOwnPropertyNames(this);
+        const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
+        const currentClass = this;
+
+        fields.forEach(field => {
+            if(!excludingFields.includes(field)){
+                this.template = this.template.replace(`@${field}`,currentClass[field]);
+            }
+
+            Object.entries(this.cmpProps).forEach(([key, value]) => {
+                this.template = this.template.replace(`{{${key}}}`,value);
+            });
+        });
+        return this.template;
+    }
+
+    prepareRender(){
+        
+        const fields = Object.getOwnPropertyNames(this);
+        const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
+        const currentClass = this;
+
+        fields.forEach(field => {
+            if(!excludingFields.includes(field)){
+                this.template = this.template.replace(`@${field}`,currentClass[field]);
+            }
+
+            Object.entries(this.cmpProps).forEach(([key, value]) => {
+                this.template = this.template.replace(`{{${key}}}`,value);
+            });
+        });
+
+    }
+
     /**
      * 
      * @param {SettingType} settings 

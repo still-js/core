@@ -1,47 +1,4 @@
-
-const cardColors = {
-    1:'l-bg-green',
-    2:'l-bg-purple',
-    3:'l-bg-orange',
-    4:'l-bg-cyan',
-}
-
-const cardData = [
-    { 
-        state: {
-            mainLabel: `First Card`,
-            statusValue: `18% Higher Then Last Month`,
-            score: `358`
-        },
-        props: { className: 'l-bg-green' } 
-    },
-    { 
-        state: {
-            mainLabel: `Completed Orders`,
-            statusValue: `21% Higher Then Last Month`,
-            score: `856`
-        },
-        props: { className: 'l-bg-purple' } 
-    },
-    { 
-        state: {
-            mainLabel: `New Orders`,
-            statusValue: `37% Higher Then Last Month`,
-            score: `128`
-        },
-        props: { className: 'l-bg-orange' } 
-    },
-    { 
-        state: {
-            mainLabel: `Total Earnings`,
-            statusValue: `10% Higher Then Last Month`,
-            score: `25698`
-        },
-        props: { className: 'l-bg-cyan' } 
-    },
-]
-
-class DashboardCard extends BaseComponent {
+class DashboardCard extends ViewComponent {
 
     mainLabel;
     statusValue;
@@ -58,7 +15,6 @@ class DashboardCard extends BaseComponent {
             </div>
         </div>
     `;
-
 
     constructor({ mainLabel, statusValue, score } = {}){
         super();

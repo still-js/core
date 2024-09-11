@@ -1,17 +1,23 @@
 const loadComponentFromPath = (path, className, callback = () => {}) => {
-
-    const script = document.createElement('script');
-    //const className = String(componentName).charAt(0).toUpperCase()+''+String(componentName).slice(1).toLowerCase();
-    script.src = `${path}/${className}.js`;
-    console.log(`COMPONENT NAME IS: ${className} -> ${document.head}`);
-    document.head.appendChild(script);
     
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+
+        console.log(`Loaded component: `,context.componentRegistror.componentList);
+        console.log(`Loading component: `,className);
+        console.log(`Does it exists: `,(className in context.componentRegistror.componentList));
+
+        if(className in context.componentRegistror.componentList){
+            resolve({ imported: true });
+            return false;
+        }
+
+        const script = document.createElement('script');
+        script.src = `${path}/${className}.js`;
+        console.log(`COMPONENT NAME IS: ${className} -> ${document.head}`);
+        document.head.appendChild(script);
+
         const lazyLoadCompTimer = setInterval(() => {
             try{
-                /**
-                 * @type { BaseComponent }
-                 */
                 /* const componentInstance = eval(`new ${className}({ 
                     componentName: '${className}', path: '${path}' 
                 })`); */

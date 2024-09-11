@@ -8,7 +8,7 @@ class ComponentRegistror {
      */
     export({ componentName: name, path, instance }){
         if(!(name in this.componentList))
-            this.componentList[name] = { path, instance };
+            this.componentList[instance.componentClass] = { path, instance };
 
     }
 

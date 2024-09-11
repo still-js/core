@@ -22,13 +22,10 @@ class Menu extends BaseComponent {
                 </a>
                 <ul class="ml-menu">
                     <li class="active">
-                        <a href="index.html">Dashboard 1</a>
+                        <a href="#" onclick="Router.goto('ClientForm')">Cliente</a>
                     </li>
                     <li>
-                        <a href="pages/dashboard/dashboard2.html">Dashboard 2</a>
-                    </li>
-                    <li>
-                        <a href="pages/dashboard/dashboard3.html">Dashboard 3</a>
+                        <a href="pages/dashboard/dashboard2.html">Colaborador</a>
                     </li>
                 </ul>
             </li>

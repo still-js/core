@@ -89,14 +89,18 @@ class BaseComponent {
        new Promise((resolve) => {
 
         setTimeout(() => {
-            settings.includs.forEach(cmp => new cmp().render());
-            resolve(null);
+            if(settings.includs){
+                settings.includs.forEach(cmp => new cmp().render());
+                resolve(null);
+            }
         });
         
        }).then(() => {
 
         //setTimeout(() => {
-            settings.scripts.forEach(this.importScript);
+            if(settings.scripts){
+                settings.scripts.forEach(this.importScript);
+            }
         //});
 
        });

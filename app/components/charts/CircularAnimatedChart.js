@@ -1,5 +1,6 @@
-class CircularAnimatedChart extends BaseComponent {
+class CircularAnimatedChart extends ViewComponent {
     
+    htmlRefId = 'animateCharts'
     template = `
     <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
         <div class="card">

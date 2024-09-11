@@ -2,9 +2,9 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
 
     const script = document.createElement('script');
     //const className = String(componentName).charAt(0).toUpperCase()+''+String(componentName).slice(1).toLowerCase();
-    console.log(`COMPONENT NAME IS: ${className}`);
     script.src = `${path}/${className}.js`;
-    document.body.appendChild(script);
+    console.log(`COMPONENT NAME IS: ${className} -> ${document.head}`);
+    document.head.appendChild(script);
     
     return new Promise((resolve) => {
         const lazyLoadCompTimer = setInterval(() => {
@@ -12,17 +12,18 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
                 /**
                  * @type { BaseComponent }
                  */
-                const componentInstance = eval(`new ${className}({ 
+                /* const componentInstance = eval(`new ${className}({ 
                     componentName: '${className}', path: '${path}' 
-                })`);
-                if(componentInstance.settings){
+                })`); */
+                /* if(componentInstance.settings){
                     resolve(componentInstance.settings.imports);
                 }else{
                     resolve([]);
-                }
+                } */
+                resolve([]);
                 clearInterval(lazyLoadCompTimer);
             }catch(err){
-                console.error(`Error on lazy loading: `, className, err);
+                console.error(`Error on lazy loading component: ${className} `, err);
             }
         }, 500);
     });
@@ -61,11 +62,28 @@ class LoadedComponent {
 class Components {
 
     /**
+     * @returns {{template, }}
+     */
+    init(){}
+    template;
+    entryComponentPath;
+    entryComponentName;
+
+    renderOnViewFor(placeHolder){
+        if(this.template instanceof Array)
+            this.template = this.template.join('');
+
+        document
+            .getElementById(placeHolder)
+            .innerHTML = this.template;
+    }
+
+    /**
      * 
      * @param {HTMLElement} cmp 
      * @returns { LoadedComponent }
      */
-    async loadComponent(cmp){
+    async loadComponentDEPRECATE(cmp){
         try {
             
             const { tagName } = cmp;
@@ -84,11 +102,23 @@ class Components {
             return {cpmImports, cmp};
     
         } catch (error) {
-            console.error(`Error on tgemplate load: `,error);            
+            console.error(`Error on tgemplate load: `,error);
         }
     }
 
-    loadComponents(){
+    loadComponent(){
+        loadComponentFromPath(
+            this.entryComponentPath,
+            this.entryComponentName
+        ).then(() => {
+            const init = this.init();
+            this.template = init.template;
+            this.renderOnViewFor('appPlaceholder');
+        });
+        //console.log(`DDDD: `,init.constructor);
+    }
+
+    /* loadComponents(){
         const pjsComponents = getPjsComponents();
 
         pjsComponents.forEach(async cmp => {
@@ -106,7 +136,7 @@ class Components {
             }
         });
 
-    }
+    } */
 
 }
 

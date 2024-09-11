@@ -1,7 +1,11 @@
 class SettingType {
     componentName = undefined;
     path = undefined;
-    imports = []
+    imports = [];
+    use = [];
+    dependsOf = [];
+    includs = [];
+    scripts = [];
 }
 
 class BaseComponent {
@@ -30,15 +34,15 @@ class BaseComponent {
             if(!excludingFields.includes(field)){
                 this.template = this.template.replace(`@${field}`,currentClass[field]);
             }
-
-            Object.entries(this.cmpProps).forEach(([key, value]) => {
-                this.template = this.template.replace(`{{${key}}}`,value);
-            });
+        });
+        
+        Object.entries(this.cmpProps).forEach(([key, value]) => {
+            this.template = this.template.replace(`{{${key}}}`,value);
         });
         document.write(this.template);
     }
 
-    return(){
+    getTemplate(){
         
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
@@ -48,10 +52,10 @@ class BaseComponent {
             if(!excludingFields.includes(field)){
                 this.template = this.template.replace(`@${field}`,currentClass[field]);
             }
-
-            Object.entries(this.cmpProps).forEach(([key, value]) => {
-                this.template = this.template.replace(`{{${key}}}`,value);
-            });
+        });
+        
+        Object.entries(this.cmpProps).forEach(([key, value]) => {
+            this.template = this.template.replace(`{{${key}}}`,value);
         });
         return this.template;
     }
@@ -66,10 +70,10 @@ class BaseComponent {
             if(!excludingFields.includes(field)){
                 this.template = this.template.replace(`@${field}`,currentClass[field]);
             }
-
-            Object.entries(this.cmpProps).forEach(([key, value]) => {
-                this.template = this.template.replace(`{{${key}}}`,value);
-            });
+        });
+        
+        Object.entries(this.cmpProps).forEach(([key, value]) => {
+            this.template = this.template.replace(`{{${key}}}`,value);
         });
 
     }
@@ -81,6 +85,22 @@ class BaseComponent {
     setup(settings){
        this.componentClass = this.constructor.name;
        this.settings = settings;
+
+       new Promise((resolve) => {
+
+        setTimeout(() => {
+            settings.includs.forEach(cmp => new cmp().render());
+            resolve(null);
+        });
+        
+       }).then(() => {
+
+        //setTimeout(() => {
+            settings.scripts.forEach(this.importScript);
+        //});
+
+       });
+
        context.componentRegistror.export({...settings, instance: this });
     }
 
@@ -96,6 +116,12 @@ class BaseComponent {
 
     register(){
         context.componentRegistror.export(settings);
+    }
+
+    importScript(scriptPath){
+        const script = document.createElement('script');
+        script.src = scriptPath;
+        document.head.appendChild(script);
     }
 
 }

@@ -1,34 +1,48 @@
-class Home extends ViewComponent {
+class Home extends BaseComponent {
 
     template = `
-    <div class="row">
-        <script>
-            cardData.forEach(rec => {
-                new DashboardCard(rec.state)
-                    .props(rec.props)
-                    .render()
-            });
-        </script>
-    </div>
+        <div class="container-fluid">
+            <!-- Dashboard Widgets -->
+            <div id="dashBoardCards" class="row"></div>
 
-    <div class="row">
-        <script> new LineChart().render() </script>
-        <script> new BarChart().render() </script>
-    </div>
-    <div class="row clearfix">
-        <script> new CircularAnimatedChart().render() </script>
-    </div>
-    <div class="row clearfix">
-        <script> new ProjectGrid().render() </script>
-        <script> new Calendar().render() </script>
-    </div>
+            <div class="row">
+                <div id="barCharPlaceholder" style="display: contents;"></div>
+                <div id="lineCharPlaceholder" style="display: contents;"></div>
+            </div>
+
+            <div class="row clearfix">
+                <div id="animateCharts" style="display: contents;"></div>
+            </div>
+
+            <div class="row clearfix">
+                <div id="projectGrid" style="display: contents;"></div>
+                <div id="dashboardCalendar" style="display: contents;"></div>
+            </div>
+            
+        </div>
     `;
 
     constructor(){
         super();
-        new CardDisplay();
-        console.log(`HOME COMPONENT CREATED`);
-        //this.renderViewOn('mainUiPlaceHolder');
+        this.setup({
+            includs: [ 
+                LineChart, 
+                CardDisplay, 
+                BarChart, 
+                CircularAnimatedChart,
+                Calendar,
+                ProjectGrid
+             ],
+             scripts: [
+                'assets/js/app.min.js',
+                'assets/js/chart.min.js',
+                'assets/js/bundles/amcharts4/core.js',
+                'assets/js/bundles/amcharts4/charts.js',
+                'assets/js/bundles/amcharts4/animated.js',
+                'assets/js/pages/index.js',
+                'assets/js/pages/index.js'
+             ]
+        })
     }
 
 }

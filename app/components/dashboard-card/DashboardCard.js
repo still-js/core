@@ -1,4 +1,4 @@
-class DashboardCard extends ViewComponent {
+class DashboardCard extends BaseComponent {
 
     mainLabel;
     statusValue;

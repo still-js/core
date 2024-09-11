@@ -36,18 +36,19 @@ const cardDataSource = [
 
 class CardDisplay extends ViewComponent {
 
+    htmlRefId = 'dashBoardCards';
+
     beforeInit(){
         this.template = cardDataSource.map(
-            rec => {
-                return new DashboardCard(rec.state)
-                .props(rec.props).return()
-            }
+            rec =>  new DashboardCard(rec.state)
+                .props(rec.props)
+                .getTemplate()
         );
     }
     
     constructor(){
         super();
-        this.renderOnViewFor('dashBoardCards');
+        //this.renderOnViewFor('dashBoardCards');
     }
 
 }

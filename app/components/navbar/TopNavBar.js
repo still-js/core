@@ -1,5 +1,6 @@
 class TopNavBar extends BaseComponent {
 
+    htmlRefId = 'topNavBar';
     template = `
         <div class="container-fluid">
             <div class="navbar-header">
@@ -186,5 +187,10 @@ class TopNavBar extends BaseComponent {
             </div>
         </div>    
     `;
+
+    constructor(){
+        super();
+        console.log(`instantiated top nav bar added plus`);
+    }
 
 }

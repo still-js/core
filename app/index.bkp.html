@@ -14,8 +14,9 @@
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- Theme style. You can choose a theme from css/themes instead of get all themes -->
     <link href="assets/css/styles/all-themes.css" rel="stylesheet" />
-    <script src="setup/component-map.js"></script>
     <script src="setup/components.js"></script>
+    <script src="components-setup.js"></script>
+    <script src="components/component-map.js"></script>
     <script src="components/registror.js"></script>
     <script src="components/BaseComponent.js"></script>
     <script src="components/ViewComponent.js"></script>
@@ -28,7 +29,8 @@
     <script src="components/charts/CircularAnimatedChart.js"></script>
     <script src="components/project-list/ProjectGrid.js"></script>
     <script src="components/calendar/Calendar.js"></script>
-    <script src="components-setup.js"></script>
+    <script src="components/home/Home.js"></script>
+    <script src="components/demo-component/Demo1.js"></script>
 </head>
 
 <body class="light">
@@ -44,6 +46,7 @@
         </div>
         <div class="overlay"></div>
         <nav class="navbar">
+            <script> new Demo1().render() </script>
             <script> new TopNavBar().render() </script>
         </nav>
         <div>
@@ -51,19 +54,36 @@
                 <script> new Menu().render()  </script>
             </aside>
         </div>
-        <section class="content" id="appPlaceholder">
+        <section class="content">
+            <div class="container-fluid">
+                <!-- Dashboard Widgets -->
+                <div id="dashBoardCards" class="row"></div>
 
+                <div class="row">
+                    <script> new LineChart().render() </script>
+                    <script> new BarChart().render() </script>
+                </div>
+                <div class="row clearfix">
+                    <script> new CircularAnimatedChart().render() </script>
+                </div>
+                <div class="row clearfix">
+                    <script> new ProjectGrid().render() </script>
+                    <script> new Calendar().render() </script>
+                </div>
+
+            </div>
         </section>
 
     </div>
     <!-- Plugins Js -->
-    <script defer src="assets/js/app.min.js"></script>
-    <script defer src="assets/js/chart.min.js"></script>
+    <script src="components.js"></script>
+    <script src="assets/js/app.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
     <!-- Custom Js -->
     <script defer src="assets/js/admin.js"></script>
-    <script defer src="assets/js/bundles/amcharts4/core.js"></script>
-    <script defer src="assets/js/bundles/amcharts4/charts.js"></script>
-    <script defer src="assets/js/bundles/amcharts4/animated.js"></script>
-    <script defer src="assets/js/pages/index.js"></script>
-
+    <script src="assets/js/bundles/amcharts4/core.js"></script>
+    <script src="assets/js/bundles/amcharts4/charts.js"></script>
+    <script src="assets/js/bundles/amcharts4/animated.js"></script>
+    <script src="assets/js/pages/index.js"></script>
+    <script> new Home() </script>
 </body>

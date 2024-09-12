@@ -117,20 +117,20 @@ function getNoUISliderValue(slider, percentage) {
 function initBasicSelect() {
   /* basic select start*/
   $("select").formSelect();
-  $("#sel").formSelect();
+  //$("#sel").formSelect();
   var data = [
     { id: 1, name: "Option 1" },
     { id: 2, name: "Option 2" },
     { id: 3, name: "Option 3" }
   ];
 
-  var Options = "";
+  /* var Options = "";
   $.each(data, function(i, val) {
     $("#sel").append(
       "<option value='" + val.id + "'>" + val.name + "</option>"
     );
     $("#sel").formSelect();
-  });
+  }); */
   /* basic select end*/
 }
 function initGroupSelect() {

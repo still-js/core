@@ -8,11 +8,14 @@ class Router {
 
         loadComponentFromPath(route, cmp)
         .then(({ imported }) => {
-            if(imported) return;
+            if(imported) {
+                delete context.componentRegistror.componentList[cmp];
+            };
             /**
              * @type { ViewComponent }
              */
-            const componentInstance = eval(`new ${cmp}()`);
+            context.currentView = eval(`new ${cmp}()`);
+            const componentInstance = context.currentView;
             //componentInstance.
             document
                 .getElementById(applicationContainerId)

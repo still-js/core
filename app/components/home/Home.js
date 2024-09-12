@@ -34,13 +34,11 @@ class Home extends BaseComponent {
                 ProjectGrid
              ],
              scripts: [
-                'assets/js/app.min.js',
                 'assets/js/chart.min.js',
                 'assets/js/bundles/amcharts4/core.js',
                 'assets/js/bundles/amcharts4/charts.js',
                 'assets/js/bundles/amcharts4/animated.js',
                 'assets/js/pages/index.js',
-                'assets/js/pages/index.js'
              ]
         })
     }

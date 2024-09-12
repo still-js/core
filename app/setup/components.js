@@ -117,7 +117,11 @@ class Components {
             this.entryComponentPath,
             this.entryComponentName
         ).then(() => {
-            const init = this.init();
+            /**
+             * @type { ViewComponent }
+             */
+            context.currentView = this.init();
+            const init = context.currentView;
             this.template = init.template;
             this.renderOnViewFor('appPlaceholder');
         });

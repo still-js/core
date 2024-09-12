@@ -14,21 +14,29 @@ class Menu extends BaseComponent {
                     </div>
                 </div>
             </li>
-            <li class="header">-- Main</li>
+            <!-- <li class="header">Menu Inici</li> -->
+            <li class="active">
+                <a href="#" onClick="Router.goto('Home')">
+                    <i class="menu-icon ti-home"></i>
+                    <span>Início</span>
+                </a>
+            </li>
+
             <li class="active">
                 <a href="#" onClick="return false;" class="menu-toggle">
                     <i class="menu-icon ti-home"></i>
-                    <span>Home</span>
+                    <span>Cadastros</span>
                 </a>
                 <ul class="ml-menu">
                     <li class="active">
                         <a href="#" onclick="Router.goto('ClientForm')">Cliente</a>
                     </li>
                     <li>
-                        <a href="pages/dashboard/dashboard2.html">Colaborador</a>
+                        <a href="#">Colaborador</a>
                     </li>
                 </ul>
             </li>
+            <!--
             <li>
                 <a href="#" onClick="return false;" class="menu-toggle">
                     <i class="menu-icon ti-shopping-cart-full"></i>
@@ -467,6 +475,7 @@ class Menu extends BaseComponent {
                     </div>
                 </div>
             </li>
+            -->
         </ul>
     </div>
     `;   

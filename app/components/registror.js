@@ -8,7 +8,7 @@ class ComponentRegistror {
      */
     export({ componentName: name, path, instance }){
         if(!(name in this.componentList))
-            this.componentList[instance.componentClass] = { path, instance };
+            this.componentList[instance.componentName] = { path, instance };
 
     }
 
@@ -20,4 +20,5 @@ class ComponentRegistror {
 const context = {
     componentRegistror: new ComponentRegistror(),
     componentMap: UIComponents.map,
+    currentView: null,
 }

@@ -15,7 +15,7 @@ class BaseComponent {
      * @type {SettingType}
      */
     settings = null;
-    componentClass;
+    componentName;
     template;
     cmpProps = [];
 
@@ -27,7 +27,7 @@ class BaseComponent {
     render(){
         
         const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
+        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
         const currentClass = this;
 
         fields.forEach(field => {
@@ -45,7 +45,7 @@ class BaseComponent {
     getTemplate(){
         
         const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
+        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
         const currentClass = this;
 
         fields.forEach(field => {
@@ -63,7 +63,7 @@ class BaseComponent {
     prepareRender(){
         
         const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentClass', 'template', 'cmpProps'];
+        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
         const currentClass = this;
 
         fields.forEach(field => {
@@ -83,7 +83,7 @@ class BaseComponent {
      * @param {SettingType} settings 
      */
     setup(settings){
-       this.componentClass = this.constructor.name;
+       this.componentName = this.constructor.name;
        this.settings = settings;
 
        new Promise((resolve) => {
@@ -91,6 +91,8 @@ class BaseComponent {
         setTimeout(() => {
             if(settings.includs){
                 settings.includs.forEach(cmp => new cmp().render());
+                resolve(null);
+            }else{
                 resolve(null);
             }
         });

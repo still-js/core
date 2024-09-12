@@ -24,40 +24,76 @@ class BaseComponent {
         return this;
     }
 
-    render(){
+    getBoundState(){
         
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
         const currentClass = this;
+        let tamplateWithState = this.template;
 
+        /**
+         * Inject/Bind the component state/properties to the
+         * referenced place
+         */
         fields.forEach(field => {
             if(!excludingFields.includes(field)){
-                this.template = this.template.replace(`@${field}`,currentClass[field]);
+                tamplateWithState = tamplateWithState.replace(`@${field}`,currentClass[field]);
             }
         });
-        
+        return tamplateWithState;
+    }
+
+    getBoundProps(template){
+        /**
+         * Inject/Bind the component props/params to the
+         * referenced place
+         */
         Object.entries(this.cmpProps).forEach(([key, value]) => {
-            this.template = this.template.replace(`{{${key}}}`,value);
+            template = template.replace(`{{${key}}}`,value);
         });
-        document.write(this.template);
+
+        return template;
+    }
+
+    getBoundClick(template){
+        /**
+         * Bind (click) event to the UI
+         */
+        const classInstance = `context.componentRegistror.componentList['${this.constructor.name}'].instance`;
+        template = template.replaceAll(
+            /\(click\)\=\"/gi,
+            `onclick="${classInstance}.`
+        );
+
+        return template;
+    }
+
+    /**
+     * Parse the template, inject the components 'props' and 'state' if defined in the component
+     * 
+     */
+    getBoundTemplate(){
+
+        /**
+         * Bind the component state and return it (template)
+         * NOTE: Needs to be alwas the first to be called
+         */
+        let template = this.getBoundState();
+
+        /** Bind the props to the template and return */
+        template = this.getBoundProps(template);
+        /** Bind the click to the template and return */
+        template = this.getBoundClick(template);
+
+        return template;
+    }
+
+    render(){
+        document.write(this.getBoundTemplate());
     }
 
     getTemplate(){
-        
-        const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
-        const currentClass = this;
-
-        fields.forEach(field => {
-            if(!excludingFields.includes(field)){
-                this.template = this.template.replace(`@${field}`,currentClass[field]);
-            }
-        });
-        
-        Object.entries(this.cmpProps).forEach(([key, value]) => {
-            this.template = this.template.replace(`{{${key}}}`,value);
-        });
-        return this.template;
+        return this.getBoundTemplate();
     }
 
     prepareRender(){

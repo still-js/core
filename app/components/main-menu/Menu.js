@@ -29,7 +29,10 @@ class Menu extends BaseComponent {
                 </a>
                 <ul class="ml-menu">
                     <li class="active">
-                        <a href="#" (click)="gotoView('ClientForm')">Cliente</a>
+                        <a href="#" (click)="gotoView('ClientsGrid')">Ver Clientes</a>
+                    </li>
+                    <li class="active">
+                        <a href="#" (click)="gotoView('ClientForm')">Cadastrar Cliente</a>
                     </li>
                     <li>
                         <a href="#" (click)="gotoView('Osvaldo')">Colaborador</a>

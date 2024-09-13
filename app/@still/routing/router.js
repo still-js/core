@@ -9,19 +9,25 @@ class Router {
         loadComponentFromPath(route, cmp)
         .then(({ imported }) => {
             if(imported) {
-                delete context.componentRegistror.componentList[cmp];
+                delete $still.context.componentRegistror.componentList[cmp];
             };
+            $still.context.currentView = eval(`new ${cmp}()`);
+            const newElm = document.createElement('div');
+            newElm.onload = function(){
+                console.log(`ELEMENT LOADED SUCCESS`);
+            }
             /**
              * the bellow line clears previous component from memory
              * @type { ViewComponent }
              */
-            context.currentView = eval(`new ${cmp}()`);
-            const componentInstance = context.currentView;
+            const componentInstance = $still.context.currentView;
             //componentInstance.
             document
                 .getElementById(applicationContainerId)
                 .innerHTML = componentInstance.getTemplate();
+            componentInstance.onRender();
         });
+
     }
 
 }

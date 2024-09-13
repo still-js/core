@@ -59,7 +59,7 @@ class BaseComponent {
         /**
          * Bind (click) event to the UI
          */
-        const classInstance = `context.componentRegistror.getComponent('${this.constructor.name}')`;
+        const classInstance = `$still.context.componentRegistror.getComponent('${this.constructor.name}')`;
         template = template.replaceAll(
             /\(click\)\=\"/gi,
             `onclick="${classInstance}.`
@@ -143,7 +143,7 @@ class BaseComponent {
 
        });
 
-       context.componentRegistror.export({...settings, instance: this });
+       $still.context.componentRegistror.export({...settings, instance: this });
     }
 
     setPath(path){
@@ -157,11 +157,12 @@ class BaseComponent {
     }
 
     register(){
-        context.componentRegistror.export(settings);
+        $still.context.componentRegistror.export(settings);
     }
 
     importScript(scriptPath){
         const script = document.createElement('script');
+        script.async = true;
         script.src = scriptPath;
         document.head.appendChild(script);
     }

@@ -15,6 +15,8 @@ class ViewComponent extends BaseComponent {
 
     beforeInit(){}
 
+    onRender(){}
+
     renderViewOn(placeHolder){
 
         this.prepareRender();

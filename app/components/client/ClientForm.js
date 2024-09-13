@@ -211,6 +211,9 @@ class ClientForm extends ViewComponent {
     constructor(){
         super();
         this.setup({
+            includs: [
+                /* ClientsGrid */
+            ],
             scripts: [
                 'assets/js/form.min.js',
                 'assets/js/bundles/jquery-steps/jquery.steps.min.js',
@@ -221,7 +224,7 @@ class ClientForm extends ViewComponent {
                 'assets/js/bundles/tinymce/tinymce.min.js',
                 'assets/js/bundles/ckeditor/ckeditor.js',
                 'assets/js/pages/forms/editors.js',
-            ]
+            ],
         });
     }
     

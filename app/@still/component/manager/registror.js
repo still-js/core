@@ -27,8 +27,11 @@ class ComponentRegistror {
     }
 }
 
-const context = {
-    componentRegistror: ComponentRegistror.get(),
-    componentMap: routesMap.viewRoutes,
-    currentView: null,
+const $still = {
+    context: {
+        componentRegistror: ComponentRegistror.get(),
+        componentMap: routesMap.viewRoutes,
+        currentView: null,
+    },
+    HTTPClient: new StillHTTPClient()
 }

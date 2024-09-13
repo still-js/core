@@ -1,7 +1,11 @@
+/**
+ * Don't change the constante name as it'll impact on the component routing
+ */
 const routesMap = {
     viewRoutes: {
         ClientForm: 'components/client',
         Home: 'components/home',
+        ClientsGrid: 'components/client'
     }
 }
 

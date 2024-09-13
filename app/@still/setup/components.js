@@ -2,36 +2,33 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
     
     return new Promise((resolve, reject) => {
 
-        console.log(`Loaded component: `,context.componentRegistror.componentList);
-        console.log(`Loading component: `,className);
-        console.log(`Does it exists: `,(className in context.componentRegistror.componentList));
-
-        if(className in context.componentRegistror.componentList){
+        if(className in $still.context.componentRegistror.componentList){
             resolve({ imported: true });
             return false;
         }
 
-        const script = document.createElement('script');
-        script.src = `${path}/${className}.js`;
-        console.log(`COMPONENT NAME IS: ${className} -> ${document.head}`);
-        document.head.appendChild(script);
+        try {
+            eval(`${className}`);
+            resolve([])
+        } catch (error) {
+            
+            console.log(`ERRO ON LOADING CLASS: `,className);
 
-        const lazyLoadCompTimer = setInterval(() => {
-            try{
-                /* const componentInstance = eval(`new ${className}({ 
-                    componentName: '${className}', path: '${path}' 
-                })`); */
-                /* if(componentInstance.settings){
-                    resolve(componentInstance.settings.imports);
-                }else{
+            const script = document.createElement('script');
+            script.src = `${path}/${className}.js`;
+            document.head.appendChild(script);
+    
+            const lazyLoadCompTimer = setInterval(() => {
+                try{
                     resolve([]);
-                } */
-                resolve([]);
-                clearInterval(lazyLoadCompTimer);
-            }catch(err){
-                console.error(`Error on lazy loading component: ${className} `, err);
-            }
-        }, 500);
+                    clearInterval(lazyLoadCompTimer);
+                }catch(err){
+                    console.error(`Error on lazy loading component: ${className} `, err);
+                }
+            }, 500);
+
+        }
+
     });
 
 }
@@ -120,8 +117,8 @@ class Components {
             /**
              * @type { ViewComponent }
              */
-            context.currentView = this.init();
-            const init = context.currentView;
+            $still.context.currentView = this.init();
+            const init = $still.context.currentView;
             this.template = init.template;
             this.renderOnViewFor('appPlaceholder');
         });

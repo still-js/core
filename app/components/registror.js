@@ -1,6 +1,16 @@
 class ComponentRegistror {
 
     componentList = {};
+    static registror = null;
+
+    static get(){
+
+        if(ComponentRegistror.registror == null){
+            ComponentRegistror.registror = new ComponentRegistror();
+        }
+        return ComponentRegistror.registror;
+
+    }
 
     /**
      * 
@@ -18,7 +28,7 @@ class ComponentRegistror {
 }
 
 const context = {
-    componentRegistror: new ComponentRegistror(),
+    componentRegistror: ComponentRegistror.get(),
     componentMap: routesMap.viewRoutes,
     currentView: null,
 }

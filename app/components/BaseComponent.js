@@ -59,7 +59,7 @@ class BaseComponent {
         /**
          * Bind (click) event to the UI
          */
-        const classInstance = `context.componentRegistror.componentList['${this.constructor.name}'].instance`;
+        const classInstance = `context.componentRegistror.getComponent('${this.constructor.name}')`;
         template = template.replaceAll(
             /\(click\)\=\"/gi,
             `onclick="${classInstance}.`

@@ -12,6 +12,7 @@ class Router {
                 delete context.componentRegistror.componentList[cmp];
             };
             /**
+             * the bellow line clears previous component from memory
              * @type { ViewComponent }
              */
             context.currentView = eval(`new ${cmp}()`);

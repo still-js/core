@@ -19,6 +19,6 @@ class ComponentRegistror {
 
 const context = {
     componentRegistror: new ComponentRegistror(),
-    componentMap: UIComponents.map,
+    componentMap: routesMap.viewRoutes,
     currentView: null,
 }

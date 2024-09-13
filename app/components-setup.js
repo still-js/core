@@ -1,6 +1,6 @@
 class ComponentSetup extends Components {
     
-    entryComponentPath = UIComponents.map.home;
+    entryComponentPath = routesMap.viewRoutes.Home;
     entryComponentName = 'Home';
     
     constructor(){

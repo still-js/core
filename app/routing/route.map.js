@@ -1,9 +1,46 @@
 const routesMap = {
     viewRoutes: {
         ClientForm: 'components/client',
-        Home: 'components/home'
+        Home: 'components/home',
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 let routeMapInverse = [];
@@ -23,7 +60,3 @@ function getRouteMap(){
         inverse: routeMapInverse
     }
 }
-
-/* class RouteType {
-    component
-} */

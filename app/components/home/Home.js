@@ -5,23 +5,19 @@ class Home extends BaseComponent {
             <!-- Dashboard Widgets -->
             <div id="dashBoardCards" class="row"></div>
 
-            <!--
             <div class="row">
                 <div id="barCharPlaceholder" style="display: contents;"></div>
                 <div id="lineCharPlaceholder" style="display: contents;"></div>
             </div>
-            -->
 
-            <!--
             <div class="row clearfix">
                 <div id="animateCharts" style="display: contents;"></div>
             </div>
-
+            
             <div class="row clearfix">
                 <div id="projectGrid" style="display: contents;"></div>
                 <div id="dashboardCalendar" style="display: contents;"></div>
             </div>
-            -->
             
         </div>
     `;
@@ -30,12 +26,12 @@ class Home extends BaseComponent {
         super();
         this.setup({
             includs: [ 
-                CardDisplay, 
-                /* LineChart, 
-                BarChart, 
-                CircularAnimatedChart,
+                LineChart,
                 Calendar,
-                ProjectGrid */
+                CardDisplay,
+                BarChart,
+                CircularAnimatedChart,
+                ProjectGrid,
              ],
              scripts: [
                 'assets/js/chart.min.js',

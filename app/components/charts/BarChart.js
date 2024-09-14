@@ -1,4 +1,4 @@
-class BarChart extends ViewComponent {
+class CBarChart extends ViewComponent {
 
     htmlRefId = 'barCharPlaceholder';
     template = `
@@ -58,3 +58,6 @@ class BarChart extends ViewComponent {
     `;
 
 }
+
+/** @type {CBarChart} */
+const BarChart = $still.component.expose(new CBarChart());

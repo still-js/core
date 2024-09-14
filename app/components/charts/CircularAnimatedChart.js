@@ -1,4 +1,4 @@
-class CircularAnimatedChart extends ViewComponent {
+class CCircularAnimatedChart extends ViewComponent {
     
     htmlRefId = 'animateCharts'
     template = `
@@ -116,3 +116,6 @@ class CircularAnimatedChart extends ViewComponent {
     `;
 
 }
+
+/** @type {CCircularAnimatedChart} */
+const CircularAnimatedChart = $still.component.expose(new CCircularAnimatedChart());

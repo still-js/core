@@ -1,4 +1,4 @@
-class LineChart extends ViewComponent {
+class CLineChart extends ViewComponent {
 
     htmlRefId = 'lineCharPlaceholder';
     template = `
@@ -58,3 +58,6 @@ class LineChart extends ViewComponent {
     `;
 
 }
+
+/** @type {CLineChart} */
+const LineChart = $still.component.expose(new CLineChart());

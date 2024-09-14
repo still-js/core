@@ -19,9 +19,21 @@ class BaseComponent {
     template;
     cmpProps = [];
 
+
+    /**
+     * signature method only
+     * @param {object|any} 
+     * @returns { ViewComponent | BaseComponent } 
+     */
+    new(params){}
+
     props(props = {}){
         this.cmpProps = props;
         return this;
+    }
+
+    getName(){
+        return this.constructor.name;
     }
 
     getBoundState(){
@@ -126,7 +138,7 @@ class BaseComponent {
 
         setTimeout(() => {
             if(settings.includs){
-                settings.includs.forEach(cmp => new cmp().render());
+                settings.includs.forEach(cmp => cmp.render());
                 resolve(null);
             }else{
                 resolve(null);

@@ -34,13 +34,13 @@ const cardDataSource = [
 ]
 
 
-class CardDisplay extends ViewComponent {
+class CCardDisplay extends ViewComponent {
 
     htmlRefId = 'dashBoardCards';
 
     beforeInit(){
         this.template = cardDataSource.map(
-            rec =>  new DashboardCard(rec.state)
+            rec =>  DashboardCard.new(rec.state)
                 .props(rec.props)
                 .getTemplate()
         );
@@ -52,3 +52,6 @@ class CardDisplay extends ViewComponent {
     }
 
 }
+
+/** @type {CCardDisplay} */
+const CardDisplay = $still.component.expose(new CCardDisplay());

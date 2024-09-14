@@ -1,4 +1,4 @@
-class TopNavBar extends BaseComponent {
+class CTopNavBar extends BaseComponent {
 
     htmlRefId = 'topNavBar';
     template = `
@@ -194,3 +194,5 @@ class TopNavBar extends BaseComponent {
     }
 
 }
+
+$still.context.componentRegistror.expose(new CTopNavBar());

@@ -1,4 +1,4 @@
-class DashboardCard extends BaseComponent {
+class CDashboardCard extends BaseComponent {
 
     mainLabel;
     statusValue;
@@ -29,3 +29,6 @@ class DashboardCard extends BaseComponent {
     }
 
 }
+
+/** @type { CDashboardCard } */
+const DashboardCard = $still.component.expose(new CDashboardCard());

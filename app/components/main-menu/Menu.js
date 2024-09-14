@@ -1,4 +1,4 @@
-class Menu extends BaseComponent {
+class CMenu extends BaseComponent {
 
     template = `
     <div class="menu">
@@ -53,3 +53,5 @@ class Menu extends BaseComponent {
 
 
 }
+
+$still.component.expose(new CMenu());

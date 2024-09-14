@@ -62,7 +62,8 @@ const $still = {
         /** @param { ViewComponent } cmp */
         expose: (cmp) => {
             return ComponentRegistror.get().expose(cmp)
-        }
+        },
+        list: window
     },
-    HTTPClient: new StillHTTPClient()
+    HTTPClient: new StillHTTPClient(),
 }

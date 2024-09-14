@@ -2,7 +2,7 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
     
     return new Promise((resolve, reject) => {
 
-        if(className in $still.context.componentRegistror.componentList){
+        if(className in $still.component.list){
             resolve({ imported: true });
             return false;
         }
@@ -12,7 +12,7 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             resolve([])
         } catch (error) {
             
-            console.log(`ERRO ON LOADING CLASS: `,className);
+            console.log(`Loading the component for the first time: `,className);
 
             const script = document.createElement('script');
             script.src = `${path}/${className}.js`;
@@ -122,29 +122,6 @@ class Components {
             this.template = init.template;
             this.renderOnViewFor('appPlaceholder');
         });
-        //console.log(`DDDD: `,init.constructor);
+
     }
-
-    /* loadComponents(){
-        const pjsComponents = getPjsComponents();
-
-        pjsComponents.forEach(async cmp => {
-            const { cpmImports, cmp: cmp1 } = await this.loadComponent(cmp);
-
-            if(cpmImports.length > 0){
-
-                getPjsComponentsFrom(cmp1).forEach(async cmp1 => {
-                    console.log(`FOUND LEVEL 2 Childrens `,cmp1.tagName);
-                    const { 
-                        cpmImports: cpmImports2, cmp: cmp2 
-                    } = await this.loadComponent(cmp1);
-                });
-
-            }
-        });
-
-    } */
-
 }
-
-//(new Components).loadComponents();

@@ -2,7 +2,7 @@ class CBarChart extends ViewComponent {
 
     htmlRefId = 'barCharPlaceholder';
     template = `
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" (click)="parsingForBar()">
         <div class="card">
             <div class="header">
                 <h2>
@@ -56,6 +56,10 @@ class CBarChart extends ViewComponent {
         </div>
     </div>
     `;
+
+    parsingForBar(){
+        alert('First content');
+    }
 
 }
 

@@ -15,8 +15,6 @@ class ViewComponent extends BaseComponent {
 
     beforeInit(){}
 
-    onRender(){}
-
     renderViewOn(placeHolder){
 
         this.prepareRender();
@@ -30,14 +28,15 @@ class ViewComponent extends BaseComponent {
 
     renderOnViewFor(placeHolder){
         this.beforeInit();
-        //this.prepareRender();
-        console.log(`${this.constructor.name}`);
-        if(this.template instanceof Array)
-            this.template = this.template.join('');
+        
+        //$still.context.componentRegistror.componentList[this.getName()] = { instance: this };
+        /*.compo.export({
+            componentName: this.getName(), instance: this
+        });*/
 
         document
             .getElementById(placeHolder)
-            .innerHTML = this.template;
+            .innerHTML = this.getBoundTemplate();
     }
 
     getTemplate(){

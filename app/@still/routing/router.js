@@ -2,11 +2,8 @@ class Router {
 
     static goto(cmp){
 
-        const applicationContainerId = 'appPlaceholder';
-        /**
-         * getRouteMap() function stated inside route.map.js in the root of the project
-         */
-        const routeInstance = getRouteMap();
+        const appCntrId = 'appPlaceholder';
+        const routeInstance = getRouteMap()
         const route = routeInstance.route[cmp];
 
         loadComponentFromPath(route, cmp)
@@ -23,10 +20,10 @@ class Router {
              * @type { ViewComponent }
              */
             const componentInstance = $still.context.currentView;
-            //componentInstance.
-            document
-                .getElementById(applicationContainerId)
-                .innerHTML = componentInstance.getTemplate();
+            const appPlaceholder = document.getElementById(appCntrId);
+            
+            appPlaceholder.innerHTML = ''
+            appPlaceholder.insertAdjacentHTML('afterbegin', componentInstance.getTemplate());
             componentInstance.onRender();
         });
 

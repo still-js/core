@@ -5,7 +5,7 @@ class CDashboardCard extends BaseComponent {
     score;
 
     template = `
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-lg-3 col-sm-6" (click)="callAlert()">
             <div class="info-box7 {{className}} order-info-box7">
                 <div class="info-box7-block">
                     <h4 class="m-b-20">@mainLabel</h4>
@@ -18,14 +18,19 @@ class CDashboardCard extends BaseComponent {
 
     constructor({ mainLabel, statusValue, score } = {}){
         super();
-        this.mainLabel = mainLabel;
-        this.statusValue = statusValue;
-        this.score = score;
         /* this.setup({
             componentName, 
             path,
             imports: []
         }); */
+        this.mainLabel = mainLabel;
+        this.statusValue = statusValue;
+        this.score = score;
+    }
+
+    callAlert(){
+        //this.mainLabel = 'new value';
+        console.log(`The main label is: `,this.mainLabel);
     }
 
 }

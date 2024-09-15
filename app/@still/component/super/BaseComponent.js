@@ -8,6 +8,16 @@ class SettingType {
     scripts = [];
 }
 
+class StEvent {
+    value;
+    onChange(callback){}
+    subscribers
+
+    constructor(value){
+        this.value = value;
+    }
+}
+
 class BaseComponent {
 
 
@@ -18,6 +28,7 @@ class BaseComponent {
     componentName;
     template;
     cmpProps = [];
+    cmpInternalId;
 
 
     /**
@@ -26,6 +37,10 @@ class BaseComponent {
      * @returns { ViewComponent | BaseComponent } 
      */
     new(params){}
+
+    onRender(){}
+
+    stOnUpdate(){}
 
     props(props = {}){
         this.cmpProps = props;
@@ -36,11 +51,27 @@ class BaseComponent {
         return this.constructor.name;
     }
 
+    getInstanceName(){
+        return this.constructor.name.replace('C','');
+    }
+
+    getProperties(){
+
+        const fields = Object.getOwnPropertyNames(this);
+        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps','htmlRefId','new','cmpInternalId'];
+        return fields.filter(field => !excludingFields.includes(field));
+
+    }
+    
     getBoundState(){
         
-        const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
+        const fields = this.getProperties();
         const currentClass = this;
+
+        if(this.template instanceof Array)
+            this.template = this.template.join('');
+
+
         let tamplateWithState = this.template;
 
         /**
@@ -48,9 +79,7 @@ class BaseComponent {
          * referenced place
          */
         fields.forEach(field => {
-            if(!excludingFields.includes(field)){
-                tamplateWithState = tamplateWithState.replace(`@${field}`,currentClass[field]);
-            }
+            tamplateWithState = tamplateWithState.replace(`@${field}`,currentClass[field].value);
         });
         return tamplateWithState;
     }
@@ -71,10 +100,18 @@ class BaseComponent {
         /**
          * Bind (click) event to the UI
          */
-        const classInstance = `$still.context.componentRegistror.getComponent('${this.constructor.name}')`;
+        let cmd;
+        if(this.cmpInternalId){
+            if(this.cmpInternalId.indexOf('dynamic-') == 0)
+                cmd = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
+        }else{
+            cmd = `$still.component.get('${this.getInstanceName()}')`;
+        }
+
+        //const classInstance = `$still.context.componentRegistror.getComponent('${cmpRef}')`;
         template = template.replaceAll(
             /\(click\)\=\"/gi,
-            `onclick="${classInstance}.`
+            `onclick="${cmd}.`
         );
 
         return template;
@@ -82,7 +119,6 @@ class BaseComponent {
 
     /**
      * Parse the template, inject the components 'props' and 'state' if defined in the component
-     * 
      */
     getBoundTemplate(){
 
@@ -110,14 +146,11 @@ class BaseComponent {
 
     prepareRender(){
         
-        const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps'];
+        const fields = this.getProperties();
         const currentClass = this;
 
         fields.forEach(field => {
-            if(!excludingFields.includes(field)){
-                this.template = this.template.replace(`@${field}`,currentClass[field]);
-            }
+            this.template = this.template.replace(`@${field}`,currentClass[field].value);
         });
         
         Object.entries(this.cmpProps).forEach(([key, value]) => {
@@ -138,22 +171,18 @@ class BaseComponent {
 
         setTimeout(() => {
             if(settings.includs){
-                settings.includs.forEach(cmp => cmp.render());
+                settings.includs.forEach((/** @type {ViewComponent} */cmp) => cmp.render());
                 resolve(null);
             }else{
                 resolve(null);
             }
         });
         
-       }).then(() => {
+        }).then(() => {
 
-        //setTimeout(() => {
-            if(settings.scripts){
-                settings.scripts.forEach(this.importScript);
-            }
-        //});
+            if(settings.scripts) settings.scripts.forEach(this.importScript);
 
-       });
+        });
 
        $still.context.componentRegistror.export({...settings, instance: this });
     }
@@ -177,6 +206,25 @@ class BaseComponent {
         script.async = true;
         script.src = scriptPath;
         document.head.appendChild(script);
+    }
+
+    updateState(object = {}){
+        this.getProperties().forEach(field => {
+            if(this['_'+field] = undefined){
+                this['_'+field] = {
+                    value: object[field]
+                };
+            }
+        })
+    }
+
+    constructor(){
+        console.log(`COnstructor called for: `,this.getInstanceName());
+    }
+
+    getUUID(){
+        this.cmpInternalId = crypto.randomUUID();
+        return this.cmpInternalId;
     }
 
 }

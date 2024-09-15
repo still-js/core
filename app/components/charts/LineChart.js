@@ -2,7 +2,7 @@ class CLineChart extends ViewComponent {
 
     htmlRefId = 'lineCharPlaceholder';
     template = `
-        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="width:100%">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" (click)="lineChartEvt()" style="width:100%">
             <div class="card">
                 <div class="header">
                     <h2>
@@ -56,6 +56,12 @@ class CLineChart extends ViewComponent {
             </div>
         </div>    
     `;
+
+    lineChartEvt(){
+        //alert('*** Method from LIne chart');
+        console.log(`Calleed this method`);
+        CardDisplay.cardDataSource = ['New', 'Anotehr'];
+    }
 
 }
 

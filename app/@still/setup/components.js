@@ -9,19 +9,24 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
 
         try {
             eval(`${className}`);
-            resolve([])
+            resolve([]);
         } catch (error) {
             
             console.log(`Loading the component for the first time: `,className);
 
             const script = document.createElement('script');
             script.src = `${path}/${className}.js`;
-            document.head.appendChild(script);
+            script.id = new Date().getTime()+''+Math.random();
+            document.head.insertAdjacentElement('beforeend',script);
     
             const lazyLoadCompTimer = setInterval(() => {
                 try{
-                    resolve([]);
-                    clearInterval(lazyLoadCompTimer);
+                    script.addEventListener('load', () => {
+                        if(document.getElementById(script.id)){
+                            setTimeout(() => resolve([]));
+                            clearInterval(lazyLoadCompTimer);
+                        }
+                    });
                 }catch(err){
                     console.error(`Error on lazy loading component: ${className} `, err);
                 }
@@ -71,11 +76,14 @@ class Components {
     template;
     entryComponentPath;
     entryComponentName;
+    /** @type { ViewComponent } */
+    component;
+    componentName;
 
     renderOnViewFor(placeHolder){
         if(this.template instanceof Array)
             this.template = this.template.join('');
-
+        
         document
             .getElementById(placeHolder)
             .innerHTML = this.template;
@@ -92,7 +100,6 @@ class Components {
             const { tagName } = cmp;
             const htmlElm = String(tagName).toLowerCase();
             const { path, name: cmpName } = context.componentMap[htmlElm];
-            console.log(`TAG NAME IS: `,cmpName);
             const content = await loadTemplate(path, cmpName);
             if(cmp){
                 if(!content){
@@ -109,19 +116,136 @@ class Components {
         }
     }
 
-    loadComponent(){
+    async loadComponent(){
         loadComponentFromPath(
             this.entryComponentPath,
             this.entryComponentName
-        ).then(() => {
+        ).then(async () => {
             /**
              * @type { ViewComponent }
              */
             $still.context.currentView = this.init();
             const init = $still.context.currentView;
+            //window[this.entryComponentName] = init;
             this.template = init.template;
             this.renderOnViewFor('appPlaceholder');
         });
+    }
+
+    setComponentAndName(cmp, cmpName){
+        this.component = cmp;
+        this.componentName = cmpName;
+        return this;
+    }
+
+    /** 
+     * @param {ViewComponent} cmp 
+     */    
+    defineSetter = (cmp, field) => {
+
+        cmp.__defineGetter__(field, () => {
+            return { 
+                value: cmp['_'+field],
+                onChange: (callback = function(){}) => {
+                    cmp.subscribers.push(callback);
+                }
+            };
+        });
 
     }
+
+    /** 
+     * @param {ViewComponent} cmp 
+     */
+    parseGetsAndSets(){
+
+        const cmp = this.component;
+        const cmpName = this.componentName;
+
+        cmp.getProperties().forEach(field => {
+            
+            Object.assign(cmp, { ['_'+field]: cmp[field] });
+            Object.assign(cmp, { subscribers: [] });
+
+            this.defineSetter(cmp, field);
+
+            cmp.__defineSetter__(field, (newValue) => {
+                
+                cmp.__defineGetter__(field, () => newValue);
+                cmp['_'+field] = newValue;
+                this.defineSetter(cmp, field);
+                cmp.stOnUpdate();
+
+                setTimeout(() => cmp.subscribers.forEach(
+                    subscriber => subscriber(cmp['_'+field])
+                ));
+            });
+
+        });
+
+        return this;
+    }
+
+    /** @param {ViewComponent} cmp */
+    defineNewInstanceMethod(){
+
+        const cmp = this.component;
+        const cmpName = this.componentName;
+        Object.assign(cmp, {
+            new: (params) => {
+
+                /**  @type {ViewComponent} */
+                let instance;
+                if(params instanceof Object)
+                    instance = this.getNewParsedComponent(eval(`new ${cmpName}({...${JSON.stringify(params)}})`));
+                
+
+                if(params instanceof Array)
+                    instance = this.getNewParsedComponent(eval(`new ${cmpName}([...${JSON.stringify(params)}])`));
+                
+                instance.cmpInternalId = `dynamic-${instance.getUUID()}${cmpName}`;
+                /** TODO: Replace the bellow with the export under componentRegistror */
+                $still.context.componentRegistror.componentList[instance.cmpInternalId] = { instance };
+                
+                if(instance) return instance;
+                
+                return eval(`new ${cmpName}('${params}')`);
+            }
+        });
+        return this;
+    }
+    
+    /**  @param {ViewComponent} cmp */
+    getParsedComponent(cmp){
+
+        const componentName = cmp.getName().replace('C','');
+        window[componentName] = cmp;
+        const parsing = this
+        .setComponentAndName(window[componentName], cmp.getName())
+        .defineNewInstanceMethod();
+
+        setTimeout(() => {
+            parsing.parseGetsAndSets();
+        });
+        
+        return window[componentName];
+
+    }
+    
+    /**  
+     * @param {ViewComponent} cmp 
+     * @returns {ViewComponent}
+     */
+    getNewParsedComponent(cmp){
+
+        this
+        .setComponentAndName(cmp, cmp.getName())
+        .defineNewInstanceMethod()
+        .parseGetsAndSets();
+
+        
+        return cmp;
+
+    }
+
 }

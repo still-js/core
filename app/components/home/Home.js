@@ -22,6 +22,8 @@ class Home extends BaseComponent {
         </div>
     `;
 
+    cardDisplayDS;
+
     constructor(){
         super();
         this.setup({
@@ -40,7 +42,11 @@ class Home extends BaseComponent {
                 'assets/js/bundles/amcharts4/animated.js',
                 'assets/js/pages/index.js',
              ]
-        })
+        });
+
+        CardDisplay.cardDataSource.onChange((value) => {
+            console.log(`Home component detected changes: `,value);
+        });
     }
 
 }

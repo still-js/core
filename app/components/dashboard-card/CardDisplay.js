@@ -37,13 +37,31 @@ const cardDataSource = [
 class CCardDisplay extends ViewComponent {
 
     htmlRefId = 'dashBoardCards';
+    /** @type { StEvent } */
+    cardDataSource = cardDataSource;
 
-    beforeInit(){
-        this.template = cardDataSource.map(
+    updateComponent(){
+        this.template = this.cardDataSource.value.map(
             rec =>  DashboardCard.new(rec.state)
                 .props(rec.props)
                 .getTemplate()
         );
+    }
+
+    beforeInit(){
+        this.template = this.cardDataSource.value.map(
+            rec =>  DashboardCard.new(rec.state)
+                .props(rec.props)
+                .getTemplate()
+        );
+    }
+
+    stOnUpdate(){
+        console.log(`Called Card Display on Update: `, this.cardDataSource);
+    }
+
+    callAlert(){
+        alert('Alert called');
     }
     
     constructor(){

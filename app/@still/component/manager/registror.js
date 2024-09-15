@@ -27,24 +27,7 @@ class ComponentRegistror {
      * @param {ViewComponent} cmp 
      */
     expose(cmp){
-        
-        const componentName = cmp.getName().replace('C','');
-        window[componentName] = cmp;
-        Object.assign(window[componentName], {
-            new: (params) => {
-
-                const cmpName = cmp.getName();
-                if(params instanceof Object)
-                    return eval(`new ${cmpName}({...${JSON.stringify(params)}})`);
-
-                if(params instanceof Array)
-                    return eval(`new ${cmpName}([...${JSON.stringify(params)}])`);
-                
-                return eval(`new ${cmpName}('${params}')`);
-            }
-        });
-        return window[componentName];
-
+        return new Components().getParsedComponent(cmp);
     }
 
     getComponent(name){
@@ -63,7 +46,8 @@ const $still = {
         expose: (cmp) => {
             return ComponentRegistror.get().expose(cmp)
         },
-        list: window
+        list: window,
+        get: (cmpName) => window[cmpName]
     },
     HTTPClient: new StillHTTPClient(),
 }

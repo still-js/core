@@ -2,8 +2,12 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
     
     return new Promise((resolve, reject) => {
 
-        if(className in $still.component.list){
-            resolve({ imported: true });
+        if(
+            className in $still.component.list
+            || className in $still.context.componentRegistror.componentList
+        ){
+            const isRoutable = className in $still.context.componentRegistror.componentList;
+            resolve({ imported: true, isRoutable });
             return false;
         }
 
@@ -80,6 +84,11 @@ class Components {
     component;
     componentName;
 
+    getTopLevelCmpId(){
+        const { TOP_LEVEL_CMP, ANY_COMPONT_LOADED } = $stillconst;
+        return `${TOP_LEVEL_CMP}`;
+    }
+
     renderOnViewFor(placeHolder){
         if(this.template instanceof Array)
             this.template = this.template.join('');
@@ -121,13 +130,14 @@ class Components {
             this.entryComponentPath,
             this.entryComponentName
         ).then(async () => {
+            $still.context.currentView = this.init();
             /**
              * @type { ViewComponent }
              */
-            $still.context.currentView = this.init();
             const init = $still.context.currentView;
-            //window[this.entryComponentName] = init;
-            this.template = init.template;
+            init.setUUID(this.getTopLevelCmpId());
+            const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
+            this.template = init.template.replace('class="',`class="${init.getUUID()} ${loadCmpClass} `);
             this.renderOnViewFor('appPlaceholder');
         });
     }
@@ -242,10 +252,27 @@ class Components {
         .setComponentAndName(cmp, cmp.getName())
         .defineNewInstanceMethod()
         .parseGetsAndSets();
-
         
         return cmp;
 
+    }
+
+    static unloadLoadedComponent(){
+        return new Promise((resolve) => {
+
+            const { ANY_COMPONT_LOADED } = $stillconst;
+            /**
+             * @type { Array<HTMLElement|ViewComponent> }
+             */
+            const cmps = document.querySelectorAll(`.${ANY_COMPONT_LOADED}`);
+            for(const cmp of cmps) cmp.style.display = 'none';
+            resolve([]);
+
+        })
+    }
+
+    static reloadedComponent(elmRef){
+        document.querySelector(`.${elmRef}`).style.display = 'block';
     }
 
 }

@@ -2,9 +2,9 @@ class ClientsGrid extends ViewComponent {
 
     htmlRefId = 'clientDataTable';
     template = `
-        <p>&nbsp;</p>
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <button (click)="runLocalFunc()">Click here Button</button>
                 <div class="card">
                     <div class="header">
                         <h2>
@@ -488,9 +488,16 @@ class ClientsGrid extends ViewComponent {
          * Isso quer dizer que o import do JQuery foi feito no index principal
          * ou no ficheiro de rotas em eagerImport
          */
-        $('.js-basic-example').DataTable({
-            responsive: true
+        this.stRunOnFirstLoad(() => {
+            $('.js-basic-example').DataTable({
+                responsive: true
+            });
         });
+    }
+
+    anyState = 'This is the state value';
+    runLocalFunc(){
+        alert('Alert from the components itself'+this.anyState);
     }
     
 

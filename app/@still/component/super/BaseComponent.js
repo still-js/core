@@ -28,7 +28,9 @@ class BaseComponent {
     componentName;
     template;
     cmpProps = [];
-    cmpInternalId;
+    cmpInternalId = null;
+    routableCmp = null;
+    $stillLoadCounter = 0;
 
 
     /**
@@ -42,9 +44,19 @@ class BaseComponent {
 
     stOnUpdate(){}
 
+    reRender(){}
+
     props(props = {}){
         this.cmpProps = props;
         return this;
+    }
+
+    setRoutableCmp(flag){
+        this.routableCmp = true;
+    }
+
+    getRoutableCmp(){
+        return this.routableCmp;
     }
 
     getName(){
@@ -58,7 +70,11 @@ class BaseComponent {
     getProperties(){
 
         const fields = Object.getOwnPropertyNames(this);
-        const excludingFields = ['settings', 'componentName', 'template', 'cmpProps','htmlRefId','new','cmpInternalId'];
+        const excludingFields = [
+            'settings', 'componentName', 'template', 
+            'cmpProps','htmlRefId','new','cmpInternalId',
+            'routableCmp', '$stillLoadCounter'
+        ];
         return fields.filter(field => !excludingFields.includes(field));
 
     }
@@ -79,7 +95,7 @@ class BaseComponent {
          * referenced place
          */
         fields.forEach(field => {
-            tamplateWithState = tamplateWithState.replace(`@${field}`,currentClass[field].value);
+            tamplateWithState = tamplateWithState.replace(`@${field}`,currentClass[field]?.value);
         });
         return tamplateWithState;
     }
@@ -105,7 +121,11 @@ class BaseComponent {
             if(this.cmpInternalId.indexOf('dynamic-') == 0)
                 cmd = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
         }else{
-            cmd = `$still.component.get('${this.getInstanceName()}')`;
+
+            if(this.getRoutableCmp())
+                cmd = `$still.context.componentRegistror.getComponent('${this.getName()}')`;
+            else
+                cmd = `$still.component.get('${this.getInstanceName()}')`;
         }
 
         //const classInstance = `$still.context.componentRegistror.getComponent('${cmpRef}')`;
@@ -115,6 +135,12 @@ class BaseComponent {
         );
 
         return template;
+    }
+
+    incrementLoadCounter(){
+        setTimeout(() => {
+            this.$stillLoadCounter = this.$stillLoadCounter + 1;
+        },1000);
     }
 
     /**
@@ -137,10 +163,12 @@ class BaseComponent {
     }
 
     render(){
+        this.incrementLoadCounter();
         document.write(this.getBoundTemplate());
     }
 
     getTemplate(){
+        this.incrementLoadCounter();
         return this.getBoundTemplate();
     }
 
@@ -222,9 +250,43 @@ class BaseComponent {
         console.log(`COnstructor called for: `,this.getInstanceName());
     }
 
+    setUUID(hash){
+        this.cmpInternalId = hash;
+    }
+
     getUUID(){
-        this.cmpInternalId = crypto.randomUUID();
+        if(!this.cmpInternalId)
+            this.cmpInternalId = '_cmp'+crypto.randomUUID();
         return this.cmpInternalId;
+    }
+
+    reRender(){
+
+        const settings = this.settings;
+        new Promise((resolve) => {
+
+            setTimeout(() => {
+                if(settings.includs){
+                    settings.includs.forEach((/** @type {ViewComponent} */cmp) => cmp.render());
+                    resolve(null);
+                }else{
+                    resolve(null);
+                }
+            });
+            
+            }).then(() => {
+                if(settings.scripts) settings.scripts.forEach(this.importScript);
+            });
+    }
+
+    wasItLoadedBefor(){
+        return ComponentRegistror.previousLoaded(this);
+    }
+
+    stRunOnFirstLoad(cb = () => {}){
+        if(this.wasItLoadedBefor() && this.$stillLoadCounter)
+            return false;
+        cb();
     }
 
 }

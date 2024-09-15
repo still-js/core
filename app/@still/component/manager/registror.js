@@ -33,6 +33,20 @@ class ComponentRegistror {
     getComponent(name){
         return this.componentList[name].instance;
     }
+
+
+    /**
+     * @param { ViewComponent } cmp
+     */
+    static previousLoaded(cmp){
+        let cmpName;
+        if(cmp.getRoutableCmp())
+            cmpName = cmp.getName();
+        else
+            cmpName = cmp.getInstanceName();
+
+        return cmpName in $still.context.componentRegistror.componentList;
+    }
 }
 
 const $still = {

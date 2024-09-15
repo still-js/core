@@ -37,16 +37,17 @@ class ViewComponent extends BaseComponent {
         document
             .getElementById(placeHolder)
             .innerHTML = this.getBoundTemplate();
+        this.incrementLoadCounter();
     }
 
     getTemplate(){
         this.beforeInit();
         //this.prepareRender();
-        console.log(`${this.constructor.name}`);
-        if(this.template instanceof Array)
-            this.template = this.template.join('');
+        const template = this.getBoundTemplate();   
+        const cmpUnicClass = this.getUUID();
+        const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
 
-        return this.template;
+        return template.replace("class=\"",`class="${cmpUnicClass} ${loadCmpClass} `);
     }
 
     render(){

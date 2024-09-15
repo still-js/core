@@ -57,6 +57,7 @@ class CLineChart extends ViewComponent {
         </div>    
     `;
 
+    anyField = '';
     lineChartEvt(){
         //alert('*** Method from LIne chart');
         console.log(`Calleed this method`);

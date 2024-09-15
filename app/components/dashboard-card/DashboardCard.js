@@ -26,11 +26,29 @@ class CDashboardCard extends BaseComponent {
         this.mainLabel = mainLabel;
         this.statusValue = statusValue;
         this.score = score;
+
+        this.stAfterAppInit(() => {
+
+            LineChart.onChange((newState) => {
+                console.log(`LineChart did change and new values are: `, newState);
+                this.score = newState.anyField;
+            });
+
+        });
+
     }
 
     callAlert(){
         //this.mainLabel = 'new value';
         console.log(`The main label is: `,this.mainLabel);
+    }
+
+    stOnUpdate(){
+        console.log(`UPDATE ON COMPONENT WITH: `,{
+            mainLabel: this.mainLabel,
+            statusValue: this.statusValue,
+            score: this.score,
+        });
     }
 
 }

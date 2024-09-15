@@ -155,9 +155,9 @@ class Components {
 
         cmp.__defineGetter__(field, () => {
             return { 
-                value: cmp['_'+field],
+                value: cmp['$still_'+field],
                 onChange: (callback = function(){}) => {
-                    cmp.subscribers.push(callback);
+                    cmp[`$still${field}Subscribers`].push(callback);
                 }
             };
         });
@@ -167,32 +167,56 @@ class Components {
     /** 
      * @param {ViewComponent} cmp 
      */
-    parseGetsAndSets(){
+    parseClassObserver(){
 
+        const cmp = this.component;
+        const cmpName = this.componentName;
+
+        Object.assign(cmp, {
+            subcribers: [],
+            onChange: (callback = () => {}) => {
+                cmp[`$still${field}Subscribers`].push(callback);
+            }
+        });
+
+        return this;
+    }
+
+    /** 
+     * @param {ViewComponent} cmp 
+     */
+    parseGetsAndSets(){
+        /** @type { ViewComponent } */
         const cmp = this.component;
         const cmpName = this.componentName;
 
         cmp.getProperties().forEach(field => {
             
-            Object.assign(cmp, { ['_'+field]: cmp[field] });
-            Object.assign(cmp, { subscribers: [] });
-
+            Object.assign(cmp, { ['$still_'+field]: cmp[field] });
+            Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
             this.defineSetter(cmp, field);
 
             cmp.__defineSetter__(field, (newValue) => {
                 
                 cmp.__defineGetter__(field, () => newValue);
-                cmp['_'+field] = newValue;
+                cmp['$still_'+field] = newValue;
                 this.defineSetter(cmp, field);
                 cmp.stOnUpdate();
 
-                setTimeout(() => cmp.subscribers.forEach(
-                    subscriber => subscriber(cmp['_'+field])
-                ));
+                if(cmp[`$still${field}Subscribers`].length > 0){
+                    setTimeout(() => cmp[`$still${field}Subscribers`].forEach(
+                        subscriber => subscriber(cmp['$still_'+field])
+                    ));
+                }
+
+                if(cmp.$stillClassLvlSubscribers.length > 0){
+                    setTimeout(() => {
+                        cmp.notifySubscribers(cmp.getStateValues());
+                    });
+                }
+
             });
-
         });
-
         return this;
     }
 
@@ -208,7 +232,6 @@ class Components {
                 let instance;
                 if(params instanceof Object)
                     instance = this.getNewParsedComponent(eval(`new ${cmpName}({...${JSON.stringify(params)}})`));
-                
 
                 if(params instanceof Array)
                     instance = this.getNewParsedComponent(eval(`new ${cmpName}([...${JSON.stringify(params)}])`));

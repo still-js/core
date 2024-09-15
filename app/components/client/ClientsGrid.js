@@ -495,6 +495,7 @@ class ClientsGrid extends ViewComponent {
         });
     }
 
+    /** @type { StEvent } */
     anyState = 'This is the state value';
     runLocalFunc(){
         alert('Alert from the components itself'+this.anyState);

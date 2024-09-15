@@ -11,14 +11,16 @@ class SettingType {
 class StEvent {
     value;
     onChange(callback){}
-    subscribers
+    //_subscribers;
+    //get subscribers(){}
+    //set subscribers(v){}
 
     constructor(value){
         this.value = value;
     }
 }
 
-class BaseComponent {
+class BaseComponent extends BehaviorComponent {
 
 
     /**
@@ -73,12 +75,23 @@ class BaseComponent {
         const excludingFields = [
             'settings', 'componentName', 'template', 
             'cmpProps','htmlRefId','new','cmpInternalId',
-            'routableCmp', '$stillLoadCounter'
+            'routableCmp', '$stillLoadCounter', 'subscribers'
         ];
-        return fields.filter(field => !excludingFields.includes(field));
+        return fields.filter(
+            field => !excludingFields.includes(field) && !field.startsWith('$still')
+        );
 
     }
     
+    getStateValues(){
+        const result = {};
+        const fields = this.getProperties();
+        for(const field of fields){
+            result[field] = this['$still_'+field];
+        }
+        return result;
+    }
+
     getBoundState(){
         
         const fields = this.getProperties();
@@ -247,7 +260,7 @@ class BaseComponent {
     }
 
     constructor(){
-        console.log(`COnstructor called for: `,this.getInstanceName());
+        super();
     }
 
     setUUID(hash){
@@ -287,6 +300,17 @@ class BaseComponent {
         if(this.wasItLoadedBefor() && this.$stillLoadCounter)
             return false;
         cb();
+    }
+
+    stAfterAppInit(cb = () => {}){
+        const timer = setTimeout(() => {
+
+            try {
+                cb();
+                clearTimeout(timer);
+            } catch (error) {}
+
+        },1000);
     }
 
 }

@@ -22,6 +22,7 @@ class Router {
                      * @type { ViewComponent }
                      */
                     const newInstance = eval(`new ${cmp}()`);
+                    Router.parseComponent(newInstance);
                     newInstance.setRoutableCmp(true);
                     if(isHomeCmp)
                         newInstance.setUUID($stillconst.TOP_LEVEL_CMP);
@@ -35,15 +36,22 @@ class Router {
                         $still.context.currentView = cmpRegistror[cmp].instance;
                     }
                 }
-    
                 Router.getAndDisplayPage($still.context.currentView, imported);
             });
-
         }
-
 
     }
 
+    /**
+     * 1. Add new method for dynamic instantiation
+     * 2. Add getter and setters for the components fields
+     * @param { ViewComponent } cmp
+     */
+    static parseComponent(cmp){
+        setTimeout(() => {
+            (new Components).getNewParsedComponent(cmp);
+        });
+    }
 
     /**
      * the bellow line clears previous component from memory
@@ -75,8 +83,5 @@ class Router {
                 },100);
             });
         }
-
-
     }
-
 }

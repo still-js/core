@@ -12,4 +12,10 @@ class BehaviorComponent {
         );
     }
 
+    onValueInput(field, value, inpt = null){
+        this[field] = value;
+    }
+
+    changeState(input, value){}
+
 }

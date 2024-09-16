@@ -1,5 +1,9 @@
 class ClientForm extends ViewComponent {
 
+    nome = 'Nakassony Bernardo';
+    sobrenome;
+    nif;
+
     template = `
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -54,7 +58,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">person</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Sobre nome">
+                                            <input type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
                                         </div>
                                     </div>
                                 </div>
@@ -64,7 +68,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">group</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Sobrenome">
+                                            <input type="text" class="form-control date" (value)="sobrenome" placeholder="Sobrenome">
                                         </div>
                                     </div>
                                 </div>
@@ -86,7 +90,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">receipt</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="NIF">
+                                            <input type="text" class="form-control date" (value)="nif" placeholder="NIF">
                                         </div>
                                     </div>
                                 </div>
@@ -227,6 +231,4 @@ class ClientForm extends ViewComponent {
             ],
         });
     }
-    
-
 }

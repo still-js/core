@@ -23,18 +23,13 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             script.id = new Date().getTime()+''+Math.random();
             document.head.insertAdjacentElement('beforeend',script);
     
-            const lazyLoadCompTimer = setInterval(() => {
-                try{
-                    script.addEventListener('load', () => {
-                        if(document.getElementById(script.id)){
-                            setTimeout(() => resolve([]));
-                            clearInterval(lazyLoadCompTimer);
-                        }
-                    });
-                }catch(err){
-                    console.error(`Error on lazy loading component: ${className} `, err);
+            script.addEventListener('load', () => {
+                if(document.getElementById(script.id)){
+                    setTimeout(() => resolve([]));
+                    clearInterval(lazyLoadCompTimer);
                 }
-            }, 500);
+            });
+            
 
         }
 

@@ -493,6 +493,10 @@ class ClientsGrid extends ViewComponent {
                 responsive: true
             });
         });
+
+        $still.context.componentRegistror.getComponent('ClientForm').onChange((newState) => {
+            console.log(`Client component changed: `,newState);
+        });
     }
 
     /** @type { StEvent } */

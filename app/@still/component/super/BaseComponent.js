@@ -33,6 +33,7 @@ class BaseComponent extends BehaviorComponent {
     cmpInternalId = null;
     routableCmp = null;
     $stillLoadCounter = 0;
+    $stillIsThereForm = null;
 
 
     /**
@@ -75,7 +76,8 @@ class BaseComponent extends BehaviorComponent {
         const excludingFields = [
             'settings', 'componentName', 'template', 
             'cmpProps','htmlRefId','new','cmpInternalId',
-            'routableCmp', '$stillLoadCounter', 'subscribers'
+            'routableCmp', '$stillLoadCounter', 'subscribers',
+            '$stillIsThereForm'
         ];
         return fields.filter(
             field => !excludingFields.includes(field) && !field.startsWith('$still')
@@ -90,6 +92,28 @@ class BaseComponent extends BehaviorComponent {
             result[field] = this['$still_'+field];
         }
         return result;
+    }
+
+    getClassPath(){
+        let path;
+        if(this.cmpInternalId){
+            /** If component was generated dynamically in a loop */
+            if(this.cmpInternalId.indexOf('dynamic-') == 0)
+                path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
+        }else{
+
+            if(this.getRoutableCmp())
+                path = `$still.context.componentRegistror.getComponent('${this.getName()}')`;
+            else
+                path = `$still.component.get('${this.getInstanceName()}')`;
+        }
+        return path;
+    }
+
+    isThereAForm(){
+        if(!this.$stillIsThereForm)
+            this.$stillIsThereForm = this.template.indexOf('<form') >= 0;
+        return this.$stillIsThereForm;
     }
 
     getBoundState(){
@@ -109,6 +133,7 @@ class BaseComponent extends BehaviorComponent {
          */
         fields.forEach(field => {
             tamplateWithState = tamplateWithState.replace(`@${field}`,currentClass[field]?.value);
+            tamplateWithState = this.getBoundInputForm(tamplateWithState, field);
         });
         return tamplateWithState;
     }
@@ -129,25 +154,33 @@ class BaseComponent extends BehaviorComponent {
         /**
          * Bind (click) event to the UI
          */
-        let cmd;
-        if(this.cmpInternalId){
-            if(this.cmpInternalId.indexOf('dynamic-') == 0)
-                cmd = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
-        }else{
-
-            if(this.getRoutableCmp())
-                cmd = `$still.context.componentRegistror.getComponent('${this.getName()}')`;
-            else
-                cmd = `$still.component.get('${this.getInstanceName()}')`;
-        }
-
-        //const classInstance = `$still.context.componentRegistror.getComponent('${cmpRef}')`;
+        let cmd = this.getClassPath();
         template = template.replaceAll(
             /\(click\)\=\"/gi,
             `onclick="${cmd}.`
         );
 
         return template;
+    }
+
+    getBoundInputForm(template, field, value){
+        /**
+         * Bind (value) on the input form
+         */
+
+        if(this.isThereAForm()){
+
+            const clsPath = this.getClassPath();
+
+            template = template.replaceAll(
+                `(value)="${field}"`,
+                `value="${this[field]}" onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
+            );
+
+        }
+
+        return template;
+
     }
 
     incrementLoadCounter(){
@@ -161,9 +194,10 @@ class BaseComponent extends BehaviorComponent {
      */
     getBoundTemplate(){
 
+        console.time('tamplateBindFor'+this.getName());
         /**
          * Bind the component state and return it (template)
-         * NOTE: Needs to be alwas the first to be called
+         * NOTE: Needs to be always the first to be called
          */
         let template = this.getBoundState();
 
@@ -171,6 +205,8 @@ class BaseComponent extends BehaviorComponent {
         template = this.getBoundProps(template);
         /** Bind the click to the template and return */
         template = this.getBoundClick(template);
+
+        console.timeEnd('tamplateBindFor'+this.getName());
 
         return template;
     }

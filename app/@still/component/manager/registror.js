@@ -1,3 +1,16 @@
+class ComponentNotFoundException extends Error {
+    name = 'ComponentNotFoundException';
+    constructor(cmpName){
+        super();
+        this.message = JSON.stringify({
+            message: `Component with name ${cmpName} no found`,
+            component: cmpName
+        });
+    }
+}
+
+
+
 class ComponentRegistror {
 
     componentList = {};
@@ -31,6 +44,9 @@ class ComponentRegistror {
     }
 
     getComponent(name){
+        if(!(name in this.componentList)){
+            throw new ComponentNotFoundException(name);    
+        }
         return this.componentList[name].instance;
     }
 
@@ -62,6 +78,12 @@ const $still = {
         },
         list: window,
         get: (cmpName) => window[cmpName]
+    },
+    view: {
+        /** @type { ViewComponent } */
+        get: (viewComponentName) => {
+            return ComponentRegistror.get().getComponent(viewComponentName);
+        }
     },
     HTTPClient: new StillHTTPClient(),
 }

@@ -34,6 +34,7 @@ class BaseComponent extends BehaviorComponent {
     routableCmp = null;
     $stillLoadCounter = 0;
     $stillIsThereForm = null;
+    $stillpfx = $stillconst.STILL_PREFIX;
 
 
     /**
@@ -43,7 +44,7 @@ class BaseComponent extends BehaviorComponent {
      */
     new(params){}
 
-    onRender(){}
+    async onRender(){}
 
     stOnUpdate(){}
 
@@ -77,10 +78,10 @@ class BaseComponent extends BehaviorComponent {
             'settings', 'componentName', 'template', 
             'cmpProps','htmlRefId','new','cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
-            '$stillIsThereForm'
+            '$stillIsThereForm','$stillpfx'
         ];
         return fields.filter(
-            field => !excludingFields.includes(field) && !field.startsWith('$still')
+            field => !excludingFields.includes(field) && !field.startsWith(this.$stillpfx)
         );
 
     }
@@ -89,16 +90,17 @@ class BaseComponent extends BehaviorComponent {
         const result = {};
         const fields = this.getProperties();
         for(const field of fields){
-            result[field] = this['$still_'+field];
+            result[field] = this[this.$stillpfx+'_'+field];
         }
-        return result;
+        return this;
     }
 
     getClassPath(){
         let path;
         if(this.cmpInternalId){
             /** If component was generated dynamically in a loop */
-            if(this.cmpInternalId.indexOf('dynamic-') == 0)
+            const dynamic = $stillconst.DYNAMIC_CMP_PREFIX;
+            if(this.cmpInternalId.indexOf(dynamic) == 0)
                 path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
         }else{
 
@@ -111,8 +113,10 @@ class BaseComponent extends BehaviorComponent {
     }
 
     isThereAForm(){
-        if(!this.$stillIsThereForm)
-            this.$stillIsThereForm = this.template.indexOf('<form') >= 0;
+        if(!this.$stillIsThereForm){
+            const form = $stillconst.CMP_FORM_PREFIX
+            this.$stillIsThereForm = this.template.indexOf(form) >= 0;
+        }
         return this.$stillIsThereForm;
     }
 
@@ -169,12 +173,12 @@ class BaseComponent extends BehaviorComponent {
          */
 
         if(this.isThereAForm()){
-
+            const emptyField = '';
             const clsPath = this.getClassPath();
 
             template = template.replaceAll(
                 `(value)="${field}"`,
-                `value="${this[field]}" onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
+                `value="${this[field] || emptyField}" onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
             );
 
         }
@@ -216,7 +220,7 @@ class BaseComponent extends BehaviorComponent {
         document.write(this.getBoundTemplate());
     }
 
-    getTemplate(){
+    getTemplate(count = true){
         this.incrementLoadCounter();
         return this.getBoundTemplate();
     }
@@ -338,6 +342,41 @@ class BaseComponent extends BehaviorComponent {
         cb();
     }
 
+    async stLazyExecution(cb = () => {}){
+
+        const multiplier = 1000;
+        let backoffFactor = 1000;
+        let retryCounter = 2;
+
+        const timer = setInterval(async () => {
+
+            try {
+                await cb();
+                clearInterval(timer);
+            } catch (error) {
+                if(error instanceof ComponentNotFoundException){
+    
+                    if(retryCounter < 8) retryCounter++
+                    const content = JSON.parse(error.message);
+                    const path = $stillGetRouteMap().route[content.component];
+                    console.log(`Path is: `, path, 'and compo is: ',content.component);
+                    const script = $stillLoadScript(path, content.component);
+                    document.head.insertAdjacentElement('beforeend',script);
+                    script.onload = function(){
+                        const registror = $still.context.componentRegistror.componentList;
+                        const instance = eval(`new ${content.component}()`);
+                        if(!(instance in registror))
+                            registror[content.component] = { instance };
+                    }
+                    await sleepForSec(multiplier * retryCounter);
+    
+                }
+            }
+
+        }, 500);
+
+    }
+
     stAfterAppInit(cb = () => {}){
         const timer = setTimeout(() => {
 
@@ -348,5 +387,7 @@ class BaseComponent extends BehaviorComponent {
 
         },1000);
     }
+
+    sfAfterInit(){}
 
 }

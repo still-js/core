@@ -483,7 +483,15 @@ class ClientsGrid extends ViewComponent {
         this.setup({});
     }
 
-    onRender(){
+    async onRender(){
+
+        $still
+            .HTTPClient
+            .get('http://localhost:3000/api/v1/cliente/')
+            .then((r) => {
+                console.log(`API CALL RESULT: `, r);
+            });
+
         /**
          * Isso quer dizer que o import do JQuery foi feito no index principal
          * ou no ficheiro de rotas em eagerImport
@@ -494,10 +502,27 @@ class ClientsGrid extends ViewComponent {
             });
         });
 
-        $still.context.componentRegistror.getComponent('ClientForm').onChange((newState) => {
-            console.log(`Client component changed: `,newState);
+        await this.stLazyExecution(async () => {
+            
+            /** @type { ClientForm } */
+            const clientFormView = $still.view.get('ClientForm');
+            const moreView = $still.view.get('MorCompo');
+
+            clientFormView.onChange((newState) => {
+                console.log(`Client grid detectou mudança no client form: `,newState);
+            });
+
+            moreView.onChange((newState) => {
+                console.log(`Client grid detectou mudança no client form: `,newState);
+            });
         });
+
+        /* $still.context.componentRegistror.getComponent('ClientForm').sobrenome.onChange((newState) => {
+            console.log(`Client grid detectou mudança no client form: `,newState);
+        }); */
     }
+
+    stAfterInit(){}
 
     /** @type { StEvent } */
     anyState = 'This is the state value';

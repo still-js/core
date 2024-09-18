@@ -2,7 +2,7 @@ class Router {
 
     static goto(cmp){
 
-        const routeInstance = getRouteMap()
+        const routeInstance = $stillGetRouteMap()
         const route = routeInstance.route[cmp];
 
         const cmpRegistror = $still.context.componentRegistror.componentList;
@@ -65,22 +65,27 @@ class Router {
         if(isReRender){
             Components
             .unloadLoadedComponent()
-            .then(() => {
+            .then(async () => {
                 Components.reloadedComponent(componentInstance.getUUID());
-                componentInstance.onRender();
+                await componentInstance.onRender();
+                componentInstance.sfAfterInit();
             });
             
         }else{
             Components
             .unloadLoadedComponent()
-            .then(() => {
+            .then(async () => {
                 //appPlaceholder.innerHTML = ''
                 const pageContent = componentInstance.getTemplate();
                 appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
-                componentInstance.onRender();
+                await componentInstance.onRender();
                 setTimeout(() => {
                     componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;
                 },100);
+                setTimeout(() => {
+                    componentInstance.sfAfterInit();
+                },300);
+
             });
         }
     }

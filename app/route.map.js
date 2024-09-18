@@ -3,10 +3,15 @@
  */
 const routesMap = {
     viewRoutes: {
-        ClientForm: 'components/client',
-        Home: 'components/home',
-        ClientsGrid: 'components/client'
-    }
+        regular:{
+            ClientForm: 'components/client',
+            Home: 'components/home',
+            ClientsGrid: 'components/client',
+        },
+        lazyInitial: {
+            MorCompo: 'components/client',
+        }
+    },
 }
 
 
@@ -48,9 +53,10 @@ const routesMap = {
 
 
 let routeMapInverse = [];
-function getRouteMap(){
+function $stillGetRouteMap(){
 
     if(!routeMapInverse.length){
+        
         routeMapInverse = Object
             .entries(routesMap.viewRoutes)
             .reduce((accum, [cmp, path]) => {
@@ -60,7 +66,10 @@ function getRouteMap(){
     }
 
     return {
-        route: routesMap.viewRoutes,
+        route: {
+            ...routesMap.viewRoutes.regular, 
+            ...routesMap.viewRoutes.lazyInitial 
+        },
         inverse: routeMapInverse
     }
 }

@@ -11,7 +11,7 @@ class ComponentSetup extends Components {
         return ComponentSetup.instance;
     }
 
-    entryComponentPath = routesMap.viewRoutes.Home;
+    entryComponentPath = routesMap.viewRoutes.regular.Home;
     entryComponentName = 'Home';
     
     constructor(){

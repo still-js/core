@@ -1,3 +1,12 @@
+const $stillLoadScript = (path, className) => {
+
+    const script = document.createElement('script');
+    script.src = `${path}/${className}.js`;
+    script.id = script.src;
+    return script;
+
+}
+
 const loadComponentFromPath = (path, className, callback = () => {}) => {
     
     return new Promise((resolve, reject) => {
@@ -16,21 +25,15 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             resolve([]);
         } catch (error) {
             
-            console.log(`Loading the component for the first time: `,className);
-
-            const script = document.createElement('script');
-            script.src = `${path}/${className}.js`;
-            script.id = new Date().getTime()+''+Math.random();
+            const script = $stillLoadScript(path, className);
             document.head.insertAdjacentElement('beforeend',script);
     
             script.addEventListener('load', () => {
                 if(document.getElementById(script.id)){
                     setTimeout(() => resolve([]));
-                    clearInterval(lazyLoadCompTimer);
                 }
             });
-            
-
+         
         }
 
     });
@@ -187,7 +190,7 @@ class Components {
 
         cmp.getProperties().forEach(field => {
             
-            Object.assign(cmp, { ['$still_'+field]: cmp[field] });
+            Object.assign(cmp, { ['$still_'+field]: cmp[field] || '' });
             Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
             this.defineSetter(cmp, field);
 

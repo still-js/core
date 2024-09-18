@@ -37,6 +37,16 @@ class CCalendar extends ViewComponent {
     </div>
     `;
 
+
+    constructor(){
+        super();
+
+        BarChart.onChange((newState) => {
+            console.log(`New state do Bar chart: `, newState.qualquerProp.value);
+        });
+
+    }
+
 }
 
 /** @type { CCalendar } */

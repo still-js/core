@@ -68,6 +68,7 @@ class CCardDisplay extends ViewComponent {
         super();
         //this.renderOnViewFor('dashBoardCards');
     }
+    
 
 }
 

@@ -44,9 +44,9 @@ class Home extends BaseComponent {
              ]
         });
 
-        CardDisplay.cardDataSource.onChange((value) => {
+        /* CardDisplay.cardDataSource.onChange((value) => {
             console.log(`Home component detected changes: `,value);
-        });
+        }); */
     }
 
 }

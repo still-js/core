@@ -1,35 +1,16 @@
 'use strict';
 $(function () {
-    //Horizontal form basic
-    $('#wizard_horizontal').steps({
-        headerTag: 'h2',
-        bodyTag: 'section',
-        transitionEffect: 'slideLeft',
-        onInit: function (event, currentIndex) {
-            setButtonWavesEffect(event);
-        },
-        onStepChanged: function (event, currentIndex, priorIndex) {
-            setButtonWavesEffect(event);
-        }
-    });
-
-    //Vertical form basic
-    $('#wizard_vertical').steps({
-        headerTag: 'h2',
-        bodyTag: 'section',
-        transitionEffect: 'slideLeft',
-        stepsOrientation: 'vertical',
-        onInit: function (event, currentIndex) {
-            setButtonWavesEffect(event);
-        },
-        onStepChanged: function (event, currentIndex, priorIndex) {
-            setButtonWavesEffect(event);
-        }
-    });
 
     //Advanced form with validation
     var form = $('#wizard_with_validation').show();
     form.steps({
+        showFinishButtonAlways: false,
+        enableFinishButton: false,
+        labels: {
+            finish: "Submeter",
+            next: "Próximo",
+            previous: "Voltar",
+         },
         headerTag: 'h3',
         bodyTag: 'fieldset',
         transitionEffect: 'slideLeft',
@@ -51,22 +32,22 @@ $(function () {
                 form.find('.body:eq(' + newIndex + ') .error').removeClass('error');
             }
 
-            form.validate().settings.ignore = ':disabled,:hidden';
-            return form.valid();
+            //form.validate().settings.ignore = ':disabled,:hidden';
+            return form//.valid();
         },
         onStepChanged: function (event, currentIndex, priorIndex) {
             setButtonWavesEffect(event);
         },
         onFinishing: function (event, currentIndex) {
-            form.validate().settings.ignore = ':disabled';
-            return form.valid();
+            //form.validate().settings.ignore = ':disabled';
+            return form//.valid();
         },
         onFinished: function (event, currentIndex) {
             swal("Good job!", "Submitted!", "success");
         }
     });
 
-    form.validate({
+    /* form.validate({
         highlight: function (input) {
             $(input).parents('.form-line').addClass('error');
         },
@@ -81,7 +62,7 @@ $(function () {
                 equalTo: '#password'
             }
         }
-    });
+    }); */
 });
 
 function setButtonWavesEffect(event) {

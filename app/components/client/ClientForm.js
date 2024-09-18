@@ -3,6 +3,12 @@ class ClientForm extends ViewComponent {
     nome = 'Nakassony Bernardo';
     sobrenome;
     nif;
+    endereco = 'FIeldstone Dr.';
+    pessoaContacto;
+    telefone;
+    email;
+    contactoCobranca;
+    clientNota;
 
     template = `
     <div class="row clearfix">
@@ -31,7 +37,7 @@ class ClientForm extends ViewComponent {
                     </ul>
                 </div>
                 <div class="body">
-                    <form id="wizard_with_validation" method="POST">
+                    <form id="wizard_with_validation" onsubmit="javascript: return false;">
                         <h3>Dados Pessoais</h3>
                         <fieldset>
 
@@ -80,7 +86,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">location_city</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Endereço">
+                                            <input type="text" class="form-control date" (value)="endereco" placeholder="Endereço">
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +106,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">person_outline</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Pessoa de Contacto">
+                                            <input type="text" class="form-control date" (value)="pessoaContacto" placeholder="Pessoa de Contacto">
                                         </div>
                                     </div>
                                 </div>
@@ -129,7 +135,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">phone</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Telefone">
+                                            <input type="text" class="form-control date" (value)="telefone" placeholder="Telefone">
                                         </div>
                                     </div>
                                 </div>
@@ -139,7 +145,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">email</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Email">
+                                            <input type="text" class="form-control date" (value)="email" placeholder="Email">
                                         </div>
                                     </div>
                                 </div>
@@ -149,7 +155,7 @@ class ClientForm extends ViewComponent {
                                             <i class="material-icons">contact_phone</i>
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="Contacto para cobrança">
+                                            <input type="text" class="form-control date" (value)="contactoCobranca" placeholder="Contacto para cobrança">
                                         </div>
                                     </div>
                                 </div>
@@ -202,7 +208,9 @@ class ClientForm extends ViewComponent {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+
+                                <button (click)="registerClient()">Submeter</button>
+
                             </div>
                         </fieldset>
                     </form>
@@ -231,4 +239,36 @@ class ClientForm extends ViewComponent {
             ],
         });
     }
+
+
+    registerClient(){
+
+        const payload = {
+            "denominacao": this.nome.value,
+            "tipo_id": 1,
+            "nif":this.nif.value,
+            "endereco":this.endereco.value,
+            "pessoa_contacto":this.pessoaContacto.value,
+            "contacto_cobranca":this.contactoCobranca.value,
+            "nota":this.clientNota.value,
+            "status":"pending"
+        }
+
+        $still.HTTPClient.post(
+            'http://localhost:3000/api/v1/cliente',
+            JSON.stringify(payload),
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then((r) => {
+            console.log(`Cliente criado com sucesso: `,r.data);
+        }).catch((err) => {
+            console.log(`Erro ao cadastrar cliente: `,err);
+        });
+
+        //console.log(this.getStateValues());
+    }
+
 }

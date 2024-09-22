@@ -15,6 +15,8 @@ class ViewComponent extends BaseComponent {
 
     beforeInit(){}
 
+    stAfterInit(){}
+
     renderViewOn(placeHolder){
 
         this.prepareRender();
@@ -41,7 +43,7 @@ class ViewComponent extends BaseComponent {
     }
 
     getTemplate(){
-        this.beforeInit();
+        this.beforeInit(); 
         //this.prepareRender();
         const template = this.getBoundTemplate();   
         const cmpUnicClass = this.getUUID();

@@ -22,6 +22,7 @@ class Router {
                      * @type { ViewComponent }
                      */
                     const newInstance = eval(`new ${cmp}()`);
+                    newInstance.isRoutable = true;
                     Router.parseComponent(newInstance);
                     newInstance.setRoutableCmp(true);
                     if(isHomeCmp)
@@ -61,32 +62,62 @@ class Router {
 
         const appCntrId = 'appPlaceholder';
         const appPlaceholder = document.getElementById(appCntrId);
+        const cmpId = componentInstance.getUUID();
         
         if(isReRender){
             Components
             .unloadLoadedComponent()
             .then(async () => {
-                Components.reloadedComponent(componentInstance.getUUID());
-                await componentInstance.onRender();
-                componentInstance.sfAfterInit();
+                
+                if(componentInstance.subImported){
+
+                    const pageContent = `
+                        <output id="${cmpId}-check" style="display:contents;">
+                            ${componentInstance.getTemplate()}
+                        </output>`;
+                    appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
+                    componentInstance.subImported = false;
+                    await componentInstance.onRender();
+                    componentInstance.sfAfterInit();
+
+                }else{
+
+                    Components.reloadedComponent(componentInstance.getUUID());
+                    await componentInstance.onRender();
+                    componentInstance.sfAfterInit();
+
+                }
             });
             
         }else{
             Components
             .unloadLoadedComponent()
             .then(async () => {
-                //appPlaceholder.innerHTML = ''
-                const pageContent = componentInstance.getTemplate();
+                const pageContent = `
+                    <output id="${cmpId}-check" style="display:contents;">
+                        ${componentInstance.getTemplate()}
+                    </output>`;
                 appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
                 await componentInstance.onRender();
                 setTimeout(() => {
                     componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;
                 },100);
-                setTimeout(() => {
-                    componentInstance.sfAfterInit();
-                },300);
 
+                Router.callCmpAfterInit(`${cmpId}-check`);
             });
         }
+    }
+
+    static callCmpAfterInit(cmpId){
+
+        const loadTImer = setTimeout(() => {
+                    
+            if(document.getElementById(cmpId)){
+                $still.context.currentView.stAfterInit();
+                clearTimeout(loadTImer);
+            }
+
+        },200);
+
     }
 }

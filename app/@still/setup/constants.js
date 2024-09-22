@@ -8,5 +8,10 @@ const $stillconst = {
     ANY_COMPONT_LOADED: 'still-any-component-loaded',
     CMP_FORM_PREFIX: '<form',
     DYNAMIC_CMP_PREFIX: 'dynamic-',
-    STILL_PREFIX: '$still'
+    STILL_PREFIX: '$still',
+    SUBSCRIBE_LOADED: 'still-subscription-dynamic-loaded',
+
+    TAGS: {
+        TBODY: () => document.createElement('tbody')
+    }
 }

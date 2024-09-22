@@ -208,14 +208,49 @@ class Components {
                 }
 
                 if(cmp.$stillClassLvlSubscribers.length > 0){
-                    setTimeout(() => {
-                        cmp.notifySubscribers(cmp.getStateValues());
-                    });
+                    setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
                 }
+
+                this.propageteChanges(cmp, field);
 
             });
         });
         return this;
+    }
+
+    propageteChanges(cmp, field){
+
+        const cpName = cmp.getProperInstanceName();
+        const cssRef = `.listenChangeOn-${cpName}-${field}`;
+        const subscribers = document.querySelectorAll(cssRef);
+        if(subscribers){
+            
+            subscribers.forEach(/** @type {HTMLElement} */elm => {
+                
+                const container =  document.createElement(elm.tagName);
+                container.className = $stillconst.SUBSCRIBE_LOADED;
+                const tmpltContent = elm.firstElementChild.outerHTML.toString();
+                let template = tmpltContent.replace('display:none;','');
+                let result = '';
+                
+                cmp['$still_'+field].forEach((rec) => {
+                    let parsingTemplate = template;
+                    let fields = Object.entries(rec);
+                    for(const [f,v] of fields){
+                        parsingTemplate = parsingTemplate.replace(`{item.${f}}`,v);
+                    }
+                    result += parsingTemplate;
+                });
+
+                const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
+                if(oldContainer) elm.parentNode.removeChild(oldContainer);
+
+                container.innerHTML = result;
+                elm.parentNode.insertAdjacentElement('beforeend',container);
+            });
+                        
+        }
+
     }
 
     /** @param {ViewComponent} cmp */

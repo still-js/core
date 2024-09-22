@@ -28,6 +28,7 @@ class BaseComponent extends BehaviorComponent {
      */
     settings = null;
     componentName;
+    componentId;
     template;
     cmpProps = [];
     cmpInternalId = null;
@@ -35,6 +36,8 @@ class BaseComponent extends BehaviorComponent {
     $stillLoadCounter = 0;
     $stillIsThereForm = null;
     $stillpfx = $stillconst.STILL_PREFIX;
+    subImported = false;
+    isRoutable;
 
 
     /**
@@ -78,7 +81,7 @@ class BaseComponent extends BehaviorComponent {
             'settings', 'componentName', 'template', 
             'cmpProps','htmlRefId','new','cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
-            '$stillIsThereForm','$stillpfx'
+            '$stillIsThereForm','$stillpfx', 'subImported'
         ];
         return fields.filter(
             field => !excludingFields.includes(field) && !field.startsWith(this.$stillpfx)
@@ -95,9 +98,13 @@ class BaseComponent extends BehaviorComponent {
         return this;
     }
 
+    getProperInstanceName(){
+        return this.getRoutableCmp() ? this.getName() : this.getInstanceName();
+    }
+
     getClassPath(){
         let path;
-        if(this.cmpInternalId){
+        if(this.cmpInternalId && !this.isRoutable){
             /** If component was generated dynamically in a loop */
             const dynamic = $stillconst.DYNAMIC_CMP_PREFIX;
             if(this.cmpInternalId.indexOf(dynamic) == 0)
@@ -140,6 +147,29 @@ class BaseComponent extends BehaviorComponent {
             tamplateWithState = this.getBoundInputForm(tamplateWithState, field);
         });
         return tamplateWithState;
+    }
+
+    getBoundLoop(template){
+        /**
+         * Bind (for loop)
+         */
+
+        const re = /(\(forEach\))\=\"(\w*){0,}\"/gi;
+        let cmd = this.getClassPath();
+
+        template = template.replace(re,(mt) => {
+            
+            let ds = '';
+            if(mt.indexOf('(forEach)="') >= 0){
+                ds = mt.split('"')[1];
+            }
+
+            return `class="listenChangeOn-${this.getProperInstanceName()}-${ds}"`;
+        
+        })
+        .replaceAll('each="item"','style="display:none;"');
+
+        return template;
     }
 
     getBoundProps(template){
@@ -209,6 +239,8 @@ class BaseComponent extends BehaviorComponent {
         template = this.getBoundProps(template);
         /** Bind the click to the template and return */
         template = this.getBoundClick(template);
+
+        template = this.getBoundLoop(template);
 
         console.timeEnd('tamplateBindFor'+this.getName());
 
@@ -313,6 +345,12 @@ class BaseComponent extends BehaviorComponent {
         return this.cmpInternalId;
     }
 
+    getCmpId(){
+        if(!this.componentId)
+            this.cmpInternalId = crypto.randomUUID();
+        return this.cmpInternalId;
+    }
+
     reRender(){
 
         const settings = this.settings;
@@ -345,7 +383,6 @@ class BaseComponent extends BehaviorComponent {
     async stLazyExecution(cb = () => {}){
 
         const multiplier = 1000;
-        let backoffFactor = 1000;
         let retryCounter = 2;
 
         const timer = setInterval(async () => {
@@ -359,14 +396,15 @@ class BaseComponent extends BehaviorComponent {
                     if(retryCounter < 8) retryCounter++
                     const content = JSON.parse(error.message);
                     const path = $stillGetRouteMap().route[content.component];
-                    console.log(`Path is: `, path, 'and compo is: ',content.component);
+
                     const script = $stillLoadScript(path, content.component);
                     document.head.insertAdjacentElement('beforeend',script);
                     script.onload = function(){
                         const registror = $still.context.componentRegistror.componentList;
                         const instance = eval(`new ${content.component}()`);
+                        instance.subImported = true;
                         if(!(instance in registror))
-                            registror[content.component] = { instance };
+                            registror[content.component] = { instance, subImported: true };
                     }
                     await sleepForSec(multiplier * retryCounter);
     

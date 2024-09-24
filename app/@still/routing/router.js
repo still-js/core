@@ -1,6 +1,33 @@
 class Router {
 
-    static goto(cmp){
+    #data = {};
+    static instance = null;
+
+    /** @returns { Router } */
+    static getInstance(){
+
+        if(!Router.instance)
+            Router.instance = new Router();
+        return Router.instance;
+
+    }
+
+    static data(cmpName){
+        const data = Router.getInstance().#data[cmpName];
+        delete Router.getInstance().#data[cmpName];
+        return data;
+    }
+
+    /**
+     * 
+     * @param {*} cmp 
+     * @param {{data, path}} param1 
+     */
+    static goto(cmp, { data } = { data: {} }){
+
+        //Move to when evetything it's processed successfully
+        if(Object.keys(data).length)
+            Router.getInstance().#data[cmp] = data;
 
         const routeInstance = $stillGetRouteMap()
         const route = routeInstance.route[cmp];
@@ -9,7 +36,7 @@ class Router {
         const isHomeCmp = ComponentSetup.get().entryComponentName == cmp;
         if(isHomeCmp && cmp in cmpRegistror){
             $still.context.currentView = cmpRegistror[cmp].instance;
-            Router.getAndDisplayPage($still.context.currentView, isHomeCmp);
+            Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
         }else{
 
             loadComponentFromPath(route, cmp)
@@ -58,7 +85,7 @@ class Router {
      * the bellow line clears previous component from memory
      * @param { ViewComponent } componentInstance
      */
-    static getAndDisplayPage(componentInstance, isReRender = false){
+    static getAndDisplayPage(componentInstance, isReRender = false, isHome = false){
 
         const appCntrId = 'appPlaceholder';
         const appPlaceholder = document.getElementById(appCntrId);
@@ -78,14 +105,10 @@ class Router {
                     appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
                     componentInstance.subImported = false;
                     await componentInstance.onRender();
-                    componentInstance.sfAfterInit();
+                    componentInstance.stAfterInit();
 
                 }else{
-
-                    Components.reloadedComponent(componentInstance.getUUID());
-                    await componentInstance.onRender();
-                    componentInstance.sfAfterInit();
-
+                    await Components.reloadedComponent(componentInstance, isHome);
                 }
             });
             

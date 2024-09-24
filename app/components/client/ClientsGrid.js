@@ -42,6 +42,7 @@ class ClientsGrid extends ViewComponent {
                                         <th>Endereço</th>
                                         <th>Telefone</th>
                                         <th>Telefone Cobrança</th>
+                                        <th>&nbsp;</th>
                                     </tr>
                                 </thead>
                                 <!-- <output of="dataSource"> -->
@@ -53,6 +54,9 @@ class ClientsGrid extends ViewComponent {
                                         <td>{item.endereco}</td>
                                         <td>{item.pessoa_contacto}</td>
                                         <td>{item.contacto_cobranca}</td>
+                                        <td>
+                                           <a (click)="editClient('{item.nif}')">Editar</a>
+                                        </td>
                                     </tr>
                                 </tbody>
 
@@ -64,6 +68,7 @@ class ClientsGrid extends ViewComponent {
                                     <th>Endereço</th>
                                     <th>Telefone</th>
                                     <th>Telefone Cobrança</th>
+                                    <th>&nbsp;</th>
                                 </tr>
                         </tfoot>
                             </table>
@@ -111,13 +116,28 @@ class ClientsGrid extends ViewComponent {
         }); */
     }
 
-    stAfterInit(){
+    stAfterInit(val){
 
         $still
         .HTTPClient
         .get('http://localhost:3000/api/v1/cliente/')
-        .then((r) => this.dataSource = r.data);
+        .then((r) => {
+            this.dataSource = r.data;
+            console.log(`CALLED API WITH RESULT: `, this.dataSource);
+        });
 
+        console.log(`CALLED AGAIN`);
+
+    }
+
+    editClient(nif){
+        console.log(`Clicked client is: `,nif);
+
+        const result = this.dataSource.value.filter((r) => r.nif == nif)
+        Router.goto('ClientForm', {
+            data: result[0]
+        });
+        
     }
 
     /** @type { StEvent } */

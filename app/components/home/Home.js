@@ -27,7 +27,7 @@ class Home extends BaseComponent {
     constructor(){
         super();
         this.setup({
-            includs: [ 
+            includs: [
                 LineChart,
                 Calendar,
                 CardDisplay,

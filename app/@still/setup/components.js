@@ -237,7 +237,7 @@ class Components {
                     let parsingTemplate = template;
                     let fields = Object.entries(rec);
                     for(const [f,v] of fields){
-                        parsingTemplate = parsingTemplate.replace(`{item.${f}}`,v);
+                        parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`,v);
                     }
                     result += parsingTemplate;
                 });
@@ -327,8 +327,23 @@ class Components {
         })
     }
 
-    static reloadedComponent(elmRef){
-        document.querySelector(`.${elmRef}`).style.display = 'block';
+    /** @param {ViewComponent} cmp */
+    static async reloadedComponent(cmp, isHome){
+
+        /** @type { ViewComponent } */
+        let newInstance = eval(`new ${cmp.constructor.name}()`);
+        newInstance = new Components().getParsedComponent(newInstance); 
+        newInstance.setUUID(cmp.getUUID());
+        newInstance.setRoutableCmp(true);
+
+        const elmRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmp.getUUID();
+        const container = document.querySelector(`.${elmRef}`);
+        container.innerHTML = newInstance.getTemplate();
+        container.style.display = 'block';
+
+        await newInstance.onRender();
+        newInstance.stAfterInit();
+        
     }
 
 }

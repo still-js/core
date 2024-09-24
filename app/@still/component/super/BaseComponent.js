@@ -51,6 +51,8 @@ class BaseComponent extends BehaviorComponent {
 
     stOnUpdate(){}
 
+    stAfterInit(){}
+
     reRender(){}
 
     props(props = {}){
@@ -104,11 +106,15 @@ class BaseComponent extends BehaviorComponent {
 
     getClassPath(){
         let path;
-        if(this.cmpInternalId && !this.isRoutable){
+        const dynamic = $stillconst.DYNAMIC_CMP_PREFIX;
+        
+        if(
+            this.cmpInternalId && !this.isRoutable
+            && this.cmpInternalId.indexOf(dynamic) == 0
+        ){
             /** If component was generated dynamically in a loop */
-            const dynamic = $stillconst.DYNAMIC_CMP_PREFIX;
-            if(this.cmpInternalId.indexOf(dynamic) == 0)
-                path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
+            path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
+            
         }else{
 
             if(this.getRoutableCmp())
@@ -425,7 +431,5 @@ class BaseComponent extends BehaviorComponent {
 
         },1000);
     }
-
-    sfAfterInit(){}
 
 }

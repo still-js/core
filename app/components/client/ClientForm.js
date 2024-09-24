@@ -231,9 +231,9 @@ class ClientForm extends ViewComponent {
                 'assets/js/form.min.js',
                 /* 'assets/js/bundles/jquery-steps/jquery.steps.min.js', */
                 /* 'assets/js/pages/forms/form-wizard.js', */
-                'assets/js/bundles//multiselect/js/jquery.multi-select.js',
                 'assets/js/bundles/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js',
-                'assets/js/pages/forms/advanced-form-elements.js',
+                /* 'assets/js/bundles//multiselect/js/jquery.multi-select.js', */
+                /* 'assets/js/pages/forms/advanced-form-elements.js', */
                 'assets/js/bundles/tinymce/tinymce.min.js',
                 'assets/js/bundles/ckeditor/ckeditor.js',
                 'assets/js/pages/forms/editors.js',
@@ -242,27 +242,8 @@ class ClientForm extends ViewComponent {
     }
 
     onRender(){
-
-
         loadWizard();
-        const routeData = Router.data('ClientForm');
-        
-        if(routeData){
-
-            const { 
-                id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
-                contacto_cobranca, nota, status, 
-                tipo: { id: tipoClientId, description }
-            } = routeData;
-
-            this.nome = denominacao;
-            this.endereco = endereco;
-            this.pessoaContacto = pessoa_contacto;
-            this.contactoCobranca = contacto_cobranca;
-            this.nif = nif;
-            console.log(`there is a new data from route on constructor: `, routeData);
-
-        }
+        $("select").formSelect();
     }
 
 
@@ -297,6 +278,31 @@ class ClientForm extends ViewComponent {
     }
 
     stAfterInit(){
+
+        const routeData = Router.data('ClientForm');
+        
+        if(routeData){
+
+            setTimeout(() => {
+                const { 
+                    id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
+                    contacto_cobranca, nota, status, 
+                    tipo: { id: tipoClientId, description }
+                } = routeData;
+    
+                const nomes = denominacao.split(" ");
+                this.nome = nomes[0];
+                this.sobrenome = nomes[1];
+                this.endereco = endereco;
+                this.pessoaContacto = pessoa_contacto;
+                this.contactoCobranca = contacto_cobranca;
+                this.nif = nif;
+                this.telefone = contacto_cobranca;
+                this.pessoaContacto = pessoa_contacto;
+                console.log(`there is a new data from route on constructor: `, routeData);
+            });
+
+        }
 
         //const routeData = Router.data('ClientForm');
         //if(routeData){

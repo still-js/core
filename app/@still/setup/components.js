@@ -223,9 +223,17 @@ class Components {
         const cpName = cmp.getProperInstanceName();
         const cssRef = `.listenChangeOn-${cpName}-${field}`;
         const subscribers = document.querySelectorAll(cssRef);
+
+        //console.log(`WIL PROPAGATE FOR: `,subscribers[0].tagName);
+
         if(subscribers){
             
             subscribers.forEach(/** @type {HTMLElement} */elm => {
+
+                if(elm.tagName == 'INPUT') {
+                    elm.value = cmp['$still_'+field];
+                    return;
+                }
                 
                 const container =  document.createElement(elm.tagName);
                 container.className = $stillconst.SUBSCRIBE_LOADED;
@@ -280,6 +288,13 @@ class Components {
         });
         return this;
     }
+
+    markParsed(){
+
+        Object.assign(this.component, { stillParsedState: true });
+        return this;
+
+    }
     
     /**  @param {ViewComponent} cmp */
     getParsedComponent(cmp){
@@ -291,7 +306,7 @@ class Components {
         .defineNewInstanceMethod();
 
         setTimeout(() => {
-            parsing.parseGetsAndSets();
+            parsing.parseGetsAndSets().markParsed();
         });
         
         return window[componentName];
@@ -307,7 +322,8 @@ class Components {
         this
         .setComponentAndName(cmp, cmp.getName())
         .defineNewInstanceMethod()
-        .parseGetsAndSets();
+        .parseGetsAndSets()
+        .markParsed();
         
         return cmp;
 

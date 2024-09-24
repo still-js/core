@@ -27,7 +27,7 @@ class CMenu extends BaseComponent {
                     <i class="menu-icon ti-home"></i>
                     <span>Cadastros</span>
                 </a>
-                <ul class="ml-menu">
+                <ul class="ml-menu" (if)="utilzador.persmisoe['Admin']">
                     <li class="active">
                         <a href="#" (click)="gotoView('ClientsGrid')">Ver Clientes</a>
                     </li>
@@ -36,6 +36,9 @@ class CMenu extends BaseComponent {
                     </li>
                     <li>
                         <a href="#" (click)="gotoView('Osvaldo')">Colaborador</a>
+                    </li>
+                    <li>
+                        <a href="#" (click)="gotoView('NovoMenuComponent')">Novo Menu</a>
                     </li>
                 </ul>
             </li>

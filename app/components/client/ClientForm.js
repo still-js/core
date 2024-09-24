@@ -1,14 +1,14 @@
 class ClientForm extends ViewComponent {
 
-    nome = 'Nakassony Bernardo';
-    sobrenome;
-    nif;
-    endereco = 'FIeldstone Dr.';
-    pessoaContacto;
-    telefone;
-    email;
-    contactoCobranca;
-    clientNota;
+    nome = '';
+    sobrenome = '';
+    nif = '';
+    endereco = '';
+    pessoaContacto = '';
+    telefone = '';
+    email = '';
+    contactoCobranca = '';
+    clientNota = '';
 
     template = `
     <div class="row clearfix">
@@ -278,6 +278,8 @@ class ClientForm extends ViewComponent {
     }
 
     stAfterInit(){
+
+        console.log(`Cliend Form foi initializado`);
 
         const routeData = Router.data('ClientForm');
         

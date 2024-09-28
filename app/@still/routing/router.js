@@ -110,6 +110,9 @@ class Router {
                         </output>`;
                     appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
                     componentInstance.subImported = false;
+                    setTimeout(() => {
+                        componentInstance.parseOnChange();
+                    },500);
                     await componentInstance.onRender();
                     componentInstance.stAfterInit();
 
@@ -127,6 +130,9 @@ class Router {
                         ${componentInstance.getTemplate()}
                     </output>`;
                 appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
+                setTimeout(() => {
+                    componentInstance.parseOnChange();
+                },500);
                 await componentInstance.onRender();
                 setTimeout(() => {
                     componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;

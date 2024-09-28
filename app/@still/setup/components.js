@@ -180,6 +180,32 @@ class Components {
         return this;
     }
 
+    parseOnChange(){
+        
+        /** @type {ViewComponent} */
+        const cmp = this.component;
+
+        /* cmp.addAfterInitEvents(() => {
+
+            console.log(`Created a new onchange event listener`);
+            cmp.onChangeEventsList.forEach(elm => {
+
+                const evtComposition = elm.evt.split('="')[1].split('(');
+                const evt = evtComposition[0];
+                const paramVal = evtComposition[1].replace(')','');
+                const uiElm = elm._className;
+    
+                document.querySelector(`.${uiElm}`).addEventListener('change', (e) => {
+                    const param = paramVal == '$event' ? e : paramVal;
+                    eval(`${cmp.getClassPath()}.${evt}(${param})`);
+                    console.log(`Touched on the on change`);
+                });
+            })
+        }) */
+
+        return this;
+    }
+
     /** 
      * @param {ViewComponent} cmp 
      */
@@ -224,42 +250,113 @@ class Components {
         const cssRef = `.listenChangeOn-${cpName}-${field}`;
         const subscribers = document.querySelectorAll(cssRef);
 
-        //console.log(`WIL PROPAGATE FOR: `,subscribers[0].tagName);
-
         if(subscribers){
             
             subscribers.forEach(/** @type {HTMLElement} */elm => {
-
-                if(elm.tagName == 'INPUT') {
-                    elm.value = cmp['$still_'+field];
-                    return;
-                }
-                
-                const container =  document.createElement(elm.tagName);
-                container.className = $stillconst.SUBSCRIBE_LOADED;
-                const tmpltContent = elm.firstElementChild.outerHTML.toString();
-                let template = tmpltContent.replace('display:none;','');
-                let result = '';
-                
-                cmp['$still_'+field].forEach((rec) => {
-                    let parsingTemplate = template;
-                    let fields = Object.entries(rec);
-                    for(const [f,v] of fields){
-                        parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`,v);
-                    }
-                    result += parsingTemplate;
-                });
-
-                const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
-                if(oldContainer) elm.parentNode.removeChild(oldContainer);
-
-                container.innerHTML = result;
-                elm.parentNode.insertAdjacentElement('beforeend',container);
+                console.log(`TAGNAME IS: `, elm.tagName);
+                this.dispatchPropagation(elm, field, cmp);
             });
                         
         }
 
     }
+
+    /**
+     * @param { HTMLElement } elm
+     * @param { ViewComponent } cmp
+     */
+    dispatchPropagation(elm, field, cmp){
+
+        if(elm.tagName == 'SELECT')
+            return this.propageteToSelect(elm, field, cmp);
+
+        if(elm.tagName == 'INPUT') 
+            return this.propageteToInput(elm, field, cmp);
+
+        if(elm.tagName == 'TBODY') 
+            return this.propagetToTable(elm, field, cmp);
+
+    }
+
+    /**
+     * @param { HTMLElement } elm
+     * @param { ViewComponent } cmp
+     */
+    propageteToInput(elm, field, cmp){
+        elm.value = cmp['$still_'+field];
+    }
+
+    /**
+     * @param { HTMLElement } elm
+     * @param { ViewComponent } cmp
+     */
+    propageteToSelect(elm, field, cmp){
+
+        const container = document.createElement('optgroup');
+        this.parseAndAssigneValue(elm, field, cmp, container);
+        elm.insertAdjacentElement('beforeend',container);
+
+    }
+
+    /**
+     * @param { HTMLElement } elm
+     * @param { ViewComponent } cmp
+     */
+    propagetToTable(elm, field, cmp){
+
+        let container =  document.createElement(elm.tagName);
+        container = this.parseAndAssigneValue(elm, field, cmp, container);
+        elm.parentNode.insertAdjacentElement('beforeend',container);
+
+    }
+    /**
+     * @param { HTMLElement } elm
+     * @param { ViewComponent } cmp
+     */
+    parseAndAssigneValue(elm, field, cmp, container){
+
+        let tmpltContent;
+        container.className = $stillconst.SUBSCRIBE_LOADED;
+
+        if(elm.tagName == 'SELECT'){
+            const childs = elm.querySelectorAll('option');
+
+            if(childs[0].outerHTML.toString().indexOf('value="{item.') > 0){
+                tmpltContent = childs[0].outerHTML.toString();
+            } else if(childs[1].outerHTML.toString().indexOf('value="{item.') > 0){
+                tmpltContent = childs[1].outerHTML.toString();
+            }
+
+        }else{
+            tmpltContent = elm.firstElementChild.outerHTML.toString();
+        }
+
+        let template = tmpltContent.replace('display:none;','');
+        let result = '';
+        
+        cmp['$still_'+field].forEach((rec) => {
+            let parsingTemplate = template;
+            let fields = Object.entries(rec);
+            result += this.replaceBoundField(parsingTemplate, fields);
+        });
+
+        /** Get the previous table body */
+        const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
+        /** Check if it exists previous table body and remove it */
+        if(oldContainer) elm.parentNode.removeChild(oldContainer);
+
+        container.innerHTML = result;
+        return container;
+
+    }
+
+    replaceBoundField(parsingTemplate, fields){
+        for(const [f,v] of fields){
+            parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`,v);
+        }
+        return parsingTemplate;
+    }
+
 
     /** @param {ViewComponent} cmp */
     defineNewInstanceMethod(){
@@ -306,7 +403,7 @@ class Components {
         .defineNewInstanceMethod();
 
         setTimeout(() => {
-            parsing.parseGetsAndSets().markParsed();
+            parsing.parseOnChange().parseGetsAndSets().markParsed();
         });
         
         return window[componentName];
@@ -322,6 +419,7 @@ class Components {
         this
         .setComponentAndName(cmp, cmp.getName())
         .defineNewInstanceMethod()
+        .parseOnChange()
         .parseGetsAndSets()
         .markParsed();
         

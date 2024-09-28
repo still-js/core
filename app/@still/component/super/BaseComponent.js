@@ -38,6 +38,8 @@ class BaseComponent extends BehaviorComponent {
     $stillpfx = $stillconst.STILL_PREFIX;
     subImported = false;
     isRoutable;
+    onChangeEventsList = [];
+    afterInitEventToParse = [];
 
 
     /**
@@ -83,7 +85,7 @@ class BaseComponent extends BehaviorComponent {
             'settings', 'componentName', 'template', 
             'cmpProps','htmlRefId','new','cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
-            '$stillIsThereForm','$stillpfx', 'subImported'
+            '$stillIsThereForm','$stillpfx', 'subImported', 'onChangeEventsList'
         ];
         return fields.filter(
             field => !excludingFields.includes(field) && !field.startsWith(this.$stillpfx)
@@ -159,7 +161,6 @@ class BaseComponent extends BehaviorComponent {
         /**
          * Bind (for loop)
          */
-
         const re = /(\(forEach\))\=\"(\w*){0,}\"/gi;
         let cmd = this.getClassPath();
 
@@ -203,6 +204,46 @@ class BaseComponent extends BehaviorComponent {
         return template;
     }
 
+    parseOnChange(){
+        this.onChangeEventsList.forEach(elm => {
+
+            const evtComposition = elm.evt.split('="')[1].split('(');
+            const evt = evtComposition[0];
+            const paramVal = evtComposition[1].replace(')','');
+            const uiElm = elm._className;
+            
+            document.querySelector(`.${uiElm}`).addEventListener('change', async (event) => {
+                setTimeout(() => {
+                    const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
+                    eval(this.getClassPath())[evt](param);
+                })
+            });
+
+        });
+    }
+
+    getBoundOnChange(template){
+        
+        const re = /(class=\"[A-Za-z1-9\-{0,}\s{0,}]{0,}\"){0,}\s?\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"\s?(class=\"[A-Za-z1-9\-{0,}\s{0,}]{0,}\"){0,}/gi
+        const reMethod = /\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"/gi
+        template = template.replace(re, (mtch) => {
+
+            if(mtch.length > 0){
+                const _className = ` onChange_${Math.random().toString().substring(2)}`;
+                this.onChangeEventsList.push({ evt: mtch.trim(), _className: _className.trim() });
+                if(mtch.indexOf('class="') >= 0){
+                    mtch = mtch
+                            .replace(`class="`,`class="${_className} `);
+                }else{
+                    mtch += `class="${_className.trim()} " `;
+                }
+            }
+            return mtch.replace(reMethod, '');
+        });
+        return template;
+
+    }
+
     getBoundInputForm(template, field, value){
         /**
          * Bind (value) on the input form
@@ -232,23 +273,11 @@ class BaseComponent extends BehaviorComponent {
                         `(value)="${field}"`,
                         `value="${val}" ${subscriptionCls} onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
                     );
-                    //console.log(`MATCHED: `,mt);
-                    //console.log(`MATCHED1: `,field);
-                    
                 }
                 return mt;
-            
             });
-
-            /* template = template.replaceAll(
-                `(value)="${field}"`,
-                `value="${this[field] || emptyField}" onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
-            ); */
-
         }
-
         return template;
-
     }
 
     incrementLoadCounter(){
@@ -275,6 +304,8 @@ class BaseComponent extends BehaviorComponent {
         template = this.getBoundClick(template);
 
         template = this.getBoundLoop(template);
+        
+        template = this.getBoundOnChange(template);
 
         console.timeEnd('tamplateBindFor'+this.getName());
 
@@ -384,6 +415,25 @@ class BaseComponent extends BehaviorComponent {
             this.cmpInternalId = crypto.randomUUID();
         return this.cmpInternalId;
     }
+
+    /** 
+     * This serves for Components class to register any DOM event listener added for the component
+     * for not only onchange event is being addressed through here
+     */
+    /* addAfterInitEvents(event){
+        this.afterInitEventToParse.push(event);
+    } */
+
+    /** 
+     * Initially this is for parsing onchange events as they are generated on the Components class
+     * in the future other events can be migrated to here according to the performance gain or not
+     */
+    /* parseAfterInitEvents(){
+        this.afterInitEventToParse.forEach(evt => {
+            console.log(`creating an event`);
+            evt();
+        });
+    } */
 
     reRender(){
 

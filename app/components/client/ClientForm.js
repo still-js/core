@@ -1,5 +1,6 @@
 class ClientForm extends ViewComponent {
 
+    tipoClienteId;
     nome = '';
     sobrenome = '';
     nif = '';
@@ -9,6 +10,7 @@ class ClientForm extends ViewComponent {
     email = '';
     contactoCobranca = '';
     clientNota = '';
+    clientType;
 
     template = `
     <div class="row clearfix">
@@ -49,14 +51,9 @@ class ClientForm extends ViewComponent {
                                             <span class="input-group-addon">
                                                 <i class="material-icons">person</i> Tipo de cliente
                                             </span>
-                                            <select>
-                                                <option value="" disabled selected>Selecione o tipo de cliente</option>
-                                                <option value="1">Empresa</option>
-                                                <option value="2">Particular</option>
-                                                <option value="3">Ministério</option>
-                                                <option value="4">Instituto Público</option>
-                                                <!--<option value="5">Associação</option>
-                                                <option value="6">Outro</option>-->
+                                            <select (change)="updateTipoCliente($event)" (forEach)="clientType">
+                                                <option each="item" value="">Selecione uma opção</option>
+                                                <option each="item" value="{item.id}">{item.value}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -215,6 +212,11 @@ class ClientForm extends ViewComponent {
         });
     }
 
+    updateTipoCliente(evt){
+        console.log('Value is: ',evt);
+        this.tipoClienteId = evt.target.value;
+    }
+
     onRender(){
         loadWizard();
         tinymce.init({
@@ -258,16 +260,18 @@ class ClientForm extends ViewComponent {
         }).catch((err) => {
             console.log(`Erro ao cadastrar cliente: `,err);
         });
-
-        //console.log(this.getStateValues());
     }
 
     stAfterInit(){
 
-        console.log(`Cliend Form foi initializado`);
-
+        this.clientType = [
+            { value: 'Particular', id:1},
+            { value: 'Ministério', id:2},
+            { value: 'Instituto', id:3},
+            { value: 'Associação', id:4},
+            { value: 'Outro', id:5}
+        ];
         const routeData = Router.data('ClientForm');
-        
         if(routeData){
 
             setTimeout(() => {
@@ -286,15 +290,9 @@ class ClientForm extends ViewComponent {
                 this.nif = nif;
                 this.telefone = contacto_cobranca;
                 this.pessoaContacto = pessoa_contacto;
-                console.log(`there is a new data from route on constructor: `, routeData);
             });
 
         }
-
-        //const routeData = Router.data('ClientForm');
-        //if(routeData){
-        //    console.log(`there is a new data from route: `, routeData);
-        //}
 
     }
 

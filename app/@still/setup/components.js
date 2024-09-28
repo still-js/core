@@ -156,7 +156,9 @@ class Components {
                 value: cmp['$still_'+field],
                 onChange: (callback = function(){}) => {
                     cmp[`$still${field}Subscribers`].push(callback);
-                }
+                },
+                defined: true,
+                firstPropag: false
             };
         });
 
@@ -237,9 +239,19 @@ class Components {
                     setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
                 }
 
-                this.propageteChanges(cmp, field);
+                if(field?.firstPropag){
+                    this.propageteChanges(cmp, field);
+                }
 
             });
+
+            const firstPropagateTimer = setInterval(() => {
+                if('value' in cmp[field]){
+                    clearInterval(firstPropagateTimer);
+                    this.propageteChanges(cmp, field);
+                    cmp[field].firstPropag = true;
+                }
+            },200);
         });
         return this;
     }
@@ -251,12 +263,9 @@ class Components {
         const subscribers = document.querySelectorAll(cssRef);
 
         if(subscribers){
-            
             subscribers.forEach(/** @type {HTMLElement} */elm => {
-                console.log(`TAGNAME IS: `, elm.tagName);
                 this.dispatchPropagation(elm, field, cmp);
             });
-                        
         }
 
     }

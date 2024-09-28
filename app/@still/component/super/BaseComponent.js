@@ -114,7 +114,7 @@ class BaseComponent extends BehaviorComponent {
         ){
             /** If component was generated dynamically in a loop */
             path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
-            
+
         }else{
 
             if(this.getRoutableCmp())
@@ -209,13 +209,41 @@ class BaseComponent extends BehaviorComponent {
          */
 
         if(this.isThereAForm()){
+
             const emptyField = '';
             const clsPath = this.getClassPath();
+            const valueBindRE = /(class=\"[A-Za-z1-9\-{0,}\s{0,}]{0,}\"){0,}\s?\(value\)\=\"\w*\"\s?(class=\"[A-Za-z1-9\-{0,}\s{0,}]{0,}\"){0,}/gi;
 
-            template = template.replaceAll(
+            template = template.replace(valueBindRE, (mt) => {
+
+                if(mt.length > 0){
+
+                    const checkPos = mt.indexOf(`(value)="`) + 9;
+                    const field = mt.slice(checkPos, mt.indexOf('"', checkPos));
+                    const val = this[field] || emptyField;
+
+                    let subscriptionCls = '';
+                    if(mt.indexOf(`class="`) >= 0)
+                        mt = mt.replace(`class="`,`class="listenChangeOn-${this.getProperInstanceName()}-${field} `);
+                    else
+                        subscriptionCls = `class="listenChangeOn-${this.getProperInstanceName()}-${field}" `;
+
+                    mt = mt.replace(
+                        `(value)="${field}"`,
+                        `value="${val}" ${subscriptionCls} onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
+                    );
+                    //console.log(`MATCHED: `,mt);
+                    //console.log(`MATCHED1: `,field);
+                    
+                }
+                return mt;
+            
+            });
+
+            /* template = template.replaceAll(
                 `(value)="${field}"`,
                 `value="${this[field] || emptyField}" onkeyup="${clsPath}.onValueInput('${field}',this.value)"`
-            );
+            ); */
 
         }
 

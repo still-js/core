@@ -1,14 +1,14 @@
 class ClientForm extends ViewComponent {
 
-    nome = 'Nakassony Bernardo';
-    sobrenome;
-    nif;
-    endereco = 'FIeldstone Dr.';
-    pessoaContacto;
-    telefone;
-    email;
-    contactoCobranca;
-    clientNota;
+    nome = '';
+    sobrenome = '';
+    nif = '';
+    endereco = '';
+    pessoaContacto = '';
+    telefone = '';
+    email = '';
+    contactoCobranca = '';
+    clientNota = '';
 
     template = `
     <div class="row clearfix">
@@ -46,6 +46,9 @@ class ClientForm extends ViewComponent {
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <div class="input-field col s12">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">person</i> Tipo de cliente
+                                            </span>
                                             <select>
                                                 <option value="" disabled selected>Selecione o tipo de cliente</option>
                                                 <option value="1">Empresa</option>
@@ -61,7 +64,7 @@ class ClientForm extends ViewComponent {
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">person</i>
+                                            <i class="material-icons">person</i> Nome
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
@@ -71,7 +74,7 @@ class ClientForm extends ViewComponent {
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">group</i>
+                                            <i class="material-icons">group</i> Sobrenome
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="sobrenome" placeholder="Sobrenome">
@@ -83,7 +86,7 @@ class ClientForm extends ViewComponent {
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">location_city</i>
+                                            <i class="material-icons">location_city</i> Endereço
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="endereco" placeholder="Endereço">
@@ -93,7 +96,7 @@ class ClientForm extends ViewComponent {
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">receipt</i>
+                                            <i class="material-icons">receipt</i> Número de Identificação Fiscal
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="nif" placeholder="NIF">
@@ -103,24 +106,13 @@ class ClientForm extends ViewComponent {
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">person_outline</i>
+                                            <i class="material-icons">person_outline</i> Pessoa de contacto
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="pessoaContacto" placeholder="Pessoa de Contacto">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>
-                                        <input class="with-gap" name="group1" type="radio" checked />
-                                        <span>Masculino</span>
-                                    </label>
-                                    <label>
-                                        <input class="with-gap" name="group1" type="radio" />
-                                        <span>Femenino</span>
-                                    </label>
-                                </div>
-
                             </div>
 
                         </fieldset>
@@ -129,30 +121,20 @@ class ClientForm extends ViewComponent {
                         <fieldset>
                             <h2 class="card-inside-title">Dados de contactos</h2>
                             <div class="row clearfix">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">phone</i>
+                                            <i class="material-icons">phone</i> Telefone
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="telefone" placeholder="Telefone">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">email</i>
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="email" placeholder="Email">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">contact_phone</i>
+                                            <i class="material-icons">contact_phone</i> Contacto para Cobrança
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" (value)="contactoCobranca" placeholder="Contacto para cobrança">
@@ -194,7 +176,7 @@ class ClientForm extends ViewComponent {
                                         </div>
                                         <div class="body">
                                             <textarea id="tinymce1">
-                                                    <h2>Título</h2>
+                                                <h2>Título</h2>
                                                 <p>Descrição</p>
                                                 <h3>Ponto</h3>
                                                 <ul>
@@ -209,7 +191,7 @@ class ClientForm extends ViewComponent {
                                     </div>
                                 </div>
 
-                                <button (click)="registerClient()">Submeter</button>
+                                <button class="julaw-submit-button" (click)="registerClient()">Submeter</button>
 
                             </div>
                         </fieldset>
@@ -229,40 +211,24 @@ class ClientForm extends ViewComponent {
             ],
             scripts: [
                 'assets/js/form.min.js',
-                /* 'assets/js/bundles/jquery-steps/jquery.steps.min.js', */
-                /* 'assets/js/pages/forms/form-wizard.js', */
-                'assets/js/bundles//multiselect/js/jquery.multi-select.js',
-                'assets/js/bundles/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js',
-                'assets/js/pages/forms/advanced-form-elements.js',
-                'assets/js/bundles/tinymce/tinymce.min.js',
-                'assets/js/bundles/ckeditor/ckeditor.js',
-                'assets/js/pages/forms/editors.js',
             ],
         });
     }
 
     onRender(){
-
-
         loadWizard();
-        const routeData = Router.data('ClientForm');
-        
-        if(routeData){
-
-            const { 
-                id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
-                contacto_cobranca, nota, status, 
-                tipo: { id: tipoClientId, description }
-            } = routeData;
-
-            this.nome = denominacao;
-            this.endereco = endereco;
-            this.pessoaContacto = pessoa_contacto;
-            this.contactoCobranca = contacto_cobranca;
-            this.nif = nif;
-            console.log(`there is a new data from route on constructor: `, routeData);
-
-        }
+        tinymce.init({
+            selector: 'textarea#tinymce1',
+            theme: "modern",
+            height: 300,
+            plugins: [
+                'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                'searchreplace wordcount visualblocks visualchars code fullscreen',
+                'insertdatetime media nonbreaking save table contextmenu directionality',
+                'emoticons template paste textcolor colorpicker textpattern imagetools'
+            ],
+    
+        });
     }
 
 
@@ -297,6 +263,33 @@ class ClientForm extends ViewComponent {
     }
 
     stAfterInit(){
+
+        console.log(`Cliend Form foi initializado`);
+
+        const routeData = Router.data('ClientForm');
+        
+        if(routeData){
+
+            setTimeout(() => {
+                const { 
+                    id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
+                    contacto_cobranca, nota, status, 
+                    tipo: { id: tipoClientId, description }
+                } = routeData;
+    
+                const nomes = denominacao.split(" ");
+                this.nome = nomes[0];
+                this.sobrenome = nomes[1];
+                this.endereco = endereco;
+                this.pessoaContacto = pessoa_contacto;
+                this.contactoCobranca = contacto_cobranca;
+                this.nif = nif;
+                this.telefone = contacto_cobranca;
+                this.pessoaContacto = pessoa_contacto;
+                console.log(`there is a new data from route on constructor: `, routeData);
+            });
+
+        }
 
         //const routeData = Router.data('ClientForm');
         //if(routeData){

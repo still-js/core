@@ -43,11 +43,18 @@ class ViewComponent extends BaseComponent {
     getTemplate(){
         this.beforeInit(); 
         //this.prepareRender();
-        const template = this.getBoundTemplate();   
+        let template = this.getBoundTemplate();   
         const cmpUnicClass = this.getUUID();
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
 
-        return template.replace("class=\"",`class="${cmpUnicClass} ${loadCmpClass} `);
+        //Add class wrapper
+        template = `
+            <span class="${cmpUnicClass} ${loadCmpClass}">
+                ${template}
+            </span>
+        `;
+
+        return template;
     }
 
     render(){

@@ -96,6 +96,7 @@ class ClientsGrid extends ViewComponent {
             });
         });
 
+        /** For Test purpose only */
         await this.stLazyExecution(async () => {
             
             /** @type { ClientForm } */
@@ -111,9 +112,6 @@ class ClientsGrid extends ViewComponent {
             });
         });
 
-        /* $still.context.componentRegistror.getComponent('ClientForm').sobrenome.onChange((newState) => {
-            console.log(`Client grid detectou mudança no client form: `,newState);
-        }); */
     }
 
     stAfterInit(val){
@@ -126,13 +124,11 @@ class ClientsGrid extends ViewComponent {
             console.log(`CALLED API WITH RESULT: `, this.dataSource);
         });
 
-        console.log(`CALLED AGAIN`);
-
     }
 
     editClient(nif){
         console.log(`Clicked client is: `,nif);
-
+        
         const result = this.dataSource.value.filter((r) => r.nif == nif)
         Router.goto('ClientForm', {
             data: result[0]
@@ -140,6 +136,7 @@ class ClientsGrid extends ViewComponent {
         
     }
 
+    /** For Test purpose only */
     /** @type { StEvent } */
     anyState = 'This is the state value';
     runLocalFunc(){

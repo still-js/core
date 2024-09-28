@@ -63,6 +63,12 @@ class Router {
                     }else{
                         $still.context.currentView = cmpRegistror[cmp].instance;
                     }
+
+                    if(!$still.context.currentView.stillParsedState){
+                        $still.context.currentView = (new Components).getNewParsedComponent(
+                            $still.context.currentView
+                        );
+                    }
                 }
                 Router.getAndDisplayPage($still.context.currentView, imported);
             });

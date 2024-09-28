@@ -10,6 +10,7 @@ const routesMap = {
         },
         lazyInitial: {
             MorCompo: 'components/client',
+            NovoMenuComponent: 'components/calendar'
         }
     },
 }

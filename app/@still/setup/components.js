@@ -139,8 +139,20 @@ class Components {
             const init = $still.context.currentView;
             init.setUUID(this.getTopLevelCmpId());
             const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
-            this.template = init.template.replace('class="',`class="${init.getUUID()} ${loadCmpClass} `);
+            //this.template = init.template.replace('class="',`class="${init.getUUID()} o${ladCmpClass} `);
+            this.template = (new Components).getNewParsedComponent(init)
+                .getBoundTemplate()
+                .replace('class="',`class="${init.getUUID()} ${loadCmpClass} `);
+
+            
+            console.log(this.template)
+
+
             this.renderOnViewFor('appPlaceholder');
+
+
+
+
         });
     }
 

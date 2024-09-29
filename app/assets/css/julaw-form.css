@@ -11981,3 +11981,9 @@ select {
     margin-left: 15px;
     color: white;
 }
+
+.julaw-cancel-button {
+    background-color: red;
+    margin-left: 15px;
+    color: white;
+}

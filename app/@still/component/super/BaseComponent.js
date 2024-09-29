@@ -514,4 +514,8 @@ class BaseComponent extends BehaviorComponent {
         },1000);
     }
 
+    resetState(){
+        Router.goto(this.getProperInstanceName());
+    }
+
 }

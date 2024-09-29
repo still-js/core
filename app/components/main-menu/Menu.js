@@ -43,7 +43,7 @@ class CMenu extends BaseComponent {
                 </ul>
             </li>
     </div>
-    `;   
+    `;
 
     gotoView(viewComponent){
         Router.goto(viewComponent);

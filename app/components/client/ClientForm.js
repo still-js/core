@@ -194,6 +194,7 @@ class ClientForm extends ViewComponent {
                                 </div>
 
                                 <button class="julaw-submit-button" (click)="registerClient()">Submeter</button>
+                                <button class="julaw-cancel-button" (click)="resetState()">Cancelar</button>
 
                             </div>
                         </fieldset>

@@ -1,6 +1,7 @@
 class ComponentSetup extends Components {
     
     static instance = null;
+    isAuthenticated = false;
 
     /**
      * @returns { ComponentSetup }
@@ -11,15 +12,17 @@ class ComponentSetup extends Components {
         return ComponentSetup.instance;
     }
 
-    entryComponentPath = routesMap.viewRoutes.regular.Home;
-    entryComponentName = 'Home';
+    //entryComponentPath = routesMap.viewRoutes.regular.Home;
+    // entryComponentName = 'Home';
+    entryComponentPath = this.isAuthenticated ? routesMap.viewRoutes.regular.LayoutBase : routesMap.viewRoutes.regular.Login;
+    entryComponentName = this.isAuthenticated ? 'LayoutBase' : 'Login';
     
     constructor(){
         super();
     }
 
     init(){
-        return new Home();
+        return this.isAuthenticated ? new LayoutBase() : new Login()
     }
 
 }

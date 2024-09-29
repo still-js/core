@@ -147,10 +147,10 @@ class ColaboradoresGrid extends ViewComponent {
             }
         
         // this.dataSource = r.data;
-        let colaboradorDTO = []
+        let colaboradorData = []
 
         for(let colaborador of data) {
-            colaboradorDTO.push(
+            colaboradorData.push(
                 {
                     ...initialObjectColaborador, 
                     idColaborador: colaborador.id,
@@ -177,8 +177,8 @@ class ColaboradoresGrid extends ViewComponent {
             )
         }
 
-        this.dataSource = colaboradorDTO
-        console.log(colaboradorDTO)
+        this.dataSource = colaboradorData
+        console.log(colaboradorData)
 
     }
 

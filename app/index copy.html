@@ -12,8 +12,6 @@
     <link href="assets/css/app.min.css" rel="stylesheet">
     <!-- Custom Css -->
     <link href="assets/css/style.css" rel="stylesheet" />
-    <link href="assets/css/auth.css" rel="stylesheet" />
-    <link href="assets/css/pages/extra_pages.css" rel="stylesheet" />
     <!-- Theme style. You can choose a theme from css/themes instead of get all themes -->
     <link href="assets/css/styles/all-themes.css" rel="stylesheet" />
     <link href="assets/js/bundles/multiselect/css/multi-select.css" rel="stylesheet">
@@ -51,7 +49,15 @@
             </div>
         </div>
         <div class="overlay"></div>
-        <div id="appPlaceholder"></div>
+        <nav class="navbar">
+            <script> TopNavBar.render() </script>
+        </nav>
+        <div>
+            <aside id="leftsidebar" class="sidebar">
+                <script> Menu.render()  </script>
+            </aside>
+        </div>
+        <section class="content" id="appPlaceholder"></section>
 
     </div>
     <!-- Plugins Js -->

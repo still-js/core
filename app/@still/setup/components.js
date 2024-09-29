@@ -20,6 +20,8 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             return false;
         }
 
+        console.log(className)
+
         try {
             eval(`${className}`);
             resolve([]);

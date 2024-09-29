@@ -112,7 +112,8 @@ class BaseComponent extends BehaviorComponent {
         
         if(
             this.cmpInternalId && !this.isRoutable
-            && this.cmpInternalId.indexOf(dynamic) == 0
+            && !this.getRoutableCmp()
+            /* && this.cmpInternalId.indexOf(dynamic) == 0 */
         ){
             /** If component was generated dynamically in a loop */
             path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
@@ -261,7 +262,10 @@ class BaseComponent extends BehaviorComponent {
 
                     const checkPos = mt.indexOf(`(value)="`) + 9;
                     const field = mt.slice(checkPos, mt.indexOf('"', checkPos));
-                    const val = this[field] || emptyField;
+                    
+                    let val = emptyField
+                    if(!(this[field] instanceof Object) && !!(this[field]))
+                        val = this[field];
 
                     let subscriptionCls = '';
                     if(mt.indexOf(`class="`) >= 0)

@@ -1,16 +1,21 @@
 class ClientForm extends ViewComponent {
 
     tipoClienteId;
-    nome = '';
-    sobrenome = '';
-    nif = '';
-    endereco = '';
-    pessoaContacto = '';
-    telefone = '';
-    email = '';
-    contactoCobranca = '';
-    clientNota = '';
-    clientType;
+    nome;
+    sobrenome;
+    nif;
+    endereco;
+    pessoaContacto;
+    telefone;
+    email;
+    contactoCobranca;
+    clientNota;
+
+    /**
+     * Fields not bound to the form fields but for internal
+     */
+    clientType; //Holds list of tipo de cliente
+    routingData; //Used to assign data if sent from Router
 
     template = `
     <div class="row clearfix">
@@ -210,6 +215,9 @@ class ClientForm extends ViewComponent {
                 'assets/js/form.min.js',
             ],
         });
+
+        this.routingData = Router.data('ClientForm');
+
     }
 
     updateTipoCliente(evt){
@@ -218,7 +226,9 @@ class ClientForm extends ViewComponent {
     }
 
     onRender(){
-        loadWizard();
+        this.showLoading();
+        loadWizard({ enableAllSteps: this.routingData ? true : false });
+        /** Initializing Tinemce text editor */
         tinymce.init({
             selector: 'textarea#tinymce1',
             theme: "modern",
@@ -236,9 +246,10 @@ class ClientForm extends ViewComponent {
 
     registerClient(){
 
+        this.showLoading();
         const payload = {
             "denominacao": this.nome.value,
-            "tipo_id": 1,
+            "tipo_id": this.tipoClienteId.value,
             "nif":this.nif.value,
             "endereco":this.endereco.value,
             "pessoa_contacto":this.pessoaContacto.value,
@@ -256,8 +267,11 @@ class ClientForm extends ViewComponent {
                 }
             }
         ).then((r) => {
+            this.hideLoading();
+            Router.goto('ClientsGrid');
             console.log(`Cliente criado com sucesso: `,r.data);
         }).catch((err) => {
+            this.hideLoading();
             console.log(`Erro ao cadastrar cliente: `,err);
         });
     }
@@ -271,7 +285,8 @@ class ClientForm extends ViewComponent {
             { value: 'Associação', id:4},
             { value: 'Outro', id:5}
         ];
-        const routeData = Router.data('ClientForm');
+
+        const routeData = this.routingData;
         if(routeData){
 
             setTimeout(() => {
@@ -283,7 +298,7 @@ class ClientForm extends ViewComponent {
     
                 const nomes = denominacao.split(" ");
                 this.nome = nomes[0];
-                this.sobrenome = nomes[1];
+                this.sobrenome = nomes[1] || '';
                 this.endereco = endereco;
                 this.pessoaContacto = pessoa_contacto;
                 this.contactoCobranca = contacto_cobranca;
@@ -293,24 +308,26 @@ class ClientForm extends ViewComponent {
             });
 
         }
+        this.hideLoading();
 
     }
 
 }
 
+/**
+ * 
+ * Function to load JQuery Step/Wizard which is 
+ * called in the calss component 
+ */
+function loadWizard({enableAllSteps = false} = {}){
 
-function loadWizard(){
-
-    //Advanced form with validation
     var form = $('#wizard_with_validation').show();
+    const [finish, next, previous] = ["Submeter","Próximo", "Voltar"]
     form.steps({
         showFinishButtonAlways: false,
         enableFinishButton: false,
-        labels: {
-            finish: "Submeter",
-            next: "Próximo",
-            previous: "Voltar",
-         },
+        enableAllSteps,
+        labels: { finish, next, previous },
         headerTag: 'h3',
         bodyTag: 'fieldset',
         transitionEffect: 'slideLeft',
@@ -331,15 +348,12 @@ function loadWizard(){
                 form.find('.body:eq(' + newIndex + ') label.error').remove();
                 form.find('.body:eq(' + newIndex + ') .error').removeClass('error');
             }
-
-            //form.validate().settings.ignore = ':disabled,:hidden';
             return form//.valid();
         },
         onStepChanged: function (event, currentIndex, priorIndex) {
             setButtonWavesEffect(event);
         },
         onFinishing: function (event, currentIndex) {
-            //form.validate().settings.ignore = ':disabled';
             return form//.valid();
         },
         onFinished: function (event, currentIndex) {
@@ -347,23 +361,6 @@ function loadWizard(){
         }
     });
     
-    /* form.validate({
-        highlight: function (input) {
-            $(input).parents('.form-line').addClass('error');
-        },
-        unhighlight: function (input) {
-            $(input).parents('.form-line').removeClass('error');
-        },
-        errorPlacement: function (error, element) {
-            $(element).parents('.form-group').append(error);
-        },
-        rules: {
-            'confirm': {
-                equalTo: '#password'
-            }
-        }
-    }); */
-
 }
 
 function setButtonWavesEffect(event) {

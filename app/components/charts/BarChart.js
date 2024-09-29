@@ -1,7 +1,7 @@
 class CBarChart extends ViewComponent {
 
     htmlRefId = 'barCharPlaceholder';
-    qualquerProp = '';
+    novoField = '';
     template = `
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" (click)="parsingForBar()">
         <div class="card">
@@ -60,7 +60,7 @@ class CBarChart extends ViewComponent {
 
     parsingForBar(){
         alert('First content');
-        this.qualquerProp = 'Novo valor';
+        this.novoField = 'Novo valor';
     }
 
 }

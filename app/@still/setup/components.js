@@ -81,6 +81,17 @@ class Components {
     /** @type { ViewComponent } */
     component;
     componentName;
+    static instance = null;
+    notAssignedValue = [undefined, null,''];
+
+    /**
+     * @returns { ComponentSetup }
+     */
+    static get(){
+        if(ComponentSetup.instance == null)
+            ComponentSetup.instance = new ComponentSetup();
+        return ComponentSetup.instance;
+    }
 
     getTopLevelCmpId(){
         const { TOP_LEVEL_CMP, ANY_COMPONT_LOADED } = $stillconst;
@@ -223,7 +234,6 @@ class Components {
             this.defineSetter(cmp, field);
 
             cmp.__defineSetter__(field, (newValue) => {
-                
                 cmp.__defineGetter__(field, () => newValue);
                 cmp['$still_'+field] = newValue;
                 this.defineSetter(cmp, field);
@@ -239,16 +249,16 @@ class Components {
                     setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
                 }
 
-                if(field?.firstPropag){
-                    this.propageteChanges(cmp, field);
-                }
+                if(cmp[field]?.defined) this.propageteChanges(cmp, field);
 
             });
 
             const firstPropagateTimer = setInterval(() => {
                 if('value' in cmp[field]){
                     clearInterval(firstPropagateTimer);
-                    this.propageteChanges(cmp, field);
+                    if(!this.notAssignedValue.includes(cmp['$still_'+field])){
+                        this.propageteChanges(cmp, field);
+                    }
                     cmp[field].firstPropag = true;
                 }
             },200);
@@ -343,11 +353,13 @@ class Components {
         let template = tmpltContent.replace('display:none;','');
         let result = '';
         
-        cmp['$still_'+field].forEach((rec) => {
-            let parsingTemplate = template;
-            let fields = Object.entries(rec);
-            result += this.replaceBoundField(parsingTemplate, fields);
-        });
+        if(cmp['$still_'+field] instanceof Array){
+            cmp['$still_'+field].forEach((rec) => {
+                let parsingTemplate = template;
+                let fields = Object.entries(rec);
+                result += this.replaceBoundField(parsingTemplate, fields);
+            });
+        }
 
         /** Get the previous table body */
         const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);

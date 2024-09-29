@@ -82,6 +82,7 @@ class ClientsGrid extends ViewComponent {
     constructor(){
         super();
         this.setup({});
+        this.showLoading();
     }
 
     async onRender(){
@@ -121,7 +122,7 @@ class ClientsGrid extends ViewComponent {
         .get('http://localhost:3000/api/v1/cliente/')
         .then((r) => {
             this.dataSource = r.data;
-            console.log(`CALLED API WITH RESULT: `, this.dataSource);
+            this.hideLoading();
         });
 
     }

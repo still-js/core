@@ -1,7 +1,7 @@
 class BehaviorComponent {
 
     $stillClassLvlSubscribers = [];
-
+    
     onChange(callback = (newState) => {}){
         this.$stillClassLvlSubscribers.push(callback);
     }
@@ -17,5 +17,13 @@ class BehaviorComponent {
     }
 
     changeState(input, value){}
+
+    showLoading(){
+        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'flex';
+    }
+
+    hideLoading(){
+        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'none';
+    }
 
 }

@@ -1,0 +1,10 @@
+.main-side-menu {
+    padding-left: 50px;
+    padding-top: 50px;
+}
+
+
+.main-side-menu a {
+    color: black;
+    font-size: 1.2em;
+}

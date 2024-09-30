@@ -1,8 +1,8 @@
-class CTopNavBar extends BaseComponent {
+class CTopNavBar extends ViewComponent {
 
     htmlRefId = 'topNavBar';
     template = `
-        <div class="container-fluid">
+        <div class="container-fluid" style="display: contents;">
             <div class="navbar-header">
                 <a href="#" onClick="return false;" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#navbar-collapse" aria-expanded="false"></a>
@@ -12,7 +12,7 @@ class CTopNavBar extends BaseComponent {
                     <span class="logo-name">Atrio</span>
                 </a>
             </div>
-            <div class="collapse navbar-collapse" id="navbar-collapse">
+            <div class="collapse navbar-collapse" id="navbar-collapse" style="position: fixed; width: 100%;">
                 <ul class="nav navbar-nav navbar-left">
                     <li>
                         <a href="#" onClick="return false;" class="sidemenu-collapse">
@@ -195,4 +195,4 @@ class CTopNavBar extends BaseComponent {
 
 }
 
-$still.context.componentRegistror.expose(new CTopNavBar());
+const TopNavBar = $still.component.expose(new CTopNavBar());

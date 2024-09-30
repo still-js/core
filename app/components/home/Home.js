@@ -1,6 +1,13 @@
 class Home extends BaseComponent {
 
     template = `
+    <div class="content-wrapper">
+        <nav class="navbar" id="topNavBar" style="position: fixed;"></nav>
+
+        <div>
+            <aside id="leftsidebar" class="sidebar"></aside>
+        </div>
+
         <div class="container-fluid">
             <!-- Dashboard Widgets -->
             <div id="dashBoardCards" class="row"></div>
@@ -20,6 +27,7 @@ class Home extends BaseComponent {
             </div>
             
         </div>
+    </div>
     `;
 
     cardDisplayDS;
@@ -29,12 +37,16 @@ class Home extends BaseComponent {
         this.hideLoading();
         this.setup({
             includs: [
+                TopNavBar,
                 LineChart,
                 Calendar,
                 CardDisplay,
                 BarChart,
                 CircularAnimatedChart,
                 ProjectGrid,
+                Menu,
+                /* CTopNavBar */
+                
              ],
              scripts: [
                 'assets/js/chart.min.js',

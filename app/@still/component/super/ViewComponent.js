@@ -29,11 +29,6 @@ class ViewComponent extends BaseComponent {
     renderOnViewFor(placeHolder){
         this.beforeInit();
         
-        //$still.context.componentRegistror.componentList[this.getName()] = { instance: this };
-        /*.compo.export({
-            componentName: this.getName(), instance: this
-        });*/
-
         document
             .getElementById(placeHolder)
             .innerHTML = this.getBoundTemplate();

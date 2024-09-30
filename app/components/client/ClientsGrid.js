@@ -4,6 +4,7 @@ class ClientsGrid extends ViewComponent {
     dataSource;
 
     template = `
+    <section class="content">
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <button (click)="runLocalFunc()">Click here Button</button>
@@ -77,6 +78,7 @@ class ClientsGrid extends ViewComponent {
                 </div>
             </div>
         </div>
+    </section>
     `;
 
     constructor(){

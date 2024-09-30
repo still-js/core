@@ -2,13 +2,14 @@ class ComponentSetup extends Components {
     
     entryComponentPath = routesMap.viewRoutes.regular.Home;
     entryComponentName = 'Home';
+    logged = true;
     
     constructor(){
         super();
     }
 
     init(){
-        return new Home();
+        return this.logged ? new AppTemplate() : new Login();
     }
 }
 

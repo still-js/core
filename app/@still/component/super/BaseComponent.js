@@ -40,6 +40,7 @@ class BaseComponent extends BehaviorComponent {
     isRoutable;
     onChangeEventsList = [];
     afterInitEventToParse = [];
+    isPublic = false;
 
 
     /**
@@ -85,7 +86,8 @@ class BaseComponent extends BehaviorComponent {
             'settings', 'componentName', 'template', 
             'cmpProps','htmlRefId','new','cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
-            '$stillIsThereForm','$stillpfx', 'subImported', 'onChangeEventsList'
+            '$stillIsThereForm','$stillpfx', 'subImported', 
+            'onChangeEventsList', 'isPublic'
         ];
         return fields.filter(
             field => !excludingFields.includes(field) && !field.startsWith(this.$stillpfx)

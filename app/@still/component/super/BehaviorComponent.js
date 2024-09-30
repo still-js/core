@@ -19,11 +19,11 @@ class BehaviorComponent {
     changeState(input, value){}
 
     showLoading(){
-        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'flex';
+        //document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'flex';
     }
 
     hideLoading(){
-        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'none';
+        //document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'none';
     }
 
 }

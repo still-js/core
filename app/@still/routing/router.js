@@ -93,7 +93,7 @@ class Router {
      */
     static getAndDisplayPage(componentInstance, isReRender = false, isHome = false){
 
-        const appCntrId = 'appPlaceholder';
+        const appCntrId = 'stillAppPlaceholder';
         const appPlaceholder = document.getElementById(appCntrId);
         const cmpId = componentInstance.getUUID();
         

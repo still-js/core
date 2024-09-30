@@ -17,6 +17,7 @@
     <link href="assets/js/bundles/multiselect/css/multi-select.css" rel="stylesheet">
     <link href="assets/css/julaw-form.css" rel="stylesheet">
     <script src="@still/component/manager/timer.js"></script>
+    <script src="./app-template.js"></script>
     <script src="route.map.js"></script>
     <script src="@still/setup/constants.js"></script>
     <script src="@still/setup/components.js"></script>
@@ -25,6 +26,7 @@
     <script src="@still/component/super/BehaviorComponent.js"></script>
     <script src="@still/component/super/BaseComponent.js"></script>
     <script src="@still/component/super/ViewComponent.js"></script>
+    <script src="components/home/Login.js"></script>
     <script src="components/main-menu/Menu.js"></script>
     <script src="components/dashboard-card/DashboardCard.js"></script>
     <script src="components/dashboard-card/CardDisplay.js"></script>
@@ -39,19 +41,8 @@
 </head>
 
 <body class="light">
-    <div id="uiPlaceholder">
+    <div id="stillUiPlaceholder">
 
-        <div class="page-loader-wrapper">
-            <div class="loader">
-                <div class="m-t-30">
-                    <img class="loading-img-spin" src="assets/images/loading.png" alt="admin">
-                </div>
-                <p>Please wait...</p>
-            </div>
-        </div>
-        <!-- <div class="overlay"></div> -->
-
-        <section class="content" id="appPlaceholder"></section>
         <div id="stllAppGlobalLoadingCurtain">
             <div class="lds-spinner">
                 <div></div>

@@ -13,5 +13,18 @@ const $stillconst = {
 
     TAGS: {
         TBODY: () => document.createElement('tbody')
+    },
+    'STILL_COMPONENT': `<still-component/>`,
+
+
+
+
+    /**
+     * Bellow constants for error messages are assigned
+     */
+    MSG : {
+        PRIVATE_CMP: `<h3 style='color:red;'>
+                        You're trying to access a private component, assign true to isPublic class property if you which to access it
+                     </h3>`
     }
 }

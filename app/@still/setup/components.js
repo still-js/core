@@ -83,6 +83,7 @@ class Components {
     componentName;
     static instance = null;
     notAssignedValue = [undefined, null,''];
+    stillCmpConst = $stillconst.STILL_COMPONENT;
 
     /**
      * @returns { ComponentSetup }
@@ -105,6 +106,15 @@ class Components {
         document
             .getElementById(placeHolder)
             .innerHTML = this.template;
+    }
+
+    renderOnViewWithWrapFor(placeHolder){
+        if(this.template instanceof Array)
+            this.template = this.template.join('');
+        
+        document
+            .getElementById(placeHolder)
+            .innerHTML = `<div>${this.template}<div>`;
     }
 
     /**
@@ -140,15 +150,41 @@ class Components {
             this.entryComponentName
         ).then(async () => {
             $still.context.currentView = this.init();
-            /**
-             * @type { ViewComponent }
-             */
-            const init = $still.context.currentView;
-            init.setUUID(this.getTopLevelCmpId());
-            const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
-            this.template = (init.template).replace('class="',`class="${init.getUUID()} ${loadCmpClass} `);
-            this.renderOnViewFor('appPlaceholder');
+            
+            /**  @type { ViewComponent } */
+            const currentView = $still.context.currentView;
+
+            if(currentView.template.indexOf(this.stillCmpConst) >= 0){
+                $still.context.currentView = eval(`new ${this.entryComponentName}()`);
+                this.template = this.getCurrentCmpTemplate($still.context.currentView);
+                this.template = currentView.template.replace(
+                    this.stillCmpConst,`<div id="stillAppPlaceholder">${this.template}</div>`
+                );
+                this.renderOnViewFor('stillUiPlaceholder');
+                return;
+            }
+
+            this.template = this.getCurrentCmpTemplate($still.context.currentView);
+            if(document.getElementById('stillAppPlaceholder'))
+                this.renderOnViewFor('stillAppPlaceholder');
+            else{
+                const init = $still.context.currentView;
+                if(init.isPublic){
+                    this.renderOnViewFor('stillUiPlaceholder');
+                }else{
+                    document.write($stillconst.MSG.PRIVATE_CMP);
+                    init.hideLoading();
+                }
+            }
         });
+    }
+
+    getCurrentCmpTemplate(cmp){
+        const init = cmp;
+        init.setUUID(this.getTopLevelCmpId());
+        const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
+        return (init.template)
+                .replace('class="',`class="${init.getUUID()} ${loadCmpClass} `);
     }
 
     setComponentAndName(cmp, cmpName){
@@ -474,7 +510,7 @@ class Components {
         const elmRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmp.getUUID();
         const container = document.querySelector(`.${elmRef}`);
         container.innerHTML = newInstance.getTemplate();
-        container.style.display = 'block';
+        container.style.display = 'contents';
 
         await newInstance.onRender();
         newInstance.stAfterInit();

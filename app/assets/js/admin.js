@@ -1,7 +1,7 @@
 'use strict';
 $(function () {
     $.MyAdmin.browser.activate();
-    $.MyAdmin.leftSideBar.activate();
+    //$.MyAdmin.leftSideBar.activate();
     $.MyAdmin.rightSideBar.activate();
     $.MyAdmin.navbar.activate();
     $.MyAdmin.input.activate();
@@ -50,9 +50,10 @@ $.MyAdmin.tooltip = {
         });
     }
 }
-/* Left Sidebar */
 
-$.MyAdmin.leftSideBar = {
+
+// Left Sidebar
+/* $.MyAdmin.leftSideBar = {
     activate: function () {
         var _this = this;
         var $body = $('body');
@@ -115,26 +116,26 @@ $.MyAdmin.leftSideBar = {
     },
     setMenuHeight: function (isFirstTime) {
         if (typeof $.fn.slimScroll != 'undefined') {
-            var configs = $.MyAdmin.options.leftSideBar;
+            //var configs = $.MyAdmin.options.leftSideBar;
             //var height = ($(window).height() - ($('.legal').outerHeight() + $('.user-info').outerHeight() + $('.navbar').innerHeight()));
             var height = ($(window).height() - ($('.navbar').innerHeight()));
             var $el = $('.list');
 
-            $el.slimscroll({
-                height: height + "px",
-                color: configs.scrollColor,
-                size: configs.scrollWidth,
-                alwaysVisible: configs.scrollAlwaysVisible,
-                borderRadius: configs.scrollBorderRadius,
-                railBorderRadius: configs.scrollRailBorderRadius
-            });
+            //$el.slimscroll({
+            //    height: height + "px",
+            //    color: configs.scrollColor,
+            //    size: configs.scrollWidth,
+            //    alwaysVisible: configs.scrollAlwaysVisible,
+            //    borderRadius: configs.scrollBorderRadius,
+            //    railBorderRadius: configs.scrollRailBorderRadius
+            //});
 
             //Scroll active menu item when page load, if option set = true
-            if ($.MyAdmin.options.leftSideBar.scrollActiveItemWhenPageLoad) {
+            //if ($.MyAdmin.options.leftSideBar.scrollActiveItemWhenPageLoad) {
                 //TOUCHED HERE, VALIDATE THE LOGIC TO UNCOMMENT
                 //var activeItemOffsetTop = $('.menu .list li.active')[0].offsetTop
                 //if (activeItemOffsetTop > 150) $el.slimscroll({ scrollTo: activeItemOffsetTop + 'px' });
-            }
+            //}
         }
     },
     checkStatuForResize: function (firstTime) {
@@ -148,10 +149,10 @@ $.MyAdmin.leftSideBar = {
             });
         }
 
-        if (width < $.MyAdmin.options.leftSideBar.breakpointWidth) {
-            $body.addClass('ls-closed');
-            $openCloseBar.fadeIn();
-        }
+        //if (width < $.MyAdmin.options.leftSideBar.breakpointWidth) {
+        //    $body.addClass('ls-closed');
+        //    $openCloseBar.fadeIn();
+        //}
         else {
             $body.removeClass('ls-closed');
             $openCloseBar.fadeOut();
@@ -162,7 +163,7 @@ $.MyAdmin.leftSideBar = {
     }
 };
 
-/*  Left sidemenu collapse */
+// Left sidemenu collapse
 $('.sidemenu-collapse').on('click', function () {
     var $body = $('body');
     if ($body.hasClass('side-closed')) {
@@ -202,7 +203,7 @@ jQuery(document).on("click", ".sidemenu-collapse", function () {
     }
     jQuery("body").addClass(sidebar_option);
     localStorage.setItem("sidebar_option", sidebar_option);
-});
+}); */
 
 
 /* Right Sidebar */

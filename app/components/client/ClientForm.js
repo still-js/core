@@ -18,191 +18,193 @@ class ClientForm extends ViewComponent {
     routingData; //Used to assign data if sent from Router
 
     template = `
-    <div class="row clearfix">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="card">
-                <div class="header">
-                    <h2><strong>Cadastro</strong> de cliente</h2>
-                    <ul class="header-dropdown m-r--5">
-                        <li class="dropdown">
-                            <a href="#" onClick="return false;" class="dropdown-toggle" data-toggle="dropdown"
-                                role="button" aria-haspopup="true" aria-expanded="false">
-                                <i class="material-icons">more_vert</i>
-                            </a>
-                            <ul class="dropdown-menu pull-right">
-                                <li>
-                                    <a href="#" onClick="return false;">Action</a>
-                                </li>
-                                <li>
-                                    <a href="#" onClick="return false;">Another action</a>
-                                </li>
-                                <li>
-                                    <a href="#" onClick="return false;">Something else here</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="body">
-                    <form id="wizard_with_validation" onsubmit="javascript: return false;">
-                        <h3>Dados Pessoais</h3>
-                        <fieldset>
+    <section class="content">
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Cadastro</strong> de cliente</h2>
+                        <ul class="header-dropdown m-r--5">
+                            <li class="dropdown">
+                                <a href="#" onClick="return false;" class="dropdown-toggle" data-toggle="dropdown"
+                                    role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="material-icons">more_vert</i>
+                                </a>
+                                <ul class="dropdown-menu pull-right">
+                                    <li>
+                                        <a href="#" onClick="return false;">Action</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" onClick="return false;">Another action</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" onClick="return false;">Something else here</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="body">
+                        <form id="wizard_with_validation" onsubmit="javascript: return false;">
+                            <h3>Dados Pessoais</h3>
+                            <fieldset>
 
-                            <h2 class="card-inside-title">Detalhes do cliente</h2>
-                            <div class="row clearfix">
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <div class="input-field col s12">
+                                <h2 class="card-inside-title">Detalhes do cliente</h2>
+                                <div class="row clearfix">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <div class="input-field col s12">
+                                                <span class="input-group-addon">
+                                                    <i class="material-icons">person</i> Tipo de cliente
+                                                </span>
+                                                <select (change)="updateTipoCliente($event)" (forEach)="clientType">
+                                                    <option each="item" value="">Selecione uma opção</option>
+                                                    <option each="item" value="{item.id}">{item.value}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
                                             <span class="input-group-addon">
-                                                <i class="material-icons">person</i> Tipo de cliente
+                                                <i class="material-icons">person</i> Nome
                                             </span>
-                                            <select (change)="updateTipoCliente($event)" (forEach)="clientType">
-                                                <option each="item" value="">Selecione uma opção</option>
-                                                <option each="item" value="{item.id}">{item.value}</option>
-                                            </select>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">group</i> Sobrenome
+                                            </span>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="sobrenome" placeholder="Sobrenome">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">person</i> Nome
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
+                                <div class="row clearfix">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">location_city</i> Endereço
+                                            </span>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="endereco" placeholder="Endereço">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">receipt</i> Número de Identificação Fiscal
+                                            </span>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="nif" placeholder="NIF">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">person_outline</i> Pessoa de contacto
+                                            </span>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="pessoaContacto" placeholder="Pessoa de Contacto">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">group</i> Sobrenome
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="sobrenome" placeholder="Sobrenome">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row clearfix">
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">location_city</i> Endereço
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="endereco" placeholder="Endereço">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">receipt</i> Número de Identificação Fiscal
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="nif" placeholder="NIF">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">person_outline</i> Pessoa de contacto
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="pessoaContacto" placeholder="Pessoa de Contacto">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                        </fieldset>
+                            </fieldset>
 
-                        <h3>Contactos</h3>
-                        <fieldset>
-                            <h2 class="card-inside-title">Dados de contactos</h2>
-                            <div class="row clearfix">
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">phone</i> Telefone
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="telefone" placeholder="Telefone">
+                            <h3>Contactos</h3>
+                            <fieldset>
+                                <h2 class="card-inside-title">Dados de contactos</h2>
+                                <div class="row clearfix">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">phone</i> Telefone
+                                            </span>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="telefone" placeholder="Telefone">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">contact_phone</i> Contacto para Cobrança
+                                            </span>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control date" (value)="contactoCobranca" placeholder="Contacto para cobrança">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">contact_phone</i> Contacto para Cobrança
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="contactoCobranca" placeholder="Contacto para cobrança">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                        </fieldset>
-                        <h3>Nota</h3>
-                        <fieldset>
-                            <!-- TinyMCE -->
-                            <div class="row clearfix">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <div class="card">
-                                        <div class="header">
-                                            <h2>
-                                                <strong>Nota</strong>
-                                            </h2>
-                                            <ul class="header-dropdown m-r--5">
-                                                <li class="dropdown">
-                                                    <a href="#" onClick="return false;" class="dropdown-toggle" data-toggle="dropdown"
-                                                        role="button" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="material-icons">more_vert</i>
-                                                    </a>
-                                                    <ul class="dropdown-menu pull-right">
-                                                        <li>
-                                                            <a href="#" onClick="return false;">Action</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="#" onClick="return false;">Another action</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="#" onClick="return false;">Something else here</a>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="body">
-                                            <textarea id="tinymce1">
-                                                <h2>Título</h2>
-                                                <p>Descrição</p>
-                                                <h3>Ponto</h3>
-                                                <ul>
-                                                    <li>Suspendisse tincidunt urna ut velit ullamcorper fermentum.</li>
-                                                    <li>Nullam mattis sodales lacus, in gravida sem auctor at.</li>
-                                                    <li>Praesent non lacinia mi.</li>
-                                                    <li>Mauris a ante neque.</li>
-                                                    <li>Aenean ut magna lobortis nunc feugiat sagittis.</li>
+                            </fieldset>
+                            <h3>Nota</h3>
+                            <fieldset>
+                                <!-- TinyMCE -->
+                                <div class="row clearfix">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="card">
+                                            <div class="header">
+                                                <h2>
+                                                    <strong>Nota</strong>
+                                                </h2>
+                                                <ul class="header-dropdown m-r--5">
+                                                    <li class="dropdown">
+                                                        <a href="#" onClick="return false;" class="dropdown-toggle" data-toggle="dropdown"
+                                                            role="button" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="material-icons">more_vert</i>
+                                                        </a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li>
+                                                                <a href="#" onClick="return false;">Action</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" onClick="return false;">Another action</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" onClick="return false;">Something else here</a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
                                                 </ul>
-                                            </textarea>
+                                            </div>
+                                            <div class="body">
+                                                <textarea id="tinymce1">
+                                                    <h2>Título</h2>
+                                                    <p>Descrição</p>
+                                                    <h3>Ponto</h3>
+                                                    <ul>
+                                                        <li>Suspendisse tincidunt urna ut velit ullamcorper fermentum.</li>
+                                                        <li>Nullam mattis sodales lacus, in gravida sem auctor at.</li>
+                                                        <li>Praesent non lacinia mi.</li>
+                                                        <li>Mauris a ante neque.</li>
+                                                        <li>Aenean ut magna lobortis nunc feugiat sagittis.</li>
+                                                    </ul>
+                                                </textarea>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <button class="julaw-submit-button" (click)="registerClient()">Submeter</button>
+                                    <button class="julaw-cancel-button" (click)="resetState()">Cancelar</button>
+
                                 </div>
-
-                                <button class="julaw-submit-button" (click)="registerClient()">Submeter</button>
-                                <button class="julaw-cancel-button" (click)="resetState()">Cancelar</button>
-
-                            </div>
-                        </fieldset>
-                    </form>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
     `;
 
     constructor(){

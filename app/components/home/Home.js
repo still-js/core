@@ -1,33 +1,29 @@
 class Home extends BaseComponent {
 
     template = `
-    <div class="content-wrapper">
-        <nav class="navbar" id="topNavBar" style="position: fixed;"></nav>
+    <section class="content">
+        
+            <div class="container-fluid">
+                <!-- Dashboard Widgets -->
+                <div id="dashBoardCards" class="row"></div>
 
-        <div>
-            <aside id="leftsidebar" class="sidebar"></aside>
-        </div>
+                <div class="row">
+                    <div id="barCharPlaceholder" style="display: contents;"></div>
+                    <div id="lineCharPlaceholder" style="display: contents;"></div>
+                </div>
 
-        <div class="container-fluid">
-            <!-- Dashboard Widgets -->
-            <div id="dashBoardCards" class="row"></div>
-
-            <div class="row">
-                <div id="barCharPlaceholder" style="display: contents;"></div>
-                <div id="lineCharPlaceholder" style="display: contents;"></div>
+                <div class="row clearfix">
+                    <div id="animateCharts" style="display: contents;"></div>
+                </div>
+                
+                <div class="row clearfix">
+                    <div id="projectGrid" style="display: contents;"></div>
+                    <div id="dashboardCalendar" style="display: contents;"></div>
+                </div>
+                
             </div>
-
-            <div class="row clearfix">
-                <div id="animateCharts" style="display: contents;"></div>
-            </div>
-            
-            <div class="row clearfix">
-                <div id="projectGrid" style="display: contents;"></div>
-                <div id="dashboardCalendar" style="display: contents;"></div>
-            </div>
-            
-        </div>
-    </div>
+        
+    </section>
     `;
 
     cardDisplayDS;

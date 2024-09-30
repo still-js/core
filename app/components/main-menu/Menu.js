@@ -48,7 +48,6 @@ class CMenu extends ViewComponent {
         this.setup({});
     }
 
-
 }
 
 const Menu = $still.component.expose(new CMenu());

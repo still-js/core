@@ -3,7 +3,6 @@ class CMenu extends ViewComponent {
     htmlRefId = 'leftsidebar';
     template = `
         <div class="main-side-menu">
-
             <ul>
                 <li>
                     <a href="#" (click)="gotoView('Home')">
@@ -29,6 +28,17 @@ class CMenu extends ViewComponent {
                         </li>
                         <li>
                             <a href="#" (click)="gotoView('NovoMenuComponent')">Novo Menu</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="active">
+                <a href="#" onClick="return false;" class="menu-toggle">
+                    <i class="menu-icon ti-user"></i>
+                    <span>Colaboradores</span>
+                </a>
+                    <ul class="ml-menu" (if)="utilzador.permission['Admin']">
+                        <li class="active">
+                            <a href="#" (click)="gotoView('ColaboradoresGrid')">Ver Colaboradores</a>
                         </li>
                     </ul>
                 </li>

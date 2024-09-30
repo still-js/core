@@ -12,14 +12,11 @@
     <link href="assets/css/app.min.css" rel="stylesheet">
     <!-- Custom Css -->
     <link href="assets/css/style.css" rel="stylesheet" />
-    <link href="assets/css/auth.css" rel="stylesheet" />
-    <link href="assets/css/pages/extra_pages.css" rel="stylesheet" />
     <!-- Theme style. You can choose a theme from css/themes instead of get all themes -->
     <link href="assets/css/styles/all-themes.css" rel="stylesheet" />
     <link href="assets/js/bundles/multiselect/css/multi-select.css" rel="stylesheet">
     <link href="assets/css/julaw-form.css" rel="stylesheet">
     <script src="@still/component/manager/timer.js"></script>
-    <script src="./app-template.js"></script>
     <script src="route.map.js"></script>
     <script src="@still/setup/constants.js"></script>
     <script src="@still/setup/components.js"></script>
@@ -28,7 +25,6 @@
     <script src="@still/component/super/BehaviorComponent.js"></script>
     <script src="@still/component/super/BaseComponent.js"></script>
     <script src="@still/component/super/ViewComponent.js"></script>
-    <script src="components/auth/Login.js"></script>
     <script src="components/main-menu/Menu.js"></script>
     <script src="components/dashboard-card/DashboardCard.js"></script>
     <script src="components/dashboard-card/CardDisplay.js"></script>
@@ -43,24 +39,25 @@
 </head>
 
 <body class="light">
-    <div id="stillUiPlaceholder">
-
-        <div id="stllAppGlobalLoadingCurtain">
-            <div class="lds-spinner">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+    <div id="uiPlaceholder">
+        <div class="page-loader-wrapper">
+            <div class="loader">
+                <div class="m-t-30">
+                    <img class="loading-img-spin" src="assets/images/loading.png" alt="admin">
+                </div>
+                <p>Por favor, aguarde... </p>
             </div>
         </div>
+        <div class="overlay"></div>
+        <nav class="navbar">
+            <script> TopNavBar.render() </script>
+        </nav>
+        <div>
+            <aside id="leftsidebar" class="sidebar">
+                <script> Menu.render()  </script>
+            </aside>
+        </div>
+        <section class="content" id="appPlaceholder"></section>
 
     </div>
     <!-- Plugins Js -->
@@ -77,14 +74,12 @@
     <script async src="components/colaboradores/ColaboradoresGrid.js"></script>
     <script async src="components/colaboradores/ColaboradorForm.js"></script>
     <script defer src="assets/js/table.min.js"></script>
+
     <!-- Form wizard imports -->
     <script defer src="assets/js/pages/forms/form-wizard.js"></script>
     <script defer src="assets/js/bundles/jquery-steps/jquery.steps.min.js"></script>
     <script defer src="assets/js/bundles/tinymce/tinymce.min.js"></script>
     <!-- End Form wizard imports -->
-
-    <link rel="stylesheet" href="assets/css/julaw-main.css">
-    <link href="assets/css/side-menu.css" rel="stylesheet" />
 
     <!-- JQuery Select imports -->
     <!-- <script defer src="assets/js/bundles//multiselect/js/jquery.multi-select.js"></script>

@@ -2,8 +2,8 @@ class ComponentSetup extends Components {
     
     entryComponentPath = routesMap.viewRoutes.regular.Home;
     entryComponentName = 'Home';
-    logged = true;
-    
+    logged = false;
+
     constructor(){
         super();
     }

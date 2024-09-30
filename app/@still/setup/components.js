@@ -20,10 +20,14 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             return false;
         }
 
+        console.log(className)
+
         try {
             eval(`${className}`);
             resolve([]);
         } catch (error) {
+
+            console.log("error >>> ", error);
             
             const script = $stillLoadScript(path, className);
             document.head.insertAdjacentElement('beforeend',script);

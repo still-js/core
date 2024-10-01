@@ -14,7 +14,8 @@ const $stillconst = {
     TAGS: {
         TBODY: () => document.createElement('tbody')
     },
-    'STILL_COMPONENT': `<still-component/>`,
+    STILL_COMPONENT: `<still-component/>`,
+    APP_PLACEHOLDER: 'stillAppPlaceholder',
 
 
 

@@ -2,6 +2,7 @@ class Router {
 
     #data = {};
     static instance = null;
+    static appPlaceholder = $stillconst.APP_PLACEHOLDER;
 
     /** @returns { Router } */
     static getInstance(){
@@ -19,11 +20,22 @@ class Router {
     }
 
     /**
-     * 
+     *
      * @param {*} cmp 
      * @param {{data, path}} param1 
      */
     static goto(cmp, { data } = { data: {} }){
+
+        if(cmp === 'init'){
+            ComponentSetup.get().loadComponent();
+        }
+
+        if(cmp === 'exit'){
+            console.log(`Calling unload()`);
+            AppTemplate.get().unloadApp();
+            console.log(`Called unload()`);    
+            ComponentSetup.get().loadComponent();
+        }
 
         //Move to when evetything it's processed successfully
         if(Object.keys(data).length)
@@ -34,9 +46,29 @@ class Router {
 
         const cmpRegistror = $still.context.componentRegistror.componentList;
         const isHomeCmp = ComponentSetup.get().entryComponentName == cmp;
-        if(isHomeCmp && cmp in cmpRegistror){
-            $still.context.currentView = cmpRegistror[cmp].instance;
-            Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
+        if(isHomeCmp){
+
+            if(cmp in cmpRegistror){
+
+                $still.context.currentView = cmpRegistror[cmp].instance;
+                Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
+
+            }else{
+
+                /**
+                 * TO DO: Repeating code from both Router class and Components Class, 
+                 * should be modularized from
+                 */
+                const appTemplate = AppTemplate.get().template;
+                $still.context.currentView = eval(`new ${cmp}()`);
+                let template = (new Components()).getCurrentCmpTemplate($still.context.currentView);
+                template = appTemplate.replace(
+                    $stillconst.STILL_COMPONENT,`<div id="${Router.appPlaceholder}">${template}</div>`
+                );
+                document.getElementById('stillUiPlaceholder').innerHTML = template;
+
+            }
+
         }else{
 
             loadComponentFromPath(route, cmp)
@@ -93,7 +125,7 @@ class Router {
      */
     static getAndDisplayPage(componentInstance, isReRender = false, isHome = false){
 
-        const appCntrId = 'stillAppPlaceholder';
+        const appCntrId = Router.appPlaceholder;
         const appPlaceholder = document.getElementById(appCntrId);
         const cmpId = componentInstance.getUUID();
         

@@ -30,6 +30,12 @@ class Home extends BaseComponent {
 
     constructor(){
         super();
+
+        window.history.back();
+        if(AppTemplate.get().getStorageValue('logged')){
+            console.log(`Used was logged: `, AppTemplate.get().getStorageValue('logged'));
+        }
+
         this.hideLoading();
         this.setup({
             includs: [

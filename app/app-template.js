@@ -1,4 +1,4 @@
-class AppTemplate {
+class AppTemplate extends Template{
 
     /**
      * <still-component> is the placeholder where components 

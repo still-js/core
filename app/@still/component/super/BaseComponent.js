@@ -112,21 +112,28 @@ class BaseComponent extends BehaviorComponent {
         let path;
         const dynamic = $stillconst.DYNAMIC_CMP_PREFIX;
         
-        if(
-            this.cmpInternalId && !this.isRoutable
-            && !this.getRoutableCmp()
-            /* && this.cmpInternalId.indexOf(dynamic) == 0 */
-        ){
-            /** If component was generated dynamically in a loop */
-            path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
-
+        if(this.isPublic){
+            path = `Public_${this.constructor.name}`;
         }else{
 
-            if(this.getRoutableCmp())
-                path = `$still.context.componentRegistror.getComponent('${this.getName()}')`;
-            else
-                path = `$still.component.get('${this.getInstanceName()}')`;
+            if(
+                this.cmpInternalId && !this.isRoutable
+                && !this.getRoutableCmp()
+                /* && this.cmpInternalId.indexOf(dynamic) == 0 */
+            ){
+                /** If component was generated dynamically in a loop */
+                path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
+    
+            }else{
+    
+                if(this.getRoutableCmp())
+                    path = `$still.context.componentRegistror.getComponent('${this.getName()}')`;
+                else
+                    path = `$still.component.get('${this.getInstanceName()}')`;
+            }
+
         }
+
         return path;
     }
 

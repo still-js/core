@@ -5,6 +5,13 @@ class CMenu extends ViewComponent {
         <div class="main-side-menu">
             <ul>
                 <li>
+                    <a href="#" (click)="logout()">
+                        <i class="menu-icon ti-home"></i>
+                        <span>Sair</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="#" (click)="gotoView('Home')">
                         <i class="menu-icon ti-home"></i>
                         <span>Início</span>
@@ -51,6 +58,10 @@ class CMenu extends ViewComponent {
 
     gotoView(viewComponent){
         Router.goto(viewComponent);
+    }
+
+    logout(){
+        Router.goto('exit');
     }
 
     constructor(){

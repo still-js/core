@@ -1,14 +1,16 @@
 class ColaboradoresGrid extends ViewComponent {
+  htmlRefId = "idDataTable";
+  dataSource;
 
-    htmlRefId = 'idDataTable';
-    dataSource;
-
-    template = `
+  template = `
     <section class="content">
         <div class="block-header">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <h3></h3>
+                <div class="title-grid-component">
+                    <span class="fas fa-user-friends title-grid-component-icon"></span>    
+                        <h3>Lista dos Colaboradores</h3>
+                    <span class="title-grid-component-description">Navega pela lista ou cria um novo</span>
                 </div>
             </div>
         </div>
@@ -64,120 +66,112 @@ class ColaboradoresGrid extends ViewComponent {
     </section>
     `;
 
-    constructor() {
-        super();
-        this.setup({});
-    }
+  constructor() {
+    super();
+    this.setup({});
+  }
 
-    async onRender() {
-        /**
-         * Isso quer dizer que o import do JQuery foi feito no index principal
-         * ou no ficheiro de rotas em eagerImport
-         */
-        this.stRunOnFirstLoad(() => {
-            $('.js-basic-example').DataTable({
-                responsive: true
-            });
-        });
-
-        /** For Test purpose only */
-        await this.stLazyExecution(async () => { });
-    }
-
-    gotoView(viewComponent){
-        Router.goto(viewComponent);
-    }
-
-    stAfterInit(val) {
-        $still
-            .HTTPClient
-            .get('http://localhost:3000/api/v1/colaborador/')
-            .then((r) => {
-                if(r.data) {
-                    console.log(r)
-                    this.makeColaboradorDTO(r.data);
-                }
-            });
-    }
-
-    editClient(nif) {
-        console.log(`Clicked client is: `, nif);
-
-        const result = this.dataSource.value.filter((r) => r.nif == nif)
-        Router.goto('ClientForm', {
-            data: result[0]
-        });
-
-    }
-
-    makeColaboradorDTO(data) {
-        
-
-        let initialObjectColaborador = {
-                idColaborador: null,
-                nomeCompleto: null,
-                nomeProfissional: null,
-                funcao: null,
-                dataNascimento: null,
-                status: null,
-                createdAt: null,
-                tipoColaborador: null,
-                identificacoes: [
-                    {
-                        code: null,
-                        descricao: null,
-                    }
-                ],
-                contactos: [
-                    {
-                        tipo: null,
-                        descricao: null,
-                    },
-                ]
-            }
-        
-        // this.dataSource = r.data;
-        let colaboradorData = []
-
-        for(let colaborador of data) {
-            colaboradorData.push(
-                {
-                    ...initialObjectColaborador, 
-                    idColaborador: colaborador.id,
-                    nomeCompleto: colaborador.nome_completo,
-                    nomeProfissional: colaborador.nome_profissional,
-                    funcao: colaborador.funcao,
-                    dataNascimento: colaborador.data_nascimento,
-                    status: colaborador.status,
-                    createdAt: colaborador.created_at,
-                    tipoColaborador: colaborador.tipo.description,
-                    identificacoes: 
-                            colaborador.identificacoes.map((item) => (
-                                {
-                                    code: item.tipo.code,
-                                    descricao: item.tipo.description
-                               })),
-                    contactos: 
-                            colaborador.contactos.map((item) => (
-                               { 
-                                    tipo: item.type,
-                                    descricao: item.descricao
-                                }))                                              
-                }
-            )
-        }
-
-        this.dataSource = colaboradorData
-        console.log(colaboradorData)
-
-    }
+  async onRender() {
+    /**
+     * Isso quer dizer que o import do JQuery foi feito no index principal
+     * ou no ficheiro de rotas em eagerImport
+     */
+    this.stRunOnFirstLoad(() => {
+      $(".js-basic-example").DataTable({
+        responsive: true,
+      });
+    });
 
     /** For Test purpose only */
-    /** @type { StEvent } */
-    anyState = 'This is the state value';
-    runLocalFunc() {
-        alert('Alert from the components itself' + this.anyState);
+    await this.stLazyExecution(async () => {});
+  }
+
+  editColaborador(idColaborador) {
+    console.log('Edit colaborador', idColaborador);
+    alert('Edit colaborador')
+  }
+
+  gotoView(viewComponent) {
+    Router.goto(viewComponent);
+  }
+
+  stAfterInit(val) {
+    $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
+      (r) => {
+        if (r.data) {
+          console.log(r);
+          this.makeColaboradorDTO(r.data);
+        }
+      }
+    );
+  }
+
+  editClient(nif) {
+    console.log(`Clicked client is: `, nif);
+
+    const result = this.dataSource.value.filter((r) => r.nif == nif);
+    Router.goto("ClientForm", {
+      data: result[0],
+    });
+  }
+
+  makeColaboradorDTO(data) {
+    let initialObjectColaborador = {
+      idColaborador: null,
+      nomeCompleto: null,
+      nomeProfissional: null,
+      funcao: null,
+      dataNascimento: null,
+      status: null,
+      createdAt: null,
+      tipoColaborador: null,
+      identificacoes: [
+        {
+          code: null,
+          descricao: null,
+        },
+      ],
+      contactos: [
+        {
+          tipo: null,
+          descricao: null,
+        },
+      ],
+    };
+
+    // this.dataSource = r.data;
+    let colaboradorData = [];
+
+    for (let colaborador of data) {
+      colaboradorData.push({
+        ...initialObjectColaborador,
+        idColaborador: colaborador.id,
+        nomeCompleto: colaborador.nome_completo,
+        nomeProfissional: colaborador.nome_profissional,
+        funcao: colaborador.funcao,
+        dataNascimento: colaborador.data_nascimento,
+        status: colaborador.status,
+        createdAt: colaborador.created_at,
+        tipoColaborador: colaborador.tipo.description,
+        identificacoes: colaborador.identificacoes.map((item) => ({
+          code: item.tipo.code,
+          descricao: item.tipo.description,
+        })),
+        contactos: colaborador.contactos.map((item) => ({
+          tipo: item.type,
+          descricao: item.descricao,
+        })),
+      });
     }
 
+    this.dataSource = colaboradorData;
+    console.log(colaboradorData);
+  }
 
+  /** For Test purpose only */
+  /** @type { StEvent } */
+  anyState = "This is the state value";
+  runLocalFunc() {
+    alert("Alert from the components itself" + this.anyState);
+  }
 }

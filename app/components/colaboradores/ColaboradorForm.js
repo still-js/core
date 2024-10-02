@@ -1,16 +1,31 @@
 class ColaboradorForm extends ViewComponent {
+    username;
+    nome_completo;
+    nome_profissional;
+    data_nascimento;
+    funcao;
+    tipo_colaborador_id;
 
-    username = "";
-    nome_completo = "";
-    nome_profissional = "";
-    data_nascimento = "";
-    funcao = "";
-    tipo_colaborador_id = "";
-    contactos = [];
-    identificacoes = "";
+    contactos_telefone_pessoal;
+    contactos_telefone_emergencia;
+    contactos_email_pessoal;
+    contactos_email_corporativo;
+    contactos_telefone_endereco;
+
+    identificacoes_bi;
+    identificacoes_cedula;
+
+    status = "Activo";
 
     template = `
+    <section class="content">
     <div class="row clearfix">
+        <div class="title-grid-component">
+            <span class="fas fa-user title-grid-component-icon"></span>    
+                <h3>Novo Colaborador</h3>
+            <span class="title-grid-component-description">cria um novo colaborador</span>
+        </div>
+
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="header">
@@ -49,7 +64,7 @@ class ColaboradorForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Tipo de colaborador
                                         </span>
-                                        <select  (value)="tipo_colaborador_id">
+                                        <select  (change)="updateTipoColaborador($event)">
                                             <option value="" disabled selected>Selecione o tipo de colaborador</option>
                                             <option value="1">Administrativo</option>
                                             <option value="2">Advogado - Júnior</option>
@@ -65,9 +80,8 @@ class ColaboradorForm extends ViewComponent {
                                 <span class="input-group-addon">
                                     <i class="material-icons">person</i> Categoria
                                 </span>
-                                <select>
+                                <select (change)="updateTipoCategoria($event)">
                                     <option value="" disabled selected>Selecione uma categoria</option>
-
                                     <option value="administrativo">Administrativo</option>
                                     <option value="adv_junior">Júnior</option>
                                     <option value="adv_senior">Sénior</option>
@@ -90,10 +104,10 @@ class ColaboradorForm extends ViewComponent {
                                 <span class="input-group-addon">
                                     <i class="material-icons">person</i> Status
                                 </span>
-                                <select>
+                                <select (change)="updateStatus($event)">
                                     <option value="" disabled >Selecione um status</option>
-                                    <option selected value="pending">Pendente</option>
-                                    <option value="active">Activo</option>
+                                    <option  value="pending">Pendente</option>
+                                    <option  selected value="active">Activo</option>
                                     <option value="inactive">Inactivo</option>
                                 </select>
                             </div>
@@ -118,71 +132,53 @@ class ColaboradorForm extends ViewComponent {
                             <h2 class="card-inside-title">Dados de contactos</h2>
                             <div class="row clearfix">
                             <div class="col-md-6">
+                                <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="material-icons">person</i> Tipo de Contacto :
+                                        <i class="material-icons">mail</i> E-mail Pessoal
                                     </span>
-                                <select>
-                                    <option value="" selected disabled >Selecione um tipo</option>
-                                    <option value="e-mail">Email</option>
-                                    <option value="telefone">Telefone</option>
-                                    <option value="endereco">Endereço</option>
-                                    <option value="outro">Outro</option>
-                                </select>
+                                <div class="form-line">
+                                    <input type="text" class="form-control date" (value)="contactos_email_pessoal" placeholder="e-mail pessoal">
+                                </div>
+                        </div>
                             </div>
                             <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">contact_phone</i> Valor de Contacto :   </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="contactos[]" placeholder="valor de contacto">
-                                        </div>
-                                    </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="material-icons">mail</i> E-mail Corporativo
+                                    </span>
+                                <div class="form-line">
+                                <input type="text" class="form-control date" (value)="contactos_email_corporativo" placeholder="e-mail corporativo">
+                                </div>
                                 </div>
                             </div>
 
-                            <div class="row clearfix">
                             <div class="col-md-6">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">person</i> Tipo de Contacto :
-                                    </span>
-                                <select>
-                                    <option value="" selected disabled >Selecione um tipo</option>
-                                    <option value="e-mail">Email</option>
-                                    <option value="telefone">Telefone</option>
-                                    <option value="endereco">Endereço</option>
-                                    <option value="outro">Outro</option>
-                                </select>
+                            <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="material-icons">phone</i> Contacto Pessoal
+                            </span>
+                        <div class="form-line">
+                        <input type="text" class="form-control date" (value)="contactos_telefone_pessoal" placeholder="contacto pessoal">
+                        </div>
+                        </div>
                             </div>
                             <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">contact_phone</i> Valor de Contacto :   </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="contactos[]" placeholder="valor de contacto">
-                                        </div>
-                                    </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="material-icons">phone</i>Contacto de Emergência
+                                    </span>
+                                <div class="form-line">
+                                    <input type="text" class="form-control date" (value)="contactos_telefone_emergencia" placeholder="contacto de emergenciaio">
+                            </div>
                                 </div>
                             </div>
-
-                            <div class="row clearfix">
-                            <div class="col-md-6">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">person</i> Tipo de Contacto :
-                                    </span>
-                                <select>
-                                    <option value="" selected disabled >Selecione um tipo</option>
-                                    <option value="e-mail">Email</option>
-                                    <option value="telefone">Telefone</option>
-                                    <option value="endereco">Endereço</option>
-                                    <option value="outro">Outro</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
+                           
+                            <div class="col-md-12">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">contact_phone</i> Valor de Contacto :   </span>
+                                            <i class="material-icons">room</i> Endereço :   </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="contactos[]" placeholder="valor de contacto">
+                                            <input type="text" class="form-control date" (value)="contactos_telefone_endereco" placeholder="Cidade, Bairro - casa n.º">
                                         </div>
                                     </div>
                                 </div>
@@ -195,23 +191,18 @@ class ColaboradorForm extends ViewComponent {
                         <div class="row clearfix">
                         <div class="col-md-6">
                                 <span class="input-group-addon">
-                                    <i class="material-icons">person</i> Tipo de Identificação :
+                                    <i class="far fa-id-card"></i> Tipo de Identificação :
                                 </span>
                             <select>
-                                <option value="" selected disabled >Selecione um tipo</option>
-                                <option value="1">Billhete de Identidade</option>
-                                <option value="2">Passaporte</option>
-                                <option value="3">Cartão de Residente</option>
-                                <option value="4">Cédula OAA</option>
-                                <option value="5">Outro</option>
+                                <option selected >Billhete de Identidade</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                                 <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="material-icons">contact_phone</i> N.º de Identificação :   </span>
+                                        <i class="far fa-id-card"></i> N.º de Identificação :   </span>
                                     <div class="form-line">
-                                    <input type="text" class="form-control" (value)="identificacoes[]" placeholder="n.º identificação">
+                                    <input type="text" class="form-control" (value)="identificacoes_bi" placeholder="n.º identificação">
                                     </div>
                                 </div>
                             </div>
@@ -220,62 +211,33 @@ class ColaboradorForm extends ViewComponent {
                         <div class="row clearfix">
                         <div class="col-md-6">
                                 <span class="input-group-addon">
-                                    <i class="material-icons">person</i> Tipo de Contacto :
+                                <i class="far fa-id-card"></i> Tipo de Identificação :
                                 </span>
                             <select>
-                                <option value="" selected disabled >Selecione um tipo</option>
-                                <option value="1">Billhete de Identidade</option>
-                                <option value="2">Passaporte</option>
-                                <option value="3">Cartão de Residente</option>
-                                <option value="4">Cédula OAA</option>
-                                <option value="5">Outro</option>
+                                <option selected >Cédula OAA</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                                 <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="material-icons">contact_phone</i>  N.º de Identificação :   </span>
+                                    <i class="far fa-id-card"></i>  N.º de Identificação :   </span>
                                     <div class="form-line">
-                                    <input type="text" class="form-control" (value)="identificacoes[]" placeholder="n.º identificação">
+                                    <input type="text" class="form-control" (value)="identificacoes_cedula" placeholder="n.º identificação">
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>                    
+                        
+                            <button class="julaw-submit-button" (click)="registerColaborador()">Salvar</button>
 
-                        <div class="row clearfix">
-                        <div class="col-md-6">
-                                <span class="input-group-addon">
-                                    <i class="material-icons">person</i> Tipo de Contacto :
-                                </span>
-                            <select>
-                                <option value="" selected disabled >Selecione um tipo</option>
-                                <option value="1">Billhete de Identidade</option>
-                                <option value="2">Passaporte</option>
-                                <option value="3">Cartão de Residente</option>
-                                <option value="4">Cédula OAA</option>
-                                <option value="5">Outro</option>
-                            </select>
                         </div>
-                        <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">contact_phone</i> N.º de Identificação :   </span>
-                                    <div class="form-line">
-                                        <input type="text" class="form-control" (value)="identificacoes[]" placeholder="n.º identificação">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                                <button class="julaw-submit-button" (click)="registerColaborador()">Salvar</button>
-
-                            </div>
                         </fieldset>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    </section>
     `;
 
     constructor() {
@@ -304,85 +266,155 @@ class ColaboradorForm extends ViewComponent {
         });
     }
 
+    updateTipoColaborador(evt) {
+        console.log("Value is: ", evt);
+        this.tipo_colaborador_id = evt.target.value;
+        console.log("after setted ... ", this.tipo_colaborador_id);
+    }
+
+    updateTipoCategoria(evt) {
+        console.log("Value is: ", evt);
+        this.funcao = evt.target.value;
+        console.log("after setted ... ", this.funcao);
+    }
+
+    updateContactoEndereco(evt) {
+        console.log("Value is: updateContactoEndereco ", evt);
+        //this.funcao = evt.target.value;
+        //console.log("after setted ... ", this.funcao)
+    }
+    updateStatus(evt) {
+        console.log("Value is: ", evt);
+        this.status = evt.target.value;
+        console.log("after setted ... ", this.status);
+    }
 
     registerColaborador() {
-        console.log(">>>>>>>>>>>>>>> ", this.tipo_colaborador_id);
-        console.log(">>>>>>>>>>>>>>> ", this.nome_completo);
-        console.log(">>>>>>>>>>>>>>> ", this.tipo_colaborador_id);
-        console.log(">>>>>>>>>>>>>>> contactos:::  ", this.contactos);
-        return 0;
-
+      
         const payload = {
-            denominacao: this.nome.value,
-            tipo_id: 1,
-            nif: this.nif.value,
-            endereco: this.endereco.value,
-            pessoa_contacto: this.pessoaContacto.value,
-            contacto_cobranca: this.contactoCobranca.value,
-            nota: this.clientNota.value,
-            status: "pending",
+            "username": this.username.value,
+            "nome_completo": this.nome_completo.value,
+            "nome_profissional": this.nome_profissional.value,
+            "data_nascimento": "2000-05-20", //this.data_nascimento.value,
+            "funcao": this.funcao.value,
+            "tipo_colaborador_id": this.tipo_colaborador_id.value,
+            "contactos": [
+                {
+                    "tipo": 2,
+                    "valor": this.contactos_email_pessoal.value,
+                },
+                {
+                    "tipo": 2,
+                    "valor": this.contactos_email_corporativo.value,
+                },
+                {
+                    "tipo": 1,
+                    "valor": this.contactos_telefone_pessoal.value,
+                },
+                {
+                    "tipo": 1,
+                    "valor": this.contactos_telefone_emergencia.value,
+                },
+                {
+                    "tipo": 3,
+                    "valor": this.contactos_telefone_endereco.value,
+                }
+            ],
+            "identificacoes": [
+                {
+                    "tipo": 4,
+                    "valor": this.identificacoes_cedula.value,
+                },
+                {
+                    "tipo": 1,
+                    "valor": this.identificacoes_bi.value,
+                }
+               ],
+    
+            "status": this.status.value,
         };
 
-        $still.HTTPClient.post(
-            "http://localhost:3000/api/v1/colaborador",
-            JSON.stringify(payload),
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        )
-            .then((r) => {
-                console.log(`colaborador criado com sucesso: `, r.data);
-            })
-            .catch((err) => {
-                console.log(`Erro ao cadastrar colaborador: `, err);
-            });
 
-        //console.log(this.getStateValues());
+        if(this.isValidInputForm()){
+
+            $still.HTTPClient.post(
+                "http://localhost:3000/api/v1/colaborador",
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            )
+                .then((response) => {
+                    console.log(`colaborador criado com sucesso: `, response);
+                    console.log(`login criado com sucesso: `, response);
+                    if(response.status !== 201) {
+                            alert(response.errors);
+                           // Router.goto('Init');
+                    }else{
+                        alert("Salvo com sucesso")
+                        console.log("cadastro do colaborador ... ", response)
+                        //AppTemplate.get().store('logged', true);
+                        //Router.goto('Home');
+                        // aonde guardar os dados do user logado com seguranca
+                    }
+                })
+        .catch((err) => {
+            console.log(`Erro ao cadastrar colaborador: `, err);
+        });
+
+        
+        }
+
+    }
+
+
+    isValidInputForm() {
+        return true
     }
 
     stAfterInit() {
         console.log(`Cliend Form foi initializado`);
 
-        const routeData = Router.data("ClientForm");
+    const routeData = Router.data("ClientForm");
 
-        if (routeData) {
-            setTimeout(() => {
-                const {
-                    id,
-                    denominacao,
-                    tipo_id,
-                    nif,
-                    endereco,
-                    pessoa_contacto,
-                    contacto_cobranca,
-                    nota,
-                    status,
-                    tipo: { id: tipoClientId, description },
-                } = routeData;
+    if (routeData) {
+        setTimeout(() => {
+            const {
+                id,
+                denominacao,
+                tipo_id,
+                nif,
+                endereco,
+                pessoa_contacto,
+                contacto_cobranca,
+                nota,
+                status,
+                tipo: { id: tipoClientId, description },
+            } = routeData;
 
-                const nomes = denominacao.split(" ");
-                this.nome = nomes[0];
-                this.sobrenome = nomes[1];
-                this.endereco = endereco;
-                this.pessoaContacto = pessoa_contacto;
-                this.contactoCobranca = contacto_cobranca;
-                this.nif = nif;
-                this.telefone = contacto_cobranca;
-                this.pessoaContacto = pessoa_contacto;
-                console.log(
-                    `there is a new data from route on constructor: `,
-                    routeData
-                );
-            });
-        }
-
-        //const routeData = Router.data('ClientForm');
-        //if(routeData){
-        //    console.log(`there is a new data from route: `, routeData);
-        //}
+            const nomes = denominacao.split(" ");
+            this.nome = nomes[0];
+            this.sobrenome = nomes[1];
+            this.endereco = endereco;
+            this.pessoaContacto = pessoa_contacto;
+            this.contactoCobranca = contacto_cobranca;
+            this.nif = nif;
+            this.telefone = contacto_cobranca;
+            this.pessoaContacto = pessoa_contacto;
+            console.log(
+                `there is a new data from route on constructor: `,
+                routeData
+            );
+        });
     }
+
+    //const routeData = Router.data('ClientForm');
+    //if(routeData){
+    //    console.log(`there is a new data from route: `, routeData);
+    //}
+}
 }
 
 function loadWizard() {
@@ -434,21 +466,21 @@ function loadWizard() {
     });
 
     /* form.validate({
-          highlight: function (input) {
-              $(input).parents('.form-line').addClass('error');
-          },
-          unhighlight: function (input) {
-              $(input).parents('.form-line').removeClass('error');
-          },
-          errorPlacement: function (error, element) {
-              $(element).parents('.form-group').append(error);
-          },
-          rules: {
-              'confirm': {
-                  equalTo: '#password'
-              }
-          }
-      }); */
+            highlight: function (input) {
+                $(input).parents('.form-line').addClass('error');
+            },
+            unhighlight: function (input) {
+                $(input).parents('.form-line').removeClass('error');
+            },
+            errorPlacement: function (error, element) {
+                $(element).parents('.form-group').append(error);
+            },
+            rules: {
+                'confirm': {
+                    equalTo: '#password'
+                }
+            }
+        }); */
 }
 
 function setButtonWavesEffect(event) {

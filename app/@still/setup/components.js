@@ -528,7 +528,7 @@ class Components {
 
         /** @type { ViewComponent } */
         let newInstance = eval(`new ${cmp.constructor.name}()`);
-        newInstance = this.getParsedComponent(newInstance); 
+        newInstance = (new Components()).getParsedComponent(newInstance); 
         newInstance.setUUID(cmp.getUUID());
         newInstance.setRoutableCmp(true);
 

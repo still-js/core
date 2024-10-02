@@ -88,7 +88,7 @@ class Router {
                         return;
                     }
 
-                    if(!document.getElementById(this.stillAppConst)){
+                    if(!document.getElementById($stillconst.APP_PLACEHOLDER)){
                         document.write($stillconst.MSG.PRIVATE_CMP);
                         return;
                     }

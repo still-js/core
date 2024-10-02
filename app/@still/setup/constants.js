@@ -25,7 +25,8 @@ const $stillconst = {
      */
     MSG : {
         PRIVATE_CMP: `<h3 style='color:red;'>
-                        You're trying to access a private component, assign true to isPublic class property if you which to access it
-                     </h3>`
+                        <b>Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
+                           <br>in case you need to access it without making log-in please make isPublic flag true
+                     </h3>`,
     }
 }

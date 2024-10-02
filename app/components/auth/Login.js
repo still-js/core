@@ -35,7 +35,7 @@ class Login extends ViewComponent {
                         </div>
 
                         <div>
-                            <a href="#" class="txt1">
+                            <a href="#" (click)="gotoRetrieve()" class="txt1">
                                 Esqueceu a palavra-passe?
                             </a>
                         </div>
@@ -56,6 +56,10 @@ class Login extends ViewComponent {
     `
     constructor() {
         super();
+    }
+
+    gotoRetrieve(){
+        Router.goto('AuthBase');
     }
 
     logar() {

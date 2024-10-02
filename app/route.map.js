@@ -9,6 +9,7 @@ const routesMap = {
             ClientForm: 'components/client',
             Home: 'components/home',
             ClientsGrid: 'components/client',
+            AuthBase: 'components/auth',
         },
         lazyInitial: {
             MorCompo: 'components/client',

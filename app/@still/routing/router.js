@@ -61,6 +61,7 @@ class Router {
                  */
                 const appTemplate = AppTemplate.get().template;
                 $still.context.currentView = eval(`new ${cmp}()`);
+
                 let template = (new Components()).getCurrentCmpTemplate($still.context.currentView);
                 template = appTemplate.replace(
                     $stillconst.STILL_COMPONENT,`<div id="${Router.appPlaceholder}">${template}</div>`
@@ -81,6 +82,17 @@ class Router {
                      * @type { ViewComponent }
                      */
                     const newInstance = eval(`new ${cmp}()`);
+
+                    if(newInstance.isPublic && !AppTemplate.get().isAuthN()){
+                        (new Components()).renderPublicComponent(newInstance);
+                        return;
+                    }
+
+                    if(!document.getElementById(this.stillAppConst)){
+                        document.write($stillconst.MSG.PRIVATE_CMP);
+                        return;
+                    }
+
                     newInstance.isRoutable = true;
                     Router.parseComponent(newInstance);
                     newInstance.setRoutableCmp(true);

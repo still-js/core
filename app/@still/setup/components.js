@@ -170,23 +170,26 @@ class Components {
                 return;
             }
 
-            
-            //this.template = this.getCurrentCmpTemplate($still.context.currentView);
             if(document.getElementById(this.stillAppConst))
                 this.renderOnViewFor(this.stillAppConst);
             else{
-                /** @type { ViewComponent } */
-                const init = $still.context.currentView;
-                if(init.isPublic){
-                    window['Public_'+init.constructor.name] = init;
-                    this.template = new Components().getNewParsedComponent(init).getTemplate();
-                    this.renderOnViewFor('stillUiPlaceholder');
-                }else{
-                    document.write($stillconst.MSG.PRIVATE_CMP);
-                    init.hideLoading();
-                }
+                new Components().renderPublicComponent($still.context.currentView);
             }
         });
+    }
+
+    /** @param { ViewComponent } cmp */
+    renderPublicComponent(cmp){
+
+        if(cmp.isPublic){
+            window['Public_'+cmp.constructor.name] = cmp;
+            this.template = this.getNewParsedComponent(cmp).getTemplate();
+            this.renderOnViewFor('stillUiPlaceholder');
+        }else{
+            document.write($stillconst.MSG.PRIVATE_CMP);
+            cmp.hideLoading();
+        }
+
     }
 
     getInitialPrivateTemplate(cmpName){
@@ -525,7 +528,7 @@ class Components {
 
         /** @type { ViewComponent } */
         let newInstance = eval(`new ${cmp.constructor.name}()`);
-        newInstance = new Components().getParsedComponent(newInstance); 
+        newInstance = this.getParsedComponent(newInstance); 
         newInstance.setUUID(cmp.getUUID());
         newInstance.setRoutableCmp(true);
 

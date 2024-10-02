@@ -51,12 +51,16 @@ class Template {
 
     }
 
-    setAuthN(){
-        
+    setAuthN(value){
+        const clsName = this.constructor.name;
+        if(!('authn' in Template.instance[clsName])){
+            Template.instance[clsName]['authn'] = null;
+        }
+        Template.instance[clsName]['authn'] = value;
     }
 
-    isAuthN({}){
-
+    isAuthN(){
+        return Template.instance[this.constructor.name]['authn'];
     }
 
     unloadApp(){

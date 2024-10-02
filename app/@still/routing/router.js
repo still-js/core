@@ -88,10 +88,11 @@ class Router {
                         return;
                     }
 
-                    if(!document.getElementById(this.stillAppConst)){
-                        document.write($stillconst.MSG.PRIVATE_CMP);
-                        return;
-                    }
+                    // here...
+                    //if(!document.getElementById(this.stillAppConst)){
+                    //    document.write($stillconst.MSG.PRIVATE_CMP);
+                    //    return;
+                    //}
 
                     newInstance.isRoutable = true;
                     Router.parseComponent(newInstance);

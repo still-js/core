@@ -1,3 +1,18 @@
 .containerAuth {
     background-color: #fff;
 }
+
+.logo {
+    font-size: 4rem;
+}
+
+.logo-first {
+    color: #1d7fce; 
+    font-weight: bold;
+}
+
+
+.logo-second {
+    color: #323232; 
+    font-weight: bold;
+}

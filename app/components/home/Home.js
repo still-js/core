@@ -31,11 +31,11 @@ class Home extends BaseComponent {
     constructor(){
         super();
 
-        if(AppTemplate.get().getStorageValue('logged')){
-            console.log(`Used was logged: `, AppTemplate.get().getStorageValue('logged'));
-        }else{
-            Router.goto('init');
-        }
+        //if(AppTemplate.get().getStorageValue('logged')){
+        //    console.log(`Used was logged: `, AppTemplate.get().getStorageValue('logged'));
+        //}else{
+        //    Router.goto('init');
+        //}
 
         this.hideLoading();
         this.setup({

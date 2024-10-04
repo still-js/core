@@ -215,25 +215,23 @@ class BaseComponent extends BehaviorComponent {
     }
 
     parseOnChange(){
+
         this.onChangeEventsList.forEach(elm => {
 
             const evtComposition = elm.evt.split('="')[1].split('(');
             const evt = evtComposition[0];
             const paramVal = evtComposition[1].replace(')','');
             const uiElm = elm._className;
-            
-            document.querySelector(`.${uiElm}`).addEventListener('change', async (event) => {
+            document.querySelector(`.${uiElm}`).onchange = async (event) => {
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
                     eval(this.getClassPath())[evt](param);
                 })
-            });
-
+            }
         });
-    }
+    }constru
 
     getBoundOnChange(template){
-        
         const re = /(class=\"[A-Za-z1-9\-{0,}\s{0,}]{0,}\"){0,}\s?\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"\s?(class=\"[A-Za-z1-9\-{0,}\s{0,}]{0,}\"){0,}/gi
         const reMethod = /\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"/gi
         template = template.replace(re, (mtch) => {

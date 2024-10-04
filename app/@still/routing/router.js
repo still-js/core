@@ -31,10 +31,9 @@ class Router {
         }
 
         if(cmp === 'exit'){
-            console.log(`Calling unload()`);
             AppTemplate.get().unloadApp();
-            console.log(`Called unload()`);    
             ComponentSetup.get().loadComponent();
+            return;
         }
 
         //Move to when evetything it's processed successfully
@@ -108,6 +107,7 @@ class Router {
                         $still.context.currentView = cmpRegistror[cmp].instance;
                     }
 
+                    $still.context.currentView.isRoutable = true;
                     if(!$still.context.currentView.stillParsedState){
                         $still.context.currentView = (new Components).getNewParsedComponent(
                             $still.context.currentView

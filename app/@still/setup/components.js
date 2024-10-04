@@ -27,8 +27,6 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             resolve([]);
         } catch (error) {
 
-            console.log("error >>> ", error);
-            
             const script = $stillLoadScript(path, className);
             document.head.insertAdjacentElement('beforeend',script);
     
@@ -535,7 +533,14 @@ class Components {
         const elmRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmp.getUUID();
         const container = document.querySelector(`.${elmRef}`);
         container.innerHTML = newInstance.getTemplate();
+
+        console.log(newInstance);
+
         container.style.display = 'contents';
+
+        setTimeout(() => {
+            newInstance.parseOnChange();
+        },500);
 
         await newInstance.onRender();
         newInstance.stAfterInit();

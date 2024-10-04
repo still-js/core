@@ -31,9 +31,7 @@ class Router {
         }
 
         if(cmp === 'exit'){
-            console.log(`Calling unload()`);
             AppTemplate.get().unloadApp();
-            console.log(`Called unload()`);    
             ComponentSetup.get().loadComponent();
         }
 

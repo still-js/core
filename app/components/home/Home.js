@@ -1,6 +1,6 @@
 class Home extends BaseComponent {
 
-    template = `
+  template = `
     <section class="content">
         
             <div class="container-fluid">
@@ -26,46 +26,43 @@ class Home extends BaseComponent {
     </section>
     `;
 
-    cardDisplayDS;
+  cardDisplayDS;
 
-    constructor(){
-        super();
+  constructor() {
+    super();
 
-        //if(AppTemplate.get().getStorageValue('logged')){
-        //    console.log(`Used was logged: `, AppTemplate.get().getStorageValue('logged'));
-        //}else{
-        //    Router.goto('init');
-        //}
+    //if(AppTemplate.get().getStorageValue('logged')){
+    //    console.log(`Used was logged: `, AppTemplate.get().getStorageValue('logged'));
+    //}else{
+    //    Router.goto('init');
+    //}
 
-        this.hideLoading();
-        this.setup({
-            includs: [
-                TopNavBar,
-                LineChart,
-                Calendar,
-                CardDisplay,
-                BarChart,
-                CircularAnimatedChart,
-                ProjectGrid,
-                Menu,
-                /* CTopNavBar */
-                
-             ],
-             scripts: [
-                'assets/js/chart.min.js',
-                'assets/js/bundles/amcharts4/core.js',
-                'assets/js/bundles/amcharts4/charts.js',
-                'assets/js/bundles/amcharts4/animated.js',
-                'assets/js/pages/index.js',
-             ]
-        });
+    this.hideLoading();
+    this.setup({
+      includs: [
+        TopNavBar,
+        LineChart,
+        Calendar,
+        CardDisplay,
+        BarChart,
+        CircularAnimatedChart,
+        ProjectGrid,
+        Menu,
+        /* CTopNavBar */
+      ],
+      scripts: [
+        "assets/js/chart.min.js",
+        "assets/js/bundles/amcharts4/core.js",
+        "assets/js/bundles/amcharts4/charts.js",
+        "assets/js/bundles/amcharts4/animated.js",
+        "assets/js/pages/index.js",
+      ],
+    });
 
-        /* CardDisplay.cardDataSource.onChange((value) => {
+    /* CardDisplay.cardDataSource.onChange((value) => {
             console.log(`Home component detected changes: `,value);
         }); */
-    }
+  }
 
-    stAfterInit(){
-    }
-
+  stAfterInit() {}
 }

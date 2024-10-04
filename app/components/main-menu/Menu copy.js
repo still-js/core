@@ -1,0 +1,60 @@
+class CMenu extends ViewComponent {
+
+  htmlRefId = "leftsidebar";
+
+  template = `
+        <div class="main-side-menu">
+            <ul>
+                <li>
+                    <a href="#" (click)="gotoView('Home')">
+                        <i class="menu-icon ti-home"></i>
+                        <span>Início</span>
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="#" onClick="return false;" class="menu-toggle toggled waves-effect waves-block">
+                        <i class="menu-icon ti-home"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <ul class="ml-menu" (if)="utilzador.persmisoe['Admin']">
+                        <li class="active">
+                            <i class="menu-icon ti-user"></i> 
+                            <a href="#" (click)="gotoView('ClientsGrid')">Ver Clientes</a>
+                        </li>
+                        <li class="active">
+                            <a href="#" (click)="gotoView('ClientForm')">Cadastrar Cliente</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="active">
+                <a href="#" onClick="return false;" class="menu-toggle">
+                    <i class="menu-icon ti-user"></i>
+                    <span>Colaboradores</span>
+                </a>
+                    <ul class="ml-menu" (if)="utilzador.permission['Admin']">
+                        <li class="active">
+                            <a href="#" (click)="gotoView('ColaboradoresGrid')">Ver Colaboradores</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+    `;
+
+  gotoView(viewComponent) {
+    Router.goto(viewComponent);
+  }
+
+  logout() {
+    Router.goto("exit");
+  }
+
+  constructor() {
+    super();
+    this.setup({});
+  }
+}
+
+const Menu = $still.component.expose(new CMenu());

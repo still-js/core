@@ -1,0 +1,55 @@
+.menu {
+    background-color: red;
+}
+
+
+.julaw-menu {
+    width: 260px;
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    position: fixed;
+    height: 100%;
+}
+
+.julaw-menu h2 {
+    margin: 0;
+    padding: 10px 0;
+}
+
+.julaw-menu ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.julaw-menu ul li {
+    position: relative;
+}
+
+.julaw-menu a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    transition: background 0.3s;
+}
+
+.julaw-menu a:hover {
+    background-color: #575757;
+}
+
+.submenu {
+    display: none; /* Inicialmente escondido */
+    opacity: 0; /* Começa invisível */
+    height: 0; /* Começa com altura 0 */
+    overflow: hidden; /* Oculta o conteúdo excedente */
+    transition: opacity 0.3s ease, height 0.3s ease; /* Transições para a animação */
+    padding-left: 15px; /* Indentação para subitens */
+}
+d
+.julaw-menu ul li:hover .submenu {
+    display: block; /* Exibe o submenu ao passar o mouse */
+    opacity: 1; /* Torna visível */
+    height: auto; /* Permite altura automática */
+}
+

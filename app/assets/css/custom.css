@@ -1,0 +1,152 @@
+.navbar-inverse .navbar-nav>li>a {
+    color: #06F;
+}
+
+.navbar-inverse .navbar-nav>li>a:hover,
+.navbar-inverse .navbar-nav>li>a:focus {
+    color: #06F;
+}
+
+.arrow {
+    float: right;
+}
+
+.fa.arrow:before {
+    content: "\f104";
+}
+
+.active>a>.fa.arrow:before {
+    content: "\f107";
+}
+
+
+.nav-second-level li,
+.nav-third-level li {
+    border-bottom: none !important;
+}
+
+.nav-second-level li a {
+    padding-left: 37px;
+}
+
+.nav-third-level li a {
+    padding-left: 55px;
+}
+
+.sidebar-collapse,
+.sidebar-collapse .nav {
+    background: none;
+}
+
+.sidebar-collapse .nav {
+    padding: 0;
+}
+
+.sidebar-collapse .nav>li>a {
+    background: #FFFFFF;
+    text-shadow: none;
+    color: #0000FF;
+}
+
+.sidebar-collapse>.nav>li>a {
+    padding: 15px 10px;
+}
+
+.sidebar-collapse>.nav>li {
+    border-bottom: 1px solid rgba(240, 240, 240, 1) !important;
+}
+
+.sidebar-collapse .nav>li>a:hover,
+.sidebar-collapse .nav>li>a:focus {
+
+    background: #F3F3F3;
+    outline: 0;
+}
+
+.nav-second-level>li:last-child>a:after,
+.nav-third-level>li:last-child>a:after {
+    height: 50%;
+}
+
+.nav-third-level>li>a:after,
+.nav-third-level>li>a:before {
+    left: 40px;
+}
+
+.navbar-side {
+    border: none;
+    background-color: #202020;
+
+}
+
+.navbar-inverse {
+    background-color: #f3f3f3;
+    border-color: #D3D3D3;
+
+}
+
+.navbar-default {
+    border: 0px solid #DDDDDD;
+
+}
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+    background-color: #B40101;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #fff;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #FFF;
+}
+
+.nav>li>a>i {
+    margin-right: 10px;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #000000;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-brand:focus {
+    color: #000000;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.navbar-inverse .navbar-toggle {
+    border-color: #8B7BFF;
+}
+
+.navbar-inverse .navbar-toggle:hover,
+.navbar-inverse .navbar-toggle:focus {
+    background-color: #8B7BFF;
+}
+
+.adjust-nav {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.navbar-toggle {
+    background-color: #8B7BFF;
+}
+
+@media(min-width:768px) {
+    .navbar-side {
+        z-index: 1;
+        position: absolute;
+        width: 260px;
+    }
+
+    .navbar {
+        border-radius: 0px;
+    }
+
+}

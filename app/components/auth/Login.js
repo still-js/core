@@ -82,10 +82,11 @@ class Login extends ViewComponent {
                             alert(response.errors);
                             Router.goto('Init');
                     }else{
+                        localStorage.setItem('_user', JSON.stringify(response.data));
+                        localStorage.setItem('logged', true);
                         alert("Bem-vindo (a), a plataforma JuLAW")
                         AppTemplate.get().store('logged', true);
-                        Router.goto('Home');
-                        localStorage.setItem('logged', true);
+                        Router.goto('Home');                        
                         // aonde guardar os dados do user logado com seguranca
                     }
 

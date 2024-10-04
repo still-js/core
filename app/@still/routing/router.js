@@ -32,7 +32,6 @@ class Router {
 
         if(cmp === 'exit'){
             AppTemplate.get().unloadApp();
-            ComponentSetup.get().loadComponent();
             return;
         }
 
@@ -75,6 +74,8 @@ class Router {
             .then(({ imported, isRoutable }) => {
                 if(!imported) {
                     //delete $still.context.componentRegistror.componentList[cmp];
+
+                    if(cmp == 'init') return;
 
                     /**
                      * the bellow line clears previous component from memory

@@ -20,21 +20,22 @@ const loadComponentFromPath = (path, className, callback = () => {}) => {
             return false;
         }
 
-        console.log(className)
-
         try {
             eval(`${className}`);
             resolve([]);
         } catch (error) {
 
-            const script = $stillLoadScript(path, className);
-            document.head.insertAdjacentElement('beforeend',script);
-    
-            script.addEventListener('load', () => {
-                if(document.getElementById(script.id)){
-                    setTimeout(() => resolve([]));
-                }
-            });
+            if(!path) resolve([]);
+            else {
+                const script = $stillLoadScript(path, className);
+                document.head.insertAdjacentElement('beforeend',script);
+        
+                script.addEventListener('load', () => {
+                    if(document.getElementById(script.id)){
+                        setTimeout(() => resolve([]));
+                    }
+                });
+            }
          
         }
 
@@ -118,6 +119,10 @@ class Components {
         document
             .getElementById(placeHolder)
             .innerHTML = `<div>${template}<div>`;
+    }
+
+    static newSetup(){
+        return new ComponentSetup();
     }
 
     /**
@@ -533,8 +538,6 @@ class Components {
         const elmRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmp.getUUID();
         const container = document.querySelector(`.${elmRef}`);
         container.innerHTML = newInstance.getTemplate();
-
-        console.log(newInstance);
 
         container.style.display = 'contents';
 

@@ -63,6 +63,10 @@ class ComponentRegistror {
 
         return cmpName in $still.context.componentRegistror.componentList;
     }
+
+    static clearRegistror(cmp){
+        $still.context.componentRegistror.componentList = {};
+    }
 }
 
 const $still = {
@@ -86,4 +90,5 @@ const $still = {
         }
     },
     HTTPClient: new StillHTTPClient(),
+
 }

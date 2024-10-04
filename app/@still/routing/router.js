@@ -32,7 +32,7 @@ class Router {
 
         if(cmp === 'exit'){
             AppTemplate.get().unloadApp();
-            ComponentSetup.get().loadComponent();
+            return;
         }
 
         //Move to when evetything it's processed successfully
@@ -75,6 +75,8 @@ class Router {
                 if(!imported) {
                     //delete $still.context.componentRegistror.componentList[cmp];
 
+                    if(cmp == 'init') return;
+
                     /**
                      * the bellow line clears previous component from memory
                      * @type { ViewComponent }
@@ -86,11 +88,10 @@ class Router {
                         return;
                     }
 
-                    // here...
-                    //if(!document.getElementById(this.stillAppConst)){
-                    //    document.write($stillconst.MSG.PRIVATE_CMP);
-                    //    return;
-                    //}
+                    if(!document.getElementById($stillconst.APP_PLACEHOLDER)){
+                        document.write($stillconst.MSG.PRIVATE_CMP);
+                        return;
+                    }
 
                     newInstance.isRoutable = true;
                     Router.parseComponent(newInstance);
@@ -107,6 +108,7 @@ class Router {
                         $still.context.currentView = cmpRegistror[cmp].instance;
                     }
 
+                    $still.context.currentView.isRoutable = true;
                     if(!$still.context.currentView.stillParsedState){
                         $still.context.currentView = (new Components).getNewParsedComponent(
                             $still.context.currentView

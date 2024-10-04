@@ -219,8 +219,6 @@ class ClientForm extends ViewComponent {
             ],
         });
 
-        this.routingData = Router.data('ClientForm');
-
     }
 
     updateTipoCliente(evt){
@@ -289,14 +287,14 @@ class ClientForm extends ViewComponent {
             { value: 'Outro', id:5}
         ];
 
-        const routeData = this.routingData;
+        
+        const routeData = Router.data('ClientForm');
         if(routeData){
 
-            setTimeout(() => {
+            //setTimeout(() => {
                 const { 
                     id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
                     contacto_cobranca, nota, status, 
-                    tipo: { id: tipoClientId, description }
                 } = routeData;
     
                 const nomes = denominacao.split(" ");
@@ -308,7 +306,7 @@ class ClientForm extends ViewComponent {
                 this.nif = nif;
                 this.telefone = contacto_cobranca;
                 this.pessoaContacto = pessoa_contacto;
-            });
+            //});
 
         }
         this.hideLoading();
@@ -363,7 +361,6 @@ function loadWizard({enableAllSteps = false} = {}){
             swal("Good job!", "Submitted!", "success");
         }
     });
-    
 }
 
 function setButtonWavesEffect(event) {

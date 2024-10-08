@@ -1,21 +1,140 @@
 class ProcessoForm extends ViewComponent {
-    username;
-    nome_completo;
-    nome_profissional;
-    data_nascimento;
-    funcao;
-    tipo_colaborador_id;
+    assunto;
+    area;
+    fase;
+    instituicaoId;
+    modoFacturacaoId;
+    clienteId;
+    gestorId;
+    contraParte;
+    dataRegisto;
+    dataSuspensao;
+    colaboradorIdSuspendeu;
+    dataEncerramento;
+    colaboradorIdEnderrou;
+    metodologia;
+    estrategia;
+    factos;
+    objectivos;
+    dataImportantes;
+    statusId;
+    precedentes;
+    equipas;
+    tarefas;
 
-    contactos_telefone_pessoal;
-    contactos_telefone_emergencia;
-    contactos_email_pessoal;
-    contactos_email_corporativo;
-    contactos_telefone_endereco;
+    tarefaInput;
+    precedenteInput;
+    equipaInput;
+    clienteInput;
 
-    identificacoes_bi;
-    identificacoes_cedula;
+    listColaboradores;
+    listPrecedentes;
+    listEquipas;
+    listClientes;
 
-    status = "Activo";
+    listEstado = [
+        {
+            id: 1,
+            descricao: "Rascunho",
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 2,
+            descricao: "Proposta",
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 3,
+            descricao: "Suspenso",
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 4,
+            descricao: "Encerrado",
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+    ];
+
+    listModoFacturacao = [
+        {
+            id: 1,
+            descricao: "Avença",
+            obesevacao: null,
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 2,
+            descricao: "Taxa horária",
+            obesevacao: null,
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 3,
+            descricao: "Valor Fixo",
+            obesevacao: null,
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 4,
+            descricao: "Sucess fee",
+            obesevacao: null,
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+        {
+            id: 5,
+            descricao: "pro bono",
+            obesevacao: null,
+            created_at: "2024-10-06 21:30:34",
+            updated_at: "2024-10-06 21:30:34",
+        },
+    ];
+
+    listInstituicao = [
+        {
+            id: 1,
+            descricao: "SIC",
+        },
+        {
+            id: 2,
+            descricao: "PGR",
+        },
+        {
+            id: 3,
+            descricao: "Tribunal Comarca",
+        },
+        {
+            id: 4,
+            descricao: "Tribunal Relação",
+        },
+        {
+            id: 5,
+            descricao: "Tribunal Supremo",
+        },
+        {
+            id: 6,
+            descricao: "Tribunal Constitucional",
+        },
+        {
+            id: 7,
+            descricao: "Tribunal de Contas",
+        },
+        {
+            id: 8,
+            descricao: "Tribunal Militar",
+        },
+        {
+            id: 9,
+            descricao: "Outro",
+        },
+    ];
 
     template = `
     <section class="content">
@@ -38,14 +157,14 @@ class ProcessoForm extends ViewComponent {
 
                             <h2 class="card-inside-title">Detalhes do processo</h2>
                             <div class="row clearfix">
-                                <div class="col-md-8">
+                                <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
                                             <i class="material-icons">note</i> Assunto
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="nome_completo"
-                                                placeholder="Nome completo">
+                                            <input type="text" class="form-control date" (value)="assunto"
+                                                placeholder="assunto">
                                         </div>
                                     </div>
                                 </div>
@@ -55,24 +174,22 @@ class ProcessoForm extends ViewComponent {
                                             <i class="material-icons">group</i> Área
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="nome_profissional"
-                                                placeholder="Nome">
+                                            <input type="text" class="form-control date" (value)="area"
+                                                placeholder="área">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="input-group">
-                                        <div class="input-field col s12">
+                                        <div class="input-field col">
                                             <span class="input-group-addon">
                                                 <i class="material-icons">person</i> Fase
                                             </span>
-                                            <select (change)="updateTipoColaborador($event)">
-                                                <option value="" disabled selected>Selecione o tipo de colaborador
+                                            <select (change)="updateFase($event)">
+                                                <option value="" disabled selected>Selecione a fase
                                                 </option>
-                                                <option value="1">Administrativo</option>
-                                                <option value="2">Advogado - Júnior</option>
-                                                <option value="3">Advogado - Sénior</option>
-                                                <option value="4">Advogado - Estagiário</option>
+                                                <option value="Extrajudicial">Extrajudicial</option>
+                                                <option value="Judicial">Judicial</option>
                                             </select>
                                         </div>
                                     </div>
@@ -83,26 +200,20 @@ class ProcessoForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Instituição
                                         </span>
-                                        <select (change)="updateTipoCategoria($event)">
-                                            <option value="" disabled selected>Selecione uma categoria</option>
-                                            <option value="administrativo">Administrativo</option>
-                                            <option value="adv_junior">Júnior</option>
-                                            <option value="adv_senior">Sénior</option>
-                                            <option value="adv_estagiario">Estagiário</option>
-                                        </select>
+                                    <select (change)="updateInstituicao($event)" (forEach)="listInstituicao">
+                                        <option each="item" value="">Selecione uma opção</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
+                                    </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="input-field col s12">
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Modo de Facturação
-                                        </span>
-                                        <select (change)="updateTipoCategoria($event)">
-                                            <option value="" disabled selected>Selecione uma categoria</option>
-                                            <option value="administrativo">Administrativo</option>
-                                            <option value="adv_junior">Júnior</option>
-                                            <option value="adv_senior">Sénior</option>
-                                            <option value="adv_estagiario">Estagiário</option>
+                                        </span> 
+                                        <select (change)="updateModoFacturacao($event)" (forEach)="listModoFacturacao">
+                                            <option each="item" value="">Selecione uma opção</option>
+                                            <option each="item" value="{item.id}">{item.descricao}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -112,24 +223,35 @@ class ProcessoForm extends ViewComponent {
                                             <i class="material-icons">today</i> Contra Parte
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="data_nascimento">
+                                            <input type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="input-field col s12">
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Gestor do processo
                                         </span>
-                                        <select (change)="updateStatus($event)">
-                                            <option value="" disabled>Selecione um status</option>
-                                            <option value="pending">Pendente</option>
-                                            <option selected value="active">Activo</option>
-                                            <option value="inactive">Inactivo</option>
+                                        <select (change)="updateGestorProcesso($event)" (forEach)="listColaboradores">
+                                            <option each="item" value="">Selecione uma opção</option>
+                                            <option each="item" value="{item.id}">{item.descricao}</option>
                                         </select>
                                     </div>
 
                                 </div>
+
+                                <div class="col-md-6">
+                                <div class="input-field col s12">
+                                    <span class="input-group-addon">
+                                        <i class="material-icons">person</i> Cliente
+                                    </span>
+                                    <select (change)="updateClientes($event)" (forEach)="listClientes">
+                                        <option each="item" value="">Selecione uma opção</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
+                                    </select>
+                                </div>
+
+                            </div>
 
                                 <div class="col-md-4">
                                     <div class="input-group">
@@ -137,44 +259,19 @@ class ProcessoForm extends ViewComponent {
                                             <i class="material-icons">person</i> Data de registo
                                         </span>
                                         <div class="form-line">
-                                            <input type="date" class="form-control date" (value)="username"
-                                                placeholder="Nome de Usuário">
+                                            <input type="date" id="dataRegistoInput" (change)="updateDataRegisto($event)" class="form-control date" (value)="dataRegisto">
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">today</i> Contra Parte
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="data_nascimento" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">today</i> Contra Parte
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="data_nascimento" />
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="col-md-4">
                                     <div class="input-field col s12">
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Estado
                                         </span>
-                                        <select (change)="updateTipoCategoria($event)">
-                                            <option value="" disabled selected>Selecione uma categoria</option>
-                                            <option value="administrativo">Administrativo</option>
-                                            <option value="adv_junior">Júnior</option>
-                                            <option value="adv_senior">Sénior</option>
-                                            <option value="adv_estagiario">Estagiário</option>
+                                        <select (change)="updateEstado($event)" (forEach)="listEstado">
+                                            <option each="item" value="">Selecione uma opção</option>
+                                            <option each="item" value="{item.id}">{item.descricao}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -182,26 +279,23 @@ class ProcessoForm extends ViewComponent {
 
                         </fieldset>
 
-                        <h3>Precedentes / Modo de Facturação</h3>
+                        <h3>Precedentes / Tarefas </h3>
                         <fieldset>
-                            <h2 class="card-inside-title">Processos associados / Modo de facturação</h2>
+                            <h2 class="card-inside-title">Processos associados / Tarefas</h2>
                             <div class="row clearfix">    
                                 <div class="col-md-6">
                                     <div class="row">
-                                        <div class="col-md-8">
-                                            <select (change)="updateTipoCategoria($event)">
-                                                <option value="" disabled selected>Selecione uma categoria</option>
-                                                <option value="administrativo">Administrativo</option>
-                                                <option value="adv_junior">Júnior</option>
-                                                <option value="adv_senior">Sénior</option>
-                                                <option value="adv_estagiario">Estagiário</option>
-                                            </select>
+                                        <div class="col-md-10">
+                                        <select (change)="updatePrecedentes($event)" (forEach)="listPrecedentes">
+                                            <option each="item" value="">Selecione uma opção</option>
+                                            <option each="item" value="{item.id}">{item.descricao}</option>
+                                        </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <button class="btn btn-default"><i class="fas fa-plus"></i></button>
+                                        <div class="col-md-2">
+                                            <button (click)="addPrecedentesProcesso()" class="btn btn-default"><i class="fas fa-plus"></i></button>
                                         </div>
                                         <div class="col-md-12">
-                                            <div>
+                                            <div id="divListProcessosAssociados">
                                                 <p>Lista dos processos associados</p>
                                             </div>
                                         </div>
@@ -209,21 +303,15 @@ class ProcessoForm extends ViewComponent {
                                 </div>                       
                                 <div class="col-md-6">
                                 <div class="row">
-                                    <div class="col-md-8">
-                                        <select (change)="updateTipoCategoria($event)">
-                                            <option value="" disabled selected>Selecione um Modo de Facturação</option>
-                                            <option value="administrativo">Administrativo</option>
-                                            <option value="adv_junior">Júnior</option>
-                                            <option value="adv_senior">Sénior</option>
-                                            <option value="adv_estagiario">Estagiário</option>
-                                        </select>
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" placeholder="digite uma tarefa" (value)="tarefaInput">
                                     </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-sm btn-default"><i class="fas fa-plus"></i></button>
+                                    <div class="col-md-2">
+                                        <button (click)="addTarefaProcesso()" class="btn btn-sm btn-default"  ><i class="fas fa-plus"></i></button>
                                     </div>
                                     <div class="col-md-12">
-                                        <div>
-                                            <p>Inputs de acordo ao modo de facturação</p>
+                                        <div id="divListTarefasProcesso">
+                                            <p>Inputs das tarefas</p>
                                         </div>
                                     </div>
                                 </div>
@@ -237,28 +325,25 @@ class ProcessoForm extends ViewComponent {
                         <div class="row clearfix">    
                             <div class="col-md-12">
                                 <div class="row">
-                                    <div class="col-md-8">
-                                        <select (change)="updateTipoCategoria($event)">
-                                            <option value="" disabled selected>Selecione uma categoria</option>
-                                            <option value="administrativo">Administrativo</option>
-                                            <option value="adv_junior">Júnior</option>
-                                            <option value="adv_senior">Sénior</option>
-                                            <option value="adv_estagiario">Estagiário</option>
-                                        </select>
+                                    <div class="col-md-10">
+                                    <select (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
+                                        <option each="item" value="">Selecione uma opção</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
+                                    </select>
                                     </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-default"><i class="fas fa-plus"></i></button>
+                                    <div class="col-md-2">
+                                        <button (click)="addEquipaProcesso()" class="btn btn-default"><i class="fas fa-plus"></i></button>
                                     </div>
                                     <div class="col-md-12">
-                                        <div>
-                                            <p>Lista dos processos associados</p>
+                                        <div id="divListEquipa">
+                                            <p>Lista das equipas</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>                       
                             
                         
-                        <button class="btn btn-default julaw-submit-button" (click)="registerColaborador()">Salvar</button>
+                        <button class="btn btn-default julaw-submit-button" (click)="registerProcesso()">Salvar</button>
                         </div>
                     </fieldset>
                 </form>
@@ -295,76 +380,50 @@ class ProcessoForm extends ViewComponent {
         });
     }
 
-    updateTipoColaborador(evt) {
-        console.log("Value is: ", evt);
-        this.tipo_colaborador_id = evt.target.value;
-        console.log("after setted ... ", this.tipo_colaborador_id);
-    }
+    registerProcesso() {
 
-    updateTipoCategoria(evt) {
-        console.log("Value is: ", evt);
-        this.funcao = evt.target.value;
-        console.log("after setted ... ", this.funcao);
-    }
+        console.log("listPrecedentesArray", listPrecedentesArray)
 
-    updateContactoEndereco(evt) {
-        console.log("Value is: updateContactoEndereco ", evt);
-        //this.funcao = evt.target.value;
-        //console.log("after setted ... ", this.funcao)
-    }
-    updateStatus(evt) {
-        console.log("Value is: ", evt);
-        this.status = evt.target.value;
-        console.log("after setted ... ", this.status);
-    }
+        console.log("listEquipasArray", listEquipasArray)
 
-    registerColaborador() {
+        console.log("listTarefasArray ", listTarefasArray)
+
+        this.precedentes = listPrecedentesArray.length ? listPrecedentesArray.map((el) => el.id) : []
+        this.equipas = listEquipasArray.length ?  listEquipasArray.map((el) => el.id) : []
+        this.tarefas = listTarefasArray
+
         const payload = {
-            username: this.username.value,
-            nome_completo: this.nome_completo.value,
-            nome_profissional: this.nome_profissional.value,
-            data_nascimento: "2000-05-20", //this.data_nascimento.value,
-            funcao: this.funcao.value,
-            tipo_colaborador_id: this.tipo_colaborador_id.value,
-            contactos: [
-                {
-                    tipo: 2,
-                    valor: this.contactos_email_pessoal.value,
-                },
-                {
-                    tipo: 2,
-                    valor: this.contactos_email_corporativo.value,
-                },
-                {
-                    tipo: 1,
-                    valor: this.contactos_telefone_pessoal.value,
-                },
-                {
-                    tipo: 1,
-                    valor: this.contactos_telefone_emergencia.value,
-                },
-                {
-                    tipo: 3,
-                    valor: this.contactos_telefone_endereco.value,
-                },
-            ],
-            identificacoes: [
-                {
-                    tipo: 4,
-                    valor: this.identificacoes_cedula.value,
-                },
-                {
-                    tipo: 1,
-                    valor: this.identificacoes_bi.value,
-                },
-            ],
-
-            status: this.status.value,
+            "assunto": this.assunto.value,
+            "area": this.area.value,
+            "fase": this.fase.value,
+            "instituicaoId": this.instituicaoId.value,
+            "modoFacturacaoId": this.modoFacturacaoId.value,
+            "clienteId": this.clienteId.value,
+            "gestorId": this.gestorId.value,
+            "contraParte": this.contraParte.value,
+            "dataRegisto": this.dataRegisto.value,
+            "dataSuspensao": null,
+            "colaboradorIdSuspendeu": null,
+            "dataEncerramento": null,
+            "colaboradorIdEnderrou": null,
+            "metodologia": null,
+            "estrategia": null,
+            "factos": null,
+            "objectivos": null,
+            "dataImportantes": null,
+            "statusId": this.statusId.value,
+            "precedentes": this.precedentes.value,
+            "equipas": this.equipas.value,
+            "tarefas": this.tarefas.value,
         };
+
+        console.log("payload >>> ", payload);
+
+        // return 0;
 
         if (this.isValidInputForm()) {
             $still.HTTPClient.post(
-                "http://localhost:3000/api/v1/colaborador",
+                "http://localhost:3000/api/v1/processo",
                 JSON.stringify(payload),
                 {
                     headers: {
@@ -373,8 +432,7 @@ class ProcessoForm extends ViewComponent {
                 }
             )
                 .then((response) => {
-                    console.log(`colaborador criado com sucesso: `, response);
-                    console.log(`login criado com sucesso: `, response);
+                    console.log(`processo criado com sucesso: `, response);
                     if (response.status !== 201) {
                         alert(response.errors);
                         // Router.goto('Init');
@@ -382,12 +440,12 @@ class ProcessoForm extends ViewComponent {
                         alert("Salvo com sucesso");
                         console.log("cadastro do colaborador ... ", response);
                         //AppTemplate.get().store('logged', true);
-                        //Router.goto('Home');
+                        Router.goto('ProcessosGrid');
                         // aonde guardar os dados do user logado com seguranca
                     }
                 })
                 .catch((err) => {
-                    console.log(`Erro ao cadastrar colaborador: `, err);
+                    console.log(`Erro ao cadastrar processo: `, err);
                 });
         }
     }
@@ -396,48 +454,325 @@ class ProcessoForm extends ViewComponent {
         return true;
     }
 
-    stAfterInit() {
-        console.log(`Cliend Form foi initializado`);
-
-        const routeData = Router.data("ClientForm");
-
-        if (routeData) {
-            setTimeout(() => {
-                const {
-                    id,
-                    denominacao,
-                    tipo_id,
-                    nif,
-                    endereco,
-                    pessoa_contacto,
-                    contacto_cobranca,
-                    nota,
-                    status,
-                    tipo: { id: tipoClientId, description },
-                } = routeData;
-
-                const nomes = denominacao.split(" ");
-                this.nome = nomes[0];
-                this.sobrenome = nomes[1];
-                this.endereco = endereco;
-                this.pessoaContacto = pessoa_contacto;
-                this.contactoCobranca = contacto_cobranca;
-                this.nif = nif;
-                this.telefone = contacto_cobranca;
-                this.pessoaContacto = pessoa_contacto;
-                console.log(
-                    `there is a new data from route on constructor: `,
-                    routeData
-                );
-            });
-        }
-
-        //const routeData = Router.data('ClientForm');
-        //if(routeData){
-        //    console.log(`there is a new data from route: `, routeData);
-        //}
+    addTarefa() {
+        console.log("adiciona a tarefa", this.tarefaInput);
     }
+
+    getListColaboradores() {
+        $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
+            (r) => {
+                if (r.data) {
+                    let colaboradorData = [];
+                    let equipasData = [];
+
+                    for (let colaborador of r.data) {
+                        colaboradorData.push({
+                            id: colaborador.id,
+                            descricao: `${colaborador.tipo.description} - ${colaborador.nome_completo}`,
+                        });
+
+                        if (colaborador.funcao.includes("adv")) {
+                            equipasData.push({
+                                id: colaborador.id,
+                                descricao: `${colaborador.tipo.description} - ${colaborador.nome_completo}`,
+                            });
+                        }
+                    }
+
+                    this.listEquipas = equipasData;
+                    this.listColaboradores = colaboradorData;
+
+                    console.log(
+                        "getListColaboradores - COLABORADORES >>>>>> ",
+                        this.listColaboradores
+                    );
+                    console.log(
+                        "getListColaboradores - EQUIPAS >>>>>> ",
+                        this.listEquipas
+                    );
+                }
+            }
+        );
+    }
+
+    getListClientes() {
+        $still.HTTPClient.get("http://localhost:3000/api/v1/cliente/").then((r) => {
+            if (r.data) {
+                let clienteData = [];
+
+                for (let cliente of r.data) {
+                    clienteData.push({
+                        id: cliente.id,
+                        descricao: `${cliente.tipo.description} - ${cliente.denominacao}`,
+                    });
+                }
+
+                this.listClientes = clienteData;
+
+                console.log(
+                    "getListColaboradores - listClientes >>>>>> ",
+                    this.listClientes
+                );
+            }
+        });
+    }
+
+    getListPrecedentes() {
+        $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
+            (r) => {
+                if (r.data) {
+                    let processoData = [];
+
+                    for (let processo of r.data) {
+                        processoData.push({
+                            id: processo.id,
+                            descricao: `${processo.assunto} - ${processo.ref}`,
+                        });
+                    }
+
+                    this.listPrecedentes = processoData;
+                    console.log("getListPrecedentes >>> ", this.listPrecedentes);
+                }
+            }
+        );
+    }
+
+    stAfterInit() {
+        this.getListPrecedentes();
+        this.getListColaboradores();
+        this.getListClientes();
+    }
+
+    /** fn updates */
+    updateFase(evt) {
+        this.fase = evt.target.value;
+    }
+
+    updateInstituicao(evt) {
+        this.instituicaoId = evt.target.value;
+    }
+
+    updateModoFacturacao(evt) {
+        this.modoFacturacaoId = evt.target.value;
+    }
+
+    updateGestorProcesso(evt) {
+        this.gestorId = evt.target.value;
+    }
+
+    updateEstado(evt) {
+        this.statusId = evt.target.value;
+    }
+
+    updatePrecedentes(evt) {
+        console.log(
+            "updatePrecedentes >>>>>>>><<<< :::: :::: >>>>>>>>><<<<<< ",
+            evt.target.value
+        );
+        this.precedenteInput = evt.target.value;
+    }
+
+    updateClientes(evt) {
+        console.log(
+            "clienteInput >>>>>>>><<<< :::: :::: >>>>>>>>><<<<<< ",
+            evt.target.value
+        );
+        this.clienteId = evt.target.value;
+    }
+
+    updateEquipasProcesso(evt) {
+        this.equipaInput = evt.target.value;
+        console.log(" <<<<<<<<<< this.equipasProcesso  ", this.equipaInput)
+    }
+
+    updateDataRegisto(evt) {
+        this.dataRegisto = document.getElementById("dataRegistoInput").value
+        console.log(" <<<<<<<<<< this.dataRegisto  ", this.dataRegisto)
+    }
+
+    async addPrecedentesProcesso() {
+
+        console.log("addPrecedentesProcesso... ", this.precedenteInput.value);
+
+        let response = await $still.HTTPClient.get(`http://localhost:3000/api/v1/processo/${this.precedenteInput.value}`)
+        const precedente = response.data[0]
+
+        console.log("precedente", precedente)
+
+        listPrecedentesArray.push({
+            "id": precedente.id,
+            "ref": precedente.ref,
+            "assunto": precedente.assunto
+        });
+
+        console.log(listPrecedentesArray);
+        displayPrecedentes();
+    }
+
+    addTarefaProcesso() {
+        console.log("addTarefaProcesso... ", this.precedenteInput.value);
+        listTarefasArray.push(this.tarefaInput.value);
+        console.log(listTarefasArray);
+        displayTarefas();
+        setTimeout(() => {
+            this.tarefaInput = ""
+        }, 1000)
+    }
+
+    async addEquipaProcesso() {
+        console.log("addEquipaProcesso ... ", this.equipaInput.value);
+        let response = await $still.HTTPClient.get(`http://localhost:3000/api/v1/colaborador/${this.equipaInput.value}`)
+        const colaborador = response.data[0]
+
+        console.log("colaborador", colaborador)
+
+        listEquipasArray.push({
+            "id": colaborador.id,
+            "nome": colaborador.nome_completo,
+            "funcao": colaborador.tipo.description
+        });
+        console.log(listEquipasArray);
+        //this.precedentes.push(this.precedenteInput.value);
+        displayEquipas();
+    }
+
 }
+
+
+function removePrecedente(elm) {
+    console.log("remove precendente", elm.dataset.id)
+    listPrecedentesArray = listPrecedentesArray.filter(el => el.id != elm.dataset.id)
+    console.log(listPrecedentesArray)
+    displayPrecedentes()
+}
+
+function displayPrecedentes() {
+    let frame = document.getElementById("divListProcessosAssociados");
+    let templateFrame = `
+    <div style="background-color: #f2f2f2; width: 80%">
+        <div>
+            <table class="table bordered" width="70%">
+                <tr>
+                    <th>Ref. Processo </th>
+                    <th>Assunto </th>
+                    <th>&nbsp;</th>
+                </tr>
+            `;
+    for (let precedente of listPrecedentesArray) {
+        templateFrame += `
+                <tr>
+                    <td>${precedente.ref}</td>
+                    <td>${precedente.assunto}</td>
+                    <td>
+                        <span data-id=${precedente.id} onClick="removePrecedente(this)" style="cursor: pointer">
+                        <i class="fas fa-trash"></i>
+                        </span>
+                    </td>                            
+                </tr>
+            `;
+    }
+
+    templateFrame += `</table>
+        </div>
+    </div>`;
+    console.log(frame);
+    frame.innerHTML = templateFrame;
+
+}
+
+
+function removeTarefa(elm) {
+    console.log("remove tarefa", elm.dataset.id)
+    console.log("remove tarefa listEquipasArray ", listTarefasArray)
+
+    listTarefasArray = listTarefasArray.filter(el => el != elm.dataset.id)
+    console.log(listTarefasArray)
+    displayTarefas()
+}
+
+function displayTarefas() {
+
+    console.log("display tarefas", listTarefasArray)
+
+    let frame = document.getElementById("divListTarefasProcesso");
+    let templateFrame = `
+    <div style="background-color: #f2f2f2; width: 80%">
+        <div>
+            <table class="table bordered" width="70%">
+                <tr>
+                    <th>Tarefa</th>
+                    <th>Estado</th>
+                    <th>Remover</th>
+                </tr>
+            `;
+    for (let tarefa of listTarefasArray) {
+        templateFrame += `
+                <tr>
+                    <td>${tarefa}</td>
+                    <td><input type="checkbox" id="horns" name="horns" /></td>
+                    <td>
+                        <span data-id=${tarefa} onClick="removeTarefa(this)" style="cursor: pointer">
+                        <i class="fas fa-trash"></i>
+                        </span>
+                    </td>                            
+                </tr>
+            `;
+    }
+
+    templateFrame += `</table>
+        </div>
+    </div>`;
+    console.log(frame);
+    frame.innerHTML = templateFrame;
+
+}
+
+
+
+function removeEquipa(elm) {
+    console.log("removeEquipa >> ", elm.dataset.id)
+    listEquipasArray = listEquipasArray.filter((el) => el.id != elm.dataset.id)
+    console.log(" listEquipasArray >>>> filtro ", listEquipasArray)
+    displayEquipas()
+}
+
+function displayEquipas() {
+
+    console.log("display equipas >>>>>>>>>  ", listEquipasArray)
+
+    let frame = document.getElementById("divListEquipa");
+    let templateFrame = `
+    <div style="background-color: #f2f2f2; width: 80%">
+        <div>
+            <table class="table bordered" width="70%">
+                <tr>
+                    <th>Nome </th>
+                    <th>Tipo</th>
+                    <th>&nbsp;</th>
+                </tr>
+            `;
+    for (let equipa of listEquipasArray) {
+        templateFrame += `
+                <tr>
+                    <td>${equipa.nome}</td>
+                    <td>${equipa.funcao}</td>
+                    <td>
+                        <span data-id=${equipa.id} onClick="removeEquipa(this)" style="cursor: pointer">
+                        <i class="fas fa-trash"></i>
+                        </span>
+                    </td>                            
+                </tr>
+            `;
+    }
+
+    templateFrame += `</table>
+        </div>
+    </div>`;
+    frame.innerHTML = templateFrame;
+
+}
+
+
 
 function loadWizard() {
     //Advanced form with validation
@@ -486,23 +821,6 @@ function loadWizard() {
             swal("Good job!", "Submitted!", "success");
         },
     });
-
-    /* form.validate({
-                highlight: function (input) {
-                    $(input).parents('.form-line').addClass('error');
-                },
-                unhighlight: function (input) {
-                    $(input).parents('.form-line').removeClass('error');
-                },
-                errorPlacement: function (error, element) {
-                    $(element).parents('.form-group').append(error);
-                },
-                rules: {
-                    'confirm': {
-                        equalTo: '#password'
-                    }
-                }
-            }); */
 }
 
 function setButtonWavesEffect(event) {
@@ -511,3 +829,7 @@ function setButtonWavesEffect(event) {
         .find('[role="menu"] li:not(.disabled) a')
         .addClass("waves-effect");
 }
+
+let listPrecedentesArray = [];
+let listTarefasArray = [];
+let listEquipasArray = [];

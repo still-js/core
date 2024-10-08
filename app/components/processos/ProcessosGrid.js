@@ -42,6 +42,7 @@ class ProcessosGrid extends ViewComponent {
                                         <th>Fase</th>
                                         <th>Instituição</th>
                                         <th>Modo Facturação</th>
+                                        <th>Cliente</th>
                                         <th>Gestor</th>
                                         <th>Data Emissão</th>
                                         <th>Acções</th>
@@ -57,6 +58,7 @@ class ProcessosGrid extends ViewComponent {
                                         <td>{item.fase}</td>
                                         <td>{item.instituicao}</td>
                                         <td>{item.modo_facturacao}</td>
+                                        <td>{item.cliente}</td>
                                         <td>{item.gestor}</td>
                                         <td>{item.data_registo}</td>
                                         <td class="center" >

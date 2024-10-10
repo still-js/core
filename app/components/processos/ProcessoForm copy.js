@@ -151,12 +151,9 @@ class ProcessoForm extends ViewComponent {
                     <h2><strong>Cadastro</strong> de processo</h2>
                 </div>
                 <div class="body">
-                    <form id="wizard_with_validatio" onsubmit="javascript: return false;">
-                            <h3 style="background-color: #009688;
-                                        padding: 15px;
-                                        color: #fff;">
-                                Dados Processo
-                            </h3>
+                    <form id="wizard_with_validation" onsubmit="javascript: return false;">
+                        <h3>Dados Processo</h3>
+                        <fieldset>
 
                             <h2 class="card-inside-title">Detalhes do processo</h2>
                             <div class="row clearfix">
@@ -230,7 +227,7 @@ class ProcessoForm extends ViewComponent {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="input-field col s12">
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Gestor do processo
@@ -243,7 +240,7 @@ class ProcessoForm extends ViewComponent {
 
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                 <div class="input-field col s12">
                                     <span class="input-group-addon">
                                         <i class="material-icons">person</i> Cliente
@@ -256,23 +253,10 @@ class ProcessoForm extends ViewComponent {
 
                             </div>
 
-                            <div class="col-md-4">
-                                <div class="input-field col s12">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">person</i> Estado
-                                    </span>
-                                    <select (change)="updateEstado($event)" (forEach)="listEstado">
-                                        <option each="item" value="">Selecione uma opção</option>
-                                        <option each="item" value="{item.id}">{item.descricao}</option>
-                                    </select> 
-                                </div>
-                            </div>
-
-
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
-                                            <i class="material-icons">date_range</i> Data de registo
+                                            <i class="material-icons">person</i> Data de registo
                                         </span>
                                         <div class="form-line">
                                             <input type="date" id="dataRegistoInput" (change)="updateDataRegisto($event)" class="form-control date" (value)="dataRegisto">
@@ -281,35 +265,87 @@ class ProcessoForm extends ViewComponent {
                                 </div>
 
                                 <div class="col-md-4">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">date_range</i> Data de Suspensão
-                                    </span>
-                                    <div class="form-line">
-                                        <input type="date" id="dataSuspensaoInput" (change)="updateDataSuspensao($event)" class="form-control date" (value)="dataSuspensao">
+                                    <div class="input-field col s12">
+                                        <span class="input-group-addon">
+                                            <i class="material-icons">person</i> Estado
+                                        </span>
+                                        <select (change)="updateEstado($event)" (forEach)="listEstado">
+                                            <option each="item" value="">Selecione uma opção</option>
+                                            <option each="item" value="{item.id}">{item.descricao}</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
-                            <div class="input-group">
-                                <span class="input-group-addon">
-                                    <i class="material-icons">date_range</i> Data de Encerramento
-                                </span>
-                                <div class="form-line">
-                                    <input type="date" id="dataEncerramentoInput" (change)="updateDataEncerramento($event)" class="form-control date" (value)="dataEncerramento">
-                                </div>
-                            </div>
-                        </div>
+                        </fieldset>
 
-                            </div>                   
-                        <div style="display: flex;
-                                    justify-content: end;
-                                    align-items: center;"
-                        >
-                            <button class="btn btn-primary julaw-submit-button" (click)="registerProcesso()">Salvar</button>
+                        <h3>Precedentes / Tarefas </h3>
+                        <fieldset>
+                            <h2 class="card-inside-title">Processos associados / Tarefas</h2>
+                            <div class="row clearfix">    
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                        <select (change)="updatePrecedentes($event)" (forEach)="listPrecedentes">
+                                            <option each="item" value="">Selecione uma opção</option>
+                                            <option each="item" value="{item.id}">{item.descricao}</option>
+                                        </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button (click)="addPrecedentesProcesso()" class="btn btn-default"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div id="divListProcessosAssociados">
+                                                <p>Lista dos processos associados</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                       
+                                <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control" placeholder="digite uma tarefa" (value)="tarefaInput">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button (click)="addTarefaProcesso()" class="btn btn-sm btn-default"  ><i class="fas fa-plus"></i></button>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div id="divListTarefasProcesso">
+                                            <p>Inputs das tarefas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                  
+                            </div>
+
+                        </fieldset>
+                        <h3>Equipa / Advogados</h3>
+                        <fieldset>
+                        <h2 class="card-inside-title">Associar advogados ao Processo</h2>
+                        <div class="row clearfix">    
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                    <select (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
+                                        <option each="item" value="">Selecione uma opção</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
+                                    </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button (click)="addEquipaProcesso()" class="btn btn-default"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div id="divListEquipa">
+                                            <p>Lista das equipas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                       
+                            
+                        
+                        <button class="btn btn-default julaw-submit-button" (click)="registerProcesso()">Salvar</button>
                         </div>
-                        </div>
+                    </fieldset>
                 </form>
             </div>
         </div>
@@ -360,9 +396,9 @@ class ProcessoForm extends ViewComponent {
             "gestorId": this.gestorId.value,
             "contraParte": this.contraParte.value,
             "dataRegisto": this.dataRegisto.value,
-            "dataSuspensao": this.dataSuspensao.value,
+            "dataSuspensao": null,
             "colaboradorIdSuspendeu": null,
-            "dataEncerramento": this.dataEncerramento.value,
+            "dataEncerramento": null,
             "colaboradorIdEnderrou": null,
             "metodologia": null,
             "estrategia": null,
@@ -396,9 +432,7 @@ class ProcessoForm extends ViewComponent {
                         alert("Salvo com sucesso");
                         console.log("cadastro do colaborador ... ", response);
                         //AppTemplate.get().store('logged', true);
-                        Router.goto("ProcessoDetalhes", {
-                            data: response.data.id,
-                          });
+                        Router.goto('ProcessosGrid');
                         // aonde guardar os dados do user logado com seguranca
                     }
                 })
@@ -542,16 +576,6 @@ class ProcessoForm extends ViewComponent {
     updateDataRegisto(evt) {
         this.dataRegisto = document.getElementById("dataRegistoInput").value
         console.log(" <<<<<<<<<< this.dataRegisto  ", this.dataRegisto)
-    }
-
-    updateDataSuspensao(evt) {
-        this.dataSuspensao = document.getElementById("dataSuspensaoInput").value
-        console.log(" <<<<<<<<<< this.dataSuspensao  ", this.dataSuspensao)
-    }
-
-    updateDataEncerramento(evt) {
-        this.dataEncerramento = document.getElementById("dataEncerramentoInput").value
-        console.log(" <<<<<<<<<< this.dataEncerramento  ", this.dataEncerramento)
     }
 
     async addPrecedentesProcesso() {
@@ -727,7 +751,7 @@ function displayEquipas() {
 }
 
 
-/*
+
 function loadWizard() {
     //Advanced form with validation
     var form = $("#wizard_with_validation").show();
@@ -783,7 +807,6 @@ function setButtonWavesEffect(event) {
         .find('[role="menu"] li:not(.disabled) a')
         .addClass("waves-effect");
 }
-*/
 
 let listPrecedentesArray = [];
 let listTarefasArray = [];

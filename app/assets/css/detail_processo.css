@@ -1,0 +1,13 @@
+/* LEFT SIDE */
+
+.display-flex {
+    display: flex;
+    justify-content: space-between;
+}
+.div-title-abas {
+    margin: 20px 0;
+}
+.title-abas {
+    font-size: 16px;
+    font-weight: 600;
+}

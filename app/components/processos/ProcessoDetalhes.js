@@ -1,5 +1,5 @@
 class ProcessoDetalhes extends ViewComponent {
-  
+
   id;
   estado;
   referencia;
@@ -42,6 +42,14 @@ class ProcessoDetalhes extends ViewComponent {
   listPrecedentes;
   listEquipas;
   listClientes;
+
+  valueInputTarefa;
+  equipaInput;
+  precedenteInput;
+
+  inputAnexoDescricao;
+  inputAnexoFile;
+
 
   template = `<section class="content">
     <div class="block-header">
@@ -264,8 +272,32 @@ class ProcessoDetalhes extends ViewComponent {
   
           <div class="div-title-abas display-flex">
             <label class="title-abas">Equipas Associadas ao Processo</label>
-            <button class="btn" title="Adicionar"><i class="fas fa-plus"></i></button>
+            <span  title="Adicionar"><i class="fas fa-plus"></i></span>
           </div>
+
+          <!-- inicio form add tarefas -->
+          <div class="form_add_resources" id="form_tab_tarefas">
+              <form id="wizard_with_validatio" onsubmit="javascript: return false;">
+                <div class="row">
+                <div class="input-field col s12">
+                  <span class="input-group-addon">
+                    <i class="material-icons">person</i> Equipas
+                  </span>
+                  <select (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
+                    <option each="item" value="">Selecione uma opção</option>
+                    <option each="item" value="{item.id}">{item.descricao}</option>
+                  </select>
+                </div>
+                </div>
+                <div>
+                  <button (click)="addEquipaProcesso()" class="btn btn-default">Salvar</button>
+                </div>
+              </form>
+          </div>
+          <!-- fim form add tarefas -->
+
+                
+
   
           <div class="product-description">
             <div class="table-responsive">
@@ -302,6 +334,9 @@ class ProcessoDetalhes extends ViewComponent {
           </div>
   
         </div>
+
+
+
         <div role="tabpanel" class="tab-pane fade" id="tarefas">
   
           <div class="div-title-abas display-flex">
@@ -315,7 +350,7 @@ class ProcessoDetalhes extends ViewComponent {
               <form id="wizard_with_validatio" onsubmit="javascript: return false;">
                 <div>
                   <label>Descrição da Tarefa</label>
-                  <input placeholder="Digite uma tarefa" type="text" id="input_form_tarefa" />
+                  <input (value)="valueInputTarefa" placeholder="Digite uma tarefa" type="text" id="input_form_tarefa" />
                 </div>
                 <div>
                   <button (click)="addTarefaProcesso()" class="btn btn-default">Salvar</button>
@@ -368,6 +403,32 @@ class ProcessoDetalhes extends ViewComponent {
             <label class="title-abas">Processos Associados</label>
             <button class="btn" title="Adicionar"><i class="fas fa-plus"></i></button>
           </div>  
+
+
+
+          <!-- inicio form add tarefas -->
+          <div class="form_add_resources" id="form_tab_tarefas">
+              <form id="wizard_with_validatio" onsubmit="javascript: return false;">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <span class="input-group-addon">
+                      <i class="material-icons">person</i> Processos à Associar
+                    </span>
+                    <select (change)="updatePrecedentes($event)" (forEach)="listPrecedentes">
+                        <option each="item" value="">Selecione uma opção</option>
+                        <option each="item" value="{item.id}">{item.descricao}</option>
+                    </select>
+                  </div>
+                 </div>
+                  <div>
+                      <button (click)="addPrecedentesProcesso()" class="btn btn-default">Salvar</button>
+                   </div>
+              </form>
+           </div>
+           <!-- fim form add tarefas -->
+
+
+
   
           <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
@@ -411,6 +472,27 @@ class ProcessoDetalhes extends ViewComponent {
             <label class="title-abas">Anexos Associados ao Processo</label>
             <span class="btn" title="Adicionar Anexo"><i class="fas fa-plus"></i></span>
           </div>
+
+
+          <!-- inicio form add tarefas -->
+          <div class="form_add_resources" id="form_tab_tarefas">
+              <form>
+              <div class="row">
+              <div class="input-field col s12">
+                <label>Descrição</label>
+                  <input type="text" class="form-control" (value)="inputAnexoDescricao" />
+                <br/>
+                  <input id="inputUploadAnexo" class="form-control" accept="image/*" type="file" />
+              </div>
+              </div>
+              <div>
+                <button (click)="addAnexoProcesso()" class="btn btn-default">Salvar</button>
+              </div>
+              </form>
+          </div>
+          <!-- fim form add tarefas -->
+
+
   
   
           <div class="table-responsive">
@@ -507,6 +589,34 @@ class ProcessoDetalhes extends ViewComponent {
         }
       }
     });
+
+    this.getListColaboradores();
+    this.getListPrecedentes();
+
+
+    document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+
+      console.log(file)
+
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const base64String = e.target.result;
+          console.log("base64 addEventListener >>>> " ,base64String)
+          this.inputAnexoFile = base64String;
+
+          setTimeout(() => {
+            console.log("base64 addEventListener >>>> set timeout " ,this.inputAnexoFile.toString().substring(0,20))
+          },3000)
+          // const imagePreview = document.getElementById('imagePreview');
+          // imagePreview.src = base64String;  // Exibe a imagem
+        };
+        reader.readAsDataURL(file); // Converte o arquivo em base64
+      }
+    })
+
   }
 
   populateAttributes(data) {
@@ -587,19 +697,90 @@ class ProcessoDetalhes extends ViewComponent {
     return document.getElementById(id).value
   }
 
+  updateEquipasProcesso(evt) {
+    this.equipaInput = evt.target.value;
+    console.log(" <<<<<<<<<< this.equipasProcesso  ", this.equipaInput)
+  }
+
+  updatePrecedentes(evt) {
+    console.log(
+      "updatePrecedentes >>>>>>>><<<< :::: :::: >>>>>>>>><<<<<< ",
+      evt.target.value
+    );
+    this.precedenteInput = evt.target.value;
+  }
+
+
+
+  getListColaboradores() {
+    $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
+      (r) => {
+        if (r.data) {
+          let colaboradorData = [];
+          let equipasData = [];
+
+          for (let colaborador of r.data) {
+            colaboradorData.push({
+              id: colaborador.id,
+              descricao: `${colaborador.tipo.description} - ${colaborador.nome_completo}`,
+            });
+
+            if (colaborador.funcao.includes("adv")) {
+              equipasData.push({
+                id: colaborador.id,
+                descricao: `${colaborador.tipo.description} - ${colaborador.nome_completo}`,
+              });
+            }
+          }
+
+          this.listEquipas = equipasData;
+          this.listColaboradores = colaboradorData;
+
+          console.log(
+            "getListColaboradores - COLABORADORES >>>>>> ",
+            this.listColaboradores
+          );
+          console.log(
+            "getListColaboradores - EQUIPAS >>>>>> ",
+            this.listEquipas
+          );
+        }
+      }
+    );
+  }
+
+
+  getListPrecedentes() {
+    $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
+      (r) => {
+        if (r.data) {
+          let processoData = [];
+
+          for (let processo of r.data) {
+            processoData.push({
+              id: processo.id,
+              descricao: `${processo.assunto} - ${processo.ref}`,
+            });
+          }
+
+          this.listPrecedentes = processoData;
+          console.log("getListPrecedentes >>> ", this.listPrecedentes);
+        }
+      }
+    );
+  }
+
 
   /** Function Save */
 
-  addTarefaProcesso() {
+  async addEquipaProcesso() {
 
-    const tarefa = this.getValueById('input_form_tarefa')
+    const equipa = this.equipaInput.value;
 
     const payload = {
-        "processo_id": this.id,
-        "tarefa": [tarefa]
+      "processoId": this.id.value,
+      "colaboradoresId": [equipa]
     }
-
-    return 0; 
 
     $still.HTTPClient.post(
       "http://localhost:3000/api/v1/recursos_processo",
@@ -613,11 +794,131 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
         console.log(`processo criado com sucesso: `, response);
         if (response.status !== 201) {
-            console.log(response)
-            alert(response.errors);
+          console.log(response)
+          alert(response.errors);
         } else {
-            alert("Salvo com sucesso");
-            console.log("cadastro do colaborador ... ", response);
+          alert("Salvo com sucesso");
+          console.log("cadastro do colaborador ... ", response);
+        }
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+
+
+  }
+
+
+
+  async addPrecedentesProcesso() {
+
+    console.log("addPrecedentesProcesso... ", this.precedenteInput.value);
+
+    const tarefa = this.getValueById('input_form_tarefa')
+    const precedente = this.precedenteInput.value;
+
+    const payload = {
+      "processoId": this.id.value,
+      "precedentes": [precedente]
+    }
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/recursos_processo",
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        console.log(`processo criado com sucesso: `, response);
+        if (response.status !== 201) {
+          console.log(response)
+          alert(response.errors);
+        } else {
+          alert("Salvo com sucesso");
+          console.log("cadastro do colaborador ... ", response);
+        }
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+
+  }
+
+
+  addAnexoProcesso() {
+
+    console.log(" this.inputAnexoFile.value", this.inputAnexoFile)
+
+    const payload = {
+      "processoId": this.id.value,
+      "colaboradorId": 3,
+      "anexos":  [{ 
+        "descricao": this.inputAnexoDescricao.value,
+        "anexo": this.inputAnexoFile.value
+      }]
+    }
+
+    console.log(" <<<<< >>> ",payload)
+
+
+    return 0;
+
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/recursos_processo",
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        console.log(`processo criado com sucesso: `, response);
+        if (response.status !== 201) {
+          console.log(response)
+          alert(response.errors);
+        } else {
+          alert("Salvo com sucesso");
+          console.log("cadastro do colaborador ... ", response);
+        }
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+  }
+
+
+  addTarefaProcesso() {
+
+    const tarefa = this.getValueById('input_form_tarefa')
+
+    const payload = {
+      "processoId": this.id.value,
+      "tarefas": [tarefa]
+    }
+
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/recursos_processo",
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        console.log(`processo criado com sucesso: `, response);
+        if (response.status !== 201) {
+          console.log(response)
+          alert(response.errors);
+        } else {
+          alert("Salvo com sucesso");
+          console.log("cadastro do colaborador ... ", response);
         }
       })
       .catch((err) => {
@@ -628,3 +929,4 @@ class ProcessoDetalhes extends ViewComponent {
 
 
 }
+

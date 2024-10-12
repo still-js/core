@@ -77,6 +77,8 @@ class Router {
 
                     if(cmp == 'init') return;
 
+                    
+
                     /**
                      * the bellow line clears previous component from memory
                      * @type { ViewComponent }

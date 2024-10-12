@@ -189,8 +189,9 @@ class Components {
             this.template = this.getNewParsedComponent(cmp).getTemplate();
             this.renderOnViewFor('stillUiPlaceholder');
         }else{
-            document.write($stillconst.MSG.PRIVATE_CMP);
-            cmp.hideLoading();
+            // here...
+            //document.write($stillconst.MSG.PRIVATE_CMP);
+            //cmp.hideLoading();
         }
 
     }

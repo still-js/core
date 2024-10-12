@@ -2,14 +2,12 @@ class CTopNavBar extends ViewComponent {
 
     htmlRefId = 'topNavBar';
     template = `
-        <div class="container-fluid" style="display: contents;">
+        <div class="container-fluid" style="margin-top: -7px;
+        margin-left: -13px;">
             <div class="navbar-header">
-                <a href="#" onClick="return false;" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#navbar-collapse" aria-expanded="false"></a>
-                <a href="#" onClick="return false;" class="bars"></a>
                 <a class="navbar-brand" href="index.html">
                     <img src="assets/images/logo.png" alt="" />
-                    <span class="logo-name">Atrio</span>
+                    <span class="logo-name">Atrios</span>
                 </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse" style="position: fixed; width: 100%;">
@@ -169,7 +167,7 @@ class CTopNavBar extends ViewComponent {
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#" onClick="return false;">
+                                        <a href="#" (click)="gotoView('Home')">
                                             <i class="material-icons">power_settings_new</i>Logout
                                         </a>
                                     </li>
@@ -191,6 +189,10 @@ class CTopNavBar extends ViewComponent {
     constructor(){
         super();
         console.log(`instantiated top nav bar added plus`);
+    }
+
+    gotoView(viewComponent) {
+        Router.goto(viewComponent);
     }
 
 }

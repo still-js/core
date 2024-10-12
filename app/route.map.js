@@ -4,17 +4,17 @@
 const routesMap = {
     viewRoutes: {
         regular: {
-            LayoutBase: 'components/layout',
             Login: 'components/auth',
-            ClientForm: 'components/client',
             Home: 'components/home',
+            ClientForm: 'components/client',
             ClientsGrid: 'components/client',
-            AuthBase: 'components/auth',
         },
         lazyInitial: {
-            MorCompo: 'components/client',
             ColaboradorForm: 'components/colaboradores',
             ColaboradorGrid: 'components/colaboradores',
+            ProcessoForm: 'components/processos',
+            ProcessosGrid: 'components/processos',
+            ProcessoDetalhes: 'components/processos',
         }
     },
 }

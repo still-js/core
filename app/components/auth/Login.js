@@ -72,8 +72,9 @@ class Login extends ViewComponent {
             password: this.password.value
         };
 
-        if(payload.password == '1234' && payload.username == 'sony'){
-            AppTemplate.get().store('logged', true);
+        if(payload.password == '1234' && payload.username == 'osvaldo'){
+          //  AppTemplate.get().store('logged', true);
+          localStorage.setItem('logged', true);
             Router.goto('Home');
         }else{
             Router.goto('init');

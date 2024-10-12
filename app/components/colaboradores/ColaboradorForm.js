@@ -8,8 +8,10 @@ class ColaboradorForm extends ViewComponent {
     tipo_colaborador_id = "";
     contactos = [];
     identificacoes = "";
+    taxa_horaria = "";
 
     template = `
+    <section class="content">
     <div class="row clearfix">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
@@ -49,7 +51,7 @@ class ColaboradorForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Tipo de colaborador
                                         </span>
-                                        <select  (value)="tipo_colaborador_id">
+                                        <select id="select-tipo-colaborador" onchange=costFinacialHiden() (value)="tipo_colaborador_id">
                                             <option value="" disabled selected>Selecione o tipo de colaborador</option>
                                             <option value="1">Administrativo</option>
                                             <option value="2">Advogado - Júnior</option>
@@ -189,6 +191,24 @@ class ColaboradorForm extends ViewComponent {
                             </div>
 
                         </fieldset>
+
+                        <h3>Custo Financeiro</h3>
+                        <fieldset>
+                            <h2 class="card-inside-title">Dados de custo financeiro</h2>
+                                <div class="row clearfix">
+                                    <div class="col-md-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">payment</i> Taxa Horária
+                                            </span>
+                                            <div class="form-line">
+                                                <input id="input-taxa-horaria" type="numeric" class="form-control date" (value)="taxa_horaria" placeholder="0,00kz/h">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </fieldset>
+
                         <h3>Identificação</h3>
                         <fieldset>
                         <h2 class="card-inside-title">Dados de identificação</h2>
@@ -265,9 +285,9 @@ class ColaboradorForm extends ViewComponent {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>registerColaborador
 
-                                <button class="julaw-submit-button" (click)="registerColaborador()">Salvar</button>
+                                <button class="julaw-submit-button" (click)="()">Salvar</button>
 
                             </div>
                         </fieldset>
@@ -276,6 +296,7 @@ class ColaboradorForm extends ViewComponent {
             </div>
         </div>
     </div>
+    </section>
     `;
 
     constructor() {
@@ -310,6 +331,8 @@ class ColaboradorForm extends ViewComponent {
         console.log(">>>>>>>>>>>>>>> ", this.nome_completo);
         console.log(">>>>>>>>>>>>>>> ", this.tipo_colaborador_id);
         console.log(">>>>>>>>>>>>>>> contactos:::  ", this.contactos);
+        console.log(">>>>>>>>>>>>>>> custoFinanceiro:::  ", this.taxa_horaria);
+
         return 0;
 
         const payload = {
@@ -382,6 +405,7 @@ class ColaboradorForm extends ViewComponent {
         //if(routeData){
         //    console.log(`there is a new data from route: `, routeData);
         //}
+        document.getElementById("input-taxa-horaria").disabled = true;
     }
 }
 
@@ -456,4 +480,18 @@ function setButtonWavesEffect(event) {
     $(event.currentTarget)
         .find('[role="menu"] li:not(.disabled) a')
         .addClass("waves-effect");
+}
+
+function costFinacialHiden() {
+    var e = document.getElementById("select-tipo-colaborador");
+    var typeCollaborator = e.options[e.selectedIndex].text;
+    console.log('o valor do select é', typeCollaborator);
+
+    if(typeCollaborator == "Administrativo") {
+        document.getElementById("input-taxa-horaria").disabled = true;
+    }
+    else {
+        document.getElementById("input-taxa-horaria").disabled = false;
+    }
+
 }

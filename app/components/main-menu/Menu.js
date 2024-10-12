@@ -47,6 +47,9 @@ class CMenu extends ViewComponent {
                         <li class="active">
                             <a href="#" (click)="gotoView('ColaboradoresGrid')">Ver Colaboradores</a>
                         </li>
+                        <li class="active">
+                            <a href="#" (click)="gotoView('ColaboradorForm')">Cadastrar Colaboradores</a>
+                        </li>
                     </ul>
                 </li>
 
@@ -61,6 +64,7 @@ class CMenu extends ViewComponent {
     }
 
     logout(){
+        localStorage.removeItem('logged');
         Router.goto('exit');
     }
 

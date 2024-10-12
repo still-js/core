@@ -2,7 +2,7 @@ class ComponentSetup extends Components {
     
     entryComponentPath = routesMap.viewRoutes.regular.Home;
     entryComponentName = 'Home';
-    logged = false;
+    logged = localStorage.getItem('logged');
 
     constructor(){
         super();

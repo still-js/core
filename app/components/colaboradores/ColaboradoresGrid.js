@@ -133,7 +133,13 @@ class ColaboradoresGrid extends ViewComponent {
                         tipo: null,
                         descricao: null,
                     },
+                ],
+                custoFinanceiro:[
+                    {
+                        taxa_horaria: null,
+                    }
                 ]
+                 
             }
         
         // this.dataSource = r.data;
@@ -162,7 +168,11 @@ class ColaboradoresGrid extends ViewComponent {
                                { 
                                     tipo: item.type,
                                     descricao: item.descricao
-                                }))                                              
+                                })),
+                    custoFinanceiro: colaborador.map((item) => (
+                        {
+                            taxa_horaria: item.taxa_horaria
+                        }))                                              
                 }
             )
         }

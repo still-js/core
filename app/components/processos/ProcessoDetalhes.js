@@ -152,7 +152,6 @@ class ProcessoDetalhes extends ViewComponent {
                 <div class="product-description">
                 <div class="div-title-abas display-flex">
                     <label class="title-abas">Métodos e Procedimentos</label>
-                    <button class="btn" title="Adicionar"><i class="fas fa-plus"></i></button>
                 </div>      
   
                   <div>  
@@ -165,9 +164,14 @@ class ProcessoDetalhes extends ViewComponent {
                                 aria-expanded="true" aria-controls="collapseOne_5">
                                 Metodologias
                               </a>
-                              <a title="Editar Metodologias do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_metodologia')">
-                                <span class="fas fa-pencil-alt"></span>
-                              </a>
+                                <div class="display-flex">
+                                  <a title="Editar Metodologias do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_metodologia')">
+                                    <span class="fas fa-pencil-alt"></span>
+                                  </a>
+                                  <a title="Salvar as alterações da metodologia do Processo" style="cursor: pointer" (click)="saveResourcesProcesso('input_metodologia')">
+                                    <span class="fas fa-save"></span>
+                                  </a>
+                                </div>
                             </h4>
                           </div>
                           <div id="collapseOne_5" class="panel-collapse collapse in show" role="tabpanel"
@@ -184,9 +188,14 @@ class ProcessoDetalhes extends ViewComponent {
                                 href="#collapseTwo_5" aria-expanded="false" aria-controls="collapseTwo_5">
                                 Estrategias
                               </a>
-                              <a title="Editar Estrategias do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_estrategias')">
-                                <span class="fas fa-pencil-alt"></span>
-                            </a>
+                               <div class="display-flex">
+                                  <a title="Editar Estrategia do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_estrategias')">
+                                    <span class="fas fa-pencil-alt"></span>
+                                  </a>
+                                  <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_estrategias')">
+                                    <span class="fas fa-save"></span>
+                                  </a>
+                                </div>
                             </h4>
                           </div>
                           <div id="collapseTwo_5" class="panel-collapse collapse" role="tabpanel"
@@ -203,9 +212,14 @@ class ProcessoDetalhes extends ViewComponent {
                                 href="#collapseThree_5" aria-expanded="false" aria-controls="collapseThree_5">
                                 Objectivos
                               </a>
-                              <a title="Editar Objectivos do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_objectivos')">
-                                <span class="fas fa-pencil-alt"></span>
-                              </a>
+                              <div class="display-flex">
+                                  <a title="Editar Objectivos do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_objectivos')">
+                                    <span class="fas fa-pencil-alt"></span>
+                                  </a>
+                                  <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_objectivos')">
+                                    <span class="fas fa-save"></span>
+                                  </a>
+                                </div>
                             </h4>
                           </div>
                           <div id="collapseThree_5" class="panel-collapse collapse" role="tabpanel"
@@ -224,9 +238,14 @@ class ProcessoDetalhes extends ViewComponent {
                               href="#collapseThree_6" aria-expanded="false" aria-controls="collapseThree_6">
                               Factos
                             </a>
-                            <a title="Editar Factos do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_factos')">
-                              <span class="fas fa-pencil-alt"></span>
-                            </a>
+                            <div class="display-flex">
+                                  <a title="Editar Factos do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_factos')">
+                                    <span class="fas fa-pencil-alt"></span>
+                                  </a>
+                                  <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_factos')">
+                                    <span class="fas fa-save"></span>
+                                  </a>
+                                </div>
                           </h4>
                         </div>
                         <div id="collapseThree_6" class="panel-collapse collapse" role="tabpanel"
@@ -245,9 +264,14 @@ class ProcessoDetalhes extends ViewComponent {
                             href="#collapseThree_7" aria-expanded="false" aria-controls="collapseThree_7">
                             Dados Importantes
                           </a>
+                          <div class="display-flex">
                           <a title="Editar Dados Importantes do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_dados_importantes')">
                             <span class="fas fa-pencil-alt"></span>
                           </a>
+                          <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_dados_importantes')">
+                            <span class="fas fa-save"></span>
+                          </a>
+                        </div>
                         </h4>
                       </div>
                       <div id="collapseThree_7" class="panel-collapse collapse" role="tabpanel"
@@ -257,7 +281,6 @@ class ProcessoDetalhes extends ViewComponent {
                         </div>
                       </div>
                     </div>
-
 
 
                       </div>
@@ -401,9 +424,8 @@ class ProcessoDetalhes extends ViewComponent {
   
           <div class="div-title-abas display-flex">
             <label class="title-abas">Processos Associados</label>
-            <button class="btn" title="Adicionar"><i class="fas fa-plus"></i></button>
+            <span title="Adicionar"><i class="fas fa-plus"></i></span>
           </div>  
-
 
 
           <!-- inicio form add tarefas -->
@@ -459,18 +481,17 @@ class ProcessoDetalhes extends ViewComponent {
                 </tr>
               </tbody>
             </table>
-          </div>
+          </div> 
   
   
-  
-  
+
         </div>
   
         <div role="tabpanel" class="tab-pane fade" id="anexos">  
   
           <div class="div-title-abas display-flex">
             <label class="title-abas">Anexos Associados ao Processo</label>
-            <span class="btn" title="Adicionar Anexo"><i class="fas fa-plus"></i></span>
+            <span title="Adicionar"><i class="fas fa-plus"></i></span>
           </div>
 
 
@@ -483,6 +504,7 @@ class ProcessoDetalhes extends ViewComponent {
                   <input type="text" class="form-control" (value)="inputAnexoDescricao" />
                 <br/>
                   <input id="inputUploadAnexo" class="form-control" accept="image/*" type="file" />
+                  <img style="display: none" id="inputUploadAnexoHidden" src="" />
               </div>
               </div>
               <div>
@@ -604,12 +626,14 @@ class ProcessoDetalhes extends ViewComponent {
 
         reader.onload = function (e) {
           const base64String = e.target.result;
-          console.log("base64 addEventListener >>>> " ,base64String)
+          console.log("base64 addEventListener >>>> ", base64String)
           this.inputAnexoFile = base64String;
 
+          document.getElementById('inputUploadAnexoHidden').src = base64String;      
+
           setTimeout(() => {
-            console.log("base64 addEventListener >>>> set timeout " ,this.inputAnexoFile.toString().substring(0,20))
-          },3000)
+            console.log("base64 addEventListener >>>> set timeout ", this.inputAnexoFile.toString().substring(0, 20))
+          }, 3000)
           // const imagePreview = document.getElementById('imagePreview');
           // imagePreview.src = base64String;  // Exibe a imagem
         };
@@ -687,7 +711,107 @@ class ProcessoDetalhes extends ViewComponent {
 
   editResourcesProcesso(inputId) {
     console.log("editResourcesProcesso >>> ", inputId)
+    this.toggleEditarInputArea(inputId)
   }
+
+  toggleEditarInputArea(id, isEdit = true) {
+    console.log(id)
+    // document.getElementById("")
+    let elm = document.getElementById(id)
+    if(isEdit) {
+      elm.removeAttribute("readonly") 
+      elm.focus()
+    }else {
+      elm.setAttribute("readonly", true)
+    }
+
+    console.log(" >>>> <<<< ", elm)
+  }
+
+  saveResourcesProcesso(id) {
+    let elm = document.getElementById(id)
+
+    console.log("o elemento", elm)
+
+    if(elm.hasAttribute("readonly"))
+      return false
+
+    switch (id) {
+      case "input_metodologia":
+        this.metodologia = elm.value
+        break
+      case "input_estrategias":
+        this.estrategia = elm.value
+        break
+      case "input_objectivos":
+        this.objectivos = elm.value
+        break
+      case "input_factos":
+        this.factos = elm.value
+        break
+      default:
+        this.dadosImportantes = elm.value
+    }
+
+    const payload = {
+      "assunto": this.assunto.value,
+      "area": this.area.value,
+      "fase": this.fase.value,
+      "instituicaoId": this.instituicaoId.value,
+      "modoFacturacaoId": this.modoFacturacaoId.value,
+      "clienteId": this.clienteId.value,
+      "gestorId": this.gestorId.value,
+      "contraParte": this.contraParte.value,
+      "dataRegisto": this.dataRegisto.value,
+      "dataSuspensao": this.dataSuspensao.value,
+      //"colaboradorIdSuspendeu": null,
+      "dataEncerramento": this.dataEncerramento.value,
+      //"colaboradorIdEnderrou": null,
+      "metodologia": this.metodologia.value,
+      "estrategia":  this.estrategia.value,
+      "factos":  this.factos.value,
+      "objectivos":  this.objectivos.value,
+      "dataImportantes": this.dadosImportantes.value,
+      //"statusId": this.statusId.value,
+      //"precedentes": this.precedentes.value,
+      //"equipas": this.equipas.value,
+      //"tarefas": this.tarefas.value,
+    };
+
+
+    //console.log("payload ",payload)
+    //return 0
+
+    this.updateProcesso(payload)
+    this.toggleEditarInputArea(id, false)
+
+  }
+
+  updateProcesso(payload) {
+    $still.HTTPClient.put(
+      `http://localhost:3000/api/v1/processo/${this.id.value}`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        console.log(`processo criado com sucesso: `, response);
+        if (response.status !== 200) {
+          console.log(response)
+          alert(response.errors);
+        } else {
+          alert("Salvo com sucesso");
+          console.log("cadastro do colaborador ... ", response);
+        }
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+  }
+
 
   setValueById(id, value) {
     document.getElementById(id).value = value
@@ -850,25 +974,17 @@ class ProcessoDetalhes extends ViewComponent {
 
   addAnexoProcesso() {
 
-    console.log(" this.inputAnexoFile.value", this.inputAnexoFile)
-
     const payload = {
       "processoId": this.id.value,
       "colaboradorId": 3,
-      "anexos":  [{ 
+      "anexos": [{
         "descricao": this.inputAnexoDescricao.value,
-        "anexo": this.inputAnexoFile.value
+        "anexo": document.getElementById('inputUploadAnexoHidden').src
       }]
     }
 
-    console.log(" <<<<< >>> ",payload)
-
-
-    return 0;
-
-
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/recursos_processo",
+      "http://localhost:3000/api/v1/anexos_processo",
       JSON.stringify(payload),
       {
         headers: {
@@ -889,6 +1005,7 @@ class ProcessoDetalhes extends ViewComponent {
       .catch((err) => {
         console.log(`Erro ao cadastrar processo: `, err);
       });
+
   }
 
 

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx live-server ./app --port 8080",
+    "dev": "npx live-server ./app --port 8181",
     "build": "vite build"
   },
   "devDependencies": {

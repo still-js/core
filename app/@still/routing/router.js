@@ -73,11 +73,7 @@ class Router {
             loadComponentFromPath(route, cmp)
             .then(({ imported, isRoutable }) => {
                 if(!imported) {
-                    //delete $still.context.componentRegistror.componentList[cmp];
-
                     if(cmp == 'init') return;
-
-                    
 
                     /**
                      * the bellow line clears previous component from memory
@@ -185,17 +181,41 @@ class Router {
                     componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;
                 },100);
 
-                Router.callCmpAfterInit(`${cmpId}-check`);
             });
         }
+        Router.callCmpAfterInit(`${cmpId}-check`);
     }
 
     static callCmpAfterInit(cmpId){
 
+        /**
+         * Timer for keep calling the function wrapped code
+         * until it finds that the main component was loaded
+         * and proceeding computations (e.g. load subcomponent) 
+         * can happen
+         */
         const loadTImer = setTimeout(() => {
-                    
+            /**
+             * Check if the main component was 
+             * loaded/rendered
+             */
             if(document.getElementById(cmpId)){
-                $still.context.currentView.stAfterInit();
+                /** @type { ViewComponent } */
+                const cmp = $still.context.currentView;
+                
+                /**
+                 * Runs stAfterInit special method 
+                 * in case it exists
+                 */
+                cmp.stAfterInit();
+
+                /**
+                 * Load component parts or sub-components
+                 * inside the main loaded component
+                 */
+                Components.handleInPlaceParts(
+                    cmp.$stillExternComponentParts
+                );
                 clearTimeout(loadTImer);
             }
 

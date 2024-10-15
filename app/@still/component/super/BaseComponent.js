@@ -20,6 +20,27 @@ class StEvent {
     }
 }
 
+class ComponentPart {
+    template;
+
+    /**
+     * @type { ViewComponent }
+     */
+    component;
+
+    constructor({ template, component }){
+        this.template = template;
+        this.component = component;
+    }
+
+    render(){
+        const { template, component } = this;
+        const cntr = document.getElementById(component.dynCmpGeneratedId);
+        //cntr.innerHTML
+    }
+
+}
+
 class BaseComponent extends BehaviorComponent {
 
 
@@ -41,6 +62,11 @@ class BaseComponent extends BehaviorComponent {
     onChangeEventsList = [];
     afterInitEventToParse = [];
     isPublic = false;
+    dynCmpGeneratedId = null;
+    /**
+     * @type { Array<ComponentPart> }
+     */
+    $stillExternComponentParts = [];
 
 
     /**
@@ -49,6 +75,8 @@ class BaseComponent extends BehaviorComponent {
      * @returns { ViewComponent | BaseComponent } 
      */
     new(params){}
+
+    async load(){}
 
     async onRender(){}
 
@@ -87,7 +115,7 @@ class BaseComponent extends BehaviorComponent {
             'cmpProps','htmlRefId','new','cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm','$stillpfx', 'subImported', 
-            'onChangeEventsList', 'isPublic'
+            'onChangeEventsList', 'isPublic', '$stillExternComponentParts'
         ];
         return fields.filter(
             field => !excludingFields.includes(field) && !field.startsWith(this.$stillpfx)
@@ -309,6 +337,8 @@ class BaseComponent extends BehaviorComponent {
          */
         let template = this.getBoundState();
 
+        /** Parse still tags */
+        template = this.parseStSideComponent(template),
         /** Bind the props to the template and return */
         template = this.getBoundProps(template);
         /** Bind the click to the template and return */
@@ -502,7 +532,7 @@ class BaseComponent extends BehaviorComponent {
                             registror[content.component] = { instance, subImported: true };
                     }
                     await sleepForSec(multiplier * retryCounter);
-    
+                    
                 }
             }
 
@@ -523,6 +553,31 @@ class BaseComponent extends BehaviorComponent {
 
     resetState(){
         Router.goto(this.getProperInstanceName());
+    }
+
+    parseStSideComponent(template){
+
+        const cmpList = Components.getExternalCmp(template);
+        if(cmpList.length > 0 ){
+            for(const elm of cmpList){
+                const cmpName = elm.getAttribute('component');
+                if(cmpName == 'tabulator-datatable'){
+                    const cmp = new TabulatorComponent();
+                    cmp.dynCmpGeneratedId = `st_${crypto.randomUUID()}`;
+                    const cmpTemplate = cmp.getBoundTemplate();
+                    //elm.innerHTML = cmpTemplate;
+                    this.$stillExternComponentParts.push(
+                        new ComponentPart({
+                            template: cmpTemplate,
+                            component: cmp,
+                        })
+                    );
+                }
+            }
+        }
+
+        return template;
+
     }
 
 }

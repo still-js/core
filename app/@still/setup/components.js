@@ -500,10 +500,10 @@ class Components {
      * @param {ViewComponent} cmp 
      * @returns {ViewComponent}
      */
-    getNewParsedComponent(cmp){
+    getNewParsedComponent(cmp, cmpName = null){
 
         this
-        .setComponentAndName(cmp, cmp.getName())
+        .setComponentAndName(cmp, cmpName || cmp.getName())
         .defineNewInstanceMethod()
         .parseOnChange()
         .parseGetsAndSets()
@@ -555,6 +555,61 @@ class Components {
         const appContainer = document.getElementById($stillconst.APP_PLACEHOLDER);
         const parent = appContainer.parentElement;
         parent.removeChild(appContainer);
+    }
+
+    /**
+     * 
+     * @param {ViewComponent} cmp 
+     */
+    renderCmpParts(cmp){}
+
+    /**
+     * 
+     * @returns { XMLDocument }
+     */
+    static getExternalCmp(template){
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(template,'text/xml');
+        return doc.getElementsByTagName('st-extern');
+    }
+
+    /**
+     * 
+     * @param { Array<ComponentPart> } cmpParts 
+     */
+    static handleInPlaceParts(cmpParts){
+        const cmpList = document
+                        .getElementsByTagName('st-extern');
+        /**
+         * Get all st-external component to replace with the
+         * actual component template
+         */
+        for(let idx = 0; idx < cmpList.length; idx++){
+
+            const instance = cmpParts[idx].component;
+            let cmpName;
+            if(instance){
+                cmpName = 'constructor' in instance ? instance.constructor.name : null;
+            }
+
+            const cmp = (new Components)
+                        .getNewParsedComponent(instance,cmpName);
+
+            /**
+             * replaces the actual template in the 
+             * st-extern component placeholder
+             */
+            cmpList[idx].insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+            setTimeout(async () => {
+                /**
+                 * Runs the load method which is supposed
+                 * to implement what should be run for the
+                 * component to be displayed accordingly in
+                 * the User interface
+                 */
+                await cmp.load();
+            });
+        }
     }
 
 }

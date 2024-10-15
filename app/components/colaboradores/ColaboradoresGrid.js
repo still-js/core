@@ -71,20 +71,118 @@ class ColaboradoresGrid extends ViewComponent {
     this.setup({});
   }
 
-  async onRender() {
-    /**
-     * Isso quer dizer que o import do JQuery foi feito no index principal
-     * ou no ficheiro de rotas em eagerImport
-     */
-    this.stRunOnFirstLoad(() => {
-      $(".js-basic-example").DataTable({
-        responsive: true,
-      });
-    });
+    async onRender() {
+        /**
+         * Isso quer dizer que o import do JQuery foi feito no index principal
+         * ou no ficheiro de rotas em eagerImport
+         */
+        this.stRunOnFirstLoad(() => {
+            $('.js-basic-example').DataTable({
+                responsive: true
+            });
+        });
 
-    /** For Test purpose only */
-    await this.stLazyExecution(async () => {});
-  }
+        /** For Test purpose only */
+        await this.stLazyExecution(async () => { });
+    }
+
+    gotoView(viewComponent){
+        Router.goto(viewComponent);
+    }
+
+    stAfterInit(val) {
+        $still
+            .HTTPClient
+            .get('http://localhost:3000/api/v1/colaborador/')
+            .then((r) => {
+                if(r.data) {
+                    console.log(r)
+                    this.makeColaboradorDTO(r.data);
+                }
+            });
+    }
+
+    editClient(nif) {
+        console.log(`Clicked client is: `, nif);
+
+        const result = this.dataSource.value.filter((r) => r.nif == nif)
+        Router.goto('ClientForm', {
+            data: result[0]
+        });
+
+    }
+
+    makeColaboradorDTO(data) {
+        
+
+        let initialObjectColaborador = {
+                idColaborador: null,
+                nomeCompleto: null,
+                nomeProfissional: null,
+                funcao: null,
+                dataNascimento: null,
+                status: null,
+                createdAt: null,
+                tipoColaborador: null,
+                identificacoes: [
+                    {
+                        code: null,
+                        descricao: null,
+                    }
+                ],
+                contactos: [
+                    {
+                        tipo: null,
+                        descricao: null,
+                    },
+                ],
+                custoFinanceiro:[
+                    {
+                        taxa_horaria: null,
+                    }
+                ]
+                 
+            }
+        
+        // this.dataSource = r.data;
+        let colaboradorData = []
+
+        for(let colaborador of data) {
+            colaboradorData.push(
+                {
+                    ...initialObjectColaborador, 
+                    idColaborador: colaborador.id,
+                    nomeCompleto: colaborador.nome_completo,
+                    nomeProfissional: colaborador.nome_profissional,
+                    funcao: colaborador.funcao,
+                    dataNascimento: colaborador.data_nascimento,
+                    status: colaborador.status,
+                    createdAt: colaborador.created_at,
+                    tipoColaborador: colaborador.tipo.description,
+                    identificacoes: 
+                            colaborador.identificacoes.map((item) => (
+                                {
+                                    code: item.tipo.code,
+                                    descricao: item.tipo.description
+                               })),
+                    contactos: 
+                            colaborador.contactos.map((item) => (
+                               { 
+                                    tipo: item.type,
+                                    descricao: item.descricao
+                                })),
+                    custoFinanceiro: colaborador.map((item) => (
+                        {
+                            taxa_horaria: item.taxa_horaria
+                        }))                                              
+                }
+            )
+        }
+
+        this.dataSource = colaboradorData
+        console.log(colaboradorData)
+
+    }
 
   editColaborador(idColaborador) {
     console.log('Edit colaborador', idColaborador);

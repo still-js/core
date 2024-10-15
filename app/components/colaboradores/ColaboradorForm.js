@@ -14,6 +14,7 @@ class ColaboradorForm extends ViewComponent {
 
     identificacoes_bi;
     identificacoes_cedula;
+    taxa_horaria;
 
     status = "Activo";
 
@@ -64,7 +65,7 @@ class ColaboradorForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Tipo de colaborador
                                         </span>
-                                        <select  (change)="updateTipoColaborador($event)">
+                                        <select id="select-tipo-colaborador" (change)="updateTipoColaborador($event)" (value)="tipo_colaborador_id">
                                             <option value="" disabled selected>Selecione o tipo de colaborador</option>
                                             <option value="1">Administrativo</option>
                                             <option value="2">Advogado - Júnior</option>
@@ -185,6 +186,24 @@ class ColaboradorForm extends ViewComponent {
                             </div>
 
                         </fieldset>
+
+                        <h3>Custo Financeiro</h3>
+                        <fieldset>
+                            <h2 class="card-inside-title">Dados de custo financeiro</h2>
+                                <div class="row clearfix">
+                                    <div class="col-md-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="material-icons">payment</i> Taxa Horária
+                                            </span>
+                                            <div class="form-line">
+                                                <input id="input-taxa-horaria" type="numeric" class="form-control date" (value)="taxa_horaria" placeholder="0,00kz/h">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </fieldset>
+
                         <h3>Identificação</h3>
                         <fieldset>
                         <h2 class="card-inside-title">Dados de identificação</h2>
@@ -226,9 +245,11 @@ class ColaboradorForm extends ViewComponent {
                                     </div>
                                 </div>
                             </div>
-                        </div>                    
+                        </div>                 
                         
                             <button class="julaw-submit-button" (click)="registerColaborador()">Salvar</button>
+
+                        </div>
 
                         </div>
                         </fieldset>
@@ -264,12 +285,14 @@ class ColaboradorForm extends ViewComponent {
                 "emoticons template paste textcolor colorpicker textpattern imagetools",
             ],
         });
+        document.getElementById("input-taxa-horaria").disabled = true;
     }
 
     updateTipoColaborador(evt) {
         console.log("Value is: ", evt);
         this.tipo_colaborador_id = evt.target.value;
         console.log("after setted ... ", this.tipo_colaborador_id);
+        disabledTaxaHoraria();
     }
 
     updateTipoCategoria(evt) {
@@ -332,6 +355,10 @@ class ColaboradorForm extends ViewComponent {
                ],
     
             "status": this.status.value,
+            "custoFinanceiro":
+                {
+                    "taxa_horaria": this.taxa_horaria.value
+                },
         };
 
 
@@ -369,6 +396,28 @@ class ColaboradorForm extends ViewComponent {
 
     }
 
+    updateTipoColaborador(evt) {
+        console.log("Value is: ", evt);
+        this.tipo_colaborador_id = evt.target.value;
+        console.log("after setted ... ", this.tipo_colaborador_id);
+    }
+
+    updateTipoCategoria(evt) {
+        console.log("Value is: ", evt);
+        this.funcao = evt.target.value;
+        console.log("after setted ... ", this.funcao);
+    }
+
+    updateContactoEndereco(evt) {
+        console.log("Value is: updateContactoEndereco ", evt);
+        //this.funcao = evt.target.value;
+        //console.log("after setted ... ", this.funcao)
+    }
+    updateStatus(evt) {
+        console.log("Value is: ", evt);
+        this.status = evt.target.value;
+        console.log("after setted ... ", this.status);
+    }
 
     isValidInputForm() {
         return true
@@ -394,20 +443,21 @@ class ColaboradorForm extends ViewComponent {
                 tipo: { id: tipoClientId, description },
             } = routeData;
 
-            const nomes = denominacao.split(" ");
-            this.nome = nomes[0];
-            this.sobrenome = nomes[1];
-            this.endereco = endereco;
-            this.pessoaContacto = pessoa_contacto;
-            this.contactoCobranca = contacto_cobranca;
-            this.nif = nif;
-            this.telefone = contacto_cobranca;
-            this.pessoaContacto = pessoa_contacto;
-            console.log(
-                `there is a new data from route on constructor: `,
-                routeData
-            );
-        });
+                const nomes = denominacao.split(" ");
+                this.nome = nomes[0];
+                this.sobrenome = nomes[1];
+                this.endereco = endereco;
+                this.pessoaContacto = pessoa_contacto;
+                this.contactoCobranca = contacto_cobranca;
+                this.nif = nif;
+                this.telefone = contacto_cobranca;
+                this.pessoaContacto = pessoa_contacto;
+                console.log(
+                    `there is a new data from route on constructor: `,
+                    routeData
+                );
+            });
+
     }
 
     //const routeData = Router.data('ClientForm');
@@ -488,4 +538,18 @@ function setButtonWavesEffect(event) {
     $(event.currentTarget)
         .find('[role="menu"] li:not(.disabled) a')
         .addClass("waves-effect");
+}
+
+function disabledTaxaHoraria() {
+    var e = document.getElementById("select-tipo-colaborador");
+    var typeCollaborator = e.options[e.selectedIndex].text;
+    console.log('o valor do select é', typeCollaborator);
+
+    if(typeCollaborator == "Administrativo") {
+        document.getElementById("input-taxa-horaria").disabled = true;
+    }
+    else {
+        document.getElementById("input-taxa-horaria").disabled = false;
+    }
+
 }

@@ -590,34 +590,46 @@ class BaseComponent extends BehaviorComponent {
 
     parseStSideComponent(template){
 
-        const cmpList = Components.getExternalCmp(template);
-        if(cmpList.length > 0 ){
-            /** @type { XMLDocument } elm */
-            for(const elm of cmpList){
-                
-                const cmpName = elm.getAttribute('component');
-                const proxy = elm.getAttribute('proxy');
-                
-                const props = {};
-                elm.getAttributeNames().filter(
-                    r => !['component','proxy'].includes(r)
-                ).forEach(prop => props[prop] = elm.getAttribute(prop));
-
-                if(cmpName == 'tabulator-datatable'){
-                    const cmp = new TabulatorComponent();
-                    cmp.dynCmpGeneratedId = `st_${crypto.randomUUID()}`;
-                    const cmpTemplate = cmp.getBoundTemplate();
-                    this.$stillExternComponentParts.push(
-                        new ComponentPart({
-                            template: cmpTemplate,
-                            component: cmp,
-                            proxy,
-                            props
-                        })
-                    );
-                }
-            }
+        const parseValue = (v) => {
+            return v.replace(/\"/g,'')
+                    .replace("\n","")
+                    .replace(">","")
+                    .trim()
         }
+
+        const re = /\<st-extern[\> \. \w \s \= \- \"]{0,}/g;
+        template = template.replace(re,( mt ) => {
+            
+            const propMapper = {};
+            mt.split(' ').forEach(r => {
+                if(r != '' && r.indexOf('="') > 0){
+                    const [f, v] = r.split('=');
+                    const [field, value] = [f, parseValue(v)];
+                    propMapper[field] = value;
+                }
+            });
+
+            const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
+            const props = {};
+            Object.entries(propMapper).forEach(([prop, val]) => {
+                props[prop] = val;
+            });
+
+            const cmpId = `st_${crypto.randomUUID()}`;
+            if(cmpName == 'tabulator-datatable'){
+                const cmp = new TabulatorComponent();
+                cmp.dynCmpGeneratedId = cmpId;
+                this.$stillExternComponentParts.push(
+                    new ComponentPart({
+                        template: cmp.getBoundTemplate(), component: cmp,
+                        proxy, props
+                    })
+                );
+            }
+
+            return `<div id="${cmpId}"  style="display: content;"></div>`;
+
+        });
 
         return template;
 

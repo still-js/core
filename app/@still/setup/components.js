@@ -565,29 +565,17 @@ class Components {
 
     /**
      * 
-     * @returns { XMLDocument }
-     */
-    static getExternalCmp(template){
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(template,'text/xml');
-        return doc.getElementsByTagName('st-extern');
-    }
-
-    /**
-     * 
      * @param { ViewComponent } parentCmp 
      */
     static handleInPlaceParts(parentCmp){
 
         /** @type { Array<ComponentPart> } */
         const cmpParts = parentCmp.$stillExternComponentParts;
-        const cmpList = document
-                        .getElementsByTagName('st-extern');
         /**
          * Get all st-external component to replace with the
          * actual component template
          */
-        for(let idx = 0; idx < cmpList.length; idx++){
+        for(let idx = 0; idx < cmpParts.length; idx++){
 
             const {proxy, component: instance, props} = cmpParts[idx];
             let cmpName;
@@ -599,13 +587,21 @@ class Components {
                         .getNewParsedComponent(instance,cmpName);
             parentCmp[proxy] = cmp;
             const allProps = Object.entries(props);
-            for(const [prop, value] of allProps) 
-                cmp[prop] = value;
+            for(const [prop, value] of allProps){
+                if(String(value).toLowerCase().indexOf('parent.') == 0){
+                    const parentProp = parentCmp[value.replace('parent.','')];
+                    cmp[prop] = parentProp?.value || parentProp;
+                }else
+                    cmp[prop] = value;
+            }
             /**
              * replaces the actual template in the 
              * st-extern component placeholder
              */
-            cmpList[idx].insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+            document
+                .getElementById(instance.dynCmpGeneratedId)
+                .insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+            //cmpList[idx].insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
             setTimeout(async () => {
                 /**
                  * Runs the load method which is supposed

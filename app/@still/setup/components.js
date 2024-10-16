@@ -589,7 +589,7 @@ class Components {
          */
         for(let idx = 0; idx < cmpList.length; idx++){
 
-            const {proxy, component: instance} = cmpParts[idx];
+            const {proxy, component: instance, props} = cmpParts[idx];
             let cmpName;
             if(instance){
                 cmpName = 'constructor' in instance ? instance.constructor.name : null;
@@ -598,7 +598,9 @@ class Components {
             const cmp = (new Components)
                         .getNewParsedComponent(instance,cmpName);
             parentCmp[proxy] = cmp;
-
+            const allProps = Object.entries(props);
+            for(const [prop, value] of allProps) 
+                cmp[prop] = value;
             /**
              * replaces the actual template in the 
              * st-extern component placeholder

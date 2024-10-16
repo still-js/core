@@ -2,9 +2,36 @@ class ClientsGrid extends ViewComponent {
 
     htmlRefId = 'clientDataTable';
     dataSource;
+    /** @type { TabulatorComponent } */
+    dataTable = Proxy;
+    /* fields = JSON.stringify([
+        { "title": "Tipo Cliente", "field": "tipoCliente", "sorter": "string", "width": 200 },
+        { "title": "Nome", "field": "nome", "sorter": "string", "width": 200 },
+        { "title": "NIF", "field": "name", "sorter": "string", "width": 200 },
+        { "title": "Endereco", "field": "name", "sorter": "string", "width": 200 },
+        { "title": "Telefone", "field": "name", "sorter": "string", "width": 200 },
+        { "title": "Telefone Cobrança", "field": "name", "sorter": "string", "width": 200 },
+    ]); */
 
     template = `
     <section class="content">
+
+        <st-extern
+            component="tabulator-datatable"
+            proxy="dataTable"
+            fields='
+            [
+                { "title": "Tipo Cliente", "field": "tipo_id", "sorter": "string", "width": 200 },
+                { "title": "Nome", "field": "denominacao", "sorter": "string"  },
+                { "title": "NIF", "field": "nif", "sorter": "string" },
+                { "title": "Endereco", "field": "endereco", "sorter": "string" },
+                { "title": "Telefone", "field": "pessoa_contacto", "sorter": "string" },
+                { "title": "Telefone Cobrança", "field": "contacto_cobranca", "sorter": "string" }
+            ]
+            '
+            >
+        </st-extern>
+        
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <button (click)="runLocalFunc()">Click here Button</button>
@@ -104,15 +131,11 @@ class ClientsGrid extends ViewComponent {
             
             /** @type { ClientForm } */
             const clientFormView = $still.view.get('ClientForm');
-            const moreView = $still.view.get('MorCompo');
 
             clientFormView.onChange((newState) => {
                 console.log(`Client grid detectou mudança no client form: `,newState);
             });
 
-            moreView.onChange((newState) => {
-                console.log(`Client grid detectou mudança no client form: `,newState);
-            });
         });
 
     }
@@ -124,6 +147,8 @@ class ClientsGrid extends ViewComponent {
         .get('http://localhost:3000/api/v1/cliente/')
         .then((r) => {
             this.dataSource = r.data;
+            //console.log(`DATA IS: `,this.dataSource);
+            this.dataTable.dataSource = r.data;
             this.hideLoading();
         });
 
@@ -143,6 +168,15 @@ class ClientsGrid extends ViewComponent {
     /** @type { StEvent } */
     anyState = 'This is the state value';
     runLocalFunc(){
+
+        this.dataTable.clearTable();
+
+        this.dataTable.dataSource = [
+            { id: 2, name: "Mary May", gender: "female", rating: 2, col: "blue" }
+        ];
+
+        //console.log(this.dataTable);
+
         alert('Alert from the components itself'+this.anyState);
     }
     

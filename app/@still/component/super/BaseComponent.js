@@ -23,16 +23,17 @@ class StEvent {
 class ComponentPart {
     template;
     proxy;
-
+    props;
     /**
      * @type { ViewComponent }
      */
     component;
 
-    constructor({ template, component, proxy }){
+    constructor({ template, component, proxy, props }){
         this.template = template;
         this.component = component;
         this.proxy = proxy;
+        this.props = props;
     }
 
     render(){
@@ -591,9 +592,17 @@ class BaseComponent extends BehaviorComponent {
 
         const cmpList = Components.getExternalCmp(template);
         if(cmpList.length > 0 ){
+            /** @type { XMLDocument } elm */
             for(const elm of cmpList){
+                
                 const cmpName = elm.getAttribute('component');
                 const proxy = elm.getAttribute('proxy');
+                
+                const props = {};
+                elm.getAttributeNames().filter(
+                    r => !['component','proxy'].includes(r)
+                ).forEach(prop => props[prop] = elm.getAttribute(prop));
+
                 if(cmpName == 'tabulator-datatable'){
                     const cmp = new TabulatorComponent();
                     cmp.dynCmpGeneratedId = `st_${crypto.randomUUID()}`;
@@ -602,7 +611,8 @@ class BaseComponent extends BehaviorComponent {
                         new ComponentPart({
                             template: cmpTemplate,
                             component: cmp,
-                            proxy
+                            proxy,
+                            props
                         })
                     );
                 }

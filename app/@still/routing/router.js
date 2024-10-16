@@ -14,8 +14,10 @@ class Router {
     }
 
     static data(cmpName){
+
+        console.log("log do data router.js", cmpName);
         const data = Router.getInstance().#data[cmpName];
-        delete Router.getInstance().#data[cmpName];
+        //delete Router.getInstance().#data[cmpName];
         return data;
     }
 

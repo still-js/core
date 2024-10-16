@@ -70,9 +70,12 @@ class ProcessoDetalhes extends ViewComponent {
                 <input id="input_estado" (value)="estado" style="border: none; 
                                           font-size: 18px;
                                           font-weight: 600;" readonly="true" />
-                <button title="Editar Processo"
-                  class="btn btn-default btn-circle waves-effect waves-circle waves-float"><i style="color: #fff"
-                    class="fas fa-edit"></i></button>
+                <button 
+                  title="Editar Processo"
+                  (click)="editProcesso(@id)"
+                  style="color: #fff; width: 65px; height: 25px; background-color: #01d28e"
+                  >
+                    <i class="fas fa-edit"></i></button>
               </div>
               <div style="border-bottom: 2px solid #f5f5f5;"></div>
   
@@ -644,6 +647,8 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   populateAttributes(data) {
+
+
     this.id = data.id ? data.id : "N/A";
     this.estado = data.estado ? data.estado : "N/A";
     this.referencia = data.ref ? data.ref : "N/A";
@@ -706,6 +711,10 @@ class ProcessoDetalhes extends ViewComponent {
 
     console.log("here...")
     console.log(this.assunto)
+
+    console.log("----------------------------", data);
+    console.log("----------------------------", this.id);
+
 
   }
 
@@ -1043,7 +1052,12 @@ class ProcessoDetalhes extends ViewComponent {
       });
   }
 
-
+  editProcesso(id) {    
+    const idProcesso = id == undefined ? this.id.value : id;
+    console.log("here... ProcessoDetalhes ...", idProcesso)
+    Router.goto("ProcessoForm", {
+      data: idProcesso,
+    });
+  }
 
 }
-

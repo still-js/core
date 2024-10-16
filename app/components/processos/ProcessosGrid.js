@@ -130,4 +130,14 @@ class ProcessosGrid extends ViewComponent {
   runLocalFunc() {
     alert("Alert from the components itself" + this.anyState);
   }
+
+  
+  editProcesso(id) {
+    Router.goto("ProcessoForm", {
+      data: id,
+    });
+  }
+
+
+
 }

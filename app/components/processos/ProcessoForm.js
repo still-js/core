@@ -1,4 +1,5 @@
 class ProcessoForm extends ViewComponent {
+    id;
     assunto;
     area;
     fase;
@@ -227,6 +228,7 @@ class ProcessoForm extends ViewComponent {
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
+                                            @assunto
                                         </div>
                                     </div>
                                 </div>
@@ -377,6 +379,19 @@ class ProcessoForm extends ViewComponent {
 
         console.log("payload >>> ", payload);
 
+        if(this.id.value !== "" || this.id.value !== undefined) {
+            this.updateProcesso(payload)
+        } else {
+            this.saveProcesso(payload)
+        }
+      
+    }
+
+
+    saveProcesso(payload) {
+
+        console.log("save processo")
+
         if (this.isValidInputForm()) {
             $still.HTTPClient.post(
                 "http://localhost:3000/api/v1/processo",
@@ -390,6 +405,42 @@ class ProcessoForm extends ViewComponent {
                 .then((response) => {
                     console.log(`processo criado com sucesso: `, response);
                     if (response.status !== 201) {
+                        alert(response.errors);
+                        // Router.goto('Init');
+                    } else {
+                        alert("Salvo com sucesso");
+                        console.log("cadastro do colaborador ... ", response);
+                        //AppTemplate.get().store('logged', true);
+                        Router.goto("ProcessoDetalhes", {
+                            data: response.data.id,
+                          });
+                        // aonde guardar os dados do user logado com seguranca
+                    }
+                })
+                .catch((err) => {
+                    console.log(`Erro ao cadastrar processo: `, err);
+                });
+        }
+    }
+
+
+    updateProcesso(payload) {
+
+        console.log("update processo")
+
+        if (this.isValidInputForm()) {
+            $still.HTTPClient.put(
+                `http://localhost:3000/api/v1/processo/${this.id.value}`,
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            )
+                .then((response) => {
+                    console.log(`processo criado com sucesso: `, response);
+                    if (response.status !== 200) {
                         alert(response.errors);
                         // Router.goto('Init');
                     } else {
@@ -492,10 +543,98 @@ class ProcessoForm extends ViewComponent {
     }
 
     stAfterInit() {
+        const idP = Router.data("ProcessoForm");
+
+        console.log("ProcessoFrom ID >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", idP)
+
+        if(idP) {
+            this.id = idP;
+            this.getProcessoById(idP)
+        } 
+
         this.getListPrecedentes();
         this.getListColaboradores();
         this.getListClientes();
     }
+
+    getProcessoById(id) {
+
+        $still.HTTPClient.get(
+          `http://localhost:3000/api/v1/processo/${id}`
+        ).then((r) => {
+          if (r.status === 200) {
+            try {
+              this.populateAttributes(r.data[0]);
+            } catch (e) {
+              console.log("fn populates attributes", e);
+            }
+          }
+        });
+
+
+    }
+
+    populateAttributes(data) {
+        
+        console.log("populateAttributes - data >>>>>> <<<<<<<<<<<<< ", data.contra_parte);
+
+        this.id = data.id;
+        this.estado = data.estado;
+        this.referencia = data.ref;
+        this.assunto = data.assunto;
+        this.area = data.area;
+        this.fase = data.fase;
+        this.instituicaoId = data.instituicao_id;
+        this.modoFacturacaoId = data.modo_facturacao_id;
+        this.clienteId = data.cliente_id;
+        this.gestorId = data.gestor_id;
+        this.contraParte = data.contra_parte;
+        this.dataRegisto = data.data_registo; 
+        this.dataSuspensao = data.data_suspensao;
+        this.dataEncerramento = data.data_encerramento;    
+        this.metodologia = data.metodologia;
+        this.estrategia = data.estrategia;
+        this.factos = data.factos;
+        this.objectivos = data.objectivos;
+        this.dadosImportantes = data.dados_importantes;
+        this.statusId = data.status_id;
+    
+        this.createdAt = data.created_at;
+        this.updatedAt = data.updated_at;
+    
+        this.instituicao = data.instituicao;
+        this.modo_facturacao = data.modo_facturacao;
+        this.cliente = data.cliente;
+        this.tipoCliente = data.tipo_cliente;
+        this.gestor = data.gestor;
+    
+        //this.precedentes = data.precedentes ? data.precedentes : [];
+        //this.equipas = data.equipas ? data.equipas : [];
+        //this.tarefas = data.tarefas ? data.tarefas : [];
+        //this.anexos = data.anexos ? data.anexos : [];
+    
+        /** Setters values  */
+       // this.setValueById('input_metodologia', this.metodologia.value)
+       // this.setValueById('input_estrategias', this.estrategia.value)
+       // this.setValueById('input_objectivos', this.objectivos.value)
+       // this.setValueById('input_factos', this.factos.value)
+       // this.setValueById('input_dados_importantes', this.dadosImportantes.value)
+    
+   //     /** details */
+   //     //this.setValueById('input_estado', this.estado.value)
+   //     //this.setValueById('input_referencia', this.referencia.value)
+   //     //this.setValueById('input_assunto', this.assunto.value)
+   //     //this.setValueById('input_area', this.area.value)
+   //     //this.setValueById('input_fase', this.fase.value)
+        //this.setValueById('input_instituicao', this.instituicao.value)
+        //this.setValueById('input_modo_facturacao', this.modo_facturacao.value)
+        //this.setValueById('input_cliente', this.cliente.value)
+        //this.setValueById('input_gestor', this.gestor.value)
+    
+        console.log("here...")
+        console.log(this.contraParte.value)
+    
+      }
 
     /** fn updates */
     updateFase(evt) {
@@ -519,44 +658,30 @@ class ProcessoForm extends ViewComponent {
     }
 
     updatePrecedentes(evt) {
-        console.log(
-            "updatePrecedentes >>>>>>>><<<< :::: :::: >>>>>>>>><<<<<< ",
-            evt.target.value
-        );
         this.precedenteInput = evt.target.value;
     }
 
     updateClientes(evt) {
-        console.log(
-            "clienteInput >>>>>>>><<<< :::: :::: >>>>>>>>><<<<<< ",
-            evt.target.value
-        );
         this.clienteId = evt.target.value;
     }
 
     updateEquipasProcesso(evt) {
         this.equipaInput = evt.target.value;
-        console.log(" <<<<<<<<<< this.equipasProcesso  ", this.equipaInput)
     }
 
     updateDataRegisto(evt) {
         this.dataRegisto = document.getElementById("dataRegistoInput").value
-        console.log(" <<<<<<<<<< this.dataRegisto  ", this.dataRegisto)
     }
 
     updateDataSuspensao(evt) {
         this.dataSuspensao = document.getElementById("dataSuspensaoInput").value
-        console.log(" <<<<<<<<<< this.dataSuspensao  ", this.dataSuspensao)
     }
 
     updateDataEncerramento(evt) {
         this.dataEncerramento = document.getElementById("dataEncerramentoInput").value
-        console.log(" <<<<<<<<<< this.dataEncerramento  ", this.dataEncerramento)
     }
 
     async addPrecedentesProcesso() {
-
-        console.log("addPrecedentesProcesso... ", this.precedenteInput.value);
 
         let response = await $still.HTTPClient.get(`http://localhost:3000/api/v1/processo/${this.precedenteInput.value}`)
         const precedente = response.data[0]
@@ -574,7 +699,6 @@ class ProcessoForm extends ViewComponent {
     }
 
     addTarefaProcesso() {
-        console.log("addTarefaProcesso... ", this.precedenteInput.value);
         listTarefasArray.push(this.tarefaInput.value);
         console.log(listTarefasArray);
         displayTarefas();
@@ -584,18 +708,14 @@ class ProcessoForm extends ViewComponent {
     }
 
     async addEquipaProcesso() {
-        console.log("addEquipaProcesso ... ", this.equipaInput.value);
         let response = await $still.HTTPClient.get(`http://localhost:3000/api/v1/colaborador/${this.equipaInput.value}`)
         const colaborador = response.data[0]
-
-        console.log("colaborador", colaborador)
 
         listEquipasArray.push({
             "id": colaborador.id,
             "nome": colaborador.nome_completo,
             "funcao": colaborador.tipo.description
         });
-        console.log(listEquipasArray);
         //this.precedentes.push(this.precedenteInput.value);
         displayEquipas();
     }
@@ -604,7 +724,6 @@ class ProcessoForm extends ViewComponent {
 
 
 function removePrecedente(elm) {
-    console.log("remove precendente", elm.dataset.id)
     listPrecedentesArray = listPrecedentesArray.filter(el => el.id != elm.dataset.id)
     console.log(listPrecedentesArray)
     displayPrecedentes()

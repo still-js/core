@@ -213,9 +213,7 @@ class Router {
                  * Load component parts or sub-components
                  * inside the main loaded component
                  */
-                Components.handleInPlaceParts(
-                    cmp.$stillExternComponentParts
-                );
+                Components.handleInPlaceParts(cmp);
                 clearTimeout(loadTImer);
             }
 

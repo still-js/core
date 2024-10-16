@@ -22,15 +22,17 @@ class StEvent {
 
 class ComponentPart {
     template;
+    proxy;
 
     /**
      * @type { ViewComponent }
      */
     component;
 
-    constructor({ template, component }){
+    constructor({ template, component, proxy }){
         this.template = template;
         this.component = component;
+        this.proxy = proxy;
     }
 
     render(){
@@ -115,10 +117,30 @@ class BaseComponent extends BehaviorComponent {
             'cmpProps','htmlRefId','new','cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm','$stillpfx', 'subImported', 
-            'onChangeEventsList', 'isPublic', '$stillExternComponentParts'
+            'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
+            'dynCmpGeneratedId',
         ];
         return fields.filter(
-            field => !excludingFields.includes(field) && !field.startsWith(this.$stillpfx)
+            field => {
+                /**
+                 * Check the liklyhood
+                 * of the field ot be a proxy
+                 */
+                const fieldInspect = this[field];
+                if(fieldInspect instanceof Object && !(fieldInspect instanceof Array)){
+                    /**
+                     * Ignore current field
+                     * in case it's a Proxy
+                     */
+                    if(
+                        fieldInspect.name == 'Proxy' && 'revocable' in fieldInspect
+                        || fieldInspect?.onlyPropSignature
+                    )
+                        return false;
+                }
+                return !excludingFields.includes(field)
+                            && !field.startsWith(this.$stillpfx)
+            }
         );
 
     }
@@ -183,6 +205,16 @@ class BaseComponent extends BehaviorComponent {
 
 
         let tamplateWithState = this.template;
+
+        /**
+         * Bind @dynCmpGeneratedId which takes place in special
+         * situation that a component is created to be reference
+         * as a tag <st-extern>
+         */
+        tamplateWithState = tamplateWithState.replace(
+            `@dynCmpGeneratedId`,
+            currentClass[`dynCmpGeneratedId`]
+        );
 
         /**
          * Inject/Bind the component state/properties to the
@@ -561,15 +593,16 @@ class BaseComponent extends BehaviorComponent {
         if(cmpList.length > 0 ){
             for(const elm of cmpList){
                 const cmpName = elm.getAttribute('component');
+                const proxy = elm.getAttribute('proxy');
                 if(cmpName == 'tabulator-datatable'){
                     const cmp = new TabulatorComponent();
                     cmp.dynCmpGeneratedId = `st_${crypto.randomUUID()}`;
                     const cmpTemplate = cmp.getBoundTemplate();
-                    //elm.innerHTML = cmpTemplate;
                     this.$stillExternComponentParts.push(
                         new ComponentPart({
                             template: cmpTemplate,
                             component: cmp,
+                            proxy
                         })
                     );
                 }

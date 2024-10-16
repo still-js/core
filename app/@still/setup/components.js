@@ -575,9 +575,12 @@ class Components {
 
     /**
      * 
-     * @param { Array<ComponentPart> } cmpParts 
+     * @param { ViewComponent } parentCmp 
      */
-    static handleInPlaceParts(cmpParts){
+    static handleInPlaceParts(parentCmp){
+
+        /** @type { Array<ComponentPart> } */
+        const cmpParts = parentCmp.$stillExternComponentParts;
         const cmpList = document
                         .getElementsByTagName('st-extern');
         /**
@@ -586,7 +589,7 @@ class Components {
          */
         for(let idx = 0; idx < cmpList.length; idx++){
 
-            const instance = cmpParts[idx].component;
+            const {proxy, component: instance} = cmpParts[idx];
             let cmpName;
             if(instance){
                 cmpName = 'constructor' in instance ? instance.constructor.name : null;
@@ -594,6 +597,7 @@ class Components {
 
             const cmp = (new Components)
                         .getNewParsedComponent(instance,cmpName);
+            parentCmp[proxy] = cmp;
 
             /**
              * replaces the actual template in the 

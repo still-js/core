@@ -66,6 +66,7 @@ class BaseComponent extends BehaviorComponent {
     afterInitEventToParse = [];
     isPublic = false;
     dynCmpGeneratedId = null;
+    stillElement = false;
     /**
      * @type { Array<ComponentPart> }
      */
@@ -119,7 +120,7 @@ class BaseComponent extends BehaviorComponent {
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm','$stillpfx', 'subImported', 
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId',
+            'dynCmpGeneratedId','stillElement'
         ];
         return fields.filter(
             field => {
@@ -134,11 +135,19 @@ class BaseComponent extends BehaviorComponent {
                      * in case it's a Proxy
                      */
                     if(
-                        fieldInspect.name == 'Proxy' && 'revocable' in fieldInspect
+                        (fieldInspect.name == 'Proxy' && 'revocable' in fieldInspect)
+                        || fieldInspect.name == 'Prop'
                         || fieldInspect?.onlyPropSignature
                     )
                         return false;
                 }
+
+                if(typeof fieldInspect == 'function'){
+                    if(fieldInspect.name == 'Prop'){
+                        return false;
+                    }
+                }
+
                 return !excludingFields.includes(field)
                             && !field.startsWith(this.$stillpfx)
             }
@@ -163,9 +172,15 @@ class BaseComponent extends BehaviorComponent {
         let path;
         const dynamic = $stillconst.DYNAMIC_CMP_PREFIX;
         
-        if(this.isPublic){
+        if(this.stillElement){
+            path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;  
+        }
+
+        else if(this.isPublic){
             path = `Public_${this.constructor.name}`;
-        }else{
+        }
+        
+        else{
 
             if(
                 this.cmpInternalId && !this.isRoutable
@@ -597,7 +612,7 @@ class BaseComponent extends BehaviorComponent {
                     .trim()
         }
 
-        const re = /\<st-extern[\> \. \w \s \= \- \"]{0,}/g;
+        const re = /\<st-element[\> \. \w \s \= \- \ \( \)"]{0,}/g;
         template = template.replace(re,( mt ) => {
             
             const propMapper = {};
@@ -615,19 +630,19 @@ class BaseComponent extends BehaviorComponent {
                 props[prop] = val;
             });
 
-            const cmpId = `st_${crypto.randomUUID()}`;
-            if(cmpName == 'tabulator-datatable'){
-                const cmp = new TabulatorComponent();
-                cmp.dynCmpGeneratedId = cmpId;
-                this.$stillExternComponentParts.push(
-                    new ComponentPart({
-                        template: cmp.getBoundTemplate(), component: cmp,
-                        proxy, props
-                    })
-                );
-            }
+            const [cmpId, cmp] = [`st_${crypto.randomUUID()}`, eval(`new ${cmpName}()`)];
+            cmp.dynCmpGeneratedId = cmpId;
+            cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
+            cmp.stillElement = true;
+            $still.context.componentRegistror.componentList[cmp.cmpInternalId] = { instance: cmp };
+            this.$stillExternComponentParts.push(
+                new ComponentPart({
+                    template: cmp.getBoundTemplate(), component: cmp,
+                    proxy, props
+                })
+            );
 
-            return `<div id="${cmpId}"  style="display: content;"></div>`;
+            return `<still-placeholder style="display:content;"></still-placeholder>`;
 
         });
 

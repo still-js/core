@@ -294,39 +294,45 @@ class Components {
 
         cmp.getProperties().forEach(field => {
             
-            Object.assign(cmp, { ['$still_'+field]: cmp[field] || '' });
-            Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
-            this.defineSetter(cmp, field);
+            if('dataTableLabels' == field)
+                console.log(`Will parse component: ${cmpName} -> ${field}: ${typeof cmp[field]} -> `, cmp[field]);
 
-            cmp.__defineSetter__(field, (newValue) => {
-                cmp.__defineGetter__(field, () => newValue);
-                cmp['$still_'+field] = newValue;
+            if(!(cmp[field]?.onlyPropSignature)){
+
+                Object.assign(cmp, { ['$still_'+field]: cmp[field] || '' });
+                Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
                 this.defineSetter(cmp, field);
-                cmp.stOnUpdate();
-
-                if(cmp[`$still${field}Subscribers`].length > 0){
-                    setTimeout(() => cmp[`$still${field}Subscribers`].forEach(
-                        subscriber => subscriber(cmp['$still_'+field])
-                    ));
-                }
-
-                if(cmp.$stillClassLvlSubscribers.length > 0){
-                    setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
-                }
-
-                if(cmp[field]?.defined) this.propageteChanges(cmp, field);
-
-            });
-
-            const firstPropagateTimer = setInterval(() => {
-                if('value' in cmp[field]){
-                    clearInterval(firstPropagateTimer);
-                    if(!this.notAssignedValue.includes(cmp['$still_'+field])){
-                        this.propageteChanges(cmp, field);
+                
+                cmp.__defineSetter__(field, (newValue) => {
+                    cmp.__defineGetter__(field, () => newValue);
+                    cmp['$still_'+field] = newValue;
+                    this.defineSetter(cmp, field);
+                    cmp.stOnUpdate();
+    
+                    if(cmp[`$still${field}Subscribers`].length > 0){
+                        setTimeout(() => cmp[`$still${field}Subscribers`].forEach(
+                            subscriber => subscriber(cmp['$still_'+field])
+                        ));
                     }
-                    cmp[field].firstPropag = true;
-                }
-            },200);
+    
+                    if(cmp.$stillClassLvlSubscribers.length > 0){
+                        setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
+                    }
+    
+                    if(cmp[field]?.defined) this.propageteChanges(cmp, field);
+                });
+
+                const firstPropagateTimer = setInterval(() => {
+                    if('value' in cmp[field]){
+                        clearInterval(firstPropagateTimer);
+                        if(!this.notAssignedValue.includes(cmp['$still_'+field])){
+                            this.propageteChanges(cmp, field);
+                        }
+                        cmp[field].firstPropag = true;
+                    }
+                },200);
+            }
+
         });
         return this;
     }
@@ -568,11 +574,12 @@ class Components {
      * @param { ViewComponent } parentCmp 
      */
     static handleInPlaceParts(parentCmp){
-
+        
         /** @type { Array<ComponentPart> } */
         const cmpParts = parentCmp.$stillExternComponentParts;
+        const placeHolders = document.getElementsByTagName('still-placeholder');
         /**
-         * Get all st-external component to replace with the
+         * Get all <st-element> component to replace with the
          * actual component template
          */
         for(let idx = 0; idx < cmpParts.length; idx++){
@@ -583,23 +590,38 @@ class Components {
                 cmpName = 'constructor' in instance ? instance.constructor.name : null;
             }
 
-            const cmp = (new Components)
-                        .getNewParsedComponent(instance,cmpName);
+            const cmp = instance?.stillParsedState 
+                ? instance 
+                : (new Components).getNewParsedComponent(instance,cmpName);
             parentCmp[proxy] = cmp;
             const allProps = Object.entries(props);
             for(const [prop, value] of allProps){
+
+                if(prop.charAt(0) == '(' && prop.at(-1) == ")"){
+                    const method = prop.replace('(','').replace(')','');
+                    cmp[method] = function(){
+                        //console.log(`VALUE IS: `,value);
+                        parentCmp[value.split('(')[0]]();
+                    }
+                    continue;
+                }
+
                 if(String(value).toLowerCase().indexOf('parent.') == 0){
                     const parentProp = parentCmp[value.replace('parent.','')];
-                    cmp[prop] = parentProp?.value || parentProp;
+                    if(parentProp.onlyPropSignature){
+                        cmp[prop] = parentProp.value;
+                        //console.log(`ON COMP PARSE: `,parentCmp[value.replace('parent.','')]);
+                    }else{
+                        cmp[prop] = parentProp?.value || parentProp;
+                    }
                 }else
                     cmp[prop] = value;
             }
             /**
              * replaces the actual template in the 
-             * st-extern component placeholder
+             * <st-element> component placeholder
              */
-            document
-                .getElementById(instance.dynCmpGeneratedId)
+            placeHolders[0]
                 .insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
             //cmpList[idx].insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
             setTimeout(async () => {

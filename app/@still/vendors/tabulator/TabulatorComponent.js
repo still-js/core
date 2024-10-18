@@ -1,38 +1,48 @@
 class TabulatorComponent extends ViewComponent {
 
     template = `
-        <div id="@dynCmpGeneratedId"></div>
+    <div>
+            <section class="tabulator-table-menu-container">
+                <div (click)="myEvent()">Menu 1</div>
+            </section>
+            <div>
+                <div class="this-is-me" id="@dynCmpGeneratedId"></div>
+            </div>
+        </div>
     `;
     table = Prop;
-    fields = Prop;
+    tableHeader = Prop;
     dataSource;
     firstLoad = false;
 
     async load(){
         
         let dataSource = [{}];
-
         this.table = new Tabulator(`#${this.dynCmpGeneratedId}`, {
             height: "311px",
             layout: "fitColumns",
             reactiveData: true, //turn on data reactivity
             data: dataSource, //load data into table,
             movableColumns: true,
-            columns: JSON.parse(this.fields),
+            columns: JSON.parse(this.tableHeader),
         });
 
         const table = this.table;
 
         this.dataSource.onChange((value) => {
-            //console.log(`Tabulator Data source updated: `, value);
-            //dataSource.push(...value);
+            //dataSource.push(...value); //Insert new line in the table
             table.setData(value);
+        });
+
+        this.table.on('cellClick', (e, cell) => {
+            this.onCellClick(cell.getField(),cell.getData());
         });
     }
 
     clearTable(){
-        console.log(this.fields);
-        //this.table.setData([{ id: 5, name: "Margret Marmajuke", gender: "female", rating: 5, col: "yellow" }]);
+        alert(`Vamos`);
     }
+
+    onCellClick(fieldName, data){}
 
 }

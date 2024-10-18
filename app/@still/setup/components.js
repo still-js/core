@@ -294,11 +294,6 @@ class Components {
 
         cmp.getProperties().forEach(field => {
             
-            if('dataTableLabels' == field)
-                console.log(`Will parse component: ${cmpName} -> ${field}: ${typeof cmp[field]} -> `, cmp[field]);
-
-            if(!(cmp[field]?.onlyPropSignature)){
-
                 Object.assign(cmp, { ['$still_'+field]: cmp[field] || '' });
                 Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
                 this.defineSetter(cmp, field);
@@ -331,8 +326,6 @@ class Components {
                         cmp[field].firstPropag = true;
                     }
                 },200);
-            }
-
         });
         return this;
     }
@@ -599,9 +592,9 @@ class Components {
 
                 if(prop.charAt(0) == '(' && prop.at(-1) == ")"){
                     const method = prop.replace('(','').replace(')','');
-                    cmp[method] = function(){
-                        //console.log(`VALUE IS: `,value);
-                        parentCmp[value.split('(')[0]]();
+                    const childValue = cmp[method];
+                    cmp[method] = function(...param){
+                        parentCmp[value.split('(')[0]](...param);
                     }
                     continue;
                 }
@@ -610,7 +603,6 @@ class Components {
                     const parentProp = parentCmp[value.replace('parent.','')];
                     if(parentProp.onlyPropSignature){
                         cmp[prop] = parentProp.value;
-                        //console.log(`ON COMP PARSE: `,parentCmp[value.replace('parent.','')]);
                     }else{
                         cmp[prop] = parentProp?.value || parentProp;
                     }

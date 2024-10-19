@@ -14,9 +14,29 @@ class TabulatorComponent extends ViewComponent {
     tableHeader = Prop;
     dataSource;
     firstLoad = false;
+    /** @type { Array<{ pos, icon }> } */
+    deleteFowMetadata = Prop;
 
     async load(){
         
+        const fields = JSON.parse(this.tableHeader);
+        this.deleteFowMetadata = [];
+        const deleteCol = fields.filter((r, idx) => {
+            if(r.deleteRow){
+                this.deleteFowMetadata.push({
+                    pos: idx,
+                    icon: fields[idx].icon
+                })
+                return r.deleteRow;
+            }
+        });
+        
+        if(deleteCol.length == 1){
+            const deleteRowOptions = this.deleteFowMetadata[0];
+            const deletFormatter = () => deleteRowOptions.icon;
+            fields[deleteRowOptions.pos] = deletFormatter;
+        }
+
         let dataSource = [{}];
         this.table = new Tabulator(`#${this.dynCmpGeneratedId}`, {
             height: "311px",
@@ -24,7 +44,7 @@ class TabulatorComponent extends ViewComponent {
             reactiveData: true, //turn on data reactivity
             data: dataSource, //load data into table,
             movableColumns: true,
-            columns: JSON.parse(this.tableHeader),
+            columns: fields,
         });
 
         const table = this.table;

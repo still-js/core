@@ -14,7 +14,9 @@ class ClientsGrid extends ViewComponent {
         { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
         { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
     ]));
-    editEvent = Prop('Edit Parent');
+
+    /** @type { TUICalendarComponent } */
+    calendarProxy = Proxy;
 
     template = `
     <section class="content">
@@ -30,13 +32,20 @@ class ClientsGrid extends ViewComponent {
         </st-element>
 
         <st-element
-            component="TUIComponent"
+            component="TUICalendarComponent"
             proxy="timeSheet"
             (onEventCreate)="saveEvent()"
-            editLabel="parent.editEvent"
+            editLabel="Editar"
+            milestoneTitle="Objectivo"
+            (onEventUpdate)="updateEvent()"
+            (onEventDeletion)="deleteEvent()"
+            proxy="calendarProxy"
             >
         </st-element>
         
+        <button (click)="resetCalendario()">Limpar Calendário A partir do parent component</button>
+        <button (click)="createNewEvent()">Criar novos eventos a partir do parent</button>
+
     </section>
     `;
 
@@ -61,8 +70,70 @@ class ClientsGrid extends ViewComponent {
     }
 
     saveEvent() {
+        /**
+         * Pôr a regra de negócio e a chamada a BD,
+         * retornar true apenas se for salvo com sucess
+         * caso contrário retornar false 
+         */
         alert(`Called event creation`);
         return true;
+    }
+
+    updateEvent() {
+        /**
+         * Pôr a regra de negócio e a chamada a BD,
+         * retornar true apenas se for salvo com sucess
+         * caso contrário retornar false 
+         */
+        alert('Event update called from parent');
+        return true;
+    }
+
+    deleteEvent() {
+        /**
+         * Pôr a regra de negócio e a chamada a BD,
+         * retornar true apenas se for salvo com sucess
+         * caso contrário retornar false 
+         */
+        alert('Called Deletion event from parent');
+        return true;
+    }
+
+    resetCalendario() {
+        this.calendarProxy.clearGrid();
+    }
+
+    createNewEvent() {
+
+        const start = new Date();
+        const end = new Date();
+        end.setHours(end.getHours() + 3);
+
+        const start1 = new Date();
+        start1.setHours(start.getHours() + 50);
+        const end1 = new Date();
+        end1.setHours(end.getHours() + 53);
+
+        /**
+         * Estes dados deverão vir da BD 
+         */
+        const data = [
+            {
+                id: crypto.randomUUID(),
+                calendarId: 'entrevista',
+                title: 'Descrição do meu novo evento',
+                start, end
+            }, // EventObject
+            {
+                id: crypto.randomUUID(),
+                calendarId: 'visita',
+                title: 'Estive numa visita ao escritorio do cliente para discutir',
+                start: start1,
+                end: end1
+            }, // EventObject
+        ];
+
+        this.calendarProxy.addNewEvents(data);
     }
 
     async onRender() {
@@ -115,8 +186,6 @@ class ClientsGrid extends ViewComponent {
     }
 
     getClientDetails(f, row) {
-
-        console.log(`Clicked field is: `, f);
 
         const {
             contacto_cobranca,

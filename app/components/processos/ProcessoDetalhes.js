@@ -392,7 +392,6 @@ class ProcessoDetalhes extends ViewComponent {
               </form>
           </div>
           <!-- fim form add tarefas -->
-
   
           <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
@@ -414,7 +413,7 @@ class ProcessoDetalhes extends ViewComponent {
                   <td>{item.created_at}</td>
                   <td class="center">
                     <div style="display: flex; gap: 20px; justify-content: center;">
-                      <a title="Editar a Tarefa" style="cursor: pointer" (click)="editTarefaProcesso('{item.id}', 'input_form_tarefa')">
+                      <a title="Editar a Tarefa" style="cursor: pointer" (click)="editTarefaProcesso('{item.id}','{item.descricao}','input_form_tarefa', 'form_tab_tarefas')">
                         <span class="fas fa-pencil-alt" style="color: #383838"></span>
                       </a>
                       <a title="Remover a tarefa do Processo" style="cursor: pointer" (click)="removerTarefaProcesso('{item.id}')">
@@ -1036,38 +1035,80 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   addTarefaProcesso(idForm) {
-
     const tarefa = this.getValueById('input_form_tarefa')
+    let inputTarefa = document.getElementById('input_form_tarefa')
 
-    const payload = {
-      "processoId": this.id.value,
-      "tarefas": [tarefa]
+    if (inputTarefa.value.trim() === '') {
+      alert("Preencha o campo da tarefa!");
+      return false;
     }
 
+    if(inputTarefa.hasAttribute("data-id")) {
 
-    $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/recursos_processo",
-      JSON.stringify(payload),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      let idTarefa = inputTarefa.dataset.id
+      const payload = {
+        "descricao": tarefa
       }
-    )
-      .then((response) => {
-        console.log(`processo criado com sucesso: `, response);
-        if (response.status !== 201) {
-          console.log(response)
-          alert(response.errors);
-        } else {
-          alert("Salvo com sucesso");
-          console.log("cadastro do colaborador ... ", response);
-          this.toggleForms(idForm)
+  
+      $still.HTTPClient.put(
+        `http://localhost:3000/api/v1/tarefas_processo/${idTarefa}`,
+        JSON.stringify(payload),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      })
-      .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
-      });
+      )
+        .then((response) => {
+          console.log(`processo criado com sucesso: `, response);
+          if (response.status !== 200) {
+            console.log(response)
+            alert(response.errors);
+          } else {
+            alert("Actualizado com sucesso");
+            console.log("cadastro do colaborador ... ", response);
+            this.toggleForms(idForm)
+          }
+        })
+        .catch((err) => {
+          console.log(`Erro ao cadastrar processo: `, err);
+        });
+
+    }else{
+
+      const payload = {
+        "processoId": this.id.value,
+        "tarefas": [tarefa]
+      }
+  
+  
+      $still.HTTPClient.post(
+        "http://localhost:3000/api/v1/recursos_processo",
+        JSON.stringify(payload),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+        .then((response) => {
+          console.log(`processo criado com sucesso: `, response);
+          if (response.status !== 201) {
+            console.log(response)
+            alert(response.errors);
+          } else {
+            alert("Salvo com sucesso");
+            console.log("cadastro do colaborador ... ", response);
+            this.toggleForms(idForm)
+          }
+        })
+        .catch((err) => {
+          console.log(`Erro ao cadastrar processo: `, err);
+        });
+
+    }
+
+   
   }
 
   editProcesso(id) {  
@@ -1087,29 +1128,14 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerColaboradorProcesso(id) {
     console.log('removerColaboradorProcesso ',id)
-  }
 
-  editTarefaProcesso(id, idInput) {
-    console.log('editTarefaProcesso ',id, idInput)
-  }
+    let payload = {
+        "type": "colaborador",
+        "valueId": id
+    }
 
-  removerTarefaProcesso(id) {
-    console.log('removerTarefaProcesso ',id)
-  }
-
-  concluirTarefaProcesso(id) {
-    console.log('concluirTarefaProcesso ',id)
-  }
-
-  removerPrecedenteProcesso(id) {
-    console.log('removerPrecedenteProcesso ',id)
-  }
-
-  downalodAnexoProcesso(id) {
-    console.log('downalodAnexoProcesso ',id)
-
-    $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/download_anexo_processo/${id}`,
+    $still.HTTPClient.delete(
+      `http://localhost:3000/api/v1/recursos_processo/`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1119,6 +1145,144 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
           console.log("ver anexo processo response >> ", response)
+
+          if(response.status === 200){
+            alert("Removido com Sucesso!")
+          }
+
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+  }
+
+  editTarefaProcesso(id, descricao, idInput, idForm) {
+    document.getElementById(idInput).value = descricao
+    document.getElementById(idInput).setAttribute("data-id", id)
+    document.getElementById(idForm).classList.toggle("showForm") 
+  }
+
+  removerTarefaProcesso(id) {
+    console.log('removerTarefaProcesso ',id)
+
+    let payload = {
+      "type": "tarefa",
+      "valueId": id
+  }
+
+  $still.HTTPClient.delete(
+    `http://localhost:3000/api/v1/recursos_processo/`,
+    JSON.stringify(payload),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => {
+        console.log("ver anexo processo response >> ", response)
+
+        if(response.status === 200){
+          alert("Removido com Sucesso!")
+        }
+
+    })
+    .catch((err) => {
+      console.log(`Erro ao cadastrar processo: `, err);
+    });
+
+
+  }
+
+  concluirTarefaProcesso(id) {
+    console.log('concluirTarefaProcesso ',id)
+
+    const payload = {
+      "status": 1
+    }
+
+    $still.HTTPClient.put(
+      `http://localhost:3000/api/v1/tarefas_processo/${id}`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        console.log(`processo criado com sucesso: `, response);
+        if (response.status !== 200) {
+          console.log(response)
+          alert(response.errors);
+        } else {
+          alert("Actualizado com sucesso a tarefa");
+          console.log("cadastro do colaborador ... ", response);
+          this.toggleForms(idForm)
+        }
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+
+  }
+
+  removerPrecedenteProcesso(id) {
+    console.log('removerPrecedenteProcesso ',id)
+    let payload = {
+      "type": "precedente",
+      "valueId": id
+  }
+
+  $still.HTTPClient.delete(
+    `http://localhost:3000/api/v1/recursos_processo/`,
+    JSON.stringify(payload),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => {
+        console.log("ver anexo processo response >> ", response)
+
+        if(response.status === 200){
+          alert("Removido com Sucesso!")
+        }
+
+    })
+    .catch((err) => {
+      console.log(`Erro ao cadastrar processo: `, err);
+    });
+  }
+
+  downalodAnexoProcesso(id) {
+    console.log('view_anexo_processo >>  ',id)
+
+    $still.HTTPClient.get(
+      `http://localhost:3000/api/v1/view_anexo_processo/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+          console.log("ver anexo processo response >> ", response)
+
+          if(response.status === 200){
+
+            let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
+            const link = document.createElement('a');
+            link.setAttribute("target", '_blank');
+            link.href = `${pathDownload}/${response.data.fileName}`;
+            link.download = 'Processo Anexo'; // Define o nome do arquivo ao fazer o download
+            document.body.appendChild(link);
+            link.click(); // Simula o clique no link
+            document.body.removeChild(link); // Remove o link após o download
+          }
+
+
       })
       .catch((err) => {
         console.log(`Erro ao cadastrar processo: `, err);
@@ -1129,12 +1293,8 @@ class ProcessoDetalhes extends ViewComponent {
   visualizarAnexoProcesso(id) {
     console.log('visualizarAnexoProcesso ',id)
 
-    window.open('https://www.example.com', '_blank', 'width=800,height=600');
-
-
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/ver_anexo_processo/${id}`,
-      JSON.stringify(payload),
+      `http://localhost:3000/api/v1/view_anexo_processo/${id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -1143,6 +1303,12 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
           console.log("ver anexo processo response >> ", response)
+
+          if(response.status === 200){
+            let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
+            window.open(`${pathDownload}/${response.data.fileName}`, '_blank', 'width=800,height=600');
+          }
+
       })
       .catch((err) => {
         console.log(`Erro ao cadastrar processo: `, err);
@@ -1152,6 +1318,34 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerAnexoProcesso(id) {
     console.log('removerAnexoProcesso ',id)
+
+    let payload = {
+      "type": "anexo",
+      "valueId": id
+  }
+
+  $still.HTTPClient.delete(
+    `http://localhost:3000/api/v1/recursos_processo/`,
+    JSON.stringify(payload),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => {
+        console.log("ver anexo processo response >> ", response)
+
+        if(response.status === 200){
+          alert("Removido com Sucesso!")
+        }
+
+    })
+    .catch((err) => {
+      console.log(`Erro ao cadastrar processo: `, err);
+    });
+
+
   }
 
 }

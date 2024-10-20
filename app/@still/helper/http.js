@@ -29,8 +29,15 @@ class StillHTTPClient {
      * @param {HttpRequestOptions} options 
      * @returns {Promise}
      */
-    async delete(url, options = {}){
-        return await this.get(url, { ...options, method: 'DELETE' })
+    async delete(url, body, options = {}){
+        //return await this.get(url, { ...options, method: 'DELETE' })
+        const { headers } = options;
+        return (await fetch(url, {
+            method: 'DELETE',
+            body,
+            headers: headers || {},
+        }))
+        .json();
     }
 
     /**

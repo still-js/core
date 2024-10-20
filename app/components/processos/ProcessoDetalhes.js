@@ -72,8 +72,8 @@ class ProcessoDetalhes extends ViewComponent {
                                           font-weight: 600;" readonly="true" />
                 <button 
                   title="Editar Processo"
-                  (click)="editProcesso(@id)"
-                  style="color: #fff; width: 65px; height: 25px; background-color: #01d28e"
+                  (click)="editProcesso(undefined)"
+                  style="color: #fff; width: 65px; height: 35px; background-color: #343d45"
                   >
                     <i class="fas fa-edit"></i></button>
               </div>
@@ -97,6 +97,11 @@ class ProcessoDetalhes extends ViewComponent {
               <div style="margin-bottom: 5px">
                 <div style="font-weight: bold;">Fase</div>
                 <div><input id="input_fase" (value)="fase" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+              <div style="margin-bottom: 5px">
+                <div style="font-weight: bold;">Contra Parte</div>
+                <div><input id="input_contraparte" (value)="contraParte" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
               </div>
   
               <div style="margin-bottom: 5px">
@@ -169,10 +174,10 @@ class ProcessoDetalhes extends ViewComponent {
                               </a>
                                 <div class="display-flex">
                                   <a title="Editar Metodologias do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_metodologia')">
-                                    <span class="fas fa-pencil-alt"></span>
+                                    <span class="fas fa-pencil-alt" style="color: #383838"></span>
                                   </a>
                                   <a title="Salvar as alterações da metodologia do Processo" style="cursor: pointer" (click)="saveResourcesProcesso('input_metodologia')">
-                                    <span class="fas fa-save"></span>
+                                    <span class="fas fa-save" style="color: #01d28e"></span>
                                   </a>
                                 </div>
                             </h4>
@@ -193,10 +198,10 @@ class ProcessoDetalhes extends ViewComponent {
                               </a>
                                <div class="display-flex">
                                   <a title="Editar Estrategia do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_estrategias')">
-                                    <span class="fas fa-pencil-alt"></span>
+                                  <span class="fas fa-pencil-alt" style="color: #383838"></span>
                                   </a>
                                   <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_estrategias')">
-                                    <span class="fas fa-save"></span>
+                                  <span class="fas fa-save" style="color: #01d28e"></span>
                                   </a>
                                 </div>
                             </h4>
@@ -217,10 +222,10 @@ class ProcessoDetalhes extends ViewComponent {
                               </a>
                               <div class="display-flex">
                                   <a title="Editar Objectivos do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_objectivos')">
-                                    <span class="fas fa-pencil-alt"></span>
+                                  <span class="fas fa-pencil-alt" style="color: #383838"></span>
                                   </a>
                                   <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_objectivos')">
-                                    <span class="fas fa-save"></span>
+                                  <span class="fas fa-save" style="color: #01d28e"></span>
                                   </a>
                                 </div>
                             </h4>
@@ -243,10 +248,10 @@ class ProcessoDetalhes extends ViewComponent {
                             </a>
                             <div class="display-flex">
                                   <a title="Editar Factos do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_factos')">
-                                    <span class="fas fa-pencil-alt"></span>
+                                  <span class="fas fa-pencil-alt" style="color: #383838"></span>
                                   </a>
                                   <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_factos')">
-                                    <span class="fas fa-save"></span>
+                                  <span class="fas fa-save" style="color: #01d28e"></span>
                                   </a>
                                 </div>
                           </h4>
@@ -269,10 +274,10 @@ class ProcessoDetalhes extends ViewComponent {
                           </a>
                           <div class="display-flex">
                           <a title="Editar Dados Importantes do Processo" style="cursor: pointer" (click)="editResourcesProcesso('input_dados_importantes')">
-                            <span class="fas fa-pencil-alt"></span>
+                          <span class="fas fa-pencil-alt" style="color: #383838"></span>
                           </a>
                           <a title="Salvar as alterações" style="cursor: pointer" (click)="saveResourcesProcesso('input_dados_importantes')">
-                            <span class="fas fa-save"></span>
+                          <span class="fas fa-save" style="color: #01d28e"></span>
                           </a>
                         </div>
                         </h4>
@@ -291,18 +296,21 @@ class ProcessoDetalhes extends ViewComponent {
                   </div>
                 </div>
               </div>              
-              
-   
-  
+                
         <div role="tabpanel" class="tab-pane fade" id="equipas">
   
-          <div class="div-title-abas display-flex">
+          <div class="div-title-abas">
             <label class="title-abas">Equipas Associadas ao Processo</label>
-            <span  title="Adicionar"><i class="fas fa-plus"></i></span>
+            <span 
+              (click)="toggleForms('form_tab_equipas')"
+              class="btn-details-processo-form" 
+              title="Adicionar equipas">
+              <i class="fas fa-plus"></i>
+            </span>
           </div>
 
           <!-- inicio form add tarefas -->
-          <div class="form_add_resources" id="form_tab_tarefas">
+          <div class="form_add_resources hiddenForm" id="form_tab_equipas">
               <form id="wizard_with_validatio" onsubmit="javascript: return false;">
                 <div class="row">
                 <div class="input-field col s12">
@@ -316,7 +324,7 @@ class ProcessoDetalhes extends ViewComponent {
                 </div>
                 </div>
                 <div>
-                  <button (click)="addEquipaProcesso()" class="btn btn-default">Salvar</button>
+                  <button (click)="addEquipaProcesso('form_tab_equipas')" class="btn btn-default">Salvar</button>
                 </div>
               </form>
           </div>
@@ -344,12 +352,9 @@ class ProcessoDetalhes extends ViewComponent {
                     <td>{item.funcao}</td>
                     <td class="center">
                       <div style="display: flex; gap: 20px; justify-content: center;">
-                        <a title="Editar Processo" style="cursor: pointer" (click)="editProcesso('{item.id}')">
-                          <span class="fas fa-pencil-alt"></span>
-                        </a>
-                        <a title="Ver detalhes do Processo" style="cursor: pointer"
-                          (click)="detalhesProcesso('{item.id}')">
-                          <span class="fas fa-file-alt"></span>
+                        <a title="Remover Colaborador do Processo" style="cursor: pointer"
+                          (click)="removerColaboradorProcesso('{item.id}')">
+                          <span class="fas fa-trash-alt" style="color: red"></span>
                         </a>
                       </div>
                     </td>
@@ -367,19 +372,22 @@ class ProcessoDetalhes extends ViewComponent {
   
           <div class="div-title-abas display-flex">
             <label class="title-abas">Tarefas do Processo</label>
-            <span title="Adicionar"><i class="fas fa-plus"></i></span>
+            <span 
+            (click)="toggleForms('form_tab_tarefas')"
+            class="btn-details-processo-form" 
+            title="Adicionar tarefas"><i class="fas fa-plus"></i></span>
           </div>
           
 
           <!-- inicio form add tarefas -->
-          <div class="form_add_resources" id="form_tab_tarefas">
-              <form id="wizard_with_validatio" onsubmit="javascript: return false;">
+          <div class="form_add_resources hiddenForm" id="form_tab_tarefas">
+              <form id="wizard_with_validatio" class="" onsubmit="javascript: return false;">
                 <div>
                   <label>Descrição da Tarefa</label>
                   <input (value)="valueInputTarefa" placeholder="Digite uma tarefa" type="text" id="input_form_tarefa" />
                 </div>
                 <div>
-                  <button (click)="addTarefaProcesso()" class="btn btn-default">Salvar</button>
+                  <button (click)="addTarefaProcesso('form_tab_tarefas')" class="btn btn-default">Salvar</button>
                 </div>
               </form>
           </div>
@@ -406,12 +414,15 @@ class ProcessoDetalhes extends ViewComponent {
                   <td>{item.created_at}</td>
                   <td class="center">
                     <div style="display: flex; gap: 20px; justify-content: center;">
-                      <a title="Editar Processo" style="cursor: pointer" (click)="editProcesso('{item.id}')">
-                        <span class="fas fa-pencil-alt"></span>
+                      <a title="Editar a Tarefa" style="cursor: pointer" (click)="editTarefaProcesso('{item.id}', 'input_form_tarefa')">
+                        <span class="fas fa-pencil-alt" style="color: #383838"></span>
                       </a>
-                      <a title="Ver detalhes do Processo" style="cursor: pointer" (click)="detalhesProcesso('{item.id}')">
-                        <span class="fas fa-file-alt"></span>
+                      <a title="Remover a tarefa do Processo" style="cursor: pointer" (click)="removerTarefaProcesso('{item.id}')">
+                        <span class="fas fa-trash-alt" style="color: red"></span>
                       </a>
+                      <a title="Concluir a tarefa do Processo" style="cursor: pointer" (click)="concluirTarefaProcesso('{item.id}')">
+                      <span class="fas fa-check" style="color: #01d28e"></span>
+                    </a>
                     </div>
                   </td>
                 </tr>
@@ -427,12 +438,17 @@ class ProcessoDetalhes extends ViewComponent {
   
           <div class="div-title-abas display-flex">
             <label class="title-abas">Processos Associados</label>
-            <span title="Adicionar"><i class="fas fa-plus"></i></span>
+            <span 
+            (click)="toggleForms('form_tab_precedentes')"
+            class="btn-details-processo-form" 
+            title="Vincular Processos">
+            <i class="fas fa-plus"></i>
+          </span>
           </div>  
 
 
           <!-- inicio form add tarefas -->
-          <div class="form_add_resources" id="form_tab_tarefas">
+          <div class="form_add_resources hiddenForm" id="form_tab_precedentes">
               <form id="wizard_with_validatio" onsubmit="javascript: return false;">
                 <div class="row">
                   <div class="input-field col s12">
@@ -446,14 +462,11 @@ class ProcessoDetalhes extends ViewComponent {
                   </div>
                  </div>
                   <div>
-                      <button (click)="addPrecedentesProcesso()" class="btn btn-default">Salvar</button>
+                      <button (click)="addPrecedentesProcesso('form_tab_precedentes')" class="btn btn-default">Salvar</button>
                    </div>
               </form>
            </div>
            <!-- fim form add tarefas -->
-
-
-
   
           <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
@@ -473,10 +486,10 @@ class ProcessoDetalhes extends ViewComponent {
                   <td>{item.precedente_assunto}</td>
                   <td class="center">
                     <div style="display: flex; gap: 20px; justify-content: center;">
-                      <a title="Editar Processo" style="cursor: pointer" (click)="editProcesso('{item.id}')">
-                        <span class="fas fa-pencil-alt"></span>
+                      <a title="Remover Processo Associado" style="cursor: pointer" (click)="removerPrecedenteProcesso('{item.precedente_id}')">
+                        <span class="fas fa-trash-alt" style="color: red"></span>
                       </a>
-                      <a title="Ver detalhes do Processo" style="cursor: pointer" (click)="detalhesProcesso('{item.id}')">
+                      <a title="Ver detalhes do Processo" style="cursor: pointer" (click)="detalhesProcesso('{item.precedente_id}')">
                         <span class="fas fa-file-alt"></span>
                       </a>
                     </div>
@@ -485,21 +498,22 @@ class ProcessoDetalhes extends ViewComponent {
               </tbody>
             </table>
           </div> 
-  
-  
-
         </div>
   
         <div role="tabpanel" class="tab-pane fade" id="anexos">  
   
           <div class="div-title-abas display-flex">
             <label class="title-abas">Anexos Associados ao Processo</label>
-            <span title="Adicionar"><i class="fas fa-plus"></i></span>
+            <span 
+            (click)="toggleForms('form_tab_anexos')"
+            class="btn-details-processo-form" 
+            title="Associar anexos ao Processo">
+            <i class="fas fa-plus"></i>
+          </span>
           </div>
 
-
           <!-- inicio form add tarefas -->
-          <div class="form_add_resources" id="form_tab_tarefas">
+          <div class="form_add_resources hiddenForm" id="form_tab_anexos">
               <form>
               <div class="row">
               <div class="input-field col s12">
@@ -511,7 +525,7 @@ class ProcessoDetalhes extends ViewComponent {
               </div>
               </div>
               <div>
-                <button (click)="addAnexoProcesso()" class="btn btn-default">Salvar</button>
+                <button (click)="addAnexoProcesso('form_tab_anexos')" class="btn btn-default">Salvar</button>
               </div>
               </form>
           </div>
@@ -541,13 +555,13 @@ class ProcessoDetalhes extends ViewComponent {
                   <td class="center">
                     <div style="display: flex; gap: 20px; justify-content: center;">
                       <a title="Baixar o Anexo" style="cursor: pointer" (click)="downalodAnexoProcesso('{item.id}')">
-                        <span class="fas fa-file-download"></span>
+                        <span class="fas fa-file-download" style="color: #383838"></span>
                       </a>                     
                       <a title="Ver o Anexo" style="cursor: pointer" (click)="visualizarAnexoProcesso('{item.id}')">
-                        <span class="fas fa-eye"></span>
+                        <span class="fas fa-eye" style="color: #383838"></span>
                       </a>
-                      <a title="Remover o Anexo" style="cursor: pointer; color: red;" (click)="deleteAnexoProcesso('{item.id}')">
-                        <span class="fas fa-trash"></span>
+                      <a title="Remover o Anexo" style="cursor: pointer; color: red;" (click)="removerAnexoProcesso('{item.id}')">
+                        <span class="fas fa-trash" style="color: red"></span>
                       </a>
                     </div>
                   </td>
@@ -906,7 +920,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** Function Save */
 
-  async addEquipaProcesso() {
+  async addEquipaProcesso(idForm) {
 
     const equipa = this.equipaInput.value;
 
@@ -932,6 +946,7 @@ class ProcessoDetalhes extends ViewComponent {
         } else {
           alert("Salvo com sucesso");
           console.log("cadastro do colaborador ... ", response);
+          this.toggleForms(idForm)
         }
       })
       .catch((err) => {
@@ -943,7 +958,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
 
-  async addPrecedentesProcesso() {
+  async addPrecedentesProcesso(idForm) {
 
     console.log("addPrecedentesProcesso... ", this.precedenteInput.value);
 
@@ -972,6 +987,7 @@ class ProcessoDetalhes extends ViewComponent {
         } else {
           alert("Salvo com sucesso");
           console.log("cadastro do colaborador ... ", response);
+          this.toggleForms(idForm)
         }
       })
       .catch((err) => {
@@ -981,7 +997,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
 
-  addAnexoProcesso() {
+  addAnexoProcesso(idForm) {
 
     const payload = {
       "processoId": this.id.value,
@@ -1009,6 +1025,7 @@ class ProcessoDetalhes extends ViewComponent {
         } else {
           alert("Salvo com sucesso");
           console.log("cadastro do colaborador ... ", response);
+          this.toggleForms(idForm)
         }
       })
       .catch((err) => {
@@ -1018,7 +1035,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
 
-  addTarefaProcesso() {
+  addTarefaProcesso(idForm) {
 
     const tarefa = this.getValueById('input_form_tarefa')
 
@@ -1045,6 +1062,7 @@ class ProcessoDetalhes extends ViewComponent {
         } else {
           alert("Salvo com sucesso");
           console.log("cadastro do colaborador ... ", response);
+          this.toggleForms(idForm)
         }
       })
       .catch((err) => {
@@ -1052,12 +1070,88 @@ class ProcessoDetalhes extends ViewComponent {
       });
   }
 
-  editProcesso(id) {    
+  editProcesso(id) {  
     const idProcesso = id == undefined ? this.id.value : id;
     console.log("here... ProcessoDetalhes ...", idProcesso)
     Router.goto("ProcessoForm", {
       data: idProcesso,
     });
+  }
+
+  /** toogle dos forms */
+  toggleForms(id) {
+    console.log(id)
+    let form = document.getElementById(id)
+    form.classList.toggle("showForm") 
+  } 
+
+  removerColaboradorProcesso(id) {
+    console.log('removerColaboradorProcesso ',id)
+  }
+
+  editTarefaProcesso(id, idInput) {
+    console.log('editTarefaProcesso ',id, idInput)
+  }
+
+  removerTarefaProcesso(id) {
+    console.log('removerTarefaProcesso ',id)
+  }
+
+  concluirTarefaProcesso(id) {
+    console.log('concluirTarefaProcesso ',id)
+  }
+
+  removerPrecedenteProcesso(id) {
+    console.log('removerPrecedenteProcesso ',id)
+  }
+
+  downalodAnexoProcesso(id) {
+    console.log('downalodAnexoProcesso ',id)
+
+    $still.HTTPClient.get(
+      `http://localhost:3000/api/v1/download_anexo_processo/${id}`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+          console.log("ver anexo processo response >> ", response)
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+
+  }
+
+  visualizarAnexoProcesso(id) {
+    console.log('visualizarAnexoProcesso ',id)
+
+    window.open('https://www.example.com', '_blank', 'width=800,height=600');
+
+
+    $still.HTTPClient.get(
+      `http://localhost:3000/api/v1/ver_anexo_processo/${id}`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+          console.log("ver anexo processo response >> ", response)
+      })
+      .catch((err) => {
+        console.log(`Erro ao cadastrar processo: `, err);
+      });
+
+  }
+
+  removerAnexoProcesso(id) {
+    console.log('removerAnexoProcesso ',id)
   }
 
 }

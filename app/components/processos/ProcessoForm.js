@@ -228,7 +228,6 @@ class ProcessoForm extends ViewComponent {
                                         </span>
                                         <div class="form-line">
                                             <input type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
-                                            @assunto
                                         </div>
                                     </div>
                                 </div>

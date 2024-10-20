@@ -1,7 +1,7 @@
 class TabulatorComponent extends ViewComponent {
 
     template = `
-    <div>
+        <div>
             <section class="tabulator-table-menu-container">
                 <div (click)="myEvent()">Menu 1</div>
             </section>
@@ -10,32 +10,21 @@ class TabulatorComponent extends ViewComponent {
             </div>
         </div>
     `;
+
     table = Prop;
     tableHeader = Prop;
     dataSource;
     firstLoad = false;
     /** @type { Array<{ pos, icon }> } */
-    deleteFowMetadata = Prop;
+    deleteColMetadata = Prop;
+    /** @type { Array<{ pos, icon }> } */
+    editColMetadata = Prop;
 
-    async load(){
-        
+    async load() {
+
         const fields = JSON.parse(this.tableHeader);
-        this.deleteFowMetadata = [];
-        const deleteCol = fields.filter((r, idx) => {
-            if(r.deleteRow){
-                this.deleteFowMetadata.push({
-                    pos: idx,
-                    icon: fields[idx].icon
-                })
-                return r.deleteRow;
-            }
-        });
-        
-        if(deleteCol.length == 1){
-            const deleteRowOptions = this.deleteFowMetadata[0];
-            const deletFormatter = () => deleteRowOptions.icon;
-            fields[deleteRowOptions.pos] = deletFormatter;
-        }
+        this.parseDeleteRowColumn(fields);
+        this.parseEditRowColumn(fields);
 
         let dataSource = [{}];
         this.table = new Tabulator(`#${this.dynCmpGeneratedId}`, {
@@ -55,14 +44,82 @@ class TabulatorComponent extends ViewComponent {
         });
 
         this.table.on('cellClick', (e, cell) => {
-            this.onCellClick(cell.getField(),cell.getData());
+
+            const clickedCol = cell.getField();
+            const rowData = cell.getData();
+
+            if (clickedCol == 'tabulatorDelColumn') {
+                return this.onEditColumn(clickedCol, rowData);
+            }
+
+            if (clickedCol == 'tabulatorEditColumn') {
+                return this.onDeleteRow(clickedCol, rowData);
+            }
+
+            const clickedRow = cell.getRow()._row.position;
+            this.onCellClick(clickedRow, clickedCol, rowData);
+
         });
     }
 
-    clearTable(){
-        alert(`Vamos`);
+    clearTable() {
+        alert(`Clearing table data`);
     }
 
-    onCellClick(fieldName, data){}
+    parseDeleteRowColumn(fieldList) {
+
+        this.deleteColMetadata = [];
+        const deleteCol = fieldList.filter((r, pos) => {
+            if (r.deleteRow) {
+                this.deleteColMetadata.push({
+                    pos, icon: fieldList[pos].icon
+                })
+                return r.deleteRow;
+            }
+        });
+
+        if (deleteCol.length == 1) {
+            const colOptions = this.deleteColMetadata[0];
+            const formatter = () => colOptions.icon;
+            fieldList[colOptions.pos] = {
+                ...fieldList[colOptions.pos], formatter,
+                field: "tabulatorDelColumn"
+            };
+        }
+
+        return this;
+
+    }
+
+    parseEditRowColumn(fieldList) {
+
+        this.editColMetadata = [];
+        const editCol = fieldList.filter((r, pos) => {
+            if (r.editRow) {
+                this.editColMetadata.push({
+                    pos, icon: fieldList[pos].icon
+                })
+                return r.editRow;
+            }
+        });
+
+        if (editCol.length == 1) {
+            const colOptions = this.editColMetadata[0];
+            const formatter = () => colOptions.icon;
+            fieldList[colOptions.pos] = {
+                ...fieldList[colOptions.pos], formatter,
+                field: "tabulatorEditColumn"
+            };
+        }
+
+        return this;
+
+    }
+
+    onEditColumn(fieldName, data) { }
+
+    onDeleteRow(fieldName, data) { }
+
+    onCellClick(col, row, data) { }
 
 }

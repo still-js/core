@@ -120,6 +120,16 @@ STARTING LOADING STYLE
 }
 
 
+.this-is-me {
+    margin-top: 50px !important;
+}
+
+.tabulator-table-menu-container {
+    top: 20px !important;
+    display: block !important;
+    position: relative;
+}
+
 /** 
 END LOADING STYLE
 */

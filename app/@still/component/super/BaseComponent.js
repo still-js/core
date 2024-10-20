@@ -242,7 +242,7 @@ class BaseComponent extends BehaviorComponent {
          * referenced place
          */
         fields.forEach(field => {
-            tamplateWithState = tamplateWithState.replace(`@${field}`, currentClass[field]?.value);
+            tamplateWithState = tamplateWithState.replace(`@${field}`, currentClass[field]?.value || currentClass[field]);
             tamplateWithState = this.getBoundInputForm(tamplateWithState, field);
         });
         return tamplateWithState;
@@ -610,11 +610,21 @@ class BaseComponent extends BehaviorComponent {
 
     parseStSideComponent(template) {
 
-        const parseValue = (v) => {
+        const parseValue = (r, v, f, mt) => {
+
+            v = v.trim();
+            const lastChar = r.trim().at(-1);
+            if (lastChar != '"' && lastChar != ">") {
+                const strtPos = mt.indexOf(`${f}="`);
+                v = mt.substring(
+                    (strtPos + f.length + 2),
+                    mt.indexOf('"', (strtPos + f.length + 2))
+                );
+            };
+
             return v.replace(/\"/g, '')
                 .replace("\n", "")
-                .replace(">", "")
-                .trim()
+                .replace(">", "");
         }
 
         const re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
@@ -623,8 +633,8 @@ class BaseComponent extends BehaviorComponent {
             const propMapper = {};
             mt.split(' ').forEach(r => {
                 if (r != '' && r.indexOf('="') > 0) {
-                    const [f, v] = r.split('=');
-                    const [field, value] = [f, parseValue(v)];
+                    let [f, v] = r.split('=');
+                    const [field, value] = [f, parseValue(r, v, f, mt)];
                     propMapper[field] = value;
                 }
             });

@@ -116,10 +116,25 @@ class TabulatorComponent extends ViewComponent {
 
     }
 
+    /**
+     * Method signature for parent to call as event
+     * @type {{componentEvent: true}} 
+     * @returns { boolean } 
+     * */
     onEditColumn(fieldName, data) { }
 
+    /**
+     * Method signature for parent to call as event
+     * @type {{componentEvent: true}} 
+     * @returns { boolean } 
+     * */
     onDeleteRow(fieldName, data) { }
 
+    /**
+     * Method signature for parent to call as event
+     * @type {{componentEvent: true}} 
+     * @returns { boolean } 
+     * */
     onCellClick(col, row, data) { }
 
 }

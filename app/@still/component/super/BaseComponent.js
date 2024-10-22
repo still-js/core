@@ -333,12 +333,13 @@ class BaseComponent extends BehaviorComponent {
 
         template = template.replace(re, (mtch) => {
 
-            const changePos = mtch.indexOf(matchChange);
-            const changeEvt = mtch.substr(changePos, mtch.indexOf('(')).trim();
+            const changePos = mtch.indexOf(matchChange) + matchChange.length;
+            const changeEvt = mtch.substr(changePos).split(')')[0] + ')';
 
             if (mtch.length > 0) {
+
                 const _className = ` onChange_${Math.random().toString().substring(2)}`;
-                this.onChangeEventsList.push({ evt: changeEvt, _className: _className.trim() });
+                this.onChangeEventsList.push({ evt: `(change)="${changeEvt}"`, _className: _className.trim() });
                 if (mtch.indexOf('class="') >= 0) {
                     mtch = mtch
                         .replace(`class="`, `class="${_className} `);

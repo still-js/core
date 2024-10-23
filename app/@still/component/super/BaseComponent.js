@@ -364,7 +364,7 @@ class BaseComponent extends BehaviorComponent {
             const emptyField = '';
             const clsPath = this.getClassPath();
 
-            const extremRe = /[\n \r \< \$ \( \) \s A-Za-z \= \"]{0,}/.source;
+            const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"\w*\"\s?/.source;
             const matchForEachRE = '(forEach)=\"';
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe, "gi");
@@ -372,7 +372,6 @@ class BaseComponent extends BehaviorComponent {
             template = template.replace(valueBindRE, (mt) => {
 
                 const isThereComboBox = mt.indexOf('select') >= 0;
-                console.log(`Enconrou match: `, mt);
                 const matchForEach = mt.indexOf(matchForEachRE);
                 let forEachValue = '';
                 if (matchForEach >= 0)
@@ -388,10 +387,11 @@ class BaseComponent extends BehaviorComponent {
                         val = this[field];
 
                     let subscriptionCls = '';
+                    let comboSuffix = isThereComboBox ? '-combobox' : '';
                     if (mt.indexOf(`class="`) >= 0)
-                        mt = mt.replace(`class="`, `class="listenChangeOn-${this.getProperInstanceName()}-${field} `);
+                        mt = mt.replace(`class="`, `class="listenChangeOn-${this.getProperInstanceName()}-${field}${comboSuffix} `);
                     else
-                        subscriptionCls = `class="listenChangeOn-${this.getProperInstanceName()}-${field}" `;
+                        subscriptionCls = `class="listenChangeOn-${this.getProperInstanceName()}-${field}${comboSuffix}" `;
 
                     let replacer = `${subscriptionCls} `;
                     if (!(isThereComboBox))

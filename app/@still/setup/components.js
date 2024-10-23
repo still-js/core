@@ -344,10 +344,20 @@ class Components {
         const cpName = cmp.getProperInstanceName();
         const cssRef = `.listenChangeOn-${cpName}-${field}`;
         const subscribers = document.querySelectorAll(cssRef);
+        const cssRefCombo = `.listenChangeOn-${cpName}-${field}-combobox`;
+        const subscribersCombo = document.querySelectorAll(cssRefCombo);
 
         if (subscribers) {
             subscribers.forEach(/** @type {HTMLElement} */elm => {
                 this.dispatchPropagation(elm, field, cmp);
+            });
+        }
+
+        if (subscribersCombo) {
+            subscribersCombo.forEach(/** @type {HTMLElement} */elm => {
+                setTimeout(() => {
+                    this.propageteToInput(elm, field, cmp);
+                });
             });
         }
 
@@ -433,6 +443,7 @@ class Components {
                 result += this.replaceBoundField(parsingTemplate, fields);
             });
         }
+
 
         /** Get the previous table body */
         const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);

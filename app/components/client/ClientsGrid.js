@@ -119,13 +119,13 @@ class ClientsGrid extends ViewComponent {
          */
         const data = [
             {
-                id: crypto.randomUUID(),
+                id: Math.random().toString().split('.')[1],
                 calendarId: 'entrevista',
                 title: 'Descrição do meu novo evento',
                 start, end
             }, // EventObject
             {
-                id: crypto.randomUUID(),
+                id: Math.random().toString().split('.')[1],
                 calendarId: 'visita',
                 title: 'Estive numa visita ao escritorio do cliente para discutir',
                 start: start1,

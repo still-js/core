@@ -533,13 +533,13 @@ class BaseComponent extends BehaviorComponent {
 
     getUUID() {
         if (!this.cmpInternalId)
-            this.cmpInternalId = '_cmp' + crypto.randomUUID();
+            this.cmpInternalId = '_cmp' + Math.random().toString().split('.')[1];
         return this.cmpInternalId;
     }
 
     getCmpId() {
         if (!this.componentId)
-            this.cmpInternalId = crypto.randomUUID();
+            this.cmpInternalId = Math.random().toString().split('.')[1];
         return this.cmpInternalId;
     }
 
@@ -678,7 +678,7 @@ class BaseComponent extends BehaviorComponent {
                 props[prop] = val;
             });
 
-            const [cmpId, cmp] = [`st_${crypto.randomUUID()}`, eval(`new ${cmpName}()`)];
+            const [cmpId, cmp] = [`st_${Math.random().toString().split('.')[1]}`, eval(`new ${cmpName}()`)];
             cmp.dynCmpGeneratedId = cmpId;
             cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
             cmp.stillElement = true;

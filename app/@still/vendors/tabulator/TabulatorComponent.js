@@ -48,11 +48,11 @@ class TabulatorComponent extends ViewComponent {
             const clickedCol = cell.getField();
             const rowData = cell.getData();
 
-            if (clickedCol == 'tabulatorDelColumn') {
+            if (clickedCol == 'tabulatorEditColumn') {
                 return this.onEditColumn(clickedCol, rowData);
             }
 
-            if (clickedCol == 'tabulatorEditColumn') {
+            if (clickedCol == 'tabulatorDelColumn') {
                 return this.onDeleteRow(clickedCol, rowData);
             }
 

@@ -6,6 +6,7 @@ class TUICalendarComponent extends ViewComponent {
     editLabel = Prop('Editar');
     delLabel = Prop('Excluir');
     updateLabel = Prop('Actualizar');
+    eventEditValue = Prop(null);
     weekDaysPT = Prop({
         Sun: 'Dom', Mon: 'Seg', Tue: 'Ter', Wed: 'Qua',
         Thu: 'Qui', Fri: 'Sex', Sat: 'Sab',
@@ -32,8 +33,8 @@ class TUICalendarComponent extends ViewComponent {
             <header class="header-toastui-calendar">
                 <nav class="navbar-toastui-calendar">
                     <button (click)="navigateCalendar('today')" class="button is-rounded today calendar-btn-today">Hoje</button>
-                    <button (click)="navigateCalendar('prev')" class="calendar-btn-prev"> < </button>
-                    <button (click)="navigateCalendar('next')" class="calendar-btn-next"> > </button>
+                    <button (click)="navigateCalendar('prev')" class="calendar-btn-prev today is-rounded"> < </button>
+                    <button (click)="navigateCalendar('next')" class="calendar-btn-next today is-rounded"> > </button>
                     <span class="toastui-time-range" id="@dateRangePlaceId"></span>
                 </nav>
             </header>
@@ -238,13 +239,24 @@ class TUICalendarComponent extends ViewComponent {
     }
 
     listenClickEvent() {
+        const thisInstance = this;
         document.addEventListener('click', (e) => {
 
             const elm = e.target;
             const tgtClicks = [
                 'toastui-calendar-events',
-                'toastui-calendar-template-popupEdit'
+                'toastui-calendar-template-popupEdit',
             ];
+
+            /**
+             * This is to reset the event input value when
+             * clicking on the all day checkbox since the input
+             * is recreated as per the library (ToastUI calendar) behavior
+             */
+            if (elm.classList.contains('toastui-calendar-icon')) {
+                if (elm.parentNode.classList.contains('toastui-calendar-popup-section-allday'))
+                    setTimeout(() => thisInstance.setEventEditingValue(), 120);
+            }
 
             if (tgtClicks.includes(elm.className)) {
                 this.replaceTitleInputByTextArea(elm, tgtClicks);
@@ -252,17 +264,57 @@ class TUICalendarComponent extends ViewComponent {
         });
     }
 
+    setEventEditingValue() {
+        console.log(`WAS CALLED`);
+        const className = '.toastui-calendar-popup-section-title';
+        document
+            .querySelector(className)
+            .getElementsByTagName('input')[0].value = this.eventEditValue;
+    }
+
+    resetCheckboxClickEvent() {
+        const thisInstance = this;
+        /**
+         * This is to reset the event input value when clicking on the  all day
+         * label since inputs is recreated as per the library (ToastUI calendar) behavior
+         */
+        document
+            .querySelector('.toastui-calendar-template-popupIsAllday')
+            .onclick = () => {
+                setTimeout(() => {
+                    thisInstance.setEventEditingValue();
+                }, 120);
+            };
+    }
+
+    resetDropDownClickEvent() {
+        const thisInstance = this;
+        /**
+         * This is to reset the event input value when clicking on the top left 
+         * drop down for calendar options since is recreated as per the 
+         * library (ToastUI calendar) behavior
+         */
+        document
+            .querySelector('.toastui-calendar-popup-button')
+            .onclick = () => {
+                setTimeout(() => {
+                    document
+                        .querySelectorAll('.toastui-calendar-dropdown-menu-item')
+                        .forEach(elm => {
+                            elm.onclick = function () {
+                                setTimeout(() => {
+                                    thisInstance.setEventEditingValue();
+                                }, 120);
+                            }
+                        });
+
+                }, 120);
+            }
+    }
+
     replaceTitleInputByTextArea(elm, tgtClicks) {
 
-        const uuid = `_${new Date().getTime()}`;
-        let waitTime = 100;
-        window[`updateMainInputValue_${uuid}`] = (value) => {
-            const mainInput = document
-                .querySelectorAll('input[name=title]')[0];
-            if (mainInput) mainInput.value = value;
-            waitTime = 100;
-        }
-
+        const thisInstance = this;
         let inputContent = '';
         if (tgtClicks[1] == elm.className) {
             inputContent = this.getExistingEventDescription();
@@ -274,25 +326,41 @@ class TUICalendarComponent extends ViewComponent {
             const parent = document
                 .getElementsByClassName(parentName)[0];
             if (parent) {
-                clearInterval(timerEventPopup);
                 const descInput = parent.getElementsByTagName('input')[0];
-                const placeHolder = descInput.getAttribute('placeholder');
-                //parent.removeChild(descInput);
-                parent.classList.add('adjusted-tui-calendar-title');
-                parent.parentNode.classList.add('adjusted-tui-calendar-title-grand-parent');
-                const ta = document.createElement('textarea');
-                parent.insertAdjacentHTML(
-                    'beforeend',
-                    `<textarea 
-                        name="title"  rows="4" col="100"
-                        onkeyup="updateMainInputValue_${uuid}(this.value)"
-                        class="toastui-calendar-content adjust-toastui-calendar-content" 
-                        placeholder="${placeHolder}" required="">${inputContent}</textarea>`
-                );
-                parent.firstChild.style.marginTop = '8px';
+
+                if (descInput) {
+
+                    const uuid = `_${new Date().getTime()}`;
+                    window[`updateMainInputValue_${uuid}`] = (id, value) => {
+                        thisInstance.eventEditValue = value;
+                        thisInstance.setEventEditingValue();
+                    }
+
+                    thisInstance.resetDropDownClickEvent();
+                    thisInstance.resetCheckboxClickEvent();
+
+                    clearInterval(timerEventPopup);
+                    const placeHolder = descInput.getAttribute('placeholder');
+                    descInput.id = uuid;
+                    parent.classList.add('adjusted-tui-calendar-title');
+                    parent.parentNode.classList.add('adjusted-tui-calendar-title-grand-parent');
+                    const ta = document.createElement('textarea');
+                    parent.insertAdjacentHTML(
+                        'beforeend',
+                        `<textarea 
+                            name="title"  rows="4" col="100"
+                            id="${uuid}_"
+                            onkeyup="updateMainInputValue_${uuid}('${uuid}', this.value)"
+                            class="toastui-calendar-content adjust-toastui-calendar-content" 
+                            placeholder="${placeHolder}" required="">${inputContent}</textarea>`
+                    );
+                    parent.firstChild.style.marginTop = '8px';
+
+                }
+
             }
 
-        }, waitTime);
+        }, 120);
 
     }
 

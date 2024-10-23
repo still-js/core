@@ -130,6 +130,77 @@ STARTING LOADING STYLE
     position: relative;
 }
 
+.adjusted-tui-calendar-title-grand-parent {
+    height: 138px !important;
+    display: flex !important;
+}
+
+.adjusted-tui-calendar-title {
+    width: 409px !important;
+    height: 130px !important;
+    display: flex !important;
+}
+
+input[name="title"] {
+    display: none !important;
+}
+
+.adjust-toastui-calendar-content {
+    height: 124px !important;
+    border: none !important;
+}
+
+.toastui-calendar-event-calendar {
+    width: 124px !important;
+}
+
+.toastui-calendar-grid-selection,
+.toastui-calendar-grid-selection-label {
+    display: none !important;
+}
+
+.navbar-toastui-calendar {
+    display: contents;
+    background: no-repeat;
+    text-align: left;
+}
+
+.is-rounded {
+    border-radius: 26px;
+    border: 1px solid;
+}
+
+.calendar-btn-today {
+    width: 100px;
+}
+
+.calendar-btn-prev,
+.calendar-btn-next {
+    width: 50px !important;
+}
+
+.toastui-time-range {
+    color: black;
+    padding-left: 20px;
+    font-size: 1.6rem;
+}
+
+.header-toastui-calendar {
+    display: contents !important;
+    padding-bottom: 20px;
+}
+
+.navbar-toastui-calendar {
+    display: block;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.toastui-calendar-state-section {
+    display: none !important;
+}
+
 /** 
 END LOADING STYLE
 */

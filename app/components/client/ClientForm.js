@@ -10,6 +10,7 @@ class ClientForm extends ViewComponent {
     email;
     contactoCobranca;
     clientNota;
+    tipoClienteSelecionado = "";
 
     /**
      * Fields not bound to the form fields but for internal
@@ -57,7 +58,10 @@ class ClientForm extends ViewComponent {
                                                 <span class="input-group-addon">
                                                     <i class="material-icons">person</i> Tipo de cliente
                                                 </span>
-                                                <select (change)="updateTipoCliente($event)" (forEach)="clientType">
+                                                <select 
+                                                    (value)="tipoClienteSelecionado"
+                                                    (change)="updateTipoCliente($event)" 
+                                                    (forEach)="clientType">
                                                     <option each="item" value="">Selecione uma opção</option>
                                                     <option each="item" value="{item.id}">{item.value}</option>
                                                 </select>
@@ -207,7 +211,7 @@ class ClientForm extends ViewComponent {
     </section>
     `;
 
-    constructor(){
+    constructor() {
         super();
 
         this.setup({
@@ -221,12 +225,12 @@ class ClientForm extends ViewComponent {
 
     }
 
-    updateTipoCliente(evt){
-        console.log('Value is: ',evt);
+    updateTipoCliente(evt) {
+        console.log('Value is: ', evt);
         this.tipoClienteId = evt.target.value;
     }
 
-    onRender(){
+    onRender() {
         this.showLoading();
         loadWizard({ enableAllSteps: this.routingData ? true : false });
         /** Initializing Tinemce text editor */
@@ -240,23 +244,23 @@ class ClientForm extends ViewComponent {
                 'insertdatetime media nonbreaking save table contextmenu directionality',
                 'emoticons template paste textcolor colorpicker textpattern imagetools'
             ],
-    
+
         });
     }
 
 
-    registerClient(){
+    registerClient() {
 
         this.showLoading();
         const payload = {
             "denominacao": this.nome.value,
             "tipo_id": this.tipoClienteId.value,
-            "nif":this.nif.value,
-            "endereco":this.endereco.value,
-            "pessoa_contacto":this.pessoaContacto.value,
-            "contacto_cobranca":this.contactoCobranca.value,
-            "nota":this.clientNota.value,
-            "status":"pending"
+            "nif": this.nif.value,
+            "endereco": this.endereco.value,
+            "pessoa_contacto": this.pessoaContacto.value,
+            "contacto_cobranca": this.contactoCobranca.value,
+            "nota": this.clientNota.value,
+            "status": "pending"
         }
 
         $still.HTTPClient.post(
@@ -270,42 +274,43 @@ class ClientForm extends ViewComponent {
         ).then((r) => {
             this.hideLoading();
             Router.goto('ClientsGrid');
-            console.log(`Cliente criado com sucesso: `,r.data);
+            console.log(`Cliente criado com sucesso: `, r.data);
         }).catch((err) => {
             this.hideLoading();
-            console.log(`Erro ao cadastrar cliente: `,err);
+            console.log(`Erro ao cadastrar cliente: `, err);
         });
     }
 
-    stAfterInit(){
+    stAfterInit() {
 
         this.clientType = [
-            { value: 'Particular', id:1},
-            { value: 'Ministério', id:2},
-            { value: 'Instituto', id:3},
-            { value: 'Associação', id:4},
-            { value: 'Outro', id:5}
+            { value: 'Particular', id: 1 },
+            { value: 'Ministério', id: 2 },
+            { value: 'Instituto', id: 3 },
+            { value: 'Associação', id: 4 },
+            { value: 'Outro', id: 5 }
         ];
 
-        
+
         const routeData = Router.data('ClientForm');
-        if(routeData){
+        if (routeData) {
 
             //setTimeout(() => {
-                const { 
-                    id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
-                    contacto_cobranca, nota, status, 
-                } = routeData;
-    
-                const nomes = denominacao.split(" ");
-                this.nome = nomes[0];
-                this.sobrenome = nomes[1] || '';
-                this.endereco = endereco;
-                this.pessoaContacto = pessoa_contacto;
-                this.contactoCobranca = contacto_cobranca;
-                this.nif = nif;
-                this.telefone = contacto_cobranca;
-                this.pessoaContacto = pessoa_contacto;
+            const {
+                id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
+                contacto_cobranca, nota, status,
+            } = routeData;
+
+            const nomes = denominacao.split(" ");
+            this.nome = nomes[0];
+            this.sobrenome = nomes[1] || '';
+            this.endereco = endereco;
+            this.pessoaContacto = pessoa_contacto;
+            this.contactoCobranca = contacto_cobranca;
+            this.nif = nif;
+            this.telefone = contacto_cobranca;
+            this.pessoaContacto = pessoa_contacto;
+            this.tipoClienteSelecionado = tipo_id;
             //});
 
         }
@@ -320,10 +325,10 @@ class ClientForm extends ViewComponent {
  * Function to load JQuery Step/Wizard which is 
  * called in the calss component 
  */
-function loadWizard({enableAllSteps = false} = {}){
+function loadWizard({ enableAllSteps = false } = {}) {
 
     var form = $('#wizard_with_validation').show();
-    const [finish, next, previous] = ["Submeter","Próximo", "Voltar"]
+    const [finish, next, previous] = ["Submeter", "Próximo", "Voltar"]
     form.steps({
         showFinishButtonAlways: false,
         enableFinishButton: false,
@@ -333,7 +338,7 @@ function loadWizard({enableAllSteps = false} = {}){
         bodyTag: 'fieldset',
         transitionEffect: 'slideLeft',
         onInit: function (event, currentIndex) {
-    
+
             //Set tab width
             var $tab = $(event.currentTarget).find('ul[role="tablist"] li');
             var tabCount = $tab.length;

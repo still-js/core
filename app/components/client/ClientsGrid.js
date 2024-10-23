@@ -25,7 +25,7 @@ class ClientsGrid extends ViewComponent {
             component="TabulatorComponent"
             proxy="dataTable"
             tableHeader="parent.dataTableLabels"
-            (onEditColumn)="editRow(fieldName, data)"
+            (onEditColumn)="getClientDetails(fieldName, data)"
             (onDeleteRow)="deleteRow(fieldName, data)"
             (onCellClick)="cellClick(row, col, data)"
             >
@@ -217,9 +217,9 @@ class ClientsGrid extends ViewComponent {
             updated_at,
         }
 
-        /* Router.goto('ClientForm', {
+        Router.goto('ClientForm', {
             data
-        }); */
+        });
 
     }
 

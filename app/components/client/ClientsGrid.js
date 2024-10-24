@@ -2,149 +2,226 @@ class ClientsGrid extends ViewComponent {
 
     htmlRefId = 'clientDataTable';
     dataSource;
+    /** @type { TabulatorComponent } */
+    dataTable = Proxy;
+    dataTableLabels = Prop(JSON.stringify([
+        { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
+        { hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },
+        { title: "Tipo Cliente", field: "tipo_id", sorter: "string", width: 200 },
+        { title: "Nome", field: "denominacao", sorter: "string" },
+        { title: "NIF", field: "nif", sorter: "string" },
+        { title: "Endereco", field: "endereco", sorter: "string" },
+        { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
+        { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
+    ]));
+
+    /** @type { TUICalendarComponent } */
+    calendarProxy = Proxy;
 
     template = `
     <section class="content">
-        <div class="row clearfix">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <button (click)="runLocalFunc()">Click here Button</button>
-                <div class="card">
-                    <div class="header">
-                        <h2>
-                            <strong>Clientes</strong> registados</h2>
-                        <ul class="header-dropdown m-r--5">
-                            <li class="dropdown">
-                                <a href="#" onClick="return false;" class="dropdown-toggle" data-toggle="dropdown"
-                                    role="button" aria-haspopup="true" aria-expanded="false">
-                                    <i class="material-icons">more_vert</i>
-                                </a>
-                                <ul class="dropdown-menu pull-right">
-                                    <li>
-                                        <a href="#" onClick="return false;">Action</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">Another action</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">Something else here</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
-                                <thead>
-                                    <tr>
-                                        <th>Tipo cliente</th>
-                                        <th>Nome</th>
-                                        <th>NIF</th>
-                                        <th>Endereço</th>
-                                        <th>Telefone</th>
-                                        <th>Telefone Cobrança</th>
-                                        <th>&nbsp;</th>
-                                    </tr>
-                                </thead>
-                                <!-- <output of="dataSource"> -->
-                                <tbody (forEach)="dataSource">
-                                    <tr each="item">
-                                        <td>{item.tipo_id}</td>
-                                        <td>{item.denominacao}</td>
-                                        <td>{item.nif}</td>
-                                        <td>{item.endereco}</td>
-                                        <td>{item.pessoa_contacto}</td>
-                                        <td>{item.contacto_cobranca}</td>
-                                        <td>
-                                           <a (click)="editClient('{item.nif}')">Editar</a>
-                                        </td>
-                                    </tr>
-                                </tbody>
 
-                                <tfoot>
-                                <tr>
-                                    <th>Tipo cliente</th>
-                                    <th>Nome</th>
-                                    <th>NIF</th>
-                                    <th>Endereço</th>
-                                    <th>Telefone</th>
-                                    <th>Telefone Cobrança</th>
-                                    <th>&nbsp;</th>
-                                </tr>
-                        </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <st-element
+            component="TabulatorComponent"
+            proxy="dataTable"
+            tableHeader="parent.dataTableLabels"
+            (onEditColumn)="getClientDetails(fieldName, data)"
+            (onDeleteRow)="deleteRow(fieldName, data)"
+            (onCellClick)="cellClick(row, col, data)"
+            >
+        </st-element>
+
+        <st-element
+            component="TUICalendarComponent"
+            proxy="timeSheet"
+            (onEventCreate)="saveEvent()"
+            editLabel="Editar"
+            milestoneTitle="Objectivo"
+            (onEventUpdate)="updateEvent()"
+            (onEventDeletion)="deleteEvent()"
+            proxy="calendarProxy"
+            >
+        </st-element>
+        
+        <button (click)="resetCalendario()">Limpar Calendário A partir do parent component</button>
+        <button (click)="createNewEvent()">Criar novos eventos a partir do parent</button>
+
     </section>
     `;
 
-    constructor(){
+    constructor() {
         super();
         this.setup({});
         this.showLoading();
     }
 
-    async onRender(){
+    deleteRow(_, record) {
+        alert(JSON.stringify(record));
+    }
+
+    editRow(_, record) {
+        console.log(`ROW WILL BE EDITED: `, record);
+    }
+
+    cellClick(row, col, _) {
+        console.log(`Cliecked on: `, {
+            row, col, _
+        })
+    }
+
+    saveEvent() {
+        /**
+         * Pôr a regra de negócio e a chamada a BD,
+         * retornar true apenas se for salvo com sucess
+         * caso contrário retornar false 
+         */
+        alert(`Called event creation`);
+        return true;
+    }
+
+    updateEvent() {
+        /**
+         * Pôr a regra de negócio e a chamada a BD,
+         * retornar true apenas se for salvo com sucess
+         * caso contrário retornar false 
+         */
+        alert('Event update called from parent');
+        return true;
+    }
+
+    deleteEvent() {
+        /**
+         * Pôr a regra de negócio e a chamada a BD,
+         * retornar true apenas se for salvo com sucess
+         * caso contrário retornar false 
+         */
+        alert('Called Deletion event from parent');
+        return true;
+    }
+
+    resetCalendario() {
+        this.calendarProxy.clearGrid();
+    }
+
+    createNewEvent() {
+
+        const start = new Date();
+        const end = new Date();
+        end.setHours(end.getHours() + 3);
+
+        const start1 = new Date();
+        start1.setHours(start.getHours() + 50);
+        const end1 = new Date();
+        end1.setHours(end.getHours() + 53);
+
+        /**
+         * Estes dados deverão vir da BD 
+         */
+        const data = [
+            {
+                id: Math.random().toString().split('.')[1],
+                calendarId: 'entrevista',
+                title: 'Descrição do meu novo evento',
+                start, end
+            }, // EventObject
+            {
+                id: Math.random().toString().split('.')[1],
+                calendarId: 'visita',
+                title: 'Estive numa visita ao escritorio do cliente para discutir',
+                start: start1,
+                end: end1
+            }, // EventObject
+        ];
+
+        this.calendarProxy.addNewEvents(data);
+    }
+
+    async onRender() {
 
         /**
          * Isso quer dizer que o import do JQuery foi feito no index principal
          * ou no ficheiro de rotas em eagerImport
          */
-        this.stRunOnFirstLoad(() => {
+        /* this.stRunOnFirstLoad(() => {
             $('.js-basic-example').DataTable({
                 responsive: true
             });
-        });
+        }); */
 
         /** For Test purpose only */
         await this.stLazyExecution(async () => {
-            
+
             /** @type { ClientForm } */
             const clientFormView = $still.view.get('ClientForm');
-            const moreView = $still.view.get('MorCompo');
 
             clientFormView.onChange((newState) => {
-                console.log(`Client grid detectou mudança no client form: `,newState);
+                console.log(`Client grid detectou mudança no client form: `, newState);
             });
 
-            moreView.onChange((newState) => {
-                console.log(`Client grid detectou mudança no client form: `,newState);
-            });
         });
 
     }
 
-    stAfterInit(val){
+    stAfterInit(val) {
 
         $still
-        .HTTPClient
-        .get('http://localhost:3000/api/v1/cliente/')
-        .then((r) => {
-            this.dataSource = r.data;
-            this.hideLoading();
-        });
+            .HTTPClient
+            .get('http://localhost:3000/api/v1/cliente/')
+            .then((r) => {
+                this.dataSource = r.data;
+                //console.log(`DATA IS: `,this.dataSource);
+                this.dataTable.dataSource = r.data;
+                this.hideLoading();
+            });
 
-    }
-
-    editClient(nif){
-        console.log(`Clicked client is: `,nif);
-        
-        const result = this.dataSource.value.filter((r) => r.nif == nif)
-        Router.goto('ClientForm', {
-            data: result[0]
-        });
-        
     }
 
     /** For Test purpose only */
     /** @type { StEvent } */
     anyState = 'This is the state value';
-    runLocalFunc(){
-        alert('Alert from the components itself'+this.anyState);
+    runLocalFunc() {
+        this.dataTable.dataSource = [
+            { denominacao: 'Novo valor', tipo_id: 190 }
+        ];
     }
-    
+
+    getClientDetails(f, row) {
+
+        const {
+            contacto_cobranca,
+            created_at,
+            denominacao,
+            endereco,
+            id,
+            nif,
+            nota,
+            pessoa_contacto,
+            status,
+            tipo,
+            tipo_id,
+            updated_at,
+        } = row;
+
+        const data = {
+            contacto_cobranca,
+            created_at,
+            denominacao,
+            endereco,
+            id,
+            nif,
+            nota,
+            pessoa_contacto,
+            status,
+            tipo,
+            tipo_id,
+            updated_at,
+        }
+
+        Router.goto('ClientForm', {
+            data
+        });
+
+    }
+
 
 }

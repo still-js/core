@@ -167,7 +167,7 @@ class CTopNavBar extends ViewComponent {
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#" (click)="gotoView('Home')">
+                                        <a href="#" (click)="exitApp()">
                                             <i class="material-icons">power_settings_new</i>Logout
                                         </a>
                                     </li>
@@ -186,13 +186,18 @@ class CTopNavBar extends ViewComponent {
         </div>    
     `;
 
-    constructor(){
+    constructor() {
         super();
         console.log(`instantiated top nav bar added plus`);
     }
 
     gotoView(viewComponent) {
         Router.goto(viewComponent);
+    }
+
+    exitApp() {
+        localStorage.removeItem('logged');
+        Router.goto('exit');
     }
 
 }

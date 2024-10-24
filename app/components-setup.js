@@ -1,15 +1,15 @@
 class ComponentSetup extends Components {
-    
+
     entryComponentPath = routesMap.viewRoutes.regular.Home;
     entryComponentName = 'Home';
-    logged = localStorage.getItem('logged');
 
-    constructor(){
+    constructor() {
         super();
     }
 
-    init(){
-        return this.logged ? new AppTemplate() : new Login();
+    init() {
+        const logged = localStorage.getItem('logged');
+        return logged ? new AppTemplate() : new Login();
     }
 }
 

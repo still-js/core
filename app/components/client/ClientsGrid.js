@@ -18,6 +18,14 @@ class ClientsGrid extends ViewComponent {
     /** @type { TUICalendarComponent } */
     calendarProxy = Proxy;
 
+    /** @type { TBDragableGrid } */
+    dragableTBProxy = Proxy;
+    dragableData = Prop(JSON.stringify([
+        { name: "Atendimento no Escritório", custo: "0.0Kz" },
+        { name: "Elaboração de contracto", custo: "0.0Kz" },
+        { name: "Rectificação do processo", custo: "0.0Kz" }
+    ]));
+
     template = `
     <section class="content">
 
@@ -32,6 +40,14 @@ class ClientsGrid extends ViewComponent {
         </st-element>
 
         <st-element
+            component="TBDragableGrid"
+            proxy="dragableTBProxy"
+            tableData="parent.dragableData"
+            >
+        </st-element>
+
+        <!--
+        <st-element
             component="TUICalendarComponent"
             proxy="timeSheet"
             (onEventCreate)="saveEvent()"
@@ -42,9 +58,10 @@ class ClientsGrid extends ViewComponent {
             proxy="calendarProxy"
             >
         </st-element>
-        
+
         <button (click)="resetCalendario()">Limpar Calendário A partir do parent component</button>
         <button (click)="createNewEvent()">Criar novos eventos a partir do parent</button>
+        -->
 
     </section>
     `;

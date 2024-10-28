@@ -10,6 +10,7 @@ class CMenu extends ViewComponent {
             <ul class="submenu">
                 <li><a href="#" (click)="gotoView('ProcessoForm')"> Criar </a></li>
                 <li><a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a></li>
+                <li><a href="#" (click)="gotoView('ColaboradorDashboard')"> Meus Processos </a></li>
             </ul>
         </li>
         <li>

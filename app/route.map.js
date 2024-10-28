@@ -12,6 +12,7 @@ const routesMap = {
         lazyInitial: {
             ColaboradorForm: 'components/colaboradores',
             ColaboradorGrid: 'components/colaboradores',
+            ColaboradorDashboard: 'components/colaboradores',
             ProcessoForm: 'components/processos',
             ProcessosGrid: 'components/processos',
             ProcessoDetalhes: 'components/processos',

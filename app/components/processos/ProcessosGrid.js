@@ -65,10 +65,13 @@ class ProcessosGrid extends ViewComponent {
                                           <div style="display: flex; gap: 20px; justify-content: center;">
                                             <a title="Editar Processo" style="cursor: pointer" (click)="editProcesso('{item.id}')">
                                               <span class="fas fa-pencil-alt"></span>
-                                            </a>
+                                            </a> | 
                                             <a title="Ver detalhes do Processo" style="cursor: pointer" (click)="detalhesProcesso('{item.id}')">
                                               <span class="fas fa-file-alt"></span>
-                                            </a>
+                                            </a> | 
+                                            <a title="Registar horas Colaborador" style="cursor: pointer" (click)="timeSheetProcesso('{item.id}')">
+                                            <span class="far fa-calendar-alt"></span>
+                                          </a>
                                           </div>
                                         </td>
                                     </tr>
@@ -124,6 +127,14 @@ class ProcessosGrid extends ViewComponent {
     });
   }
 
+  timeSheetProcesso(id) {
+    Router.goto("ProcessoTimeSheet", {
+      data: id,
+    });
+  }
+
+
+
   /** For Test purpose only */
   /** @type { StEvent } */
   anyState = "This is the state value";
@@ -131,13 +142,9 @@ class ProcessosGrid extends ViewComponent {
     alert("Alert from the components itself" + this.anyState);
   }
 
-  
   editProcesso(id) {
     Router.goto("ProcessoForm", {
       data: id,
     });
   }
-
-
-
 }

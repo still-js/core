@@ -79,8 +79,9 @@ class TUICalendarComponent extends ViewComponent {
 
         const calendar = this.calendar;
         calendar.on('beforeCreateEvent', async (data) => {
+
             data.id = Math.random().toString().split('.')[1];
-            const wasEventCreated = await this.onEventCreate();
+            const wasEventCreated = await this.onEventCreate(data);
             if (wasEventCreated) {
                 calendar.createEvents([
                     data

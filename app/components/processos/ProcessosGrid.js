@@ -3,16 +3,28 @@ class ProcessosGrid extends ViewComponent {
 
   template = `
     <section class="content">
-        <div class="block-header">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="title-grid-component">
-                    <span class="fas fa-folder title-grid-component-icon"></span>    
-                        <h3>Lista dos Processos</h3>
-                    <span class="title-grid-component-description">Navega pela lista ou cria um novo</span>
-                </div>
-            </div>
+
+    <br/>
+    <div class="block-header">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <ul class="breadcrumb breadcrumb-style" style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;">
+                <li class="breadcrumb-item 	bcrumb-1">
+                    <a href="/">
+                        <i class="material-icons">home</i>
+                        Home</a>
+                </li>
+                <li class="breadcrumb-item bcrumb-1 active">Processo</li>
+                <li class="breadcrumb-item active">Lista dos Processos</li>
+            </ul>
         </div>
+    </div>
+</div>
+
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div>

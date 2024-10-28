@@ -10,7 +10,7 @@ class CTopNavBar extends ViewComponent {
                     <span class="logo-name">Atrios</span>
                 </a>
             </div>
-            <div class="collapse navbar-collapse" id="navbar-collapse" style="position: fixed; width: 100%;">
+            <div class="collapse navbar-collapse" id="navbar-collapse" style="position: fixed; width: 100%; padding-left: 235px">
                 <ul class="nav navbar-nav navbar-left">
                     <li>
                         <a href="#" onClick="return false;" class="sidemenu-collapse">
@@ -19,12 +19,13 @@ class CTopNavBar extends ViewComponent {
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <!-- Full Screen Button -->
+                    <!-- Full Screen Button 
                     <li class="fullscreen">
                         <a href="javascript:;" class="fullscreen-btn">
                             <i class="nav-hdr-btn ti-fullscreen"></i>
                         </a>
                     </li>
+                    -->
                     <!-- #END# Full Screen Button -->
                     <!-- #START# Notifications-->
                     <li class="dropdown">
@@ -32,114 +33,19 @@ class CTopNavBar extends ViewComponent {
                             role="button">
                             <i class="nav-hdr-btn ti-bell"></i>
                             <span class="notify"></span>
-                            <span class="heartbeat"></span>
+                            <!--<span class="heartbeat"></span>-->
                         </a>
                         <ul class="dropdown-menu pullDown">
                             <li class="header">NOTIFICATIONS</li>
                             <li class="body">
-                                <ul class="menu">
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user1.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">Sarah Smith</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> 14 mins ago
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user2.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">Airi Satou</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> 22 mins ago
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user3.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">John Doe</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> 3 hours ago
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user4.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">Ashton Cox</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> 2 hours ago
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user5.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">Cara Stevens</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> 4 hours ago
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user6.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">Charde Marshall</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> 3 hours ago
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <span class="table-img msg-user">
-                                                <img src="assets/images/user/user7.jpg" alt="">
-                                            </span>
-                                            <span class="menu-info">
-                                                <span class="menu-title">John Doe</span>
-                                                <span class="menu-desc">
-                                                    <i class="material-icons">access_time</i> Yesterday
-                                                </span>
-                                                <span class="menu-desc">Please check your email.</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                </ul>
+                                <div style="display: flex; padding-left: 10px ">
+                                    <p>Sem notificações</p>
+                                </div>
+                                <!--<ul class="menu">
+                                </ul>-->
                             </li>
                             <li class="footer">
-                                <a href="#" onClick="return false;">View All Notifications</a>
+                                <a href="#" (click)="gotoView('UserNotification')">Ver todas as Notificações</a>
                             </li>
                         </ul>
                     </li>
@@ -152,23 +58,13 @@ class CTopNavBar extends ViewComponent {
                             <li class="body">
                                 <ul class="user_dw_menu">
                                     <li>
-                                        <a href="#" onClick="return false;">
-                                            <i class="material-icons">person</i>Profile
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <i class="material-icons">feedback</i>Feedback
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onClick="return false;">
-                                            <i class="material-icons">help</i>Help
+                                        <a href="#" (click)="gotoView('UserProfile')">
+                                            <i class="material-icons">person</i>Teu Perfil
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#" (click)="gotoView('Home')">
-                                            <i class="material-icons">power_settings_new</i>Logout
+                                            <i class="material-icons">power_settings_new</i>Sair do Julaw
                                         </a>
                                     </li>
                                 </ul>
@@ -176,10 +72,8 @@ class CTopNavBar extends ViewComponent {
                         </ul>
                     </li>
                     <!-- #END# Tasks -->
-                    <li class="pull-right">
-                        <a href="#" onClick="return false;" class="js-right-sidebar" data-close="true">
-                            <i class="nav-hdr-btn ti-layout-grid2"></i>
-                        </a>
+                    <li class="pull-right" style="padding-right: 15px">
+                      
                     </li>
                 </ul>
             </div>

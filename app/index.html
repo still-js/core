@@ -45,27 +45,36 @@
     <script src="components/project-list/ProjectGrid.js"></script>
     <script src="components/calendar/Calendar.js"></script>
     <script src="components-setup.js"></script>
-
 </head>
 
 <body class="light">
     <div id="stillUiPlaceholder">
 
         <div id="stllAppGlobalLoadingCurtain">
-            <div class="lds-spinner">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+                <!-- Overlay For Sidebars -->
+            <div class="overlay"></div>
+            <div class="page-loader-wrapper">
+                <div class="loader">
+                    <div class="m-t-30">
+                        <img class="loading-img-spin" src="assets/images/loading.png" alt="admin">
+                    </div>
+                    <p>Por favor, aguarde...</p>
+                </div>
             </div>
+            <!--<div class="lds-spinner">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>-->
         </div>
 
     </div>

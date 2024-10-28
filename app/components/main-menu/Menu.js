@@ -1,9 +1,21 @@
 class CMenu extends ViewComponent {
-
   htmlRefId = "leftsidebar";
+
+  userName = "Sarah Deo";
+  userRole = "Admin";
 
   template = `
     <ul class="menu">
+      <li>
+         <div class="sidebar-profile clearfix">
+          <div class="profile-img">
+          <img src="../../assets/images/usrbig.jpg" alt="profile">
+         </div>
+      <div class="profile-info">
+       <h3>@userName</h3>
+       <p>Welcome @userRole</p>
+      </div>
+ </div></li>
         <li><a href="#"  (click)="gotoView('Home')"><i class="fas fa-home"></i> Início</a></li>
         <li class="active">
             <a href="#servicos"><i class="fas fa-folder"></i> Processos</a>

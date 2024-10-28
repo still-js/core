@@ -23,7 +23,7 @@ const local = {
             </li>
         </ul>
     </li>
-    `
+   `
 }
 
 export default class MenuOption extends BaseComponent {

@@ -38,9 +38,10 @@ class Router {
         }
 
         //Move to when evetything it's processed successfully
-        Router.getInstance().#data[cmp] = {};
-        if (Object.keys(data).length)
+        Router.getInstance().#data[cmp] = null;
+        if (Object.keys(data).length) {
             Router.getInstance().#data[cmp] = data;
+        }
 
         const routeInstance = $stillGetRouteMap()
         const route = routeInstance.route[cmp];

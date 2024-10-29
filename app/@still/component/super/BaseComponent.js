@@ -120,7 +120,7 @@ class BaseComponent extends BehaviorComponent {
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm', '$stillpfx', 'subImported',
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId', 'stillElement'
+            'dynCmpGeneratedId', 'stillElement', 'stMyParent'
         ];
         return fields.filter(
             field => {

@@ -7,18 +7,19 @@ class ViewComponent extends BaseComponent {
     /**
      * @type {HTMLRefId}
      */
-    htmlRefId
+    htmlRefId;
+    #stMyParent;
 
-    constructor(){
+    constructor() {
         super();
     }
 
-    beforeInit(){}
+    beforeInit() { }
 
-    renderViewOn(placeHolder){
+    renderViewOn(placeHolder) {
 
         this.prepareRender();
-        if(this.template instanceof Array)
+        if (this.template instanceof Array)
             this.template = this.template.join('');
 
         document
@@ -26,19 +27,19 @@ class ViewComponent extends BaseComponent {
             .innerHTML = this.template;
     }
 
-    renderOnViewFor(placeHolder){
+    renderOnViewFor(placeHolder) {
         this.beforeInit();
-        
+
         document
             .getElementById(placeHolder)
             .innerHTML = this.getBoundTemplate();
         this.incrementLoadCounter();
     }
 
-    getTemplate(){
-        this.beforeInit(); 
+    getTemplate() {
+        this.beforeInit();
         //this.prepareRender();
-        let template = this.getBoundTemplate();   
+        let template = this.getBoundTemplate();
         const cmpUnicClass = this.getUUID();
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
 
@@ -52,8 +53,48 @@ class ViewComponent extends BaseComponent {
         return template;
     }
 
-    render(){
+    render() {
         this.renderOnViewFor(this.htmlRefId);
+    }
+
+    setParentComponent(parent) {
+        this.stMyParent = parent;
+    }
+
+    /** @returns { ViewComponent }  */
+    getParentComponent() {
+        return this.stMyParent;
+    }
+
+    runMethod(methodName, ...params) {
+
+        const method = methodName
+            .replace('(', '')
+            .replace(')', '')
+            .replace('parent.', '');
+        return this[method](...params);
+    }
+
+    async runMethodAsync(methodName, ...params) {
+
+        const method = methodName
+            .replace('(', '')
+            .replace(')', '')
+            .replace('parent.', '');
+
+        return await this[method](...params);
+    }
+
+    parentRun(methodName, ...params) {
+        return this
+            .getParentComponent()
+            .runMethod(methodName, ...params);
+    }
+
+    async parentRunAsync(methodName, ...params) {
+        return await this
+            .getParentComponent()
+            .runMethodAsync(methodName, ...params);
     }
 
 }

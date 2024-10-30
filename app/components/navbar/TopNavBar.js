@@ -1,7 +1,6 @@
 class CTopNavBar extends ViewComponent {
-
-    htmlRefId = 'topNavBar';
-    template = `
+  htmlRefId = "topNavBar";
+  template = `
         <div class="container-fluid" style="margin-top: -7px;
         margin-left: -13px;">
             <div class="navbar-header">
@@ -63,7 +62,7 @@ class CTopNavBar extends ViewComponent {
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#" (click)="gotoView('Home')">
+                                        <a href="#" (click)="logout()">
                                             <i class="material-icons">power_settings_new</i>Sair do Julaw
                                         </a>
                                     </li>
@@ -80,15 +79,58 @@ class CTopNavBar extends ViewComponent {
         </div>    
     `;
 
-    constructor(){
-        super();
-        console.log(`instantiated top nav bar added plus`);
-    }
+  constructor() {
+    super();
+    console.log(`instantiated top nav bar added plus`);
+  }
 
-    gotoView(viewComponent) {
-        Router.goto(viewComponent);
-    }
+  gotoView(viewComponent) {
+    Router.goto(viewComponent);
+  }
 
+  logout() {
+    
+    console.log("clear");
+
+    localStorage.clear();
+    
+    Router.goto("Init");
+
+    setTimeout(() => {
+        Router.goto("exit");
+    }, 2000)
+
+    /*if (this.isValidatedInputForm()) {
+      $still.HTTPClient.post(
+          "http://localhost:3000/api/v1/login",
+          JSON.stringify(payload),
+          {
+              headers: {
+                  "Content-Type": "application/json",
+              },
+          }
+      )
+          .then((response) => {
+              console.log(`login criado com sucesso: `, response);
+              if(response.status !== 200) {
+                      alert(response.errors);
+                      Router.goto('Init');
+              }else{
+                  localStorage.setItem('_user', JSON.stringify(response.data));
+                  localStorage.setItem('logged', true);
+                  alert("Bem-vindo (a), a plataforma JuLAW")
+                  AppTemplate.get().store('logged', true);
+                  //Router.goto('Home');                        
+                  Router.goto('ColaboradorDashboard');                        
+                  // aonde guardar os dados do user logado com seguranca
+              }
+
+          })
+          .catch((err) => {
+              console.log(`Erro ao login colaborador: `, err);
+          });
+          */
+  }
 }
 
 const TopNavBar = $still.component.expose(new CTopNavBar());

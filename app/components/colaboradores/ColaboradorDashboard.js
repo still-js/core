@@ -154,10 +154,13 @@ class ColaboradorDashboard extends ViewComponent {
   }
 
   stAfterInit(val) {
-    let colaboradorId = 2;
+
+    const userLogged = JSON.parse(localStorage.getItem('_user'))
+
+    console.log(userLogged);
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo_colaborador/${colaboradorId}`
+      `http://localhost:3000/api/v1/processo_colaborador/${userLogged.id}`
     ).then((r) => {
       if (r.data) {
         console.log(r);

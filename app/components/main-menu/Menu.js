@@ -43,12 +43,22 @@ class CMenu extends ViewComponent {
     </ul>
     `;
 
+
+  
+    stAfterInit(val) {
+      //const userLogged = JSON.parse(localStorage.getItem('_user'))
+    }
+
+    async onRender() {
+      /**
+       * Isso quer dizer que o import do JQuery foi feito no index principal
+       * ou no ficheiro de rotas em eagerImport
+       */
+    }
+  
+
   gotoView(viewComponent) {
     Router.goto(viewComponent);
-  }
-
-  logout() {
-    Router.goto("exit");
   }
 
   constructor() {

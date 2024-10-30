@@ -2,9 +2,9 @@ class Template {
 
     static instance = {};
 
-    constructor(){
+    constructor() {
         const clsName = 'AppTemplate';
-        if(!(clsName in Template.instance))
+        if (!(clsName in Template.instance))
             Template.instance[clsName] = this;
     }
 
@@ -12,38 +12,38 @@ class Template {
      * 
      * @returns { AppTemplate }
      */
-    static get(){
+    static get() {
         const clsName = 'AppTemplate';
-        if(!(clsName in Template.instance)){
+        if (!(clsName in Template.instance)) {
             Template.instance[clsName] = new AppTemplate();
         }
         console.log(clsName);
         return Template.instance[clsName];
     }
 
-    store(name, value){
+    store(name, value) {
 
         const clsName = this.constructor.name;
-        if(!('storage' in Template.instance[clsName])){
+        if (!('storage' in Template.instance[clsName])) {
             Object.assign(Template.instance[clsName], {
                 storage: {}
             });
         }
 
-        if(!(name in Template.instance[clsName]['storage'])){
+        if (!(name in Template.instance[clsName]['storage'])) {
             Template.instance[clsName]['storage'][name] = value;
             return;
         }
         Template.instance[clsName]['storage'][name] = value;
     }
 
-    getStorageValue(name){
+    getStorageValue(name) {
         const clsName = this.constructor.name;
-        if(!('storage' in Template.instance[clsName])){
+        if (!('storage' in Template.instance[clsName])) {
             console.log(`No storage with name ${name} was set`);
         }
 
-        if(!(name in Template.instance[clsName]['storage'])){
+        if (!(name in Template.instance[clsName]['storage'])) {
             console.log(`No storage with name ${name} was set`);
         }
 
@@ -51,21 +51,22 @@ class Template {
 
     }
 
-    setAuthN(value){
+    setAuthN(value) {
         const clsName = this.constructor.name;
-        if(!('authn' in Template.instance[clsName])){
+        if (!('authn' in Template.instance[clsName])) {
             Template.instance[clsName]['authn'] = null;
         }
         Template.instance[clsName]['authn'] = value;
     }
 
-    isAuthN(){
+    isAuthN() {
         return Template.instance[this.constructor.name]['authn'];
     }
 
-    unloadApp(){
+    unloadApp() {
         Components.unloadApp();
         Router.goto('init');
+        window.location.reload();
     }
 
 }

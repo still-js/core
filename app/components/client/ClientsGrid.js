@@ -18,6 +18,28 @@ class ClientsGrid extends ViewComponent {
     /** @type { TUICalendarComponent } */
     calendarProxy = Proxy;
 
+    /** @type { TBDragableGrid } */
+    dragableTBProxy = Proxy;
+    dragableData = Prop(JSON.stringify([
+        { name: "Atendimento no Escritório", custo: "AKZ 0.0" },
+        { name: "Elaboração de contracto", custo: "AKZ 0.0" },
+        { name: "Rectificação do processo", custo: "AKZ 0.0" }
+    ]));
+
+    dragableFields = Prop(
+        JSON.stringify([
+            { title: "Name", field: "name" },
+            { title: "Custo", field: "custo" }
+        ])
+    );
+
+    dragableDestFields = Prop(
+        JSON.stringify([
+            { title: "Name", field: "name" },
+            { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
+        ])
+    );
+
     template = `
     <section class="content">
 
@@ -32,6 +54,17 @@ class ClientsGrid extends ViewComponent {
         </st-element>
 
         <st-element
+            component="TBDragableGrid"
+            proxy="dragableTBProxy"
+            tableData="parent.dragableData"
+            tableFields="parent.dragableFields"
+            destFields="parent.dragableDestFields"
+            destPlaceholder="Arraste aqui o item a pagar"
+            >
+        </st-element>
+
+        <!--
+        <st-element
             component="TUICalendarComponent"
             proxy="timeSheet"
             (onEventCreate)="saveEvent()"
@@ -42,9 +75,10 @@ class ClientsGrid extends ViewComponent {
             proxy="calendarProxy"
             >
         </st-element>
-        
+
         <button (click)="resetCalendario()">Limpar Calendário A partir do parent component</button>
         <button (click)="createNewEvent()">Criar novos eventos a partir do parent</button>
+        -->
 
     </section>
     `;
@@ -186,40 +220,35 @@ class ClientsGrid extends ViewComponent {
     }
 
     getClientDetails(f, row) {
+        Router.goto('ClientForm', { data: row });
+    }
 
-        const {
-            contacto_cobranca,
-            created_at,
-            denominacao,
-            endereco,
-            id,
-            nif,
-            nota,
-            pessoa_contacto,
-            status,
-            tipo,
-            tipo_id,
-            updated_at,
-        } = row;
+    editPricingValue(evtType, value, rowData) {
 
-        const data = {
-            contacto_cobranca,
-            created_at,
-            denominacao,
-            endereco,
-            id,
-            nif,
-            nota,
-            pessoa_contacto,
-            status,
-            tipo,
-            tipo_id,
-            updated_at,
+        if (evtType == 'onFocus') {
+            const actualValue = String(value)
+                .slice(4) //Remove AKZ Angola currency code and the space after it
+                .replace('.', '', 'gi') //Remove the period/dot in the thousands separator
+                .split(','); //Separate the integer value from the cents
+            const cents = parseFloat(actualValue[1]);
+            return parseFloat(actualValue[0]) + `${cents > 0 ? ',' + cents : ''}`;
         }
 
-        Router.goto('ClientForm', {
-            data
-        });
+        if (evtType == 'onLoseFocus') {
+
+            const inputValue = String(value).split(',');
+            const amount = inputValue[0];
+            const cents = inputValue[1] ? ',' + inputValue[1] : ',00';
+
+            const formatter = new Intl.NumberFormat('ao-AO',
+                {
+                    style: 'currency', currency: 'AKZ',
+                    maximumFractionDigits: 0, minimumFractionDigits: 0
+                }
+            );
+
+            return formatter.format(amount) + `${cents}`;
+        }
 
     }
 

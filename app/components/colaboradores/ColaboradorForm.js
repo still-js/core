@@ -81,7 +81,7 @@ class ColaboradorForm extends ViewComponent {
                                 <span class="input-group-addon">
                                     <i class="material-icons">person</i> Categoria
                                 </span>
-                                <select (change)="updateTipoCategoria($event)">
+                                <select (change)="updateTipoCategoria($event)" (value)="funcao">
                                     <option value="" disabled selected>Selecione uma categoria</option>
                                     <option value="administrativo">Administrativo</option>
                                     <option value="adv_junior">Júnior</option>
@@ -105,7 +105,7 @@ class ColaboradorForm extends ViewComponent {
                                 <span class="input-group-addon">
                                     <i class="material-icons">person</i> Status
                                 </span>
-                                <select (change)="updateStatus($event)">
+                                <select (change)="updateStatus($event)" (value)="status">
                                     <option value="" disabled >Selecione um status</option>
                                     <option  value="pending">Pendente</option>
                                     <option  selected value="active">Activo</option>
@@ -273,18 +273,8 @@ class ColaboradorForm extends ViewComponent {
     }
 
     onRender() {
-        loadWizard();
-        tinymce.init({
-            selector: "textarea#tinymce1",
-            theme: "modern",
-            height: 300,
-            plugins: [
-                "advlist autolink lists link image charmap print preview hr anchor pagebreak",
-                "searchreplace wordcount visualblocks visualchars code fullscreen",
-                "insertdatetime media nonbreaking save table contextmenu directionality",
-                "emoticons template paste textcolor colorpicker textpattern imagetools",
-            ],
-        });
+        const routingData = Router.data("ColaboradorForm");
+        loadWizard({ enableAllSteps: routingData ? true : false });
         document.getElementById("input-taxa-horaria").disabled = true;
     }
 
@@ -313,7 +303,7 @@ class ColaboradorForm extends ViewComponent {
     }
 
     registerColaborador() {
-      
+
         const payload = {
             "username": this.username.value,
             "nome_completo": this.nome_completo.value,
@@ -352,17 +342,16 @@ class ColaboradorForm extends ViewComponent {
                     "tipo": 1,
                     "valor": this.identificacoes_bi.value,
                 }
-               ],
-    
+            ],
+
             "status": this.status.value,
             "custoFinanceiro":
-                {
-                    "taxa_horaria": this.taxa_horaria.value
-                },
+            {
+                "taxa_horaria": this.taxa_horaria.value
+            },
         };
 
-
-        if(this.isValidInputForm()){
+        if (this.isValidInputForm()) {
 
             $still.HTTPClient.post(
                 "http://localhost:3000/api/v1/colaborador",
@@ -376,10 +365,10 @@ class ColaboradorForm extends ViewComponent {
                 .then((response) => {
                     console.log(`colaborador criado com sucesso: `, response);
                     console.log(`login criado com sucesso: `, response);
-                    if(response.status !== 201) {
-                            alert(response.errors);
-                           // Router.goto('Init');
-                    }else{
+                    if (response.status !== 201) {
+                        alert(response.errors);
+                        // Router.goto('Init');
+                    } else {
                         alert("Salvo com sucesso")
                         console.log("cadastro do colaborador ... ", response)
                         //AppTemplate.get().store('logged', true);
@@ -387,11 +376,11 @@ class ColaboradorForm extends ViewComponent {
                         // aonde guardar os dados do user logado com seguranca
                     }
                 })
-        .catch((err) => {
-            console.log(`Erro ao cadastrar colaborador: `, err);
-        });
+                .catch((err) => {
+                    console.log(`Erro ao cadastrar colaborador: `, err);
+                });
 
-        
+
         }
 
     }
@@ -424,113 +413,84 @@ class ColaboradorForm extends ViewComponent {
     }
 
     stAfterInit() {
-        console.log(`Cliend Form foi initializado`);
 
-    const routeData = Router.data("ClientForm");
+        const routeData = Router.data("ColaboradorForm");
 
-    if (routeData) {
-        setTimeout(() => {
-            const {
-                id,
-                denominacao,
-                tipo_id,
-                nif,
-                endereco,
-                pessoa_contacto,
-                contacto_cobranca,
-                nota,
-                status,
-                tipo: { id: tipoClientId, description },
-            } = routeData;
+        if (routeData) {
 
-                const nomes = denominacao.split(" ");
-                this.nome = nomes[0];
-                this.sobrenome = nomes[1];
-                this.endereco = endereco;
-                this.pessoaContacto = pessoa_contacto;
-                this.contactoCobranca = contacto_cobranca;
-                this.nif = nif;
-                this.telefone = contacto_cobranca;
-                this.pessoaContacto = pessoa_contacto;
-                console.log(
-                    `there is a new data from route on constructor: `,
-                    routeData
-                );
-            });
+            const contactos = routeData.contact_value.split(',');
+            const emailPessoal = contactos[0].split('|')[1];
+            const emailEmpresa = contactos[1].split('|')[1];
+            const contactoPessoal = contactos[2].split('|')[1];
+            const contactoEmergencia = contactos[3].split('|')[1];
+            const endereco = contactos[4].split('|')[1];
+
+            const documentos = routeData.tipo_documentos_code.split(',');
+            const bi = documentos[1].split('|')[1];
+            const cedula = documentos[0].split('|')[1];
+
+            this.nome_completo = routeData.nome_completo;
+            this.nome_profissional = routeData.nome_profissional;
+            this.tipo_colaborador_id = routeData.tipo_colaborador_id;
+            this.status = routeData.status;
+            this.data_nascimento = routeData.data_nascimento;
+            this.funcao = routeData.funcao;
+            this.status = routeData.status;
+            this.contactos_email_pessoal = emailPessoal;
+            this.contactos_email_corporativo = emailEmpresa;
+            this.contactos_telefone_pessoal = contactoPessoal;
+            this.contactos_telefone_emergencia = contactoEmergencia;
+            this.contactos_telefone_endereco = endereco;
+
+            this.identificacoes_bi = bi;
+            this.identificacoes_cedula = cedula;
+
+        }
 
     }
-
-    //const routeData = Router.data('ClientForm');
-    //if(routeData){
-    //    console.log(`there is a new data from route: `, routeData);
-    //}
-}
 }
 
-function loadWizard() {
-    //Advanced form with validation
-    var form = $("#wizard_with_validation").show();
+function loadWizard({ enableAllSteps = false } = {}) {
+
+    var form = $('#wizard_with_validation').show();
+    const [finish, next, previous] = ["Submeter", "Próximo", "Voltar"]
     form.steps({
         showFinishButtonAlways: false,
         enableFinishButton: false,
-        labels: {
-            finish: "Submeter",
-            next: "Próximo",
-            previous: "Voltar",
-        },
-        headerTag: "h3",
-        bodyTag: "fieldset",
-        transitionEffect: "slideLeft",
+        enableAllSteps,
+        labels: { finish, next, previous },
+        headerTag: 'h3',
+        bodyTag: 'fieldset',
+        transitionEffect: 'slideLeft',
         onInit: function (event, currentIndex) {
+
             //Set tab width
             var $tab = $(event.currentTarget).find('ul[role="tablist"] li');
             var tabCount = $tab.length;
-            $tab.css("width", 100 / tabCount + "%");
+            $tab.css('width', (100 / tabCount) + '%');
 
             //set button waves effect
             setButtonWavesEffect(event);
         },
         onStepChanging: function (event, currentIndex, newIndex) {
-            if (currentIndex > newIndex) {
-                return true;
-            }
+            if (currentIndex > newIndex) { return true; }
 
             if (currentIndex < newIndex) {
-                form.find(".body:eq(" + newIndex + ") label.error").remove();
-                form.find(".body:eq(" + newIndex + ") .error").removeClass("error");
+                form.find('.body:eq(' + newIndex + ') label.error').remove();
+                form.find('.body:eq(' + newIndex + ') .error').removeClass('error');
             }
-
-            //form.validate().settings.ignore = ':disabled,:hidden';
-            return form; //.valid();
+            return form//.valid();
         },
         onStepChanged: function (event, currentIndex, priorIndex) {
             setButtonWavesEffect(event);
         },
         onFinishing: function (event, currentIndex) {
-            //form.validate().settings.ignore = ':disabled';
-            return form; //.valid();
+            return form//.valid();
         },
         onFinished: function (event, currentIndex) {
             swal("Good job!", "Submitted!", "success");
-        },
+        }
     });
-
-    /* form.validate({
-            highlight: function (input) {
-                $(input).parents('.form-line').addClass('error');
-            },
-            unhighlight: function (input) {
-                $(input).parents('.form-line').removeClass('error');
-            },
-            errorPlacement: function (error, element) {
-                $(element).parents('.form-group').append(error);
-            },
-            rules: {
-                'confirm': {
-                    equalTo: '#password'
-                }
-            }
-        }); */
 }
 
 function setButtonWavesEffect(event) {
@@ -545,7 +505,7 @@ function disabledTaxaHoraria() {
     var typeCollaborator = e.options[e.selectedIndex].text;
     console.log('o valor do select é', typeCollaborator);
 
-    if(typeCollaborator == "Administrativo") {
+    if (typeCollaborator == "Administrativo") {
         document.getElementById("input-taxa-horaria").disabled = true;
     }
     else {

@@ -607,12 +607,12 @@ class Components {
                 ? instance
                 : (new Components).getNewParsedComponent(instance, cmpName);
             parentCmp[proxy] = cmp;
+            cmp.setParentComponent(parentCmp);
             const allProps = Object.entries(props);
             for (const [prop, value] of allProps) {
 
                 if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
                     const method = prop.replace('(', '').replace(')', '');
-                    const childValue = cmp[method];
                     cmp[method] = function (...param) {
                         return parentCmp[value.split('(')[0]](...param);
                     }

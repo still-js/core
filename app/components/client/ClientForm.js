@@ -232,29 +232,21 @@ class ClientForm extends ViewComponent {
 
     onRender() {
         this.showLoading();
+        this.routingData = Router.data('ClientForm');
         loadWizard({ enableAllSteps: this.routingData ? true : false });
-        /** Initializing Tinemce text editor */
-        tinymce.init({
-            selector: 'textarea#tinymce1',
-            theme: "modern",
-            height: 300,
-            plugins: [
-                'advlist autolink lists link image charmap print preview hr anchor pagebreak',
-                'searchreplace wordcount visualblocks visualchars code fullscreen',
-                'insertdatetime media nonbreaking save table contextmenu directionality',
-                'emoticons template paste textcolor colorpicker textpattern imagetools'
-            ],
-
-        });
     }
 
 
     registerClient() {
 
         this.showLoading();
+        let tipoClientId = this.tipoClienteId.value;
+        if (!tipoClientId || tipoClientId == '')
+            tipoClientId = this.routingData.value.tipo_id;
+
         const payload = {
             "denominacao": this.nome.value,
-            "tipo_id": this.tipoClienteId.value,
+            "tipo_id": tipoClientId,
             "nif": this.nif.value,
             "endereco": this.endereco.value,
             "pessoa_contacto": this.pessoaContacto.value,
@@ -262,6 +254,16 @@ class ClientForm extends ViewComponent {
             "nota": this.clientNota.value,
             "status": "pending"
         }
+
+        if (!this.routingData) {
+            this.saveClient(payload);
+        } else {
+            this.updateClient(payload);
+        }
+
+    }
+
+    saveClient(payload) {
 
         $still.HTTPClient.post(
             'http://localhost:3000/api/v1/cliente',
@@ -274,11 +276,37 @@ class ClientForm extends ViewComponent {
         ).then((r) => {
             this.hideLoading();
             Router.goto('ClientsGrid');
-            console.log(`Cliente criado com sucesso: `, r.data);
         }).catch((err) => {
             this.hideLoading();
             console.log(`Erro ao cadastrar cliente: `, err);
         });
+
+    }
+
+    updateClient(payload) {
+
+
+        const tipoCliente = this.routingData.value.tipo;
+        delete tipoCliente.created_at;
+        payload.id = this.routingData.value.id;
+        payload.tipo = tipoCliente;
+
+        $still.HTTPClient.put(
+            'http://localhost:3000/api/v1/cliente',
+            JSON.stringify(payload),
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then((r) => {
+            this.hideLoading();
+            Router.goto('ClientsGrid');
+        }).catch((err) => {
+            this.hideLoading();
+            console.log(`Erro ao cadastrar cliente: `, err);
+        });
+
     }
 
     stAfterInit() {

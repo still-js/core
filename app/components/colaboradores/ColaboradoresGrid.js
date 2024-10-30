@@ -46,12 +46,12 @@ class ColaboradoresGrid extends ViewComponent {
                                 <!-- <output of="dataSource"> -->
                                 <tbody (forEach)="dataSource">
                                     <tr each="item">
-                                        <td>{item.nomeCompleto}</td>
-                                        <td>{item.tipoColaborador}</td>
+                                        <td>{item.nome_completo}</td>
+                                        <td>{item.description}</td>
                                         <td>{item.funcao}</td>
                                         <td>{item.status}</td>
                                         <td class="center" >
-                                           <a title="Editar Colaborador" style="cursor: pointer" (click)="editColaborador('{item.idColaborador}')">
+                                           <a title="Editar Colaborador" style="cursor: pointer" (click)="editColaborador('{item.id}')">
                                                 <span class="fas fa-pencil-alt"></span>
                                            </a>
                                         </td>
@@ -71,122 +71,112 @@ class ColaboradoresGrid extends ViewComponent {
     this.setup({});
   }
 
-    async onRender() {
-        /**
-         * Isso quer dizer que o import do JQuery foi feito no index principal
-         * ou no ficheiro de rotas em eagerImport
-         */
-        this.stRunOnFirstLoad(() => {
-            $('.js-basic-example').DataTable({
-                responsive: true
-            });
-        });
+  async onRender() {
+    /**
+     * Isso quer dizer que o import do JQuery foi feito no index principal
+     * ou no ficheiro de rotas em eagerImport
+     */
+    this.stRunOnFirstLoad(() => {
+      $('.js-basic-example').DataTable({
+        responsive: true
+      });
+    });
 
-        /** For Test purpose only */
-        await this.stLazyExecution(async () => { });
-    }
+    /** For Test purpose only */
+    await this.stLazyExecution(async () => { });
+  }
 
-    gotoView(viewComponent){
-        Router.goto(viewComponent);
-    }
+  gotoView(viewComponent) {
+    Router.goto(viewComponent);
+  }
 
-    stAfterInit(val) {
-        $still
-            .HTTPClient
-            .get('http://localhost:3000/api/v1/colaborador/')
-            .then((r) => {
-                if(r.data) {
-                    console.log(r)
-                    this.makeColaboradorDTO(r.data);
-                }
-            });
-    }
 
-    editClient(nif) {
-        console.log(`Clicked client is: `, nif);
+  editClient(nif) {
+    console.log(`Clicked client is: `, nif);
 
-        const result = this.dataSource.value.filter((r) => r.nif == nif)
-        Router.goto('ClientForm', {
-            data: result[0]
-        });
+    const result = this.dataSource.value.filter((r) => r.nif == nif)
+    Router.goto('ClientForm', {
+      data: result[0]
+    });
 
-    }
+  }
 
-    makeColaboradorDTO(data) {
-        
+  makeColaboradorDTO(data) {
 
-        let initialObjectColaborador = {
-                idColaborador: null,
-                nomeCompleto: null,
-                nomeProfissional: null,
-                funcao: null,
-                dataNascimento: null,
-                status: null,
-                createdAt: null,
-                tipoColaborador: null,
-                identificacoes: [
-                    {
-                        code: null,
-                        descricao: null,
-                    }
-                ],
-                contactos: [
-                    {
-                        tipo: null,
-                        descricao: null,
-                    },
-                ],
-                custoFinanceiro:[
-                    {
-                        taxa_horaria: null,
-                    }
-                ]
-                 
-            }
-        
-        // this.dataSource = r.data;
-        let colaboradorData = []
 
-        for(let colaborador of data) {
-            colaboradorData.push(
-                {
-                    ...initialObjectColaborador, 
-                    idColaborador: colaborador.id,
-                    nomeCompleto: colaborador.nome_completo,
-                    nomeProfissional: colaborador.nome_profissional,
-                    funcao: colaborador.funcao,
-                    dataNascimento: colaborador.data_nascimento,
-                    status: colaborador.status,
-                    createdAt: colaborador.created_at,
-                    tipoColaborador: colaborador.tipo.description,
-                    identificacoes: 
-                            colaborador.identificacoes.map((item) => (
-                                {
-                                    code: item.tipo.code,
-                                    descricao: item.tipo.description
-                               })),
-                    contactos: 
-                            colaborador.contactos.map((item) => (
-                               { 
-                                    tipo: item.type,
-                                    descricao: item.descricao
-                                })),
-                    custoFinanceiro: colaborador.map((item) => (
-                        {
-                            taxa_horaria: item.taxa_horaria
-                        }))                                              
-                }
-            )
+    let initialObjectColaborador = {
+      idColaborador: null,
+      nomeCompleto: null,
+      nomeProfissional: null,
+      funcao: null,
+      dataNascimento: null,
+      status: null,
+      createdAt: null,
+      tipoColaborador: null,
+      identificacoes: [
+        {
+          code: null,
+          descricao: null,
         }
-
-        this.dataSource = colaboradorData
-        console.log(colaboradorData)
+      ],
+      contactos: [
+        {
+          tipo: null,
+          descricao: null,
+        },
+      ],
+      custoFinanceiro: [
+        {
+          taxa_horaria: null,
+        }
+      ]
 
     }
+
+    // this.dataSource = r.data;
+    let colaboradorData = []
+
+    for (let colaborador of data) {
+      colaboradorData.push(
+        {
+          ...initialObjectColaborador,
+          idColaborador: colaborador.id,
+          nomeCompleto: colaborador.nome_completo,
+          nomeProfissional: colaborador.nome_profissional,
+          funcao: colaborador.funcao,
+          dataNascimento: colaborador.data_nascimento,
+          status: colaborador.status,
+          createdAt: colaborador.created_at,
+          tipoColaborador: colaborador.tipo.description,
+          identificacoes:
+            colaborador.identificacoes.map((item) => (
+              {
+                code: item.tipo.code,
+                descricao: item.tipo.description
+              })),
+          contactos:
+            colaborador.contactos.map((item) => (
+              {
+                tipo: item.type,
+                descricao: item.descricao
+              })),
+          custoFinanceiro: colaborador.map((item) => (
+            {
+              taxa_horaria: item.taxa_horaria
+            }))
+        }
+      )
+    }
+
+    this.dataSource = colaboradorData
+    console.log(colaboradorData)
+
+  }
 
   editColaborador(idColaborador) {
     console.log('Edit colaborador', idColaborador);
-    alert('Edit colaborador')
+    const result = this.dataSource.value.filter((r) => r.id == idColaborador)
+    Router.goto('ColaboradorForm', { data: result[0] });
   }
 
   gotoView(viewComponent) {
@@ -197,8 +187,9 @@ class ColaboradoresGrid extends ViewComponent {
     $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
       (r) => {
         if (r.data) {
-          console.log(r);
-          this.makeColaboradorDTO(r.data);
+          console.log(r.data);
+          this.dataSource = r.data;
+          //this.makeColaboradorDTO(r.data);
         }
       }
     );
@@ -213,58 +204,58 @@ class ColaboradoresGrid extends ViewComponent {
     });
   }
 
-  makeColaboradorDTO(data) {
-    let initialObjectColaborador = {
-      idColaborador: null,
-      nomeCompleto: null,
-      nomeProfissional: null,
-      funcao: null,
-      dataNascimento: null,
-      status: null,
-      createdAt: null,
-      tipoColaborador: null,
-      identificacoes: [
-        {
-          code: null,
-          descricao: null,
-        },
-      ],
-      contactos: [
-        {
-          tipo: null,
-          descricao: null,
-        },
-      ],
-    };
-
-    // this.dataSource = r.data;
-    let colaboradorData = [];
-
-    for (let colaborador of data) {
-      colaboradorData.push({
-        ...initialObjectColaborador,
-        idColaborador: colaborador.id,
-        nomeCompleto: colaborador.nome_completo,
-        nomeProfissional: colaborador.nome_profissional,
-        funcao: colaborador.funcao,
-        dataNascimento: colaborador.data_nascimento,
-        status: colaborador.status,
-        createdAt: colaborador.created_at,
-        tipoColaborador: colaborador.tipo.description,
-        identificacoes: colaborador.identificacoes.map((item) => ({
-          code: item.tipo.code,
-          descricao: item.tipo.description,
-        })),
-        contactos: colaborador.contactos.map((item) => ({
-          tipo: item.type,
-          descricao: item.descricao,
-        })),
-      });
-    }
-
-    this.dataSource = colaboradorData;
-    console.log(colaboradorData);
-  }
+  /*   makeColaboradorDTO(data) {
+      let initialObjectColaborador = {
+        idColaborador: null,
+        nomeCompleto: null,
+        nomeProfissional: null,
+        funcao: null,
+        dataNascimento: null,
+        status: null,
+        createdAt: null,
+        tipoColaborador: null,
+        identificacoes: [
+          {
+            code: null,
+            descricao: null,
+          },
+        ],
+        contactos: [
+          {
+            tipo: null,
+            descricao: null,
+          },
+        ],
+      };
+  
+      // this.dataSource = r.data;
+      let colaboradorData = [];
+  
+      for (let colaborador of data) {
+        colaboradorData.push({
+          ...initialObjectColaborador,
+          idColaborador: colaborador.id,
+          nomeCompleto: colaborador.nome_completo,
+          nomeProfissional: colaborador.nome_profissional,
+          funcao: colaborador.funcao,
+          dataNascimento: colaborador.data_nascimento,
+          status: colaborador.status,
+          createdAt: colaborador.created_at,
+          tipoColaborador: colaborador.tipo.description,
+          identificacoes: colaborador.identificacoes.map((item) => ({
+            code: item.tipo.code,
+            descricao: item.tipo.description,
+          })),
+          contactos: colaborador.contactos.map((item) => ({
+            tipo: item.type,
+            descricao: item.descricao,
+          })),
+        });
+      }
+  
+      this.dataSource = colaboradorData;
+      console.log(colaboradorData);
+    } */
 
   /** For Test purpose only */
   /** @type { StEvent } */

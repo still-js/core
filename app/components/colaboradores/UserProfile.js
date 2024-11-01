@@ -123,9 +123,9 @@ class UserProfile extends ViewComponent {
 
   onRender() {
     loadWizard();
-
     const userLogged = JSON.parse(localStorage.getItem("_user"));
-    console.log(userLogged);
+
+    if(userLogged) {
 
     this.userName = userLogged.nome_completo;
 
@@ -133,7 +133,6 @@ class UserProfile extends ViewComponent {
       userLogged.nome_completo;
     document.getElementById("userFuncaoInput").innerHTML =
       userLogged.tipo.description;
-
 
     if(userLogged.identificacoes) {
         let templateIdentificacao = ``
@@ -164,8 +163,6 @@ class UserProfile extends ViewComponent {
     
     if(userLogged.contactos) {
         userLogged.contactos.map((item) => {
-            console.log(" >>>>< ", item)
-
             if(item.type === "telefone")
                 document.getElementById("userTelefoneInput").innerHTML = item.value
 
@@ -173,6 +170,8 @@ class UserProfile extends ViewComponent {
                 document.getElementById("userEmailInput").innerHTML = item.value
 
         })
+    }
+
     }
 
   }

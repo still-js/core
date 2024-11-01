@@ -590,7 +590,7 @@ class Components {
 
         /** @type { Array<ComponentPart> } */
         const cmpParts = parentCmp.$stillExternComponentParts;
-        const placeHolders = document.getElementsByTagName('still-placeholder');
+        const placeHolders = document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
         /**
          * Get all <st-element> component to replace with the
          * actual component template
@@ -635,7 +635,6 @@ class Components {
              */
             placeHolders[idx]
                 .insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
-            //cmpList[idx].insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
             setTimeout(async () => {
                 /**
                  * Runs the load method which is supposed

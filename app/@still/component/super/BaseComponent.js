@@ -686,11 +686,11 @@ class BaseComponent extends BehaviorComponent {
             this.$stillExternComponentParts.push(
                 new ComponentPart({
                     template: cmp.getBoundTemplate(), component: cmp,
-                    proxy, props
+                    proxy, props,
                 })
             );
 
-            return `<still-placeholder style="display:content;"></still-placeholder>`;
+            return `<still-placeholder style="display:content;" class="still-placeholder${this.getUUID()}"></still-placeholder>`;
 
         });
 

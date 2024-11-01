@@ -1,6 +1,7 @@
 class ColaboradorDashboard extends ViewComponent {
   htmlRefId = "clientDataTable";
   dataSource;
+
   /** @type { TabulatorComponent } */
   dataTable = Proxy;
   dataTableLabels = Prop(
@@ -17,11 +18,14 @@ class ColaboradorDashboard extends ViewComponent {
         icon: "<i class='fas fa-file-alt'></i>",
         width: 20,
       },
-      { title: "Estado", field: "estado", sorter: "string", width: 200 },
+      { title: "Estado", field: "estado", sorter: "string", width: 100 },
       { title: "Referência", field: "ref", sorter: "string" },
       { title: "Assunto", field: "assunto", sorter: "string" },
+      { title: "Área", field: "area", sorter: "string" },
+      { title: "Instituição", field: "instituicao", sorter: "string" },
       { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
       { title: "Cliente", field: "cliente", sorter: "string" },
+      { title: "Gestor", field: "gestor", sorter: "string" },
       { title: "Data Cadastro", field: "data_registo", sorter: "string" },
     ])
   );

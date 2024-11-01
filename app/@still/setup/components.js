@@ -181,6 +181,12 @@ class Components {
         });
     }
 
+
+    isAppLoaded() {
+        return document.getElementById('stillAppConst');
+    }
+
+
     /** @param { ViewComponent } cmp */
     renderPublicComponent(cmp) {
 

@@ -361,7 +361,7 @@ class TUICalendarComponent extends ViewComponent {
 
             }
 
-        }, 120);
+        }, 500);
 
     }
 

@@ -111,14 +111,10 @@ class ProcessosGrid extends ViewComponent {
      * Isso quer dizer que o import do JQuery foi feito no index principal
      * ou no ficheiro de rotas em eagerImport
      */
-    this.stRunOnFirstLoad(() => {
-      $(".js-basic-example").DataTable({
-        responsive: true,
-      });
-    });
+    this.stRunOnFirstLoad(() => { });
 
     /** For Test purpose only */
-    await this.stLazyExecution(async () => {});
+    await this.stLazyExecution(async () => { });
   }
 
   stAfterInit(val) {

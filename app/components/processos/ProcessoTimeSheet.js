@@ -59,21 +59,21 @@ class ProcessoTimeSheet extends ViewComponent {
       </div>
   
   
-      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
-        <div class="card">
-          <div class="body">
+      <div>
+        <div>
+          <div>
 
           <st-element
-          component="TUICalendarComponent"
-          proxy="timeSheet"
-          (onEventCreate)="saveEvent()"
-          editLabel="Editar"
-          milestoneTitle="Objectivo"
-          (onEventUpdate)="updateEvent()"
-          (onEventDeletion)="deleteEvent()"
-          proxy="calendarProxy"
-          >
-      </st-element> 
+              component="TUICalendarComponent"
+              proxy="timeSheet"
+              (onEventCreate)="saveEvent()"
+              editLabel="Editar"
+              milestoneTitle="Objectivo"
+              (onEventUpdate)="updateEvent()"
+              (onEventDeletion)="deleteEvent()"
+              proxy="calendarProxy"
+              >
+          </st-element> 
   
         </div>   
       </div>
@@ -104,7 +104,7 @@ class ProcessoTimeSheet extends ViewComponent {
     });
 
     /** For Test purpose only */
-    await this.stLazyExecution(async () => {});
+    await this.stLazyExecution(async () => { });
   }
 
   populateCalendarDTO(data) {
@@ -135,9 +135,9 @@ class ProcessoTimeSheet extends ViewComponent {
     ).then((r) => {
       if (r.status === 200) {
         try {
-         // this.populateAttributes(r.data[0]);
-         console.log(r)
-         console.log(r.data)
+          // this.populateAttributes(r.data[0]);
+          console.log(r)
+          console.log(r.data)
           this.populateCalendarDTO(r.data);
         } catch (e) {
           console.log("fn populates attributes", e);
@@ -151,7 +151,7 @@ class ProcessoTimeSheet extends ViewComponent {
       if (r.status === 200) {
         try {
           this.populateAttributes(r.data[0]);
-         // this.populateCalendarDTO(r.data);
+          // this.populateCalendarDTO(r.data);
         } catch (e) {
           console.log("fn populates attributes", e);
         }
@@ -185,15 +185,15 @@ class ProcessoTimeSheet extends ViewComponent {
   async saveEvent(data) {
     let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
 
-    //    return 0
     let payload = {
       tipoEventoId: data.calendarId = 'entrevista' ? 1 : 2,
-      processoId: this.processoId.value,
+      processoId: parseInt(this.processoId.value),
       descricao: data.title,
       dadosImportantes: JSON.stringify(data),
       dataInicio: data.start.d.d,
       dataFim: data.end.d.d,
       horas: horasCalculadas.toFixed(2),
+      colaboradorId: JSON.parse(localStorage.getItem('_user')).id
     };
 
     let response = await $still.HTTPClient.post(
@@ -214,7 +214,7 @@ class ProcessoTimeSheet extends ViewComponent {
       console.log("Salvo com sucesso");
       return true
     }
-    
+
   }
 
   updateEvent() {

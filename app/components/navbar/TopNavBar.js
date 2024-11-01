@@ -98,7 +98,7 @@ class CTopNavBar extends ViewComponent {
 
         setTimeout(() => {
             Router.goto("exit");
-        }, 2000)
+        }, 1000)
 
         /*if (this.isValidatedInputForm()) {
           $still.HTTPClient.post(

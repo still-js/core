@@ -28,7 +28,18 @@ class Router {
      */
     static goto(cmp, { data = {} } = { data: {} }) {
 
-        if (cmp === 'init') {
+        /**
+         * The or (||) conditions serves to mount the application 
+         * so the user can be redirected straight to a specific 
+         * page/page-component instead of being forced to go to 
+         * the main/home UI after the login,  as the page is not 
+         * rendered in case the app was not  
+         * loaded through ComponentSetup.get().loadComponent() 
+         */
+        if (
+            cmp === 'init'
+            || (AppTemplate.get().isAuthN() && !ComponentSetup.get().isAppLoaded())
+        ) {
             ComponentSetup.get().loadComponent();
         }
 

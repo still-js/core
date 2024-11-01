@@ -189,7 +189,7 @@ class ProcessoForm extends ViewComponent {
                                             <span class="input-group-addon">
                                                 <i class="material-icons">person</i> Fase
                                             </span>
-                                            <select (change)="updateFase($event)">
+                                            <select (change)="updateFase($event)" (value)="fase">
                                                 <option value="" disabled selected>Selecione a fase
                                                 </option>
                                                 <option value="Extrajudicial">Extrajudicial</option>
@@ -204,7 +204,7 @@ class ProcessoForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Instituição
                                         </span>
-                                    <select (change)="updateInstituicao($event)" (forEach)="listInstituicao">
+                                    <select (change)="updateInstituicao($event)" (value)="instituicaoId" (forEach)="listInstituicao">
                                         <option each="item" value="">Selecione uma opção</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
@@ -215,7 +215,7 @@ class ProcessoForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Modo de Facturação
                                         </span> 
-                                        <select (change)="updateModoFacturacao($event)" (forEach)="listModoFacturacao">
+                                        <select (change)="updateModoFacturacao($event)" (value)="modoFacturacaoId" (forEach)="listModoFacturacao">
                                             <option each="item" value="">Selecione uma opção</option>
                                             <option each="item" value="{item.id}">{item.descricao}</option>
                                         </select>
@@ -249,7 +249,7 @@ class ProcessoForm extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="material-icons">person</i> Cliente
                                     </span>
-                                    <select (change)="updateClientes($event)" (forEach)="listClientes">
+                                    <select (value)="clienteId" (change)="updateClientes($event)" (forEach)="listClientes">
                                         <option each="item" value="">Selecione uma opção</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
@@ -262,7 +262,7 @@ class ProcessoForm extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="material-icons">person</i> Estado
                                     </span>
-                                    <select (change)="updateEstado($event)" (forEach)="listEstado">
+                                    <select (change)="updateEstado($event)" (value)="statusId" (forEach)="listEstado">
                                         <option each="item" value="">Selecione uma opção</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select> 
@@ -303,7 +303,7 @@ class ProcessoForm extends ViewComponent {
                             </div>
                         </div>
 
-                            </div>                   
+                            </div>
                         <div style="display: flex;
                                     justify-content: end;
                                     align-items: center;"
@@ -378,12 +378,12 @@ class ProcessoForm extends ViewComponent {
 
         console.log("payload >>> ", payload);
 
-        if(this.id.value !== "" || this.id.value !== undefined) {
+        if (this.id.value !== "" || this.id.value !== undefined) {
             this.updateProcesso(payload)
         } else {
             this.saveProcesso(payload)
         }
-      
+
     }
 
 
@@ -412,7 +412,7 @@ class ProcessoForm extends ViewComponent {
                         //AppTemplate.get().store('logged', true);
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.id,
-                          });
+                        });
                         // aonde guardar os dados do user logado com seguranca
                     }
                 })
@@ -448,7 +448,7 @@ class ProcessoForm extends ViewComponent {
                         //AppTemplate.get().store('logged', true);
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.id,
-                          });
+                        });
                         // aonde guardar os dados do user logado com seguranca
                     }
                 })
@@ -461,7 +461,7 @@ class ProcessoForm extends ViewComponent {
     isValidInputForm() {
         return true;
     }
-    
+
     getListColaboradores() {
         $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
             (r) => {
@@ -546,35 +546,37 @@ class ProcessoForm extends ViewComponent {
 
         console.log("ProcessoFrom ID >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", idP)
 
-        if(idP) {
-            this.id = idP;
-            this.getProcessoById(idP)
-        } 
-
         this.getListPrecedentes();
         this.getListColaboradores();
         this.getListClientes();
+
+
+        if (idP) {
+            this.id = idP;
+            this.getProcessoById(idP)
+        }
+
     }
 
     getProcessoById(id) {
 
         $still.HTTPClient.get(
-          `http://localhost:3000/api/v1/processo/${id}`
+            `http://localhost:3000/api/v1/processo/${id}`
         ).then((r) => {
-          if (r.status === 200) {
-            try {
-              this.populateAttributes(r.data[0]);
-            } catch (e) {
-              console.log("fn populates attributes", e);
+            if (r.status === 200) {
+                try {
+                    this.populateAttributes(r.data[0]);
+                } catch (e) {
+                    console.log("fn populates attributes", e);
+                }
             }
-          }
         });
 
 
     }
 
     populateAttributes(data) {
-        
+
         console.log("populateAttributes - data >>>>>> <<<<<<<<<<<<< ", data.contra_parte);
 
         this.id = data.id;
@@ -588,52 +590,52 @@ class ProcessoForm extends ViewComponent {
         this.clienteId = data.cliente_id;
         this.gestorId = data.gestor_id;
         this.contraParte = data.contra_parte;
-        this.dataRegisto = data.data_registo; 
+        this.dataRegisto = data.data_registo;
         this.dataSuspensao = data.data_suspensao;
-        this.dataEncerramento = data.data_encerramento;    
+        this.dataEncerramento = data.data_encerramento;
         this.metodologia = data.metodologia;
         this.estrategia = data.estrategia;
         this.factos = data.factos;
         this.objectivos = data.objectivos;
         this.dadosImportantes = data.dados_importantes;
         this.statusId = data.status_id;
-    
+
         this.createdAt = data.created_at;
         this.updatedAt = data.updated_at;
-    
+
         this.instituicao = data.instituicao;
         this.modo_facturacao = data.modo_facturacao;
         this.cliente = data.cliente;
         this.tipoCliente = data.tipo_cliente;
         this.gestor = data.gestor;
-    
+
         //this.precedentes = data.precedentes ? data.precedentes : [];
         //this.equipas = data.equipas ? data.equipas : [];
         //this.tarefas = data.tarefas ? data.tarefas : [];
         //this.anexos = data.anexos ? data.anexos : [];
-    
+
         /** Setters values  */
-       // this.setValueById('input_metodologia', this.metodologia.value)
-       // this.setValueById('input_estrategias', this.estrategia.value)
-       // this.setValueById('input_objectivos', this.objectivos.value)
-       // this.setValueById('input_factos', this.factos.value)
-       // this.setValueById('input_dados_importantes', this.dadosImportantes.value)
-    
-   //     /** details */
-   //     //this.setValueById('input_estado', this.estado.value)
-   //     //this.setValueById('input_referencia', this.referencia.value)
-   //     //this.setValueById('input_assunto', this.assunto.value)
-   //     //this.setValueById('input_area', this.area.value)
-   //     //this.setValueById('input_fase', this.fase.value)
+        // this.setValueById('input_metodologia', this.metodologia.value)
+        // this.setValueById('input_estrategias', this.estrategia.value)
+        // this.setValueById('input_objectivos', this.objectivos.value)
+        // this.setValueById('input_factos', this.factos.value)
+        // this.setValueById('input_dados_importantes', this.dadosImportantes.value)
+
+        //     /** details */
+        //     //this.setValueById('input_estado', this.estado.value)
+        //     //this.setValueById('input_referencia', this.referencia.value)
+        //     //this.setValueById('input_assunto', this.assunto.value)
+        //     //this.setValueById('input_area', this.area.value)
+        //     //this.setValueById('input_fase', this.fase.value)
         //this.setValueById('input_instituicao', this.instituicao.value)
         //this.setValueById('input_modo_facturacao', this.modo_facturacao.value)
         //this.setValueById('input_cliente', this.cliente.value)
         //this.setValueById('input_gestor', this.gestor.value)
-    
+
         console.log("here...")
         console.log(this.contraParte.value)
-    
-      }
+
+    }
 
     /** fn updates */
     updateFase(evt) {

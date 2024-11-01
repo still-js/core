@@ -140,13 +140,36 @@ class ProcessoForm extends ViewComponent {
     template = `
     <section class="content">
     <div class="row clearfix">
-        <div class="title-grid-component">
-            <span class="fas fa-folder title-grid-component-icon"></span>
-            <h3>Novo Processo</h3>
-            <span class="title-grid-component-description">cria um novo processo</span>
+        
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+        <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <ul class="breadcrumb breadcrumb-style" style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px
+            margin-top: 10px
+            ;">
+                <li class="breadcrumb-item 	bcrumb-1">
+                    <a href="/">
+                        <i class="material-icons">home</i>
+                        Home</a>
+                </li>
+                <li class="breadcrumb-item bcrumb-1 active">Processo</li>
+                <li class="breadcrumb-item active">Lista dos Processos</li>
+            </ul>
+        </div>             
         </div>
 
+        
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div>
+                <h2>Novo Processo</h2>
+                <p>Crie um novo Processo</p>
+            </div>
+
             <div class="card">
                 <div class="header">
                     <h2><strong>Cadastro</strong> de processo</h2>
@@ -317,7 +340,8 @@ class ProcessoForm extends ViewComponent {
     </div>
     </div>
 </section>
-        `;
+        
+    `;
 
     constructor() {
         super();
@@ -330,26 +354,10 @@ class ProcessoForm extends ViewComponent {
         });
     }
 
-    onRender() {
-        loadWizard();
-        tinymce.init({
-            selector: "textarea#tinymce1",
-            theme: "modern",
-            height: 300,
-            plugins: [
-                "advlist autolink lists link image charmap print preview hr anchor pagebreak",
-                "searchreplace wordcount visualblocks visualchars code fullscreen",
-                "insertdatetime media nonbreaking save table contextmenu directionality",
-                "emoticons template paste textcolor colorpicker textpattern imagetools",
-            ],
-        });
-    }
-
     registerProcesso() {
-
         this.precedentes = listPrecedentesArray.length ? listPrecedentesArray.map((el) => el.id) : []
-        this.equipas = listEquipasArray.length ? listEquipasArray.map((el) => el.id) : []
-        this.tarefas = listTarefasArray
+        // this.equipas = listEquipasArray.length ? listEquipasArray.map((el) => el.id) : []
+        // this.tarefas = listTarefasArray
 
         const payload = {
             "assunto": this.assunto.value,
@@ -378,7 +386,9 @@ class ProcessoForm extends ViewComponent {
 
         console.log("payload >>> ", payload);
 
-        if (this.id.value !== "" || this.id.value !== undefined) {
+        console.log(">>>>>>>>>>>> here ", this.id)
+
+        if (this.id.value !== "") {
             this.updateProcesso(payload)
         } else {
             this.saveProcesso(payload)
@@ -472,28 +482,12 @@ class ProcessoForm extends ViewComponent {
                     for (let colaborador of r.data) {
                         colaboradorData.push({
                             id: colaborador.id,
-                            descricao: `${colaborador.tipo.description} - ${colaborador.nome_completo}`,
+                            descricao: `${colaborador.description} - ${colaborador.nome_completo}`,
                         });
-
-                        if (colaborador.funcao.includes("adv")) {
-                            equipasData.push({
-                                id: colaborador.id,
-                                descricao: `${colaborador.tipo.description} - ${colaborador.nome_completo}`,
-                            });
-                        }
                     }
 
-                    this.listEquipas = equipasData;
+                    //this.listEquipas = equipasData;
                     this.listColaboradores = colaboradorData;
-
-                    console.log(
-                        "getListColaboradores - COLABORADORES >>>>>> ",
-                        this.listColaboradores
-                    );
-                    console.log(
-                        "getListColaboradores - EQUIPAS >>>>>> ",
-                        this.listEquipas
-                    );
                 }
             }
         );
@@ -521,41 +515,15 @@ class ProcessoForm extends ViewComponent {
         });
     }
 
-    getListPrecedentes() {
-        $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
-            (r) => {
-                if (r.data) {
-                    let processoData = [];
-
-                    for (let processo of r.data) {
-                        processoData.push({
-                            id: processo.id,
-                            descricao: `${processo.assunto} - ${processo.ref}`,
-                        });
-                    }
-
-                    this.listPrecedentes = processoData;
-                    console.log("getListPrecedentes >>> ", this.listPrecedentes);
-                }
-            }
-        );
-    }
-
     stAfterInit() {
         const idP = Router.data("ProcessoForm");
-
-        console.log("ProcessoFrom ID >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", idP)
-
-        this.getListPrecedentes();
         this.getListColaboradores();
         this.getListClientes();
-
 
         if (idP) {
             this.id = idP;
             this.getProcessoById(idP)
         }
-
     }
 
     getProcessoById(id) {

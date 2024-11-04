@@ -94,7 +94,7 @@ class ColaboradorDashboard extends ViewComponent {
             tableHeader="parent.dataTableLabels"
             (onEditColumn)="getTimeSheetProcesso(fieldName, data)"
             (onDeleteRow)="getDetailsProcesso(fieldName, data)"
-            (onCellClick)="cellClick(row, col, data)"
+            (onCellClick)="detalheProcesso(row, col, data)"
           >
           </st-element>
         </div>
@@ -149,6 +149,12 @@ class ColaboradorDashboard extends ViewComponent {
   }
 
   getDetailsProcesso(_, record) {
+    Router.goto("ProcessoDetalhes", {
+      data: record.id,
+    });
+  }
+
+  detalheProcesso(_,_col, record) {
     Router.goto("ProcessoDetalhes", {
       data: record.id,
     });

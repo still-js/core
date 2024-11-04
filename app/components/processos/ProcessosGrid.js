@@ -99,17 +99,6 @@ class ProcessosGrid extends ViewComponent {
     Router.goto(viewComponent);
   }
 
-  async onRender() {
-    /**
-     * Isso quer dizer que o import do JQuery foi feito no index principal
-     * ou no ficheiro de rotas em eagerImport
-     */
-    this.stRunOnFirstLoad(() => { });
-
-    /** For Test purpose only */
-    await this.stLazyExecution(async () => { });
-  }
-
   stAfterInit(val) {
     $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
       (r) => {
@@ -129,6 +118,12 @@ class ProcessosGrid extends ViewComponent {
   editProcesso(_, record) {
     Router.goto("ProcessoForm", {
       data: record.id,
+    });
+  }
+
+  cellClick(row, col, data) {
+    Router.goto("ProcessoDetalhes", {
+      data: data.id,
     });
   }
 }

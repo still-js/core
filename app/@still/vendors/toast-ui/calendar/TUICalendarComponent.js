@@ -96,7 +96,7 @@ class TUICalendarComponent extends ViewComponent {
         const calendar = this.calendar;
         calendar.on('beforeUpdateEvent', async ({ event, changes }) => {
 
-            const wasEventUpdated = await this.onEventUpdate();
+            const wasEventUpdated = await this.onEventUpdate(event, changes);
             if (wasEventUpdated) {
                 calendar.updateEvent(
                     event.id, event.calendarId, changes

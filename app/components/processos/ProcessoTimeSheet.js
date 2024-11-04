@@ -278,14 +278,60 @@ class ProcessoTimeSheet extends ViewComponent {
 
   }
 
-  updateEvent() {
+  async updateEvent(evt, data) {
+
+    console.log("<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>    ",  evt)
+
+    console.log("update >>>>>>>>>>> ", data)
+
+    if(this.userLoggedIn.value.id === "")
+        alert("Nenhum Colaborador definido.")
+
+    /*
+
+    let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
+
+    let payload = {
+      tipoEventoId: data.calendarId = 'entrevista' ? 1 : 2,
+      // processoId: parseInt(this.processoId.value),
+      descricao: data.title,
+      dadosImportantes: JSON.stringify(data),
+      dataInicio: data.start.d.d,
+      dataFim: data.end.d.d,
+      horas: horasCalculadas.toFixed(2),
+      // colaboradorId: this.userLoggedIn.value.id
+    };
+
+    let response = await $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/processo_time_sheets",
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+
+    console.log("save response", response);
+    if (response.status !== 201) {
+      console.log(response.errors);
+      return false
+    } else {
+      console.log("Salvo com sucesso");
+      return true
+    }
+
+
+    */
+
     /**
      * Pôr a regra de negócio e a chamada a BD,
      * retornar true apenas se for salvo com sucess
      * caso contrário retornar false
      */
     alert("Event update called from parent");
-    return true;
+    return false;
+
   }
 
   deleteEvent() {

@@ -37,26 +37,18 @@ class ProcessoForm extends ViewComponent {
         {
             id: 1,
             descricao: "Rascunho",
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 2,
             descricao: "Proposta",
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 3,
             descricao: "Suspenso",
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 4,
             descricao: "Encerrado",
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
     ];
 
@@ -212,7 +204,10 @@ class ProcessoForm extends ViewComponent {
                                             <span class="input-group-addon">
                                                 <i class="material-icons">person</i> Fase
                                             </span>
-                                            <select (change)="updateFase($event)" (value)="fase">
+                                            <select 
+                                                (change)="updateFase($event)" 
+                                                (value)="fase"
+                                                >
                                                 <option value="" disabled selected>Selecione a fase
                                                 </option>
                                                 <option value="Extrajudicial">Extrajudicial</option>
@@ -355,7 +350,7 @@ class ProcessoForm extends ViewComponent {
     }
 
     registerProcesso() {
-        this.precedentes = listPrecedentesArray.length ? listPrecedentesArray.map((el) => el.id) : []
+        // this.precedentes = listPrecedentesArray.length ? listPrecedentesArray.map((el) => el.id) : []
         // this.equipas = listEquipasArray.length ? listEquipasArray.map((el) => el.id) : []
         // this.tarefas = listTarefasArray
 
@@ -385,8 +380,6 @@ class ProcessoForm extends ViewComponent {
         };
 
         console.log("payload >>> ", payload);
-
-        console.log(">>>>>>>>>>>> here ", this.id)
 
         if (this.id.value !== "") {
             this.updateProcesso(payload)
@@ -453,11 +446,14 @@ class ProcessoForm extends ViewComponent {
                         alert(response.errors);
                         // Router.goto('Init');
                     } else {
-                        alert("Salvo com sucesso");
+                        alert("Alterações salvas com sucesso");
                         console.log("cadastro do colaborador ... ", response);
+                        console.log("cadastro do colaborador ... >> ", response.data);
+                        console.log("cadastro do colaborador ... >> ", response.data.data[0]);
                         //AppTemplate.get().store('logged', true);
+
                         Router.goto("ProcessoDetalhes", {
-                            data: response.data.id,
+                            data: response.data.data[0].id,
                         });
                         // aonde guardar os dados do user logado com seguranca
                     }
@@ -545,7 +541,7 @@ class ProcessoForm extends ViewComponent {
 
     populateAttributes(data) {
 
-        console.log("populateAttributes - data >>>>>> <<<<<<<<<<<<< ", data.contra_parte);
+        console.log("populateAttributes - data >>>>>>  ", data);
 
         this.id = data.id;
         this.estado = data.estado;
@@ -577,32 +573,18 @@ class ProcessoForm extends ViewComponent {
         this.tipoCliente = data.tipo_cliente;
         this.gestor = data.gestor;
 
-        //this.precedentes = data.precedentes ? data.precedentes : [];
-        //this.equipas = data.equipas ? data.equipas : [];
-        //this.tarefas = data.tarefas ? data.tarefas : [];
-        //this.anexos = data.anexos ? data.anexos : [];
+        setTimeout(() => {
+            if(this.dataRegisto.value)
+                document.getElementById('dataRegistoInput').value = this.dataRegisto.value.substr(0,10)
 
-        /** Setters values  */
-        // this.setValueById('input_metodologia', this.metodologia.value)
-        // this.setValueById('input_estrategias', this.estrategia.value)
-        // this.setValueById('input_objectivos', this.objectivos.value)
-        // this.setValueById('input_factos', this.factos.value)
-        // this.setValueById('input_dados_importantes', this.dadosImportantes.value)
+            if(this.dataSuspensao.value)
+                document.getElementById('dataSuspensaoInput').value = this.dataSuspensao.value.substr(0,10)
 
-        //     /** details */
-        //     //this.setValueById('input_estado', this.estado.value)
-        //     //this.setValueById('input_referencia', this.referencia.value)
-        //     //this.setValueById('input_assunto', this.assunto.value)
-        //     //this.setValueById('input_area', this.area.value)
-        //     //this.setValueById('input_fase', this.fase.value)
-        //this.setValueById('input_instituicao', this.instituicao.value)
-        //this.setValueById('input_modo_facturacao', this.modo_facturacao.value)
-        //this.setValueById('input_cliente', this.cliente.value)
-        //this.setValueById('input_gestor', this.gestor.value)
-
-        console.log("here...")
-        console.log(this.contraParte.value)
-
+            if(this.dataEncerramento.value)
+                document.getElementById('dataEncerramentoInput').value = this.dataEncerramento.value.substr(0,10)
+    
+        }, 500)
+     
     }
 
     /** fn updates */
@@ -650,170 +632,7 @@ class ProcessoForm extends ViewComponent {
         this.dataEncerramento = document.getElementById("dataEncerramentoInput").value
     }
 
-    async addPrecedentesProcesso() {
-
-        let response = await $still.HTTPClient.get(`http://localhost:3000/api/v1/processo/${this.precedenteInput.value}`)
-        const precedente = response.data[0]
-
-        console.log("precedente", precedente)
-
-        listPrecedentesArray.push({
-            "id": precedente.id,
-            "ref": precedente.ref,
-            "assunto": precedente.assunto
-        });
-
-        console.log(listPrecedentesArray);
-        displayPrecedentes();
-    }
-
-    addTarefaProcesso() {
-        listTarefasArray.push(this.tarefaInput.value);
-        console.log(listTarefasArray);
-        displayTarefas();
-        setTimeout(() => {
-            this.tarefaInput = ""
-        }, 1000)
-    }
-
-    async addEquipaProcesso() {
-        let response = await $still.HTTPClient.get(`http://localhost:3000/api/v1/colaborador/${this.equipaInput.value}`)
-        const colaborador = response.data[0]
-
-        listEquipasArray.push({
-            "id": colaborador.id,
-            "nome": colaborador.nome_completo,
-            "funcao": colaborador.tipo.description
-        });
-        //this.precedentes.push(this.precedenteInput.value);
-        displayEquipas();
-    }
-
 }
-
-
-function removePrecedente(elm) {
-    listPrecedentesArray = listPrecedentesArray.filter(el => el.id != elm.dataset.id)
-    console.log(listPrecedentesArray)
-    displayPrecedentes()
-}
-
-function displayPrecedentes() {
-    let frame = document.getElementById("divListProcessosAssociados");
-    let templateFrame = `
-    <div style="background-color: #f2f2f2; width: 80%">
-        <div>
-            <table class="table bordered" width="70%">
-                <tr>
-                    <th>Ref. Processo </th>
-                    <th>Assunto </th>
-                    <th>&nbsp;</th>
-                </tr>
-            `;
-    for (let precedente of listPrecedentesArray) {
-        templateFrame += `
-                <tr>
-                    <td>${precedente.ref}</td>
-                    <td>${precedente.assunto}</td>
-                    <td>
-                        <span data-id=${precedente.id} onClick="removePrecedente(this)" style="cursor: pointer">
-                        <i class="fas fa-trash"></i>
-                        </span>
-                    </td>                            
-                </tr>
-            `;
-    }
-
-    templateFrame += `</table>
-        </div>
-    </div>`;
-    console.log(frame);
-    frame.innerHTML = templateFrame;
-
-}
-
-
-function removeTarefa(elm) {
-    listTarefasArray = listTarefasArray.filter(el => el != elm.dataset.id)
-    displayTarefas()
-}
-
-function displayTarefas() {
-
-    let frame = document.getElementById("divListTarefasProcesso");
-    let templateFrame = `
-    <div style="background-color: #f2f2f2; width: 80%">
-        <div>
-            <table class="table bordered" width="70%">
-                <tr>
-                    <th>Tarefa</th>
-                    <th>Estado</th>
-                    <th>Remover</th>
-                </tr>
-            `;
-    for (let tarefa of listTarefasArray) {
-        templateFrame += `
-                <tr>
-                    <td>${tarefa}</td>
-                    <td><input type="checkbox" id="horns" name="horns" /></td>
-                    <td>
-                        <span data-id=${tarefa} onClick="removeTarefa(this)" style="cursor: pointer">
-                        <i class="fas fa-trash"></i>
-                        </span>
-                    </td>                            
-                </tr>
-            `;
-    }
-
-    templateFrame += `</table>
-        </div>
-    </div>`;
-    console.log(frame);
-    frame.innerHTML = templateFrame;
-
-}
-
-
-
-function removeEquipa(elm) {
-    listEquipasArray = listEquipasArray.filter((el) => el.id != elm.dataset.id)
-    displayEquipas()
-}
-
-function displayEquipas() {
-
-    let frame = document.getElementById("divListEquipa");
-    let templateFrame = `
-    <div style="background-color: #f2f2f2; width: 80%">
-        <div>
-            <table class="table bordered" width="70%">
-                <tr>
-                    <th>Nome </th>
-                    <th>Tipo</th>
-                    <th>&nbsp;</th>
-                </tr>
-            `;
-    for (let equipa of listEquipasArray) {
-        templateFrame += `
-                <tr>
-                    <td>${equipa.nome}</td>
-                    <td>${equipa.funcao}</td>
-                    <td>
-                        <span data-id=${equipa.id} onClick="removeEquipa(this)" style="cursor: pointer">
-                        <i class="fas fa-trash"></i>
-                        </span>
-                    </td>                            
-                </tr>
-            `;
-    }
-
-    templateFrame += `</table>
-        </div>
-    </div>`;
-    frame.innerHTML = templateFrame;
-
-}
-
 
 /*
 function loadWizard() {
@@ -872,7 +691,3 @@ function setButtonWavesEffect(event) {
         .addClass("waves-effect");
 }
 */
-
-let listPrecedentesArray = [];
-let listTarefasArray = [];
-let listEquipasArray = [];

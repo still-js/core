@@ -95,7 +95,7 @@ class ProcessoTimeSheet extends ViewComponent {
             <div style="margin-bottom: 5px">
               <div style="font-weight: bold;">Total de Horas</div>
               <div>
-               <i class="fas fa-clock"></i> <span id="horasInputId"> 0 </span> horas
+               <i class="fas fa-clock"></i> <span id="horasInputId"> 0 </span>horas
               </div>
             </div>
 
@@ -103,6 +103,8 @@ class ProcessoTimeSheet extends ViewComponent {
 
         </div>
       </div>
+
+
 
       </div>
          
@@ -188,7 +190,7 @@ class ProcessoTimeSheet extends ViewComponent {
     this.processoId = routeData
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo_time_sheets/${routeData}/${this.userLoggedIn.value.id}`
+      `http://localhost:3000/api/v1/processo_time_sheets/${routeData}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -239,10 +241,8 @@ class ProcessoTimeSheet extends ViewComponent {
 
   async saveEvent(data) {
 
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>   ", this.userLoggedIn.value.id)
-
-    if(this.userLoggedIn.value.id === "")
-        alert("Nenhum Colaborador definido.")
+    if(this.userLoggedIn.id === "")
+        return alert("Nenhum Colaborador definido.")
 
     let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
 
@@ -254,7 +254,7 @@ class ProcessoTimeSheet extends ViewComponent {
       dataInicio: data.start.d.d,
       dataFim: data.end.d.d,
       horas: horasCalculadas.toFixed(2),
-      colaboradorId: this.userLoggedIn.value.id
+      colaboradorId: this.userLoggedIn.id
     };
 
     let response = await $still.HTTPClient.post(

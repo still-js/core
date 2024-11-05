@@ -2,9 +2,9 @@ class TabulatorComponent extends ViewComponent {
 
     template = `
         <div>
-            <section class="tabulator-table-menu-container">
+            <!--<section class="tabulator-table-menu-container">
                 <div (click)="myEvent()">Menu 1</div>
-            </section>
+            </section> -->
             <div>
                 <div class="this-is-me" id="@dynCmpGeneratedId"></div>
             </div>

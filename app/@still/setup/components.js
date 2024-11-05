@@ -303,7 +303,24 @@ class Components {
 
             const inspectField = cmp[field];
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop') {
+                const listenerFlag = inspectField?.listenerFlag;
                 cmp[field] = cmp[field].value;
+                if (listenerFlag) {
+
+                    cmp.__defineGetter__(field, () => inspectField.inVal);
+
+                    cmp.__defineSetter__(field, (val) => {
+                        cmp[field];
+                        const elmList = document.getElementsByClassName(inspectField.listenerFlag);
+                        for (const elm of elmList) {
+                            if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
+                            else elm.classList.add($stillconst.PART_HIDE_CSS);
+                        }
+
+                        cmp.__defineGetter__(field, () => val);
+                    });
+
+                }
             } else {
 
                 Object.assign(cmp, { ['$still_' + field]: cmp[field] || '' });
@@ -674,6 +691,40 @@ class Components {
                 elm.innerHTML = '';
             }
         }, 500);
+
+    }
+
+    /**
+     * 
+     * @param {ViewComponent} cls 
+     * @returns { string } 
+     */
+    static generatePropListener(cls, prop) {
+
+        //const clsListener = 'stillFlagListener' + Math.random().toString().split('.')[1];
+        const clsListener = 'vamo';
+        const initialValue = cls[prop];
+        //cls[prop] = '';
+        console.log(`Class value is: `, cls[prop]);
+
+        /* Object.assign(cls, {
+            [`set ${prop}`](value) {
+                console.log(`New prop value assigned: `, value, prop);
+            },
+        }) */
+
+        /* cls.__defineSetter__(prop, (value) => {
+
+            //const elmList = document.getElementsByClassName(clsListener);
+            //for (const elm of elmList) {
+            //    elm.style.display = value == true ? '' : 'false';
+            //}
+
+        }); */
+
+        console.log(cls);
+
+        return clsListener;
 
     }
 

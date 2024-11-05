@@ -601,7 +601,18 @@ class Components {
          * Get all <st-element> component to replace with the
          * actual component template
          */
+
+
         for (let idx = 0; idx < cmpParts.length; idx++) {
+            const parentClss = placeHolders[idx].parentNode.classList;
+
+            /**
+             * Preventing this component to be instantiated in case it 
+             * should not be rendered due to the (renderIf) flag value
+             * is found to be false
+             */
+            if (parentClss.contains($stillconst.PART_REMOVE_CSS))
+                continue;
 
             const { proxy, component: instance, props } = cmpParts[idx];
             let cmpName;

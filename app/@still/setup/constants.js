@@ -18,6 +18,7 @@ const $stillconst = {
     APP_PLACEHOLDER: 'stillAppPlaceholder',
     PART_HIDE_CSS: 'still-hide-view-part',
     PART_REMOVE_CSS: 'still-del-view-part',
+    SUBSEQUENT_NO_PARSE: 'please-do-not-parse-me-still',
 
 
 

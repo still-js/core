@@ -412,14 +412,24 @@ class BaseComponent extends BehaviorComponent {
      */
     getBoundRender(template) {
 
-        const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \"]{0,}/.source;
+        const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \" \.]{0,}/.source;
         const matchRenderIfRE = /\(renderIf\)\="[A-Za-z \. \( \)]{0,}\"/;
         const matchShowIfRE = /\(showIf\)\="[A-Za-z \. \( \)]{0,}\"/;
         const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
         const reRIf = new RegExp(extremRe + matchRenderIfRE.source + extremRe, 'gi');
         const cls = this;
 
-        template = template.replace(reRIf, (mt) => {
+        template = this.parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE);
+
+
+        return template;
+    }
+
+    parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE) {
+
+        const cls = this;
+        return template.replace(reRIf, (mt) => {
+
             const cleanMatching = mt.replace('\n', '').replace(/\s{0,}/, '');
             let result = mt;
             if (cleanMatching.charAt(0) == '<') {
@@ -451,14 +461,36 @@ class BaseComponent extends BehaviorComponent {
                  * then mark this view part to be removed 
                  */
                 if (!renderFlagValue.value) {
+
+                    const isThereShowIf = mt.match(matchShowIfRE);
+                    /**
+                     * Remove Show if from the tag since showIf is 
+                     * irrelevant in case Render if is false
+                     */
+                    if (isThereShowIf) mt = mt.replace(matchShowIfRE, '');
+
                     const hide = $stillconst.PART_HIDE_CSS;
                     const remove = $stillconst.PART_REMOVE_CSS;
+                    const noparse = $stillconst.SUBSEQUENT_NO_PARSE;
                     if (mt.indexOf('class="') > 0) {
+                        /**
+                         * .replace('class="', `class="${hide} ${remove} `) 
+                         *      Mark the component part to be remove and to be hidden beforehand on bellow stmt
+                         *      in this situation, there is a classe stated already, it adds the two new classes
+                         * 
+                         * .replace(matchInstance, '');
+                         *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code
+                         */
                         result = mt
-                            .replace('class="', `class="${hide} ${remove} `)
+                            .replace('class="', `${noparse} class="${hide} ${remove} `)
                             .replace(matchInstance, '');
                     } else {
-                        result = mt.replace(matchInstance, `class="${hide} ${remove}"`);
+                        /**
+                         * .replace(matchInstance, `class="${hide} ${remove}"`) 
+                         *      Replace the (renderIf)="anything" directive and value with 
+                         *      classes for both hide and remove the view part
+                         */
+                        result = mt.replace(matchInstance, `${noparse} class="${hide} ${remove}"`);
                     }
                 } else {
                     result = mt.replace(matchInstance, '');
@@ -466,7 +498,6 @@ class BaseComponent extends BehaviorComponent {
             }
             return result;
         });
-        return template;
     }
 
     incrementLoadCounter() {

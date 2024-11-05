@@ -2,7 +2,7 @@ class POC extends ViewComponent {
 
     //AppTemplate.get().getStorageValue('persmissions').canSeeGrid
     showHideGrid = Prop(true);
-    canUserSeeGrid = Prop(false);
+    canUserSeeGrid = Prop(true);
     htmlRefId = 'clientDataTable';
     dataSource;
     /** @type { TabulatorComponent } */
@@ -69,7 +69,9 @@ class POC extends ViewComponent {
                   flag values (true/false)
                   (showIf)="self.canUserSeeGrid"
                   -->
-                  
+                
+        <button (click)="showDemo()">Mostra</button>
+        <button (click)="hideDemo()">Ocultar</button>
         <span 
             (renderIf)="self.canUserSeeGrid"
             (showIf)="self.showHideGrid"
@@ -109,6 +111,16 @@ class POC extends ViewComponent {
         super();
         this.setup({});
         this.showLoading();
+    }
+
+    showDemo() {
+        console.log(`VALUE IS: `, this.showHideGrid);
+        this.showHideGrid = this.showHideGrid ? false : true;
+    }
+
+    hideDemo() {
+        console.log(`VALUE IS: `, this.showHideGrid);
+        this.showHideGrid = false;
     }
 
     deleteRow(_, record) {
@@ -269,7 +281,7 @@ class POC extends ViewComponent {
                 }
             );
 
-            return formatter.format(amount) + `${cents}`;
+            return formatter.format(amount) + `${cents} `;
         }
 
     }

@@ -413,19 +413,73 @@ class BaseComponent extends BehaviorComponent {
     getBoundRender(template) {
 
         const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \" \.]{0,}/.source;
-        const matchRenderIfRE = /\(renderIf\)\="[A-Za-z \. \( \)]{0,}\"/;
-        const matchShowIfRE = /\(showIf\)\="[A-Za-z \. \( \)]{0,}\"/;
+        const matchRenderIfRE = /\(renderIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
+        const matchShowIfRE = /\(showIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
         const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
         const reRIf = new RegExp(extremRe + matchRenderIfRE.source + extremRe, 'gi');
-        const cls = this;
+        const handleError = this.#handleErrorMessage;
 
-        template = this.parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE);
+        console.log(template.match(matchRenderIfRE));
 
+        template = this.parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE, handleError);
+        template = this.parseShowIf(template, reSIf, matchShowIfRE, handleError);
 
         return template;
     }
 
-    parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE) {
+    parseShowIf(template, reSIf, matchShowIfRE, handleErrorMessage) {
+        const cls = this;
+        return template.replace(reSIf, (mt) => {
+
+            let result = mt;
+            const cleanMatching = mt.replace('\n', '').replace(/\s{0,}/, '');
+            if (cleanMatching.charAt(0) == '<') {
+                const matchInstance = mt.match(matchShowIfRE)[0];
+                const showFlag = matchInstance.split('"')[1].replace('"', "");
+
+                let showFlagValue;
+                if (showFlag.indexOf('self.') == 0) {
+                    const classFlag = `${showFlag.replace('self.', '').trim()}`;
+                    try {
+                        showFlagValue = eval(`cls.${classFlag}`);
+                    } catch (e) {
+                        handleErrorMessage(classFlag, matchInstance);
+                    }
+                }
+
+                /**
+                 * Validate the if the flag value is false, in case it's false then hide
+                 */
+                if (!showFlagValue.value) {
+                    console.log(`It was false`);
+                    const hide = $stillconst.PART_HIDE_CSS;
+                    if (mt.indexOf('class="') > 0) {
+                        /**
+                         * .replace('class="', `class="${hide} `) 
+                         *      Add the framework hide classso that component gets hidden
+                         * 
+                         * .replace(matchInstance, '');
+                         *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code
+                         */
+                        result = mt
+                            .replace('class="', `class="${hide} `)
+                            .replace(matchInstance, '');
+                    } else {
+                        /**
+                         * .replace(matchInstance, `class="${hide}"`) 
+                         *      Replace the (renderIf)="anything" directive and value with hide classe
+                         */
+                        result = mt.replace(matchInstance, `class="${hide}"`);
+                    }
+                } else {
+                    result = mt.replace(matchInstance, '');
+                }
+            }
+            return result;
+        });
+    }
+
+    parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE, handleErrorMessage) {
 
         const cls = this;
         return template.replace(reRIf, (mt) => {
@@ -437,22 +491,11 @@ class BaseComponent extends BehaviorComponent {
                 const renderFlag = matchInstance.split('"')[1].replace('"', "");
                 let renderFlagValue;
                 if (renderFlag.indexOf('self.') == 0) {
-                    const classFlag = `${renderFlag.replace('self.', '')}`;
+                    const classFlag = `${renderFlag.replace('self.', '').trim()}`;
                     try {
                         renderFlagValue = eval(`cls.${classFlag}`);
                     } catch (e) {
-                        if (classFlag.at(-1) == ')') {
-                            console.error(`
-                                Method with name ${classFlag} does not exists for 
-                                ${cls.constructor.name} as referenced on ${matchInstance}
-                            `);
-                        }
-                        else {
-                            console.error(`
-                                Property with name ${classFlag} does not exists for 
-                                ${cls.constructor.name} as referenced on ${matchInstance}
-                            `);
-                        }
+                        handleErrorMessage(classFlag, matchInstance);
                     }
                 }
 
@@ -464,14 +507,13 @@ class BaseComponent extends BehaviorComponent {
 
                     const isThereShowIf = mt.match(matchShowIfRE);
                     /**
-                     * Remove Show if from the tag since showIf is 
+                     * Remove (showif) from the tag since showIf is 
                      * irrelevant in case Render if is false
                      */
                     if (isThereShowIf) mt = mt.replace(matchShowIfRE, '');
 
                     const hide = $stillconst.PART_HIDE_CSS;
                     const remove = $stillconst.PART_REMOVE_CSS;
-                    const noparse = $stillconst.SUBSEQUENT_NO_PARSE;
                     if (mt.indexOf('class="') > 0) {
                         /**
                          * .replace('class="', `class="${hide} ${remove} `) 
@@ -482,7 +524,7 @@ class BaseComponent extends BehaviorComponent {
                          *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code
                          */
                         result = mt
-                            .replace('class="', `${noparse} class="${hide} ${remove} `)
+                            .replace('class="', `class="${hide} ${remove} `)
                             .replace(matchInstance, '');
                     } else {
                         /**
@@ -490,7 +532,7 @@ class BaseComponent extends BehaviorComponent {
                          *      Replace the (renderIf)="anything" directive and value with 
                          *      classes for both hide and remove the view part
                          */
-                        result = mt.replace(matchInstance, `${noparse} class="${hide} ${remove}"`);
+                        result = mt.replace(matchInstance, `class="${hide} ${remove}"`);
                     }
                 } else {
                     result = mt.replace(matchInstance, '');
@@ -794,6 +836,21 @@ class BaseComponent extends BehaviorComponent {
 
         return template;
 
+    }
+
+    #handleErrorMessage(classFlag, matchInstance) {
+        if (classFlag.at(-1) == ')') {
+            console.error(`
+                Method with name ${classFlag} does not exists for 
+                ${cls.constructor.name} as referenced on ${matchInstance}
+            `);
+        }
+        else {
+            console.error(`
+                Property with name ${classFlag} does not exists for 
+                ${cls.constructor.name} as referenced on ${matchInstance}
+            `);
+        }
     }
 
 }

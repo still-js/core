@@ -78,16 +78,17 @@ class Login extends ViewComponent {
             )
                 .then((response) => {
                     console.log(`login criado com sucesso: `, response);
-                    if(response.status !== 200) {
-                            alert(response.errors);
-                            Router.goto('Init');
-                    }else{
+                    if (response.status !== 200) {
+                        alert(response.errors);
+                        Router.goto('Init');
+                    } else {
                         localStorage.setItem('_user', JSON.stringify(response.data));
                         localStorage.setItem('logged', true);
-                        alert("Bem-vindo (a), a plataforma JuLAW")
+                        alert("Bem-vindo (a), a plataforma JuLAW");
                         AppTemplate.get().store('logged', true);
-                        //Router.goto('Home');                        
-                        Router.goto('ColaboradorDashboard');                        
+                        AppTemplate.get().store('persmissions', { canSeeGrid: false });
+                        AppTemplate.get().setAuthN(true);
+                        Router.goto('ColaboradorDashboard');
                         // aonde guardar os dados do user logado com seguranca
                     }
 
@@ -95,7 +96,7 @@ class Login extends ViewComponent {
                 .catch((err) => {
                     console.log(`Erro ao login colaborador: `, err);
                 });
-        }else{
+        } else {
             alert("Campo usuário e/ou senha, devem ser preenchidos")
         }
     }

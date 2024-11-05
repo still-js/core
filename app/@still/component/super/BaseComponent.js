@@ -437,11 +437,14 @@ class BaseComponent extends BehaviorComponent {
                 const matchInstance = mt.match(matchShowIfRE)[0];
                 const showFlag = matchInstance.split('"')[1].replace('"', "");
 
-                let showFlagValue;
+                let showFlagValue, listenerFlag;
                 if (showFlag.indexOf('self.') == 0) {
                     const classFlag = `${showFlag.replace('self.', '').trim()}`;
+
                     try {
                         showFlagValue = eval(`cls.${classFlag}`);
+                        listenerFlag = classFlag + Math.random().toString().split('.')[1];
+                        Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value });
                     } catch (e) {
                         handleErrorMessage(classFlag, matchInstance);
                     }
@@ -450,29 +453,27 @@ class BaseComponent extends BehaviorComponent {
                 /**
                  * Validate the if the flag value is false, in case it's false then hide
                  */
-                if (!showFlagValue.value) {
-                    console.log(`It was false`);
-                    const hide = $stillconst.PART_HIDE_CSS;
-                    if (mt.indexOf('class="') > 0) {
-                        /**
-                         * .replace('class="', `class="${hide} `) 
-                         *      Add the framework hide classso that component gets hidden
-                         * 
-                         * .replace(matchInstance, '');
-                         *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code
-                         */
-                        result = mt
-                            .replace('class="', `class="${hide} `)
-                            .replace(matchInstance, '');
-                    } else {
-                        /**
-                         * .replace(matchInstance, `class="${hide}"`) 
-                         *      Replace the (renderIf)="anything" directive and value with hide classe
-                         */
-                        result = mt.replace(matchInstance, `class="${hide}"`);
-                    }
+                let hide = '';
+                if (!showFlagValue.value) hide = $stillconst.PART_HIDE_CSS;
+                else hide = '';
+
+                if (mt.indexOf('class="') > 0) {
+                    /**
+                     * .replace('class="', `class="${hide} `) 
+                     *      Add the framework hide classso that component gets hidden
+                     * 
+                     * .replace(matchInstance, '');
+                     *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code
+                     */
+                    result = mt
+                        .replace('class="', `class="${hide} ${listenerFlag} `)
+                        .replace(matchInstance, '');
                 } else {
-                    result = mt.replace(matchInstance, '');
+                    /**
+                     * .replace(matchInstance, `class="${hide}"`) 
+                     *      Replace the (renderIf)="anything" directive and value with hide classe
+                     */
+                    result = mt.replace(matchInstance, `class="${hide} ${listenerFlag}"`);
                 }
             }
             return result;

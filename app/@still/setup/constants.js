@@ -16,6 +16,8 @@ const $stillconst = {
     },
     STILL_COMPONENT: `<still-component/>`,
     APP_PLACEHOLDER: 'stillAppPlaceholder',
+    PART_HIDE_CSS: 'still-hide-view-part',
+    PART_REMOVE_CSS: 'still-del-view-part',
 
 
 
@@ -23,7 +25,7 @@ const $stillconst = {
     /**
      * Bellow constants for error messages are assigned
      */
-    MSG : {
+    MSG: {
         PRIVATE_CMP: `<h3 style='color:red;'>
                         <b>Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
                            <br>in case you need to access it without making log-in please make isPublic flag true

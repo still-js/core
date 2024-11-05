@@ -405,6 +405,70 @@ class BaseComponent extends BehaviorComponent {
         return template;
     }
 
+    /**
+     * 
+     * @param {string} template 
+     * @returns { string }
+     */
+    getBoundRender(template) {
+
+        const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \"]{0,}/.source;
+        const matchRenderIfRE = /\(renderIf\)\="[A-Za-z \. \( \)]{0,}\"/;
+        const matchShowIfRE = /\(showIf\)\="[A-Za-z \. \( \)]{0,}\"/;
+        const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
+        const reRIf = new RegExp(extremRe + matchRenderIfRE.source + extremRe, 'gi');
+        const cls = this;
+
+        template = template.replace(reRIf, (mt) => {
+            const cleanMatching = mt.replace('\n', '').replace(/\s{0,}/, '');
+            let result = mt;
+            if (cleanMatching.charAt(0) == '<') {
+                const matchInstance = mt.match(matchRenderIfRE)[0];
+                const renderFlag = matchInstance.split('"')[1].replace('"', "");
+                let renderFlagValue;
+                if (renderFlag.indexOf('self.') == 0) {
+                    const classFlag = `${renderFlag.replace('self.', '')}`;
+                    try {
+                        renderFlagValue = eval(`cls.${classFlag}`);
+                    } catch (e) {
+                        if (classFlag.at(-1) == ')') {
+                            console.error(`
+                                Method with name ${classFlag} does not exists for 
+                                ${cls.constructor.name} as referenced on ${matchInstance}
+                            `);
+                        }
+                        else {
+                            console.error(`
+                                Property with name ${classFlag} does not exists for 
+                                ${cls.constructor.name} as referenced on ${matchInstance}
+                            `);
+                        }
+                    }
+                }
+
+                /**
+                 * Validate the if the flag value is false, in case it's false then hide it and
+                 * then mark this view part to be removed 
+                 */
+                if (!renderFlagValue.value) {
+                    const hide = $stillconst.PART_HIDE_CSS;
+                    const remove = $stillconst.PART_REMOVE_CSS;
+                    if (mt.indexOf('class="') > 0) {
+                        result = mt
+                            .replace('class="', `class="${hide} ${remove} `)
+                            .replace(matchInstance, '');
+                    } else {
+                        result = mt.replace(matchInstance, `class="${hide} ${remove}"`);
+                    }
+                } else {
+                    result = mt.replace(matchInstance, '');
+                }
+            }
+            return result;
+        });
+        return template;
+    }
+
     incrementLoadCounter() {
         setTimeout(() => {
             this.$stillLoadCounter = this.$stillLoadCounter + 1;
@@ -417,11 +481,14 @@ class BaseComponent extends BehaviorComponent {
     getBoundTemplate() {
 
         console.time('tamplateBindFor' + this.getName());
+
         /**
          * Bind the component state and return it (template)
          * NOTE: Needs to be always the first to be called
          */
         let template = this.getBoundState();
+
+        template = this.getBoundRender(template);
 
         /** Parse still tags */
         template = this.parseStSideComponent(template),

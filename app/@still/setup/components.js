@@ -649,8 +649,21 @@ class Components {
                  * the User interface
                  */
                 await cmp.load();
+                Components.handleMarkedToRemoveParts();
             });
         }
+    }
+
+    static handleMarkedToRemoveParts() {
+
+        setTimeout(() => {
+            const markedToRemoveElm = document
+                .getElementsByClassName($stillconst.PART_REMOVE_CSS);
+            for (const elm of markedToRemoveElm) {
+                elm.innerHTML = '';
+            }
+        }, 500);
+
     }
 
 }

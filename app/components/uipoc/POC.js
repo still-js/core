@@ -1,6 +1,7 @@
 class POC extends ViewComponent {
 
     //AppTemplate.get().getStorageValue('persmissions').canSeeGrid
+    showHideGrid = Prop(true);
     canUserSeeGrid = Prop(false);
     htmlRefId = 'clientDataTable';
     dataSource;
@@ -67,10 +68,11 @@ class POC extends ViewComponent {
                 - IS to be used when want to show/hide according to specific
                   flag values (true/false)
                   (showIf)="self.canUserSeeGrid"
-        -->
+                  -->
+                  
         <span 
             (renderIf)="self.canUserSeeGrid"
-            (showIf)="self.canUserSeeGrid"
+            (showIf)="self.showHideGrid"
             >
             <st-element
                 component="TBDragableGrid"

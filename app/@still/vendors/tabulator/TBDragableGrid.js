@@ -25,8 +25,9 @@ class TBDragableGrid extends ViewComponent {
             }
 
             .sender-grid-tb, .receiver-grid-tb{ 
-                width: 48%;
+                width: 49%;
                 height: 200px;
+                font-size: 12px;
             }
         </style>
 
@@ -132,6 +133,18 @@ class TBDragableGrid extends ViewComponent {
                 };
             }
         }
+    }
+
+    setSourceData(data) {
+        this.sourceTable.setData(data);
+    }
+
+    getSourceData() {
+        return this.sourceTable.getData();
+    }
+
+    getDestData() {
+        return this.destTable.getData();
     }
 
 

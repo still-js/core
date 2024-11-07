@@ -115,10 +115,9 @@ class ProcessoTimeSheet extends ViewComponent {
                   min-width: 750px;
                   width: 1050px;
                   color: #555;
-                  font-size: 14px
-                  border: 1px solid #fafafa
-                  ;
-      ">
+                  font-size: 14px;
+                  border: 1px solid #e1e0e0;
+            ">
             <div style="positon: relative">
             <st-element
               component="TUICalendarComponent"
@@ -279,10 +278,6 @@ class ProcessoTimeSheet extends ViewComponent {
   }
 
   async updateEvent(evt, data) {
-
-    console.log("<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>    ",  evt)
-
-    console.log("update >>>>>>>>>>> ", data)
 
     if(this.userLoggedIn.value.id === "")
         alert("Nenhum Colaborador definido.")

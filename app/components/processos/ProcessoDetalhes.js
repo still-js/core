@@ -113,7 +113,8 @@ class ProcessoDetalhes extends ViewComponent {
                       width: 20,
                     },
                     { title: "Referência", field: "precedente_refencia", sorter: "string" },
-                    { title: "Assunto", field: "precedente_assunto", sorter: "string" }
+                    { title: "Assunto", field: "precedente_assunto", sorter: "string" },
+                    { title: "#", field: "precedente_id", sorter: "string" },
                   ])
                 );
 
@@ -539,11 +540,15 @@ class ProcessoDetalhes extends ViewComponent {
 
 
             <div class="product-description">
-                <st-element component="TabulatorComponent" proxy="dataTableListProcessosPrecedentes"
+                <st-element 
+                    component="TabulatorComponent" 
+                    proxy="dataTableListProcessosPrecedentes"
                     tableHeader="parent.dataTableLabelsPrecedentes"
                     (onEditColumn)="editProcessoPrecedente(fieldName, data)"
                     (onDeleteRow)="removerPrecedenteProcesso(fieldName, data)"
-                    (onCellClick)="detalhesProcesso(row, col, data)"></st-element>
+                    (onCellClick)="detalhesProcesso1(row, col, data)"
+                >
+                </st-element>
 
 
             </div>
@@ -593,9 +598,6 @@ class ProcessoDetalhes extends ViewComponent {
         </div>
     </div>
     <!-- Fim TAB Anexos -->
-
-  
-  
   </section>
     `;
 
@@ -621,7 +623,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   getDetalhesProcesso(idProcesso) {
 
-    console.log("lista dos Detalhes do Processo...")
+    console.log("lista dos Detalhes do Processo... here ...")
 
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/processo/${idProcesso}`
@@ -957,9 +959,9 @@ class ProcessoDetalhes extends ViewComponent {
         console.log(`processo criado com sucesso: `, response);
         if (response.status !== 201) {
           console.log(response)
-          alert(response.errors);
+          console.log(response.errors);
         } else {
-          alert("Salvo com sucesso");
+          console.log("Salvo com sucesso");
           this.toggleForms(idForm)
           this.getDetalhesProcesso(this.id.value)
         }
@@ -1243,6 +1245,9 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerPrecedenteProcesso(_, record) {
 
+    console.log(" >>>>>>>>>>>>  field ", _)
+    console.log(" >>>>>>>>>>>> record  ", record)
+
     let payload = {
       "type": "precedente",
       "valueId": record.id
@@ -1262,6 +1267,8 @@ class ProcessoDetalhes extends ViewComponent {
         if(response.status === 200){
           alert("Removido com Sucesso!")
           this.getDetalhesProcesso(this.id.value)
+        }else {
+          alert("Erro ao remover o Processo!")
         }
 
     })

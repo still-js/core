@@ -8,10 +8,10 @@ class ProcessoForm extends ViewComponent {
     clienteId;
     gestorId;
     contraParte;
-    dataRegisto;
-    dataSuspensao;
+    dataRegisto = null;
+    dataSuspensao = null;
     colaboradorIdSuspendeu;
-    dataEncerramento;
+    dataEncerramento = null;
     colaboradorIdEnderrou;
     metodologia;
     estrategia;
@@ -56,37 +56,22 @@ class ProcessoForm extends ViewComponent {
         {
             id: 1,
             descricao: "Avença",
-            obesevacao: null,
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 2,
             descricao: "Taxa horária",
-            obesevacao: null,
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 3,
             descricao: "Valor Fixo",
-            obesevacao: null,
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 4,
             descricao: "Sucess fee",
-            obesevacao: null,
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
         {
             id: 5,
             descricao: "pro bono",
-            obesevacao: null,
-            created_at: "2024-10-06 21:30:34",
-            updated_at: "2024-10-06 21:30:34",
         },
     ];
 
@@ -254,7 +239,7 @@ class ProcessoForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Gestor do processo
                                         </span>
-                                        <select (change)="updateGestorProcesso($event)" (forEach)="listColaboradores">
+                                        <select (value)="gestorId" (change)="updateGestorProcesso($event)" (forEach)="listColaboradores">
                                             <option each="item" value="">Selecione uma opção</option>
                                             <option each="item" value="{item.id}">{item.descricao}</option>
                                         </select>
@@ -364,9 +349,9 @@ class ProcessoForm extends ViewComponent {
             "gestorId": this.gestorId.value,
             "contraParte": this.contraParte.value,
             "dataRegisto": this.dataRegisto.value,
-            "dataSuspensao": this.dataSuspensao.value,
+            "dataSuspensao": this.dataSuspensao.value === "" ? null : this.dataSuspensao.value,
             "colaboradorIdSuspendeu": null,
-            "dataEncerramento": this.dataEncerramento.value,
+            "dataEncerramento": this.dataEncerramento.value === "" ? null : this.dataEncerramento.value,
             "colaboradorIdEnderrou": null,
             "metodologia": null,
             "estrategia": null,
@@ -407,8 +392,11 @@ class ProcessoForm extends ViewComponent {
                 .then((response) => {
                     console.log(`processo criado com sucesso: `, response);
                     if (response.status !== 201) {
-                        alert(response.errors);
-                        // Router.goto('Init');
+                        if(response.message) {
+                            alert(response.message);
+                        }else{
+                            alert(JSON.stringify(response.errors));
+                        }
                     } else {
                         alert("Salvo com sucesso");
                         console.log("cadastro do colaborador ... ", response);
@@ -428,8 +416,6 @@ class ProcessoForm extends ViewComponent {
 
     updateProcesso(payload) {
 
-        console.log("update processo")
-
         if (this.isValidInputForm()) {
             $still.HTTPClient.put(
                 `http://localhost:3000/api/v1/processo/${this.id.value}`,
@@ -447,15 +433,9 @@ class ProcessoForm extends ViewComponent {
                         // Router.goto('Init');
                     } else {
                         alert("Alterações salvas com sucesso");
-                        console.log("cadastro do colaborador ... ", response);
-                        console.log("cadastro do colaborador ... >> ", response.data);
-                        console.log("cadastro do colaborador ... >> ", response.data.data[0]);
-                        //AppTemplate.get().store('logged', true);
-
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.data[0].id,
                         });
-                        // aonde guardar os dados do user logado com seguranca
                     }
                 })
                 .catch((err) => {
@@ -473,7 +453,6 @@ class ProcessoForm extends ViewComponent {
             (r) => {
                 if (r.data) {
                     let colaboradorData = [];
-                    let equipasData = [];
 
                     for (let colaborador of r.data) {
                         colaboradorData.push({
@@ -481,8 +460,6 @@ class ProcessoForm extends ViewComponent {
                             descricao: `${colaborador.description} - ${colaborador.nome_completo}`,
                         });
                     }
-
-                    //this.listEquipas = equipasData;
                     this.listColaboradores = colaboradorData;
                 }
             }
@@ -500,21 +477,15 @@ class ProcessoForm extends ViewComponent {
                         descricao: `${cliente.tipo.description} - ${cliente.denominacao}`,
                     });
                 }
-
                 this.listClientes = clienteData;
-
-                console.log(
-                    "getListColaboradores - listClientes >>>>>> ",
-                    this.listClientes
-                );
             }
         });
     }
 
-    stAfterInit() {
+    async stAfterInit() {
         const idP = Router.data("ProcessoForm");
-        this.getListColaboradores();
-        this.getListClientes();
+        await this.getListColaboradores();
+        await this.getListClientes();
 
         if (idP) {
             this.id = idP;
@@ -548,11 +519,8 @@ class ProcessoForm extends ViewComponent {
         this.referencia = data.ref;
         this.assunto = data.assunto;
         this.area = data.area;
-        this.fase = data.fase;
-        this.instituicaoId = data.instituicao_id;
-        this.modoFacturacaoId = data.modo_facturacao_id;
-        this.clienteId = data.cliente_id;
-        this.gestorId = data.gestor_id;
+        this.fase = data.fase; 
+          
         this.contraParte = data.contra_parte;
         this.dataRegisto = data.data_registo;
         this.dataSuspensao = data.data_suspensao;
@@ -562,8 +530,7 @@ class ProcessoForm extends ViewComponent {
         this.factos = data.factos;
         this.objectivos = data.objectivos;
         this.dadosImportantes = data.dados_importantes;
-        this.statusId = data.status_id;
-
+     
         this.createdAt = data.created_at;
         this.updatedAt = data.updated_at;
 
@@ -574,6 +541,7 @@ class ProcessoForm extends ViewComponent {
         this.gestor = data.gestor;
 
         setTimeout(() => {
+
             if(this.dataRegisto.value)
                 document.getElementById('dataRegistoInput').value = this.dataRegisto.value.substr(0,10)
 
@@ -582,8 +550,20 @@ class ProcessoForm extends ViewComponent {
 
             if(this.dataEncerramento.value)
                 document.getElementById('dataEncerramentoInput').value = this.dataEncerramento.value.substr(0,10)
+        
+            this.modoFacturacaoId = data.modo_facturacao_id;
+            this.instituicaoId = data.instituicao_id;
+            this.statusId = data.status_id;
+            this.gestorId = data.gestor_id;
+            this.clienteId = data.cliente_id;
+
+            console.log(">>>>><<<   ", this.gestorId)
     
         }, 500)
+
+
+        console.log(this.gestorId)
+        console.log(this.listColaboradores)
      
     }
 

@@ -121,8 +121,8 @@ class TBDragableGrid extends ViewComponent {
                         const likeliValue = String(value).replace(',', '').replace('.', '');
 
                         /** Bellow if statement is specific for the currency change verification */
-                        if (this.#editigPrevValue != parseInt(likeliValue.slice(4)))
-                            cell.getRow().getElement().style.backgroundColor = "#b0e2a2";
+                        //if (this.#editigPrevValue != parseInt(likeliValue.slice(4)))
+                        //    cell.getRow().getElement().style.backgroundColor = "#b0e2a2";
                         success(value);
                     }
 
@@ -145,6 +145,14 @@ class TBDragableGrid extends ViewComponent {
 
     getDestData() {
         return this.destTable.getData();
+    }
+
+    updateDestRow(rowNum, obj) {
+        const data = this.destTable.getData();
+        Object.entries(obj).forEach(([key, val]) => {
+            data[rowNum - 1][key] = val;
+        });
+        this.destTable.setData(data);
     }
 
 

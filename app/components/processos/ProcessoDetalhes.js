@@ -168,6 +168,11 @@ class ProcessoDetalhes extends ViewComponent {
   /** @type { TBDragableGrid } */
   honorarioProxy = Proxy;
 
+  /** @type { Factura } */
+  facturaProxy = Proxy;
+
+  showFactura = Prop(false);
+  totalFactura = Prop(0);
 
   template = `<section class="content">
     <div class="block-header">
@@ -664,7 +669,48 @@ class ProcessoDetalhes extends ViewComponent {
     </div>
     <!-- Fim TAB Anexos -->
 
+    <div class="still-popup-curtain" (showIf)="self.showFactura"></div>
   
+    <div 
+      class="factura-wrapper" 
+      (showIf)="self.showFactura"
+      >
+      <st-element
+        component="Factura"
+        proxy="facturaProxy"
+        (onCloseFactura)="fecharFactura()"
+        >
+      </st-element>
+    <div>
+
+    <style>
+      
+      .factura-wrapper{
+        position: absolute;
+        top: 0;
+        background: white;
+        z-index: 529985;
+        width: 90%;
+        top: 0;
+        left: 0;
+        margin: 0 auto;
+      }
+
+      .still-popup-curtain{
+
+        position: fixed;
+        padding: 0;
+        margin: 0;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 529983;
+
+      }
+
+    </style>
   
   </section>
     `;
@@ -1432,7 +1478,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
 
-  editPricingValue(evtType, value, rowData) {
+  editPricingValue(evtType, value, rowData, rowNum) {
 
     if (evtType == 'onFocus') {
       const actualValue = String(value)
@@ -1456,7 +1502,10 @@ class ProcessoDetalhes extends ViewComponent {
         }
       );
 
-      return formatter.format(amount) + `${cents} `;
+      const custo = formatter.format(amount) + `${cents} `;
+      this.honorarioProxy.updateDestRow(rowNum, { custo, total: custo });
+
+      return custo;
     }
 
   }
@@ -1497,14 +1546,42 @@ class ProcessoDetalhes extends ViewComponent {
     const end = endDate.toLocaleString();
 
     const hours = (endTime - startTime) / (1000 * 60 * 60);
+    const custo = `${convertToAkzCurrency(hours * 10_000)}`
 
-    return { id, custo: `${convertToAkzCurrency(hours * 10_000)}`, name, start, end }
+    return {
+      id,
+      custo,
+      name,
+      start,
+      end,
+      qtd: `${hours} Hrs`,
+      total: custo
+    }
 
   }
 
   generateHonorario() {
+
     const data = this.honorarioProxy.getDestData();
-    console.log(`Honorário data is: `, data);
+    console.log(data);
+    this.showFactura = true;
+
+    const totalFactura = data
+      .map(
+        r => parseFloat(cleanCurrencyValue(r.total))
+      )
+      .reduce((accum, val) => accum + val);
+
+    const invoiceNum = Math.random().toString().split('.')[1];
+    this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5));
+    this.facturaProxy.setNomeDocliente(this.cliente.value);
+    this.facturaProxy.setTotalFactura(totalFactura);
+    this.facturaProxy.itensFactura = data;
+
+  }
+
+  fecharFactura() {
+    this.showFactura = false;
   }
 
 }
@@ -1531,6 +1608,15 @@ function convertToAkzCurrency(value) {
 function convertDateToEuStr(date) {
   return date.toLocaleString();
 }
+
+function cleanCurrencyValue(val) {
+  return val
+    .replace('AKZ', '')
+    .replace('.', '')
+    .replace(',', '.')
+    .trim()
+}
+
 
 /**
  * End of Move this to Utility class of function

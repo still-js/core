@@ -443,7 +443,7 @@ class BaseComponent extends BehaviorComponent {
 
                     try {
                         showFlagValue = eval(`cls.${classFlag}`);
-                        listenerFlag = classFlag + Math.random().toString().split('.')[1];
+                        listenerFlag = '_stFlag' + classFlag + '_' + cls.constructor.name + '_change';
                         Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value });
                     } catch (e) {
                         handleErrorMessage(classFlag, matchInstance);

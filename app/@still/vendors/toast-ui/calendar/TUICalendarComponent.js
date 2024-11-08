@@ -111,7 +111,7 @@ class TUICalendarComponent extends ViewComponent {
 
         calendar.on('beforeDeleteEvent', async (eventObj) => {
 
-            const wasEventDeleted = await this.onEventDeletion();
+            const wasEventDeleted = await this.onEventDeletion(eventObj);
             if (wasEventDeleted) {
                 calendar.deleteEvent(eventObj.id, eventObj.calendarId);
             }

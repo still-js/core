@@ -94,6 +94,7 @@ class Login extends ViewComponent {
                 })
                 .catch((err) => {
                     console.log(`Erro ao login colaborador: `, err);
+                    alert(err);
                 });
         }else{
             alert("Campo usuário e/ou senha, devem ser preenchidos")

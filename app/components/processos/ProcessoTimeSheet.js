@@ -3,15 +3,12 @@ class ProcessoTimeSheet extends ViewComponent {
   id;
   referencia;
   assunto;
-
   dadosImportantes;
-
   modo_facturacao;
   cliente;
   tipoCliente;
   gestor;
   processoId;
-
   userLoggedIn;
 
   template = `<section class="content">
@@ -40,7 +37,6 @@ class ProcessoTimeSheet extends ViewComponent {
           <p style="font-size: 12px">Registo das intervenções no Processo</p>
         </div>
       </div>
-
       
     </div>  
     <div class="row" style="height: 100vh;">
@@ -174,20 +170,13 @@ class ProcessoTimeSheet extends ViewComponent {
     document.getElementById('horasInputId').innerHTML = totalHours;
   }
 
-  stAfterInit(val) {
+  async init() {
 
-    this.userLoggedIn = JSON.parse(localStorage.getItem("_user"));
-
-    console.log(this.userLoggedIn);
-
-    document.getElementById('colaboradorInputId').innerHTML = this.userLoggedIn.value.nome_completo;
-    document.getElementById('colaboradorInputFuncao').innerHTML = this.userLoggedIn.value.tipo.description;
-
-    const routeData = Router.data("ProcessoTimeSheet");
-    this.processoId = routeData
+    this.userLoggedIn
+    this.processoId
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo_time_sheets/${routeData}/${this.userLoggedIn.value.id}`
+      `http://localhost:3000/api/v1/processo_time_sheets/${this.processoId.value}/${this.userLoggedIn.value.id}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -200,7 +189,7 @@ class ProcessoTimeSheet extends ViewComponent {
     });
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo/${routeData}`
+      `http://localhost:3000/api/v1/processo/${this.processoId.value}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -211,20 +200,43 @@ class ProcessoTimeSheet extends ViewComponent {
         }
       }
     });
+
+  }
+
+  stAfterInit(val) {
+
+    try {
+      
+      this.userLoggedIn = JSON.parse(localStorage.getItem("_user"));      
+      console.log(this.userLoggedIn);
+
+      document.getElementById('colaboradorInputId').innerHTML = this.userLoggedIn.value.nome_completo;
+      document.getElementById('colaboradorInputFuncao').innerHTML = this.userLoggedIn.value.tipo.description;
+      
+      const routeData = Router.data("ProcessoTimeSheet");
+      this.processoId = routeData
+      
+      this.init()
+    }catch(e) {
+      console.log("fn populates attributes", e);
+    }
+
+  
   }
 
   populateAttributes(data) {
     try {
       this.referencia = data.ref
         ? data.ref
-        : "N/A";
-      this.assunto = data.assunto ? data.assunto : "N/A";
-      this.cliente = data.cliente ? data.cliente : "N/A";
-      this.tipoCliente = data.tipo_cliente ? data.tipo_cliente : "N/A";
-      this.gestor = data.colaborador ? data.colaborador : "N/A";
+        : "";
+      this.assunto = data.assunto ? data.assunto : "";
+      this.cliente = data.cliente ? data.cliente : "";
+      this.tipoCliente = data.tipo_cliente ? data.tipo_cliente : "";
+      this.gestor = data.colaborador ? data.colaborador : "";
       this.modo_facturacao = data.modo_facturacao
         ? data.modo_facturacao
-        : "N/A";
+        : "";
+
       /** details */
       this.setValueById("input_referencia", this.referencia.value);
       this.setValueById("input_assunto", this.assunto.value);
@@ -232,13 +244,11 @@ class ProcessoTimeSheet extends ViewComponent {
       this.setValueById("input_cliente", this.cliente.value);
       this.setValueById("input_gestor", this.gestor.value);
     } catch (e) {
-      alert("Error: " + e.message)
+      console.log(e);
     }
   }
 
   async saveEvent(data) {
-
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>   ", this.userLoggedIn.value.id)
 
     if(this.userLoggedIn.value.id === "")
         alert("Nenhum Colaborador definido.")
@@ -267,38 +277,42 @@ class ProcessoTimeSheet extends ViewComponent {
     )
 
     console.log("save response", response);
+
     if (response.status !== 201) {
       console.log(response.errors);
       return false
     } else {
       console.log("Salvo com sucesso");
+      this.init()
       return true
     }
 
   }
 
-  async updateEvent(evt, data) {
+  async updateEvent(evt, changes) {
 
-    if(this.userLoggedIn.value.id === "")
-        alert("Nenhum Colaborador definido.")
+    if(!changes) 
+        return true;
 
-    /*
-
-    let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
+    if(evt.id === "")
+      alert("Evento sem ID")
+  
+    let startDate = changes.start ? changes.start.d.d : evt.start.d.d
+    let endDate = changes.end ? changes.end.d.d : evt.end.d.d
+    let tipoEventoId = changes.calendarId  ? changes.calendarId : evt.calendarId
+    let horasCalculadas = (endDate - startDate) / 3600000
 
     let payload = {
-      tipoEventoId: data.calendarId = 'entrevista' ? 1 : 2,
-      // processoId: parseInt(this.processoId.value),
-      descricao: data.title,
-      dadosImportantes: JSON.stringify(data),
-      dataInicio: data.start.d.d,
-      dataFim: data.end.d.d,
+      tipoEventoId: tipoEventoId = 'entrevista' ? 1 : 2,
+      descricao: changes.title ?? evt.descricao,
+      dadosImportantes: JSON.stringify(evt, changes),
+      dataInicio: startDate,
+      dataFim: endDate,
       horas: horasCalculadas.toFixed(2),
-      // colaboradorId: this.userLoggedIn.value.id
     };
 
-    let response = await $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_time_sheets",
+    let response = await $still.HTTPClient.put(
+      `http://localhost:3000/api/v1/processo_time_sheets/${evt.id}`,
       JSON.stringify(payload),
       {
         headers: {
@@ -308,35 +322,40 @@ class ProcessoTimeSheet extends ViewComponent {
     )
 
     console.log("save response", response);
-    if (response.status !== 201) {
+
+    if (response.status !== 200) {
       console.log(response.errors);
       return false
     } else {
-      console.log("Salvo com sucesso");
+      console.log("Alterações feita com sucesso");
+      this.init()
       return true
     }
 
-
-    */
-
-    /**
-     * Pôr a regra de negócio e a chamada a BD,
-     * retornar true apenas se for salvo com sucess
-     * caso contrário retornar false
-     */
-    alert("Event update called from parent");
-    return false;
-
   }
 
-  deleteEvent() {
-    /**
-     * Pôr a regra de negócio e a chamada a BD,
-     * retornar true apenas se for salvo com sucess
-     * caso contrário retornar false
-     */
-    alert("Called Deletion event from parent");
-    return true;
+  async deleteEvent(env) {
+
+    if(env.id === undefined) return false;
+    
+    let response = await $still.HTTPClient.delete(
+      `http://localhost:3000/api/v1/processo_time_sheets/${env.id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+
+    if (response.status !== 200) {
+      console.log(response.errors);
+      return false
+    } else {
+      console.log("Alterações feita com sucesso");
+      this.init()
+      return true
+    }
+
   }
 
   setValueById(id, value) {

@@ -87,14 +87,14 @@ class POC extends ViewComponent {
             </st-element>
         </span>
 
-        <!--
+        
         <st-element
             component="TUICalendarComponent"
             proxy="timeSheet"
             (onEventCreate)="saveEvent()"
             editLabel="Editar"
             milestoneTitle="Objectivo"
-            (onEventUpdate)="updateEvent()"
+            (onEventUpdate)="updateEvent(event)"
             (onEventDeletion)="deleteEvent()"
             proxy="calendarProxy"
             >
@@ -102,7 +102,7 @@ class POC extends ViewComponent {
 
         <button (click)="resetCalendario()">Limpar Calendário A partir do parent component</button>
         <button (click)="createNewEvent()">Criar novos eventos a partir do parent</button>
-        -->
+        
 
     </section>
     `;
@@ -147,12 +147,13 @@ class POC extends ViewComponent {
         return true;
     }
 
-    updateEvent() {
+    updateEvent(event) {
         /**
          * Pôr a regra de negócio e a chamada a BD,
          * retornar true apenas se for salvo com sucess
          * caso contrário retornar false 
          */
+        console.log(event);
         alert('Event update called from parent');
         return true;
     }

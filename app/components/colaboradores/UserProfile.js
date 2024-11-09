@@ -55,10 +55,10 @@ class UserProfile extends ViewComponent {
                             <div class="p-l-20">
                                 <ul class="nav ">
                                     <li class="nav-item tab-all">
-                                        <a class="nav-link active show" href="#project" data-toggle="tab">About Me</a>
+                                        <a class="nav-link active show" href="#project" data-toggle="tab">Sobre me</a>
                                     </li>
                                     <li class="nav-item tab-all p-l-20">
-                                        <a class="nav-link" href="#usersettings" data-toggle="tab">Settings</a>
+                                        <a class="nav-link" href="#usersettings" data-toggle="tab">Definições</a>
                                     </li>
                                 </ul>
                             </div>
@@ -70,7 +70,7 @@ class UserProfile extends ViewComponent {
                                 <div class="col-lg-12 col-md-12 col-sm-12">
                                     <div class="card project_widget">
                                         <div class="header">
-                                            <h2>About</h2>
+                                            <h2>Sobre me</h2>
                                         </div>
                                         <div class="body">
                                             <div class="row" id="userIdentificacao">
@@ -86,7 +86,7 @@ class UserProfile extends ViewComponent {
                             <div class="card">
                                 <div class="header">
                                     <h2>
-                                        <strong>Security</strong> Settings</h2>
+                                        <strong>Definições</strong> de Segurança</h2>
                                 </div>
                                 <div class="body">
                                     <div class="form-group">

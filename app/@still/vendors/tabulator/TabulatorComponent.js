@@ -19,6 +19,7 @@ class TabulatorComponent extends ViewComponent {
     deleteColMetadata = Prop;
     /** @type { Array<{ pos, icon }> } */
     editColMetadata = Prop;
+    tableHeight = Prop("317px");
 
     async load() {
 
@@ -28,7 +29,7 @@ class TabulatorComponent extends ViewComponent {
 
         let dataSource = [{}];
         this.table = new Tabulator(`#${this.dynCmpGeneratedId}`, {
-            height: "311px",
+            height: this.tableHeight,
             layout: "fitColumns",
             reactiveData: true, //turn on data reactivity
             data: dataSource, //load data into table,

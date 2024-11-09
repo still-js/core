@@ -38,7 +38,6 @@ class Home extends BaseComponent {
     }
     */
 
-    this.hideLoading();
     this.setup({
       includs: [
         TopNavBar,
@@ -60,10 +59,14 @@ class Home extends BaseComponent {
       ],
     });
 
+    this.hideLoading();
+
     /* CardDisplay.cardDataSource.onChange((value) => {
             console.log(`Home component detected changes: `,value);
         }); */
   }
 
-  async stAfterInit() {}
+  async stAfterInit() {
+
+  }
 }

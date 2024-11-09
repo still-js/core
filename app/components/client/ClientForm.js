@@ -222,6 +222,7 @@ class ClientForm extends ViewComponent {
                 'assets/js/form.min.js',
             ],
         });
+        this.showLoading();
 
     }
 

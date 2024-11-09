@@ -1,29 +1,29 @@
 class BehaviorComponent {
 
     $stillClassLvlSubscribers = [];
-    
-    onChange(callback = (newState) => {}){
+
+    onChange(callback = (newState) => { }) {
         this.$stillClassLvlSubscribers.push(callback);
     }
 
-    notifySubscribers(state){
+    notifySubscribers(state) {
         this.$stillClassLvlSubscribers.forEach(
             subscriber => subscriber(state)
         );
     }
 
-    onValueInput(field, value, inpt = null){
+    onValueInput(field, value, inpt = null) {
         this[field] = value;
     }
 
-    changeState(input, value){}
+    changeState(input, value) { }
 
-    showLoading(){
-        //document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'flex';
+    showLoading() {
+        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'flex';
     }
 
-    hideLoading(){
-        //document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'none';
+    hideLoading() {
+        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'none';
     }
 
 }

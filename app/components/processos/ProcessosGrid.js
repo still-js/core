@@ -102,6 +102,7 @@ class ProcessosGrid extends ViewComponent {
   }
 
   stAfterInit(val) {
+
     $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
       (r) => {
         if (r.data) {

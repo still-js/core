@@ -30,20 +30,22 @@
     color: #545454;
 }
 
+.active {
+    background-color: #d3d3d3;
+}
+
 .active .submenu {
     display: block; /* Exibe o submenu do item ativo */
 }
 
 .submenu {
-    display: none;
-    background-color: #e1e0e0;
-    color: #545454;
-}
-
-.submenu {
-    display: none;
-    background-color: #e1e0e0;
-    color: #545454;
+    background-color: #f2f2f2;
+    color: #ddd;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.6s ease;
+    margin-left: 20px;
 }
 
 .submenu a {
@@ -56,7 +58,13 @@
 }
 
 .sidebar li:hover .submenu {
-    display: block;
+    max-height: 200px; /* altura máxima para a transição */
+    opacity: 1;
+}
+
+.active .submenu {
+    max-height: 200px; /* altura máxima para a transição */
+    opacity: 1;
 }
 
 .sidebar i {

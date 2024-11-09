@@ -44,7 +44,7 @@
     overflow: hidden;
     max-height: 0;
     opacity: 0;
-    transition: max-height 0.4s ease, opacity 0.6s ease;
+    transition: max-height 0.4s ease, opacity 0.8s ease;
     margin-left: 20px;
 }
 

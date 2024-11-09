@@ -78,10 +78,17 @@ class Login extends ViewComponent {
             )
                 .then((response) => {
                     console.log(`login criado com sucesso: `, response);
+<<<<<<< HEAD
                     if (response.status !== 200) {
                         alert(response.errors);
                         Router.goto('Init');
                     } else {
+=======
+                    if(response.status !== 200) {
+                            alert(response.errors);
+                            Router.goto('init');
+                    }else{
+>>>>>>> fix/colaborador-dashboard
                         localStorage.setItem('_user', JSON.stringify(response.data));
                         localStorage.setItem('logged', true);
                         alert("Bem-vindo (a), a plataforma JuLAW");
@@ -95,6 +102,7 @@ class Login extends ViewComponent {
                 })
                 .catch((err) => {
                     console.log(`Erro ao login colaborador: `, err);
+                    alert(err);
                 });
         } else {
             alert("Campo usuário e/ou senha, devem ser preenchidos")

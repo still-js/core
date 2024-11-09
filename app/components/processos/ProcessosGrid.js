@@ -69,7 +69,7 @@ class ProcessosGrid extends ViewComponent {
                 <div class="card">
                 <div class="header">
                 <h2><strong>Lists </strong>Geral dos Processos</h2>
-                <p style="font-size: 12px">Encontre aqui, os todos os processos</p>
+                <p style="font-size: 12px">Encontre aqui, todos os processos</p>
               </div>
                     <div class="body">
                         <div class="table-responsive">
@@ -77,9 +77,11 @@ class ProcessosGrid extends ViewComponent {
                         component="TabulatorComponent"
                         proxy="dataTableListProcessos"
                         tableHeader="parent.dataTableLabels"
+                        tableHeight="510px"
                         (onEditColumn)="editProcesso(fieldName, data)"
                         (onDeleteRow)="detalhesProcesso(fieldName, data)"
                         (onCellClick)="cellClick(row, col, data)"
+                        
                       >
                       </st-element>
                         </div>
@@ -100,6 +102,7 @@ class ProcessosGrid extends ViewComponent {
   }
 
   stAfterInit(val) {
+
     $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
       (r) => {
         if (r.data) {

@@ -38,7 +38,8 @@ class Router {
          */
         if (
             cmp === 'init'
-            || (AppTemplate.get().isAuthN() && !ComponentSetup.get().isAppLoaded())
+            ||
+            (AppTemplate.get().isAuthN() && !ComponentSetup.get().isAppLoaded())
         ) {
             ComponentSetup.get().loadComponent();
         }

@@ -183,7 +183,7 @@ class Components {
 
 
     isAppLoaded() {
-        return document.getElementById('stillAppConst');
+        return document.getElementById(this.stillAppConst);
     }
 
 

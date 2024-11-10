@@ -94,11 +94,11 @@ class CTopNavBar extends ViewComponent {
 
         localStorage.clear();
 
-        Router.goto("Init");
+        Router.goto("init");
 
-        setTimeout(() => {
-            Router.goto("exit");
-        }, 1000)
+        //setTimeout(() => {
+        Router.goto("exit");
+        //}, 1000)
 
         /*if (this.isValidatedInputForm()) {
           $still.HTTPClient.post(

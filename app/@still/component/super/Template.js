@@ -21,7 +21,26 @@ class Template {
         return Template.instance[clsName];
     }
 
+    storageGet(name) {
+        const clsName = this.constructor.name;
+        const path = `${clsName}.storage.${name}`;
+        return localStorage.getItem(path)
+    }
+
+    storageSet(name, value) {
+        const clsName = this.constructor.name;
+        const storage = localStorage;
+        const path = `${clsName}.storage.${name}`;
+        storage.setItem(path, value);
+        return storage.getItem(path)
+    }
+
     store(name, value) {
+
+        let storedValue = this.storageGet(name);
+        if (this.storageGet(name)) {
+            return storedValue;
+        }
 
         const clsName = this.constructor.name;
         if (!('storage' in Template.instance[clsName])) {
@@ -34,7 +53,8 @@ class Template {
             Template.instance[clsName]['storage'][name] = value;
             return;
         }
-        Template.instance[clsName]['storage'][name] = value;
+        storedValue = this.storageSet(name, value);
+        Template.instance[clsName]['storage'][name] = storedValue;
     }
 
     getStorageValue(name) {
@@ -47,25 +67,35 @@ class Template {
             console.log(`No storage with name ${name} was set`);
         }
 
+        const storedValue = this.storageGet(name);
+        Template.instance[clsName]['storage'][name] = storedValue;
         return Template.instance[clsName]['storage'][name];
 
     }
 
     setAuthN(value) {
+
         const clsName = this.constructor.name;
         if (!('authn' in Template.instance[clsName])) {
             Template.instance[clsName]['authn'] = null;
         }
-        Template.instance[clsName]['authn'] = value;
+        const storedValue = this.storageSet('authn', value);
+        Template.instance[clsName]['authn'] = storedValue;
     }
 
     isAuthN() {
-        return Template.instance[this.constructor.name]['authn'];
+
+        let storedValue = this.storageGet('authn');
+        if (storedValue) {
+            Template.instance[this.constructor.name]['authn'] = storedValue;
+        }
+
+        return storedValue;
     }
 
     unloadApp() {
         Components.unloadApp();
-        Router.goto('init');
+        //Router.goto('init');
         window.location.reload();
     }
 

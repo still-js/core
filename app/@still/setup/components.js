@@ -656,7 +656,7 @@ class Components {
 
                 if (String(value).toLowerCase().indexOf('parent.') == 0) {
                     const parentProp = parentCmp[value.replace('parent.', '')];
-                    if (parentProp.onlyPropSignature) {
+                    if (parentProp?.onlyPropSignature) {
                         cmp[prop] = parentProp.value;
                     } else {
                         cmp[prop] = parentProp?.value || parentProp;

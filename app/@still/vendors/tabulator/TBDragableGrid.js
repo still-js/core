@@ -8,7 +8,7 @@ class TBDragableGrid extends ViewComponent {
     destFields = Prop(null);
     sourceTable = Prop;
     destTable = Prop;
-    sourcePlaceholder = Prop('All Rows Moved');
+    sourcePlaceholder = Prop('Itens por pagar');
     destPlaceholder = Prop('Drag Rows Here');
 
     template = `

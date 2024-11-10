@@ -247,10 +247,11 @@ class ClientForm extends ViewComponent {
 
     registerClient() {
 
-        this.showLoading();
+        //this.showLoading();
+        const routingData = Router.data('ClientForm');
         let tipoClientId = this.tipoClienteId.value;
-        if (!tipoClientId || tipoClientId == '')
-            tipoClientId = this.routingData.value.tipo_id;
+        if ((!tipoClientId || tipoClientId == '') && routingData)
+            tipoClientId = routingData?.tipo_id;
 
         const payload = {
             "denominacao": this.nome.value,
@@ -263,7 +264,7 @@ class ClientForm extends ViewComponent {
             "status": "pending"
         }
 
-        if (!this.routingData) {
+        if (!routingData) {
             this.saveClient(payload);
         } else {
             this.updateClient(payload);

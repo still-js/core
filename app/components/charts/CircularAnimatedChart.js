@@ -1,5 +1,5 @@
 class CCircularAnimatedChart extends ViewComponent {
-    
+
     htmlRefId = 'animateCharts'
     template = `
     <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
@@ -111,7 +111,16 @@ class CCircularAnimatedChart extends ViewComponent {
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
+    
+    <style>
+        #barCharPlaceholder .row,
+        #barCharPlaceholder .header,
+        #lineCharPlaceholder .row,
+        #lineCharPlaceholder .header{
+            display: none;
+        }
+    </style>
     
     `;
 

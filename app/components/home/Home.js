@@ -13,7 +13,7 @@ class Home extends BaseComponent {
                 </div>
 
                 <div class="row clearfix">
-                    <div id="animateCharts" style="display: contents;"></div>
+                    <div id="animateCharts" style="display: none;"></div>
                 </div>
                 
                 <div class="row clearfix">

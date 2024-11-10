@@ -6,7 +6,7 @@ class CCalendar extends ViewComponent {
         <div class="card">
             <div class="header">
                 <h2>
-                    <strong>Calendar</strong>
+                    <strong>Calendário de Tarefas</strong>
                 </h2>
                 <ul class="header-dropdown m-r--5">
                     <li class="dropdown">
@@ -38,7 +38,7 @@ class CCalendar extends ViewComponent {
     `;
 
 
-    constructor(){
+    constructor() {
         super();
 
         BarChart.onChange((newState) => {

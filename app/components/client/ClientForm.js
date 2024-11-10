@@ -309,10 +309,10 @@ class ClientForm extends ViewComponent {
                 }
             }
         ).then((r) => {
-            this.hideLoading();
+            //this.hideLoading();
             Router.goto('ClientsGrid');
         }).catch((err) => {
-            this.hideLoading();
+            //this.hideLoading();
             console.log(`Erro ao cadastrar cliente: `, err);
         });
 

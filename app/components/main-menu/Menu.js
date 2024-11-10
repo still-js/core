@@ -1,7 +1,7 @@
 class CMenu extends ViewComponent {
   htmlRefId = "leftsidebar";
 
-  userName = "Sarah Deo";
+  userName = JSON.parse(localStorage._user).nome_completo;
   userRole = "Admin";
 
   template = `
@@ -13,7 +13,7 @@ class CMenu extends ViewComponent {
             </div>
             <div class="profile-info">
               <h3>@userName</h3>
-              <p>Welcome @userRole</p>
+              <p>Bem vindo ao Julaw</p>
             </div>
         </div>
       </li>
@@ -46,7 +46,7 @@ class CMenu extends ViewComponent {
     </ul> 
     `;
 
-  stAfterInit(val) {}
+  stAfterInit(val) { }
 
   async onRender() {
     /**

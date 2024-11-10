@@ -56,50 +56,71 @@ class ProcessoDetalhes extends ViewComponent {
     { code: 3, designacao: 'Cash' },
   ]
 
+  /** @type { TabulatorComponent } */
+  dataTableListProcessosEquipas = Proxy;
+  dataTableLabelsEquipas = Prop(
+    JSON.stringify([
+      {
+        hozAlign: "center",
+        editRow: false,
+        icon: "<i class='fa fa-pen'></i>",
+        width: 20,
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fas fa-trash-alt'></i>",
+        width: 20,
+      },
+      { title: "Colaborador", field: "colaborador", sorter: "string" },
+      { title: "Função", field: "funcao", sorter: "string" },
+    ])
+  );
 
-        /** @type { TabulatorComponent } */
-        dataTableListProcessosTarefas = Proxy;
-        dataTableLabelsTarefas = Prop(
-          JSON.stringify([
-            {
-              hozAlign: "center",
-              editRow: true,
-              icon: "<i class='fa fa-pen'></i>",
-              width: 20,
-            },
-            {
-              hozAlign: "center",
-              deleteRow: true,
-              icon: "<i class='fas fa-trash-alt'></i>",
-              width: 20,
-            },
-            { title: "Descrição", field: "descricao", sorter: "string" },
-            { title: "Estado", field: "status", sorter: "string" },
-            { title: "Data Registo", field: "created_at", sorter: "string" },
-          ])
-        );
 
-                /** @type { TabulatorComponent } */
-                dataTableListProcessosPrecedentes = Proxy;
-                dataTableLabelsPrecedentes = Prop(
-                  JSON.stringify([
-                    {
-                      hozAlign: "center",
-                      editRow: false,
-                      icon: "<i class='fa fa-pen'></i>",
-                      width: 20,
-                    },
-                    {
-                      hozAlign: "center",
-                      deleteRow: true,
-                      icon: "<i class='fas fa-trash-alt'></i>",
-                      width: 20,
-                    },
-                    { title: "Referência", field: "precedente_refencia", sorter: "string" },
-                    { title: "Assunto", field: "precedente_assunto", sorter: "string" },
-                    { title: "#", field: "precedente_id", sorter: "string" },
-                  ])
-                );
+  /** @type { TabulatorComponent } */
+  dataTableListProcessosTarefas = Proxy;
+  dataTableLabelsTarefas = Prop(
+    JSON.stringify([
+      {
+        hozAlign: "center",
+        editRow: true,
+        icon: "<i class='fa fa-pen'></i>",
+        width: 20,
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fas fa-trash-alt'></i>",
+        width: 20,
+      },
+      { title: "Descrição", field: "descricao", sorter: "string" },
+      { title: "Estado", field: "status", sorter: "string" },
+      { title: "Data Registo", field: "created_at", sorter: "string" },
+    ])
+  );
+
+  /** @type { TabulatorComponent } */
+  dataTableListProcessosPrecedentes = Proxy;
+  dataTableLabelsPrecedentes = Prop(
+    JSON.stringify([
+      {
+        hozAlign: "center",
+        editRow: false,
+        icon: "<i class='fa fa-pen'></i>",
+        width: 20,
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fas fa-trash-alt'></i>",
+        width: 20,
+      },
+      { title: "Referência", field: "precedente_refencia", sorter: "string" },
+      { title: "Assunto", field: "precedente_assunto", sorter: "string" },
+      { title: "#", field: "precedente_id", sorter: "string" },
+    ])
+  );
 
 
 
@@ -657,7 +678,6 @@ class ProcessoDetalhes extends ViewComponent {
         </div>
     </div>
     <!-- Fim TAB Anexos -->
-<<<<<<< HEAD
 
     <!-- Inicio TAB Honorário -->
     <div role="tabpanel" class="tab-pane fade" id="honorarios">
@@ -741,8 +761,6 @@ class ProcessoDetalhes extends ViewComponent {
 
     </style>
   
-=======
->>>>>>> fix/colaborador-dashboard
   </section>
     `;
 
@@ -757,9 +775,9 @@ class ProcessoDetalhes extends ViewComponent {
 
   async onRender() {
     this.stRunOnFirstLoad(() => {
-      $(".js-basic-example").DataTable({
+      /* $(".js-basic-example").DataTable({
         responsive: true,
-      });
+      }); */
     });
 
     /** For Test purpose only */
@@ -779,11 +797,12 @@ class ProcessoDetalhes extends ViewComponent {
           r.data[0]
         );
         try {
-      
+
+          this.getTimeSheet(idProcesso);
           this.populateAttributes(r.data[0]);
           this.getListColaboradores();
           this.getListPrecedentes();
-            
+
         } catch (e) {
           console.log("fn populates attributes", e);
         }
@@ -798,7 +817,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     const routeData = Router.data("ProcessoDetalhes");
 
-    this.getDetalhesProcesso(routeData) 
+    this.getDetalhesProcesso(routeData)
 
     document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -1310,10 +1329,10 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
         console.log("ver anexo processo response >> ", response)
 
-          if(response.status === 200){
-            alert("Removido com Sucesso!")
-            this.getDetalhesProcesso(this.id.value)
-          }
+        if (response.status === 200) {
+          alert("Removido com Sucesso!")
+          this.getDetalhesProcesso(this.id.value)
+        }
 
       })
       .catch((err) => {
@@ -1329,22 +1348,31 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerTarefaProcesso(_, record) {
 
-    let payload = {
-      "type": "tarefa",
-      "valueId": record.id
+    const payload = {
+      "status": 1
     }
-  )
-    .then((response) => {
-        if(response.status === 200){
-          alert("Removido com Sucesso!")
+
+    $still.HTTPClient.put(
+      `http://localhost:3000/api/v1/tarefas_processo/${record.id}`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        if (response.status !== 200) {
+          alert(response.errors);
+        } else {
+          alert("Actualizado com sucesso a tarefa");
+          this.toggleForms(idForm)
           this.getDetalhesProcesso(this.id.value)
         }
-
       })
       .catch((err) => {
         console.log(`Erro ao cadastrar processo: `, err);
       });
-
 
   }
 
@@ -1389,20 +1417,20 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
 
-  $still.HTTPClient.delete(
-    `http://localhost:3000/api/v1/recursos_processo/`,
-    JSON.stringify(payload),
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((response) => {
-        if(response.status === 200){
+    $still.HTTPClient.delete(
+      `http://localhost:3000/api/v1/recursos_processo/`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        if (response.status === 200) {
           alert("Removido com Sucesso!")
           this.getDetalhesProcesso(this.id.value)
-        }else {
+        } else {
           alert("Erro ao remover o Processo!")
         }
 
@@ -1413,7 +1441,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   downalodAnexoProcesso(_, record) {
-    
+
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
       {

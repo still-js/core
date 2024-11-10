@@ -2,7 +2,7 @@
 $(function () {
 
 
-$('#new-orders').slimscroll({
+	$('#new-orders').slimscroll({
 		height: '500px',
 		size: '5px'
 	});
@@ -96,7 +96,7 @@ function amChartCylinder() {
 	// Create chart instance
 	var chart = am4core.create("amChartCylinderHome", am4charts.XYChart3D);
 
-	chart.titles.create().text = "Chart Data";
+	chart.titles.create().text = "";
 
 	// Add data
 	chart.data = [{

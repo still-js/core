@@ -281,13 +281,6 @@ class ColaboradorForm extends ViewComponent {
         document.getElementById("input-taxa-horaria").disabled = true;
     }
 
-    updateTipoColaborador(evt) {
-        console.log("Value is: ", evt);
-        this.tipo_colaborador_id = evt.target.value;
-        console.log("after setted ... ", this.tipo_colaborador_id);
-        disabledTaxaHoraria();
-    }
-
     updateTipoCategoria(evt) {
         console.log("Value is: ", evt);
         this.funcao = evt.target.value;
@@ -372,7 +365,8 @@ class ColaboradorForm extends ViewComponent {
                         alert(response.errors);
                         // Router.goto('Init');
                     } else {
-                        alert("Salvo com sucesso")
+                        alert("Salvo com sucesso");
+                        Router.goto('ColaboradoresGrid');
                         console.log("cadastro do colaborador ... ", response)
                         //AppTemplate.get().store('logged', true);
                         //Router.goto('Home');
@@ -389,15 +383,12 @@ class ColaboradorForm extends ViewComponent {
     }
 
     updateTipoColaborador(evt) {
-        console.log("Value is: ", evt);
         this.tipo_colaborador_id = evt.target.value;
-        console.log("after setted ... ", this.tipo_colaborador_id);
+        disabledTaxaHoraria();
     }
 
     updateTipoCategoria(evt) {
-        console.log("Value is: ", evt);
         this.funcao = evt.target.value;
-        console.log("after setted ... ", this.funcao);
     }
 
     updateContactoEndereco(evt) {
@@ -406,9 +397,7 @@ class ColaboradorForm extends ViewComponent {
         //console.log("after setted ... ", this.funcao)
     }
     updateStatus(evt) {
-        console.log("Value is: ", evt);
         this.status = evt.target.value;
-        console.log("after setted ... ", this.status);
     }
 
     isValidInputForm() {

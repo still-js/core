@@ -318,7 +318,7 @@ $(function (e) {
 
         calculable: !0,
         series: [{
-            name: "Chart Data",
+            name: "",
             type: "pie",
             radius: "55%",
             center: ["50%", "48%"],

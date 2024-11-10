@@ -5,8 +5,12 @@ class CTopNavBar extends ViewComponent {
         margin-left: -13px;">
             <div class="navbar-header">
                 <a class="navbar-brand" href="index.html">
-                    <img src="assets/images/logo.png" alt="" />
-                    <span class="logo-name">Atrios</span>
+                    <img 
+                        src="assets/images/julaw-logo.png" 
+                        style="width: 42px;"
+                        alt="" 
+                    />
+                    <span class="logo-name">SOFTLAW</span>
                 </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse" style="position: fixed; width: 100%; padding-left: 235px">

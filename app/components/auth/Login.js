@@ -86,6 +86,7 @@ class Login extends ViewComponent {
                         localStorage.setItem('logged', true);
                         alert("Bem-vindo (a), a plataforma JuLAW");
                         AppTemplate.get().store('logged', true);
+                        AppTemplate.get().store('userName', response.data.nome_completo);
                         AppTemplate.get().store('persmissions', { canSeeGrid: false });
                         AppTemplate.get().setAuthN(true);
                         Router.goto('ColaboradorDashboard');

@@ -1,19 +1,16 @@
 class CMenu extends ViewComponent {
   htmlRefId = "leftsidebar";
 
-  userName = JSON.parse(localStorage._user).nome_completo;
+  userName = ``;
   userRole = "Admin";
 
   template = `
     <ul class="menu-julaw">
       <li>
         <div class="sidebar-profile clearfix">
-            <div class="profile-img">
-              <img src="../../assets/images/usrbig.jpg" alt="profile">
-            </div>
             <div class="profile-info">
-              <h3>@userName</h3>
-              <p>Bem vindo ao Julaw</p>
+              <h3 id="userNameMenuPlaceholder"></h3>
+              <p>Menu Principal</p>
             </div>
         </div>
       </li>
@@ -61,6 +58,7 @@ class CMenu extends ViewComponent {
 
   constructor() {
     super();
+    //this.userName = AppTemplate.get().storageGet('userName');
     this.setup({});
   }
 

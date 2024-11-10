@@ -219,36 +219,36 @@ function initCardChart() {
 	setTimeout(mdraw, mrefreshinterval);
 }
 
-function initamChartBar(){
+function initamChartBar() {
 	// Themes begin
 	am4core.useTheme(am4themes_animated);
 	// Themes end
-	
+
 	// Create chart instance
 	var chart = am4core.create("amChartBar", am4charts.XYChart);
-	
+
 	// Add data
 	chart.data = [{
-	  "date": "2012-07-27",
-	  "value": 13
+		"date": "2012-07-27",
+		"value": 13
 	}, {
-	  "date": "2012-08-28",
-	  "value": 11
+		"date": "2012-08-28",
+		"value": 11
 	}, {
-	  "date": "2012-09-29",
-	  "value": 14
+		"date": "2012-09-29",
+		"value": 14
 	}, {
-	  "date": "2012-10-30",
-	  "value": 10
+		"date": "2012-10-30",
+		"value": 10
 	}, {
-	  "date": "2012-11-31",
-	  "value": 12
+		"date": "2012-11-31",
+		"value": 12
 	}];
-	
+
 	// Create axes
 	var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
 	var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-	
+
 	// Create series
 	var series = chart.series.push(new am4charts.LineSeries());
 	series.dataFields.valueY = "value";
@@ -256,71 +256,71 @@ function initamChartBar(){
 	series.tooltipText = "{value}"
 	series.strokeWidth = 2;
 	series.minBulletDistance = 5;
-	
-	
+
+
 	// Make bullets grow on hover
 	var bullet = series.bullets.push(new am4charts.CircleBullet());
 	bullet.circle.strokeWidth = 2;
 	bullet.circle.radius = 4;
 	bullet.circle.fill = am4core.color("#fff");
-	
+
 	var bullethover = bullet.states.create("hover");
 	bullethover.properties.scale = 1.3;
-	
+
 	// Make a panning cursor
 	chart.cursor = new am4charts.XYCursor();
 	chart.cursor.behavior = "panXY";
 }
 
-function amChartCylinder(){
+function amChartCylinder() {
 	am4core.useTheme(am4themes_animated);
 	// Themes end
-	
+
 	// Create chart instance
 	var chart = am4core.create("amChartCylinder", am4charts.XYChart3D);
-	
-	chart.titles.create().text = "Chart Data";
-	
+
+	chart.titles.create().text = "";
+
 	// Add data
 	chart.data = [{
-	  "category": "Q1",
-	  "value1": 30,
-	  "value2": 70
+		"category": "Q1",
+		"value1": 30,
+		"value2": 70
 	}, {
-	  "category": "Q2",
-	  "value1": 15,
-	  "value2": 85
+		"category": "Q2",
+		"value1": 15,
+		"value2": 85
 	}, {
-	  "category": "Q3",
-	  "value1": 40,
-	  "value2": 60
+		"category": "Q3",
+		"value1": 40,
+		"value2": 60
 	}, {
-	  "category": "Q4",
-	  "value1": 55,
-	  "value2": 45
+		"category": "Q4",
+		"value1": 55,
+		"value2": 45
 	}];
-	
+
 	// Create axes
 	var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
 	categoryAxis.dataFields.category = "category";
 	categoryAxis.renderer.grid.template.location = 0;
 	categoryAxis.renderer.grid.template.strokeOpacity = 0;
-	
+
 	var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 	valueAxis.renderer.grid.template.strokeOpacity = 0;
 	valueAxis.min = -10;
 	valueAxis.max = 110;
 	valueAxis.strictMinMax = true;
 	valueAxis.renderer.baseGrid.disabled = true;
-	valueAxis.renderer.labels.template.adapter.add("text", function(text) {
-	  if ((text > 100) || (text < 0)) {
-	    return "";
-	  }
-	  else {
-	    return text + "%";
-	  }
+	valueAxis.renderer.labels.template.adapter.add("text", function (text) {
+		if ((text > 100) || (text < 0)) {
+			return "";
+		}
+		else {
+			return text + "%";
+		}
 	})
-	
+
 	// Create series
 	var series1 = chart.series.push(new am4charts.ConeSeries());
 	series1.dataFields.valueY = "value1";
@@ -329,7 +329,7 @@ function amChartCylinder(){
 	series1.columns.template.fillOpacity = 0.9;
 	series1.columns.template.strokeOpacity = 1;
 	series1.columns.template.strokeWidth = 2;
-	
+
 	var series2 = chart.series.push(new am4charts.ConeSeries());
 	series2.dataFields.valueY = "value2";
 	series2.dataFields.categoryX = "category";
@@ -342,39 +342,39 @@ function amChartCylinder(){
 	series2.columns.template.strokeWidth = 2;
 }
 
-function amChartGauge(){
+function amChartGauge() {
 	// Themes begin
 	am4core.useTheme(am4themes_animated);
 	// Themes end
-	
+
 	var chart = am4core.create("amChartGauge", am4charts.XYChart);
-	
+
 	var data = [];
-	
+
 	chart.data = [{
-	  "year": "2014",
-	  "income": 13.5,
-	  "lineColor": chart.colors.next()
+		"year": "2014",
+		"income": 13.5,
+		"lineColor": chart.colors.next()
 	}, {
-	  "year": "2015",
-	  "income": 20.1,
-	  "expenses": 34.9
+		"year": "2015",
+		"income": 20.1,
+		"expenses": 34.9
 	}, {
-	  "year": "2016",
-	  "income": 30.6,
-	  "lineColor": chart.colors.next()
+		"year": "2016",
+		"income": 30.6,
+		"lineColor": chart.colors.next()
 	}, {
-	  "year": "2017",
-	  "income": 28.1,
+		"year": "2017",
+		"income": 28.1,
 	}, {
-	  "year": "2018",
-	  "income": 26.1,
-	  "lineColor": chart.colors.next()
+		"year": "2018",
+		"income": 26.1,
+		"lineColor": chart.colors.next()
 	}, {
-	  "year": "2019",
-	  "income": 30.1,
+		"year": "2019",
+		"income": 30.1,
 	}];
-	
+
 	var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
 	categoryAxis.renderer.grid.template.location = 0;
 	categoryAxis.renderer.ticks.template.disabled = true;
@@ -384,14 +384,14 @@ function amChartGauge(){
 	categoryAxis.dataFields.category = "year";
 	categoryAxis.startLocation = 0.4;
 	categoryAxis.endLocation = 0.6;
-	
-	
+
+
 	var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 	valueAxis.tooltip.disabled = true;
 	valueAxis.renderer.line.opacity = 0;
 	valueAxis.renderer.ticks.template.disabled = true;
 	valueAxis.min = 0;
-	
+
 	var lineSeries = chart.series.push(new am4charts.LineSeries());
 	lineSeries.dataFields.categoryX = "year";
 	lineSeries.dataFields.valueY = "income";
@@ -400,12 +400,12 @@ function amChartGauge(){
 	lineSeries.strokeWidth = 3;
 	lineSeries.propertyFields.stroke = "lineColor";
 	lineSeries.propertyFields.fill = "lineColor";
-	
+
 	var bullet = lineSeries.bullets.push(new am4charts.CircleBullet());
 	bullet.circle.radius = 6;
 	bullet.circle.fill = am4core.color("#fff");
 	bullet.circle.strokeWidth = 3;
-	
+
 	chart.cursor = new am4charts.XYCursor();
 	chart.cursor.behavior = "panX";
 	chart.cursor.lineX.opacity = 0;
@@ -569,7 +569,7 @@ function initChartReport2() {
 
 }
 
-function amChartLineWidget(){
+function amChartLineWidget() {
 	// Themes begin
 	am4core.useTheme(am4themes_animated);
 	// Themes end
@@ -578,29 +578,29 @@ function amChartLineWidget(){
 
 	// Add data
 	chart.data = [{
-	  "date": "2012-03-01",
-	  "price": 20
+		"date": "2012-03-01",
+		"price": 20
 	}, {
-	  "date": "2012-03-02",
-	  "price": 75
+		"date": "2012-03-02",
+		"price": 75
 	}, {
-	  "date": "2012-03-03",
-	  "price": 15
+		"date": "2012-03-03",
+		"price": 15
 	}, {
-	  "date": "2012-03-04",
-	  "price": 75
+		"date": "2012-03-04",
+		"price": 75
 	}, {
-	  "date": "2012-03-05",
-	  "price": 158
+		"date": "2012-03-05",
+		"price": 158
 	}, {
-	  "date": "2012-03-06",
-	  "price": 57
+		"date": "2012-03-06",
+		"price": 57
 	}, {
-	  "date": "2012-03-07",
-	  "price": 107
+		"date": "2012-03-07",
+		"price": 107
 	}, {
-	  "date": "2012-03-08",
-	  "price": 89
+		"date": "2012-03-08",
+		"price": 89
 	}];
 
 	// Create axes
@@ -633,4 +633,4 @@ function amChartLineWidget(){
 	chart.cursor.lineX.fillOpacity = 0.1;
 
 
-	}
+}

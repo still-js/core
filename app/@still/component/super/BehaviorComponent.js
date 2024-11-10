@@ -23,7 +23,13 @@ class BehaviorComponent {
     }
 
     hideLoading() {
-        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'none';
+        const hideTimeout = setTimeout(() => {
+            const elm = document.getElementById('stllAppGlobalLoadingCurtain');
+            if (elm) {
+                elm.style.display = 'none';
+                clearTimeout(hideTimeout);
+            }
+        }, 100)
     }
 
 }

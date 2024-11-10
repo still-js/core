@@ -118,40 +118,13 @@ class ProcessoForm extends ViewComponent {
     <section class="content">
     <div class="row clearfix">
         
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
-        <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <ul class="breadcrumb breadcrumb-style" style="
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px
-            margin-top: 10px
-            ;">
-                <li class="breadcrumb-item 	bcrumb-1">
-                    <a href="/">
-                        <i class="material-icons">home</i>
-                        Home</a>
-                </li>
-                <li class="breadcrumb-item bcrumb-1 active">Processo</li>
-                <li class="breadcrumb-item active">Lista dos Processos</li>
-            </ul>
-        </div>             
-        </div>
-
-        
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div>
-                <h2>Novo Processo</h2>
-                <p>Crie um novo Processo</p>
+            <div class="title-grid-component" style="display: flex">
+                <span class="fas fa-archive title-grid-component-icon"></span>    
+                <h3>Novo Processo</h3>
             </div>
-
             <div class="card">
-                <div class="header">
-                    <h2><strong>Cadastro</strong> de processo</h2>
-                </div>
-                <div class="body">
+                <div class="body" style="margin-top: -55px;">
                     <form id="wizard_with_validatio" onsubmit="javascript: return false;">
                             <h3 style="background-color: #009688;
                                         padding: 15px;
@@ -392,9 +365,9 @@ class ProcessoForm extends ViewComponent {
                 .then((response) => {
                     console.log(`processo criado com sucesso: `, response);
                     if (response.status !== 201) {
-                        if(response.message) {
+                        if (response.message) {
                             alert(response.message);
-                        }else{
+                        } else {
                             alert(JSON.stringify(response.errors));
                         }
                     } else {
@@ -519,8 +492,8 @@ class ProcessoForm extends ViewComponent {
         this.referencia = data.ref;
         this.assunto = data.assunto;
         this.area = data.area;
-        this.fase = data.fase; 
-          
+        this.fase = data.fase;
+
         this.contraParte = data.contra_parte;
         this.dataRegisto = data.data_registo;
         this.dataSuspensao = data.data_suspensao;
@@ -530,7 +503,7 @@ class ProcessoForm extends ViewComponent {
         this.factos = data.factos;
         this.objectivos = data.objectivos;
         this.dadosImportantes = data.dados_importantes;
-     
+
         this.createdAt = data.created_at;
         this.updatedAt = data.updated_at;
 
@@ -542,15 +515,15 @@ class ProcessoForm extends ViewComponent {
 
         setTimeout(() => {
 
-            if(this.dataRegisto.value)
-                document.getElementById('dataRegistoInput').value = this.dataRegisto.value.substr(0,10)
+            if (this.dataRegisto.value)
+                document.getElementById('dataRegistoInput').value = this.dataRegisto.value.substr(0, 10)
 
-            if(this.dataSuspensao.value)
-                document.getElementById('dataSuspensaoInput').value = this.dataSuspensao.value.substr(0,10)
+            if (this.dataSuspensao.value)
+                document.getElementById('dataSuspensaoInput').value = this.dataSuspensao.value.substr(0, 10)
 
-            if(this.dataEncerramento.value)
-                document.getElementById('dataEncerramentoInput').value = this.dataEncerramento.value.substr(0,10)
-        
+            if (this.dataEncerramento.value)
+                document.getElementById('dataEncerramentoInput').value = this.dataEncerramento.value.substr(0, 10)
+
             this.modoFacturacaoId = data.modo_facturacao_id;
             this.instituicaoId = data.instituicao_id;
             this.statusId = data.status_id;
@@ -558,13 +531,13 @@ class ProcessoForm extends ViewComponent {
             this.clienteId = data.cliente_id;
 
             console.log(">>>>><<<   ", this.gestorId)
-    
+
         }, 500)
 
 
         console.log(this.gestorId)
         console.log(this.listColaboradores)
-     
+
     }
 
     /** fn updates */

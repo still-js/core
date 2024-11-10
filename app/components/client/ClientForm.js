@@ -21,7 +21,14 @@ class ClientForm extends ViewComponent {
     template = `
     <section class="content">
         <div class="row clearfix">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="title-grid-component" style="display: flex">
+                <span class="fas fa-user title-grid-component-icon"></span>    
+                <h3>Novo Cliente</h3>
+            </div>
+
+            <div 
+                style="margin-top: -55px;"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="card">
                     <div class="header">
                         <h2><strong>Cadastro</strong> de cliente</h2>
@@ -46,7 +53,7 @@ class ClientForm extends ViewComponent {
                         </ul>
                     </div>
                     <div class="body">
-                        <form id="wizard_with_validation" onsubmit="javascript: return false;">
+                        <form id="client_wizard_with_validation" onsubmit="javascript: return false;">
                             <h3>Dados Pessoais</h3>
                             <fieldset>
 
@@ -222,7 +229,7 @@ class ClientForm extends ViewComponent {
                 'assets/js/form.min.js',
             ],
         });
-        this.showLoading();
+        //this.showLoading();
 
     }
 
@@ -232,7 +239,7 @@ class ClientForm extends ViewComponent {
     }
 
     onRender() {
-        this.showLoading();
+        //this.showLoading();
         this.routingData = Router.data('ClientForm');
         loadWizard({ enableAllSteps: this.routingData ? true : false });
     }
@@ -356,7 +363,7 @@ class ClientForm extends ViewComponent {
  */
 function loadWizard({ enableAllSteps = false } = {}) {
 
-    var form = $('#wizard_with_validation').show();
+    var form = $('#client_wizard_with_validation').show();
     const [finish, next, previous] = ["Submeter", "Próximo", "Voltar"]
     form.steps({
         showFinishButtonAlways: false,

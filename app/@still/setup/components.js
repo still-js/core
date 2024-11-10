@@ -469,6 +469,7 @@ class Components {
 
 
         /** Get the previous table body */
+
         const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
         /** Check if it exists previous table body and remove it */
         if (oldContainer) elm.parentNode.removeChild(oldContainer);

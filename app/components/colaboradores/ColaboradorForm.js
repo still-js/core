@@ -1,4 +1,5 @@
 class ColaboradorForm extends ViewComponent {
+
     username;
     nome_completo;
     nome_profissional;
@@ -21,19 +22,21 @@ class ColaboradorForm extends ViewComponent {
     template = `
     <section class="content">
     <div class="row clearfix">
-        <div class="title-grid-component">
-            <span class="fas fa-user title-grid-component-icon"></span>    
-                <h3>Novo Colaborador</h3>
-            <span class="title-grid-component-description">cria um novo colaborador</span>
+        <div class="title-grid-component" style="display: flex">
+            <span class="fas fa-user-tie title-grid-component-icon"></span>    
+            <h3>Novo Colaborador</h3>
         </div>
 
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div 
+            class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+            style="margin-top: -55px;"
+            >
             <div class="card">
                 <div class="header">
                     <h2><strong>Cadastro</strong> de colaborador</h2>
                 </div>
                 <div class="body">
-                    <form id="wizard_with_validation" onsubmit="javascript: return false;">
+                    <form id="col_wizard_with_validation" onsubmit="javascript: return false;">
                         <h3>Dados Pessoais</h3>
                         <fieldset>
 
@@ -452,7 +455,7 @@ class ColaboradorForm extends ViewComponent {
 
 function loadWizard({ enableAllSteps = false } = {}) {
 
-    var form = $('#wizard_with_validation').show();
+    var form = $('#col_wizard_with_validation').show();
     const [finish, next, previous] = ["Submeter", "Próximo", "Voltar"]
     form.steps({
         showFinishButtonAlways: false,

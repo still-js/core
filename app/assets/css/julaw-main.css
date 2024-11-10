@@ -204,3 +204,11 @@ input[name="title"] {
 /** 
 END LOADING STYLE
 */
+
+/* TEMPLATE DATA TABLE */
+
+.table-responsive {
+    margin-top: -50px !important;
+}
+
+/* END TEMPLATE DATA TABLE */

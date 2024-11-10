@@ -42,43 +42,52 @@ class ClientsGrid extends ViewComponent {
 
     template = `
     <section class="content">
+        <br>
+        <div class="block-header">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button (click)="gotoCreateCliente()" type="button" class="btn btn-primary m-t-15 waves-effect">
+                        <span style="display: flex; gap: 10px; align-items: center;">
+                            <i class="material-icons">create_new_folder</i>
+                            Novo
+                        </span>
+                    </button>
 
-        <st-element
-            component="TabulatorComponent"
-            proxy="dataTable"
-            tableHeader="parent.dataTableLabels"
-            (onEditColumn)="getClientDetails(fieldName, data)"
-            (onDeleteRow)="deleteRow(fieldName, data)"
-            (onCellClick)="cellClick(row, col, data)"
-            >
-        </st-element>
+                    <ul class="breadcrumb breadcrumb-style" style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 5px;"
+                    >
+                        <li class="breadcrumb-item 	bcrumb-1">
+                            <a href="/">
+                                <i class="material-icons">home</i>
+                                Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item bcrumb-1 active">Cliente</li>
+                        <li class="breadcrumb-item active">Lista de Clientes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-        <st-element
-            component="TBDragableGrid"
-            proxy="dragableTBProxy"
-            tableData="parent.dragableData"
-            tableFields="parent.dragableFields"
-            destFields="parent.dragableDestFields"
-            destPlaceholder="Arraste aqui o item a pagar"
-            >
-        </st-element>
-
-        <!--
-        <st-element
-            component="TUICalendarComponent"
-            proxy="timeSheet"
-            (onEventCreate)="saveEvent()"
-            editLabel="Editar"
-            milestoneTitle="Objectivo"
-            (onEventUpdate)="updateEvent()"
-            (onEventDeletion)="deleteEvent()"
-            proxy="calendarProxy"
-            >
-        </st-element>
-
-        <button (click)="resetCalendario()">Limpar Calendário A partir do parent component</button>
-        <button (click)="createNewEvent()">Criar novos eventos a partir do parent</button>
-        -->
+        <div class="card">
+            <div class="header">
+            <h2><strong>Cliente </strong>Cadastrados</h2>
+            </div>
+            <div class="body table-responsive">
+                <st-element
+                    component="TabulatorComponent"
+                    proxy="dataTable"
+                    tableHeader="parent.dataTableLabels"
+                    (onEditColumn)="getClientDetails(fieldName, data)"
+                    (onDeleteRow)="deleteRow(fieldName, data)"
+                    (onCellClick)="cellClick(row, col, data)"
+                    >
+                </st-element>
+            </div>
+        </div>
 
     </section>
     `;
@@ -86,7 +95,7 @@ class ClientsGrid extends ViewComponent {
     constructor() {
         super();
         this.setup({});
-        this.showLoading();
+        //this.showLoading();
     }
 
     deleteRow(_, record) {
@@ -205,7 +214,9 @@ class ClientsGrid extends ViewComponent {
                 this.dataSource = r.data;
                 //console.log(`DATA IS: `,this.dataSource);
                 this.dataTable.dataSource = r.data;
+                console.log(`WILL HIDE LOADING`);
                 this.hideLoading();
+                console.log(`AFTER WILL HIDE LOADING`);
             });
 
     }
@@ -250,6 +261,10 @@ class ClientsGrid extends ViewComponent {
             return formatter.format(amount) + `${cents}`;
         }
 
+    }
+
+    gotoCreateCliente() {
+        Router.goto('ClientForm');
     }
 
 

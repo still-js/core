@@ -87,7 +87,7 @@ class ColaboradorDashboard extends ViewComponent {
           <h2><strong>Teus </strong>Processos</h2>
           <p style="font-size: 12px">Encontre aqui, os processos que foram partilhados consigo</p>
         </div>
-        <div class="body">
+        <div class="body table-responsive">
           <st-element
             component="TabulatorComponent"
             proxy="dataTable"
@@ -116,32 +116,32 @@ class ColaboradorDashboard extends ViewComponent {
   stAfterInit(val) {
     const userLogged = JSON.parse(localStorage.getItem('_user'))
 
-    if(userLogged) {
+    if (userLogged) {
       $still.HTTPClient.get(
         `http://localhost:3000/api/v1/processo_colaborador/${userLogged.id}`
       ).then((r) => {
-      if (r.data) {
+        if (r.data) {
           this.dataTable.dataSource = r.data;
           this.populateCards(r.data);
-      } else {
-        this.hideLoading();
-      }
-    });
+        } else {
+          this.hideLoading();
+        }
+      });
     }
   }
 
   populateCards(data) {
-      let rascunho =  data.filter((item) => item.estado === 'Rascunho')
-      this._('processosRascunho', rascunho.length)
+    let rascunho = data.filter((item) => item.estado === 'Rascunho')
+    this._('processosRascunho', rascunho.length)
 
-      let proposta =  data.filter((item) => item.estado === 'Proposta')
-      this._('processosProposta', proposta.length)
+    let proposta = data.filter((item) => item.estado === 'Proposta')
+    this._('processosProposta', proposta.length)
 
-      let suspenso =  data.filter((item) => item.estado === 'Suspenso')
-      this._('processosSuspenso', suspenso.length)
+    let suspenso = data.filter((item) => item.estado === 'Suspenso')
+    this._('processosSuspenso', suspenso.length)
 
-      let enderrado =  data.filter((item) => item.estado === 'Encerrado')
-      this._('processosEncerrado', enderrado.length)
+    let enderrado = data.filter((item) => item.estado === 'Encerrado')
+    this._('processosEncerrado', enderrado.length)
   }
 
   _(id, valor) {
@@ -154,7 +154,7 @@ class ColaboradorDashboard extends ViewComponent {
     });
   }
 
-  detalheProcesso(_,_col, record) {
+  detalheProcesso(_, _col, record) {
     Router.goto("ProcessoDetalhes", {
       data: record.id,
     });

@@ -67,7 +67,9 @@ class BaseComponent extends BehaviorComponent {
     isPublic = false;
     dynCmpGeneratedId = null;
     stillElement = false;
-    wasParsedBefore = false;
+    proxyName = null;
+    parentVersionId = null;
+    versionId = null;
     /**
      * @type { Array<ComponentPart> }
      */
@@ -121,7 +123,8 @@ class BaseComponent extends BehaviorComponent {
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm', '$stillpfx', 'subImported',
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'wasParsedBefore'
+            'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
+            'parentVersionId', 'versionId'
         ];
         return fields.filter(
             field => {
@@ -803,12 +806,12 @@ class BaseComponent extends BehaviorComponent {
         }
 
         const re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
-        let matchCounter = 0;
 
         if (this.cmpInternalId in Components.componentPartsMap) {
             delete Components.componentPartsMap[this.cmpInternalId];
         }
 
+        this.versionId = UUIDUtil.newId();
         template = template.replace(re, (mt) => {
 
             const propMapper = {};
@@ -826,11 +829,15 @@ class BaseComponent extends BehaviorComponent {
                 props[prop] = val;
             });
 
-            const [cmpId, cmp] = [`st_${Math.random().toString().split('.')[1]}`, eval(`new ${cmpName}()`)];
+            const [cmpId, cmp] = [`st_${UUIDUtil.numberId()}`, eval(`new ${cmpName}()`)];
             cmp.dynCmpGeneratedId = cmpId;
             cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
             cmp.stillElement = true;
-            $still.context.componentRegistror.componentList[cmp.cmpInternalId] = { instance: cmp };
+            cmp.proxyName = proxy;
+            ComponentRegistror.register(
+                cmp.cmpInternalId,
+                cmp
+            );
 
             if (!(this.cmpInternalId in Components.componentPartsMap)) {
                 Components.componentPartsMap[this.cmpInternalId] = [];
@@ -846,8 +853,6 @@ class BaseComponent extends BehaviorComponent {
             return `<still-placeholder style="display:content;" class="still-placeholder${this.getUUID()}"></still-placeholder>`;
 
         });
-
-        this.wasParsedBefore = true;
 
         return template;
 

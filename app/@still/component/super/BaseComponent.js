@@ -67,6 +67,7 @@ class BaseComponent extends BehaviorComponent {
     isPublic = false;
     dynCmpGeneratedId = null;
     stillElement = false;
+    wasParsedBefore = false;
     /**
      * @type { Array<ComponentPart> }
      */
@@ -120,7 +121,7 @@ class BaseComponent extends BehaviorComponent {
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm', '$stillpfx', 'subImported',
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId', 'stillElement', 'stMyParent'
+            'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'wasParsedBefore'
         ];
         return fields.filter(
             field => {
@@ -802,6 +803,12 @@ class BaseComponent extends BehaviorComponent {
         }
 
         const re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
+        let matchCounter = 0;
+
+        if (this.cmpInternalId in Components.componentPartsMap) {
+            delete Components.componentPartsMap[this.cmpInternalId];
+        }
+
         template = template.replace(re, (mt) => {
 
             const propMapper = {};
@@ -824,9 +831,14 @@ class BaseComponent extends BehaviorComponent {
             cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
             cmp.stillElement = true;
             $still.context.componentRegistror.componentList[cmp.cmpInternalId] = { instance: cmp };
-            this.$stillExternComponentParts.push(
+
+            if (!(this.cmpInternalId in Components.componentPartsMap)) {
+                Components.componentPartsMap[this.cmpInternalId] = [];
+            }
+
+            Components.componentPartsMap[this.cmpInternalId].push(
                 new ComponentPart({
-                    template: cmp.getBoundTemplate(), component: cmp,
+                    template: null, component: cmp,
                     proxy, props,
                 })
             );
@@ -834,6 +846,8 @@ class BaseComponent extends BehaviorComponent {
             return `<still-placeholder style="display:content;" class="still-placeholder${this.getUUID()}"></still-placeholder>`;
 
         });
+
+        this.wasParsedBefore = true;
 
         return template;
 

@@ -88,6 +88,7 @@ class Components {
     notAssignedValue = [undefined, null, ''];
     stillCmpConst = $stillconst.STILL_COMPONENT;
     stillAppConst = $stillconst.APP_PLACEHOLDER;
+    static componentPartsMap = {};
 
     /**
      * @returns { ComponentSetup }
@@ -613,7 +614,7 @@ class Components {
     static handleInPlaceParts(parentCmp) {
 
         /** @type { Array<ComponentPart> } */
-        const cmpParts = parentCmp.$stillExternComponentParts;
+        const cmpParts = Components.componentPartsMap[parentCmp.cmpInternalId];
         const placeHolders = document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
         /**
          * Get all <st-element> component to replace with the
@@ -638,9 +639,10 @@ class Components {
                 cmpName = 'constructor' in instance ? instance.constructor.name : null;
             }
 
-            const cmp = instance?.stillParsedState
-                ? instance
-                : (new Components).getNewParsedComponent(instance, cmpName);
+            /**
+             * TOUCH TO REINSTANTIATE
+             */
+            const cmp = (new Components).getNewParsedComponent(instance, cmpName);
             parentCmp[proxy] = cmp;
             cmp.setParentComponent(parentCmp);
             const allProps = Object.entries(props);

@@ -522,7 +522,9 @@ class ProcessoDetalhes extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="material-icons">person</i> Equipas
                                     </span>
-                                    <select (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
+                                    <select 
+                                        id="qeuipaSelectedColaborador"
+                                        (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
                                         <option each="item" value="">Selecione uma opção</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
@@ -675,6 +677,7 @@ class ProcessoDetalhes extends ViewComponent {
                 (onCellClick)="visualizarAnexoProcesso(row, col, data)">
             </st-element>
         </div>
+        
     </div>
     <!-- Fim TAB Anexos -->
 
@@ -707,6 +710,7 @@ class ProcessoDetalhes extends ViewComponent {
         </st-element>
 
         <div style="display: flex; justify-content: right; margin-top: 30px;">
+          <!-- <span (click)="checkHonorarios()">Validar</span> -->
           <button 
             class="btn btn-primary julaw-submit-button" 
             (click)="generateHonorario()">
@@ -1028,8 +1032,11 @@ class ProcessoDetalhes extends ViewComponent {
     return document.getElementById(id).value
   }
 
+  qeuipaSelectedColaborador;
   updateEquipasProcesso(evt) {
     this.equipaInput = evt.target.value;
+    const e = document.getElementById("qeuipaSelectedColaborador");
+    this.qeuipaSelectedColaborador = e.options[e.selectedIndex].text;
     console.log(" <<<<<<<<<< this.equipasProcesso  ", this.equipaInput)
   }
 
@@ -1119,8 +1126,16 @@ class ProcessoDetalhes extends ViewComponent {
           console.log(response.errors);
         } else {
           console.log("Salvo com sucesso");
-          this.toggleForms(idForm)
-          this.getDetalhesProcesso(this.id.value)
+          this.toggleForms(idForm);
+
+          const dados = this.qeuipaSelectedColaborador.split('-');
+          const funcao = [dados[0], dados[1]].join('');
+          const colaborador = dados[2].trim()
+
+          this.dataTableListProcessosEquipas.insertRow(
+            { colaborador, funcao }
+          );
+          //this.getDetalhesProcesso(this.id.value)
         }
       })
       .catch((err) => {
@@ -1646,6 +1661,13 @@ class ProcessoDetalhes extends ViewComponent {
 
   fecharFactura() {
     this.showFactura = false;
+  }
+
+
+  checkHonorarios() {
+    //this.dataTableListProcessosAnexos
+    console.log(this.dataTableListProcessosAnexos.table.getData());
+    //this.honorarioProxy.inse
   }
 
 }

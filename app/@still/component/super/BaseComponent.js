@@ -67,6 +67,9 @@ class BaseComponent extends BehaviorComponent {
     isPublic = false;
     dynCmpGeneratedId = null;
     stillElement = false;
+    proxyName = null;
+    parentVersionId = null;
+    versionId = null;
     /**
      * @type { Array<ComponentPart> }
      */
@@ -120,7 +123,8 @@ class BaseComponent extends BehaviorComponent {
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm', '$stillpfx', 'subImported',
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId', 'stillElement', 'stMyParent'
+            'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
+            'parentVersionId', 'versionId'
         ];
         return fields.filter(
             field => {
@@ -802,6 +806,12 @@ class BaseComponent extends BehaviorComponent {
         }
 
         const re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
+
+        if (this.cmpInternalId in Components.componentPartsMap) {
+            delete Components.componentPartsMap[this.cmpInternalId];
+        }
+
+        this.versionId = UUIDUtil.newId();
         template = template.replace(re, (mt) => {
 
             const propMapper = {};
@@ -819,14 +829,23 @@ class BaseComponent extends BehaviorComponent {
                 props[prop] = val;
             });
 
-            const [cmpId, cmp] = [`st_${Math.random().toString().split('.')[1]}`, eval(`new ${cmpName}()`)];
+            const [cmpId, cmp] = [`st_${UUIDUtil.numberId()}`, eval(`new ${cmpName}()`)];
             cmp.dynCmpGeneratedId = cmpId;
             cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
             cmp.stillElement = true;
-            $still.context.componentRegistror.componentList[cmp.cmpInternalId] = { instance: cmp };
-            this.$stillExternComponentParts.push(
+            cmp.proxyName = proxy;
+            ComponentRegistror.register(
+                cmp.cmpInternalId,
+                cmp
+            );
+
+            if (!(this.cmpInternalId in Components.componentPartsMap)) {
+                Components.componentPartsMap[this.cmpInternalId] = [];
+            }
+
+            Components.componentPartsMap[this.cmpInternalId].push(
                 new ComponentPart({
-                    template: cmp.getBoundTemplate(), component: cmp,
+                    template: null, component: cmp,
                     proxy, props,
                 })
             );

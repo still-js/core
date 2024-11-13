@@ -1,6 +1,6 @@
 class ComponentNotFoundException extends Error {
     name = 'ComponentNotFoundException';
-    constructor(cmpName){
+    constructor(cmpName) {
         super();
         this.message = JSON.stringify({
             message: `Component with name ${cmpName} no found`,
@@ -16,9 +16,9 @@ class ComponentRegistror {
     componentList = {};
     static registror = null;
 
-    static get(){
+    static get() {
 
-        if(ComponentRegistror.registror == null){
+        if (ComponentRegistror.registror == null) {
             ComponentRegistror.registror = new ComponentRegistror();
         }
         return ComponentRegistror.registror;
@@ -29,8 +29,8 @@ class ComponentRegistror {
      * 
      * @param {SettingType} component 
      */
-    export({ componentName: name, path, instance }){
-        if(!(name in this.componentList))
+    export({ componentName: name, path, instance }) {
+        if (!(name in this.componentList))
             this.componentList[instance.componentName] = { path, instance };
 
     }
@@ -39,13 +39,13 @@ class ComponentRegistror {
      * 
      * @param {ViewComponent} cmp 
      */
-    expose(cmp){
+    expose(cmp) {
         return new Components().getParsedComponent(cmp);
     }
 
-    getComponent(name){
-        if(!(name in this.componentList)){
-            throw new ComponentNotFoundException(name);    
+    getComponent(name) {
+        if (!(name in this.componentList)) {
+            throw new ComponentNotFoundException(name);
         }
         return this.componentList[name].instance;
     }
@@ -54,9 +54,9 @@ class ComponentRegistror {
     /**
      * @param { ViewComponent } cmp
      */
-    static previousLoaded(cmp){
+    static previousLoaded(cmp) {
         let cmpName;
-        if(cmp.getRoutableCmp())
+        if (cmp.getRoutableCmp())
             cmpName = cmp.getName();
         else
             cmpName = cmp.getInstanceName();
@@ -64,8 +64,12 @@ class ComponentRegistror {
         return cmpName in $still.context.componentRegistror.componentList;
     }
 
-    static clearRegistror(cmp){
+    static clearRegistror(cmp) {
         $still.context.componentRegistror.componentList = {};
+    }
+
+    static register(name, instance) {
+        $still.context.componentRegistror.componentList[name] = { instance }
     }
 }
 

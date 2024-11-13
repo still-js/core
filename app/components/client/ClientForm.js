@@ -189,23 +189,12 @@ class ClientForm extends ViewComponent {
                                                 </ul>
                                             </div>
                                             <div class="body">
-                                                <textarea id="tinymce1">
-                                                    <h2>Título</h2>
-                                                    <p>Descrição</p>
-                                                    <h3>Ponto</h3>
-                                                    <ul>
-                                                        <li>Suspendisse tincidunt urna ut velit ullamcorper fermentum.</li>
-                                                        <li>Nullam mattis sodales lacus, in gravida sem auctor at.</li>
-                                                        <li>Praesent non lacinia mi.</li>
-                                                        <li>Mauris a ante neque.</li>
-                                                        <li>Aenean ut magna lobortis nunc feugiat sagittis.</li>
-                                                    </ul>
-                                                </textarea>
+                                                <textarea required cols="100" rows="30"></textarea>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <button class="julaw-submit-button" (click)="registerClient()">Submeter</button>
+                                    <input type="submit" class="julaw-submit-button" (click)="registerClient()" value="Submeter">
                                     <button class="julaw-cancel-button" (click)="resetState()">Cancelar</button>
 
                                 </div>

@@ -88,6 +88,7 @@ class Components {
     notAssignedValue = [undefined, null, ''];
     stillCmpConst = $stillconst.STILL_COMPONENT;
     stillAppConst = $stillconst.APP_PLACEHOLDER;
+    static componentPartsMap = {};
 
     /**
      * @returns { ComponentSetup }
@@ -505,7 +506,10 @@ class Components {
 
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${cmpName}`;
                 /** TODO: Replace the bellow with the export under componentRegistror */
-                $still.context.componentRegistror.componentList[instance.cmpInternalId] = { instance };
+                ComponentRegistror.register(
+                    instance.cmpInternalId,
+                    instance
+                );
 
                 if (instance) return instance;
 
@@ -567,6 +571,7 @@ class Components {
             for (const cmp of cmps) cmp.style.display = 'none';
             resolve([]);
 
+
         })
     }
 
@@ -613,14 +618,14 @@ class Components {
     static handleInPlaceParts(parentCmp) {
 
         /** @type { Array<ComponentPart> } */
-        const cmpParts = parentCmp.$stillExternComponentParts;
+        const cmpParts = Components.componentPartsMap[parentCmp.cmpInternalId];
         const placeHolders = document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
         /**
          * Get all <st-element> component to replace with the
          * actual component template
          */
 
-
+        parentCmp.versionId = UUIDUtil.newId();
         for (let idx = 0; idx < cmpParts.length; idx++) {
             const parentClss = placeHolders[idx].parentNode.classList;
 
@@ -638,31 +643,45 @@ class Components {
                 cmpName = 'constructor' in instance ? instance.constructor.name : null;
             }
 
-            const cmp = instance?.stillParsedState
-                ? instance
-                : (new Components).getNewParsedComponent(instance, cmpName);
+            /**
+             * TOUCH TO REINSTANTIATE
+             */
+            const cmp = (new Components).getNewParsedComponent(instance, cmpName);
+            cmp.parentVersionId = parentCmp.versionId;
             parentCmp[proxy] = cmp;
             cmp.setParentComponent(parentCmp);
             const allProps = Object.entries(props);
             for (const [prop, value] of allProps) {
 
-                if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
-                    const method = prop.replace('(', '').replace(')', '');
-                    cmp[method] = function (...param) {
-                        return parentCmp[value.split('(')[0]](...param);
+                //Proxy gets ignored becuase it was assigned above and it should be the child class
+                if (prop != 'proxy') {
+                    if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
+                        const method = prop.replace('(', '').replace(')', '');
+                        cmp[method] = function (...param) {
+                            return parentCmp[value.split('(')[0]](...param);
+                        }
+                        continue;
                     }
-                    continue;
-                }
 
-                if (String(value).toLowerCase().indexOf('parent.') == 0) {
-                    const parentProp = parentCmp[value.replace('parent.', '')];
-                    if (parentProp?.onlyPropSignature) {
-                        cmp[prop] = parentProp.value;
-                    } else {
-                        cmp[prop] = parentProp?.value || parentProp;
-                    }
-                } else
-                    cmp[prop] = value;
+                    if (String(value).toLowerCase().indexOf('parent.') == 0) {
+                        const parentProp = parentCmp[value.replace('parent.', '')];
+                        if (parentProp?.onlyPropSignature) {
+                            cmp[prop] = parentProp.value;
+                        } else {
+                            cmp[prop] = parentProp?.value || parentProp;
+                        }
+                    } else
+                        cmp[prop] = value;
+                }
+                /**
+                 * Replace the parent component on the registror
+                 * So that it get's updated with the new and fresh
+                 * data, properties and proxies
+                 */
+                ComponentRegistror.register(
+                    parentCmp.constructor.name,
+                    parentCmp
+                );
             }
             /**
              * replaces the actual template in the 
@@ -728,5 +747,27 @@ class Components {
         return clsListener;
 
     }
+
+    static removeVersionId;
+    static setRemovingPartsVersionId(versionId) {
+        Components.removeVersionId = versionId;
+    }
+
+    static removeOldParts() {
+
+        const versionId = Components.removeVersionId;
+        if (versionId) {
+            const cmpList = $still.context.componentRegistror.componentList;
+            const list = Object
+                .entries(cmpList)
+                .filter(r => r[1].instance.parentVersionId == versionId)
+                .map(r => r[0]);
+
+            list.forEach(
+                versionId => delete $still.context.componentRegistror.componentList[versionId]
+            );
+        }
+    }
+
 
 }

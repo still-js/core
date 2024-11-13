@@ -28,6 +28,8 @@ class Router {
      */
     static goto(cmp, { data = {} } = { data: {} }) {
 
+        Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
+        console.log(`CURRENT COMPONENT TO UNMOUNT: `, $still.context.currentView?.versionId);
         /**
          * The or (||) conditions serves to mount the application 
          * so the user can be redirected straight to a specific 
@@ -240,6 +242,7 @@ class Router {
             }
 
         }, 200);
+        Components.removeOldParts();
 
     }
 }

@@ -195,11 +195,11 @@ class ClientsGrid extends ViewComponent {
         await this.stLazyExecution(async () => {
 
             /** @type { ClientForm } */
-            const clientFormView = $still.view.get('ClientForm');
+            /* const clientFormView = $still.view.get('ClientForm');
 
             clientFormView.onChange((newState) => {
                 console.log(`Client grid detectou mudança no client form: `, newState);
-            });
+            }); */
 
         });
 

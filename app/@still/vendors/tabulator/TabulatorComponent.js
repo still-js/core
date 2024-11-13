@@ -117,6 +117,12 @@ class TabulatorComponent extends ViewComponent {
 
     }
 
+    insertRow(data) {
+        const existingData = [...this.table.getData()];
+        existingData.push(data);
+        this.dataSource = existingData;
+    }
+
     /**
      * Method signature for parent to call as event
      * @type {{componentEvent: true}} 

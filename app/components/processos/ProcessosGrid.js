@@ -147,7 +147,6 @@ class ProcessosGrid extends ViewComponent {
       const inicio = new Date();
       const fim = new Date(dataEncerramento);
       const diferencaEmMilissegundos = fim - inicio;
-      // Converter a diferença de milissegundos para dias
       const milissegundosPorDia = 1000 * 60 * 60 * 24;
       const diferencaEmDias = diferencaEmMilissegundos / milissegundosPorDia;
       return Math.floor(diferencaEmDias) + 1;

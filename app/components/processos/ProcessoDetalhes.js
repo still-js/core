@@ -292,6 +292,24 @@ class ProcessoDetalhes extends ViewComponent {
                 <div><input id="input_gestor" (value)="gestor" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
               </div>
   
+              <div style="margin-bottom: 5px">
+              <div style="font-weight: bold;">Data de Registo</div>
+              <div><input (value)="dataRegisto" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+              
+              <div style="margin-bottom: 5px">
+              <div style="font-weight: bold;">Data Encerramento</div>
+              <div><input (value)="dataEncerramento" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+              <div style="margin-bottom: 5px">
+              <div style="font-weight: bold;">Data Suspensão</div>
+              <div><input (value)="dataSuspensao" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+
+
             </div>
           </div>
         </div>
@@ -803,7 +821,7 @@ class ProcessoDetalhes extends ViewComponent {
       }
     });
 
-    this.getTimeSheet(routeData);
+    this.getTimeSheet(idProcesso);
     this.getListColaboradores();
     this.getListPrecedentes();
   }
@@ -1119,8 +1137,8 @@ class ProcessoDetalhes extends ViewComponent {
           console.log(response.errors);
         } else {
           console.log("Salvo com sucesso");
-          this.toggleForms(idForm)
           this.getDetalhesProcesso(this.id.value)
+          this.toggleForms(idForm)
         }
       })
       .catch((err) => {
@@ -1395,8 +1413,8 @@ class ProcessoDetalhes extends ViewComponent {
           alert(response.errors);
         } else {
           alert("Actualizado com sucesso a tarefa");
-          this.toggleForms(idForm)
           this.getDetalhesProcesso(this.id.value)
+          // this.toggleForms(idForm)
         }
       })
       .catch((err) => {

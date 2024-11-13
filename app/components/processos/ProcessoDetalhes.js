@@ -50,11 +50,28 @@ class ProcessoDetalhes extends ViewComponent {
   inputAnexoDescricao;
   inputAnexoFile;
 
-  modePagamento = [
-    { code: 1, designacao: 'Transferência Bancária' },
-    { code: 2, designacao: 'Depósito' },
-    { code: 3, designacao: 'Cash' },
-  ]
+
+    /** @type { TabulatorComponent } */
+    dataTableListProcessosEquipas = Proxy;
+    dataTableLabelsEquipas = Prop(
+      JSON.stringify([
+        {
+          hozAlign: "center",
+          editRow: false,
+          icon: "<i class='fa fa-pen'></i>",
+          width: 20,
+        },
+        {
+          hozAlign: "center",
+          deleteRow: true,
+          icon: "<i class='fas fa-trash-alt'></i>",
+          width: 20,
+        },
+        { title: "Colaborador", field: "colaborador", sorter: "string"},
+        { title: "Função", field: "funcao", sorter: "string" },
+      ])
+    );
+  
 
 
         /** @type { TabulatorComponent } */
@@ -102,100 +119,27 @@ class ProcessoDetalhes extends ViewComponent {
                 );
 
 
+                        /** @type { TabulatorComponent } */
+        dataTableListProcessosAnexos = Proxy;
+        dataTableLabelsAnexos = Prop(
+          JSON.stringify([
+            {
+              hozAlign: "center",
+              editRow: true,
+              icon: "<i class='fas fa-file-download'></i>",
+              width: 20,
+            },
+            {
+              hozAlign: "center",
+              deleteRow: true,
+              icon: "<i class='fas fa-trash-alt'></i>",
+              width: 20,
+            },
+            { title: "Descrição", field: "descricao", sorter: "string" },
+            { title: "Data Registo", field: "created_at", sorter: "string" },
+          ])
+        );
 
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosTarefas = Proxy;
-  dataTableLabelsTarefas = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Descrição", field: "descricao", sorter: "string" },
-      { title: "Estado", field: "status", sorter: "string" },
-      { title: "Data Registo", field: "created_at", sorter: "string" },
-    ])
-  );
-
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosPrecedentes = Proxy;
-  dataTableLabelsPrecedentes = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: false,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Referência", field: "precedente_refencia", sorter: "string" },
-      { title: "Assunto", field: "precedente_assunto", sorter: "string" }
-    ])
-  );
-
-
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosAnexos = Proxy;
-  dataTableLabelsAnexos = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fas fa-file-download'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Descrição", field: "descricao", sorter: "string" },
-      { title: "Data Registo", field: "created_at", sorter: "string" },
-    ])
-  );
-
-  horarioCabecalho = Prop(
-    JSON.stringify([
-      { title: "Designação", field: "name" },
-      { title: "Início", field: "start" },
-      { title: "Fim", field: "end" },
-      { title: "Custo", field: "custo", hozAlign: "right" }
-    ])
-  );
-
-  horarioDestCabecalho = Prop(
-    JSON.stringify([
-      { title: "Designação", field: "name" },
-      { title: "Início", field: "start" },
-      { title: "Fim", field: "end" },
-      { title: "Custo", field: "custo", hozAlign: "right", editor: "parent.editPricingValue()" }
-    ])
-  );
-
-  dadosTimeSheet = Prop(JSON.stringify([]));
-
-  /** @type { TBDragableGrid } */
-  honorarioProxy = Proxy;
-
-  /** @type { Factura } */
-  facturaProxy = Proxy;
-
-  showFactura = Prop(false);
-  totalFactura = Prop(0);
 
   template = `<section class="content">
     <div class="block-header">
@@ -301,9 +245,6 @@ class ProcessoDetalhes extends ViewComponent {
                 </li>
                 <li role="presentation">
                     <a href="#anexos" data-toggle="tab">Anexos</a>
-                </li>
-                <li role="presentation">
-                    <a href="#honorarios" data-toggle="tab">Honorário</a>
                 </li>
             </ul>
             <!-- Tab panes -->
@@ -657,92 +598,6 @@ class ProcessoDetalhes extends ViewComponent {
         </div>
     </div>
     <!-- Fim TAB Anexos -->
-<<<<<<< HEAD
-
-    <!-- Inicio TAB Honorário -->
-    <div role="tabpanel" class="tab-pane fade" id="honorarios">
-
-        <div class="display-flex">
-          <div class="input-field col s12">
-            <select (change)="updatePrecedentes($event)" (forEach)="modePagamento">
-                <option each="item" value="">Modo de pagamento</option>
-                <option each="item" value="{item.code}">{item.designacao}</option>
-            </select>
-          </div>
-          <div class="input-field col s12">
-            <select (change)="updatePrecedentes($event)" (forEach)="listEquipas">
-                <option each="item" value="">Nome Advogado</option>
-                <option each="item" value="{item.id}">{item.descricao}</option>
-            </select>
-          </div>
-        </div>
-
-        <st-element
-            component="TBDragableGrid"
-            proxy="honorarioProxy"
-            tableData="parent.dadosTimeSheet"
-            tableFields="parent.horarioCabecalho"
-            destFields="parent.horarioDestCabecalho"
-            destPlaceholder="Arraste aqui o item a pagar"
-            >
-        </st-element>
-
-        <div style="display: flex; justify-content: right; margin-top: 30px;">
-          <button 
-            class="btn btn-primary julaw-submit-button" 
-            (click)="generateHonorario()">
-            Gerar Honorário
-          </button>
-        </div>
-
-    </div>
-    <!-- Fim TAB Anexos -->
-
-    <div class="still-popup-curtain" (showIf)="self.showFactura"></div>
-  
-    <div 
-      class="factura-wrapper" 
-      (showIf)="self.showFactura"
-      >
-      <st-element
-        component="Factura"
-        proxy="facturaProxy"
-        (onCloseFactura)="fecharFactura()"
-        >
-      </st-element>
-    <div>
-
-    <style>
-      
-      .factura-wrapper{
-        position: absolute;
-        top: 0;
-        background: white;
-        z-index: 529985;
-        width: 90%;
-        top: 0;
-        left: 0;
-        margin: 0 auto;
-      }
-
-      .still-popup-curtain{
-
-        position: fixed;
-        padding: 0;
-        margin: 0;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 529983;
-
-      }
-
-    </style>
-  
-=======
->>>>>>> fix/colaborador-dashboard
   </section>
     `;
 
@@ -813,7 +668,7 @@ class ProcessoDetalhes extends ViewComponent {
           console.log("base64 addEventListener >>>> ", base64String)
           this.inputAnexoFile = base64String;
 
-          document.getElementById('inputUploadAnexoHidden').src = base64String;
+          document.getElementById('inputUploadAnexoHidden').src = base64String;      
 
           setTimeout(() => {
             console.log("base64 addEventListener >>>> set timeout ", this.inputAnexoFile.toString().substring(0, 20))
@@ -912,10 +767,10 @@ class ProcessoDetalhes extends ViewComponent {
     console.log(id)
     // document.getElementById("")
     let elm = document.getElementById(id)
-    if (isEdit) {
-      elm.removeAttribute("readonly")
+    if(isEdit) {
+      elm.removeAttribute("readonly") 
       elm.focus()
-    } else {
+    }else {
       elm.setAttribute("readonly", true)
     }
 
@@ -927,7 +782,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     console.log("o elemento", elm)
 
-    if (elm.hasAttribute("readonly"))
+    if(elm.hasAttribute("readonly"))
       return false
 
     switch (id) {
@@ -962,9 +817,9 @@ class ProcessoDetalhes extends ViewComponent {
       //"dataEncerramento": this.dataEncerramento.value,
       //"colaboradorIdEnderrou": null,
       "metodologia": this.metodologia.value,
-      "estrategia": this.estrategia.value,
-      "factos": this.factos.value,
-      "objectivos": this.objectivos.value,
+      "estrategia":  this.estrategia.value,
+      "factos":  this.factos.value,
+      "objectivos":  this.objectivos.value,
       "dataImportantes": this.dadosImportantes.value,
       //"statusId": this.statusId.value,
       //"precedentes": this.precedentes.value,
@@ -1081,6 +936,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   /** Function Save */
+
   async addEquipaProcesso(idForm) {
 
     const equipa = this.equipaInput.value;
@@ -1206,13 +1062,13 @@ class ProcessoDetalhes extends ViewComponent {
       return false;
     }
 
-    if (inputTarefa.hasAttribute("data-id")) {
+    if(inputTarefa.hasAttribute("data-id")) {
 
       let idTarefa = inputTarefa.dataset.id
       const payload = {
         "descricao": tarefa
       }
-
+  
       $still.HTTPClient.put(
         `http://localhost:3000/api/v1/tarefas_processo/${idTarefa}`,
         JSON.stringify(payload),
@@ -1238,14 +1094,14 @@ class ProcessoDetalhes extends ViewComponent {
           console.log(`Erro ao cadastrar processo: `, err);
         });
 
-    } else {
+    }else{
 
       const payload = {
         "processoId": this.id.value,
         "tarefas": [tarefa]
       }
-
-
+  
+  
       $still.HTTPClient.post(
         "http://localhost:3000/api/v1/recursos_processo",
         JSON.stringify(payload),
@@ -1273,10 +1129,10 @@ class ProcessoDetalhes extends ViewComponent {
 
     }
 
-
+   
   }
 
-  editProcesso(id) {
+  editProcesso(id) {  
     const idProcesso = id == undefined ? this.id.value : id;
     console.log("here... ProcessoDetalhes ...", idProcesso)
     Router.goto("ProcessoForm", {
@@ -1288,14 +1144,14 @@ class ProcessoDetalhes extends ViewComponent {
   toggleForms(id) {
     console.log(id)
     let form = document.getElementById(id)
-    form.classList.toggle("showForm")
-  }
+    form.classList.toggle("showForm") 
+  } 
 
   removerColaboradorProcesso(_, record) {
-
+  
     let payload = {
-      "type": "colaborador",
-      "valueId": record.id
+        "type": "colaborador",
+        "valueId": record.id
     }
 
     $still.HTTPClient.delete(
@@ -1308,7 +1164,7 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
+          console.log("ver anexo processo response >> ", response)
 
           if(response.status === 200){
             alert("Removido com Sucesso!")
@@ -1324,7 +1180,7 @@ class ProcessoDetalhes extends ViewComponent {
   editTarefaProcesso(_, record) {
     document.getElementById('input_form_tarefa').value = record.descricao
     document.getElementById('input_form_tarefa').setAttribute("data-id", record.id)
-    document.getElementById('form_tab_tarefas').classList.toggle("showForm")
+    document.getElementById('form_tab_tarefas').classList.toggle("showForm") 
   }
 
   removerTarefaProcesso(_, record) {
@@ -1332,6 +1188,15 @@ class ProcessoDetalhes extends ViewComponent {
     let payload = {
       "type": "tarefa",
       "valueId": record.id
+  }
+
+  $still.HTTPClient.delete(
+    `http://localhost:3000/api/v1/recursos_processo/`,
+    JSON.stringify(payload),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
   )
     .then((response) => {
@@ -1340,10 +1205,10 @@ class ProcessoDetalhes extends ViewComponent {
           this.getDetalhesProcesso(this.id.value)
         }
 
-      })
-      .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
-      });
+    })
+    .catch((err) => {
+      console.log(`Erro ao cadastrar processo: `, err);
+    });
 
 
   }
@@ -1406,10 +1271,10 @@ class ProcessoDetalhes extends ViewComponent {
           alert("Erro ao remover o Processo!")
         }
 
-      })
-      .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
-      });
+    })
+    .catch((err) => {
+      console.log(`Erro ao cadastrar processo: `, err);
+    });
   }
 
   downalodAnexoProcesso(_, record) {
@@ -1424,17 +1289,17 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
 
-        if (response.status === 200) {
+          if(response.status === 200){
 
-          let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
-          const link = document.createElement('a');
-          link.setAttribute("target", '_blank');
-          link.href = `${pathDownload}/${response.data.fileName}`;
-          link.download = 'Processo Anexo'; // Define o nome do arquivo ao fazer o download
-          document.body.appendChild(link);
-          link.click(); // Simula o clique no link
-          document.body.removeChild(link); // Remove o link após o download
-        }
+            let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
+            const link = document.createElement('a');
+            link.setAttribute("target", '_blank');
+            link.href = `${pathDownload}/${response.data.fileName}`;
+            link.download = 'Processo Anexo'; // Define o nome do arquivo ao fazer o download
+            document.body.appendChild(link);
+            link.click(); // Simula o clique no link
+            document.body.removeChild(link); // Remove o link após o download
+          }
       })
       .catch((err) => {
         console.log(`Erro ao cadastrar processo: `, err);
@@ -1454,12 +1319,12 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
+          console.log("ver anexo processo response >> ", response)
 
-        if (response.status === 200) {
-          let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
-          window.open(`${pathDownload}/${response.data.fileName}`, '_blank', 'width=800,height=600');
-        }
+          if(response.status === 200){
+            let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
+            window.open(`${pathDownload}/${response.data.fileName}`, '_blank', 'width=800,height=600');
+          }
 
       })
       .catch((err) => {
@@ -1468,7 +1333,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   }
 
-
+  
   detalhesProcesso(_, record) {
     Router.goto("ProcessoDetalhes", {
       data: record.id,
@@ -1477,179 +1342,34 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerAnexoProcesso(_, record) {
 
-    console.log('removerAnexoProcesso ', record.id)
-
     let payload = {
       "type": "anexo",
       "valueId": record.id
     }
 
-    $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/recursos_processo/`,
-      JSON.stringify(payload),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((response) => {
+  $still.HTTPClient.delete(
+    `http://localhost:3000/api/v1/recursos_processo/`,
+    JSON.stringify(payload),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => {
         console.log("ver anexo processo response >> ", response)
 
-        if (response.status === 200) {
+        if(response.status === 200){
           alert("Removido com Sucesso!")
           this.getDetalhesProcesso(this.id.value)
         }
 
-      })
-      .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
-      });
-
-
-  }
-
-
-  editPricingValue(evtType, value, rowData, rowNum) {
-
-    if (evtType == 'onFocus') {
-      const actualValue = String(value)
-        .slice(4) //Remove AKZ Angola currency code and the space after it
-        .replace('.', '', 'gi') //Remove the period/dot in the thousands separator
-        .split(','); //Separate the integer value from the cents
-      const cents = parseFloat(actualValue[1]);
-      return parseFloat(actualValue[0]) + `${cents > 0 ? ',' + cents : ''}`;
-    }
-
-    if (evtType == 'onLoseFocus') {
-
-      const inputValue = String(value).split(',');
-      const amount = inputValue[0];
-      const cents = inputValue[1] ? ',' + inputValue[1] : ',00';
-
-      const formatter = new Intl.NumberFormat('ao-AO',
-        {
-          style: 'currency', currency: 'AKZ',
-          maximumFractionDigits: 0, minimumFractionDigits: 0
-        }
-      );
-
-      const custo = formatter.format(amount) + `${cents} `;
-      this.honorarioProxy.updateDestRow(rowNum, { custo, total: custo });
-
-      return custo;
-    }
-
-  }
-
-
-  getTimeSheet(idProcess) {
-
-    $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo_time_sheets/${idProcess}`
-    ).then((r) => {
-      if (r.status === 200) {
-        try {
-
-          const mapper = this.convertTimeSheetToGrid;
-          const timeSheetData = r.data.map(mapper);
-          this.honorarioProxy.setSourceData(timeSheetData);
-
-        } catch (e) {
-          console.log("fn populates attributes", e);
-        }
-      }
+    })
+    .catch((err) => {
+      console.log(`Erro ao cadastrar processo: `, err);
     });
 
-  }
-
-  convertTimeSheetToGrid(r) {
-
-    const { dados_importantes, id } = r;
-    const { title: name, start: Start, end: End } = JSON.parse(dados_importantes);
-
-    const startDate = new Date(Start.d.d);
-    const endDate = new Date(End.d.d);
-
-    const startTime = startDate.getTime();
-    const endTime = endDate.getTime();
-
-    const start = startDate.toLocaleString();
-    const end = endDate.toLocaleString();
-
-    const hours = (endTime - startTime) / (1000 * 60 * 60);
-    const custo = `${convertToAkzCurrency(hours * 10_000)}`
-
-    return {
-      id,
-      custo,
-      name,
-      start,
-      end,
-      qtd: `${hours} Hrs`,
-      total: custo
-    }
 
   }
 
-  generateHonorario() {
-
-    const data = this.honorarioProxy.getDestData();
-    console.log(data);
-    this.showFactura = true;
-
-    const totalFactura = data
-      .map(
-        r => parseFloat(cleanCurrencyValue(r.total))
-      )
-      .reduce((accum, val) => accum + val);
-
-    const invoiceNum = Math.random().toString().split('.')[1];
-    this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5));
-    this.facturaProxy.setNomeDocliente(this.cliente.value);
-    this.facturaProxy.setTotalFactura(totalFactura);
-    this.facturaProxy.itensFactura = data;
-
-  }
-
-  fecharFactura() {
-    this.showFactura = false;
-  }
-
 }
-
-
-/**
- * Move this to Utility class of function
- */
-
-function convertToAkzCurrency(value) {
-  const formatter = new Intl.NumberFormat('ao-AO',
-    {
-      style: 'currency', currency: 'AKZ',
-      maximumFractionDigits: 2, minimumFractionDigits: 2
-    }
-  );
-
-  return formatter.format(value);
-}
-
-/**
- * @param { Date } date
- */
-function convertDateToEuStr(date) {
-  return date.toLocaleString();
-}
-
-function cleanCurrencyValue(val) {
-  return val
-    .replace('AKZ', '')
-    .replace('.', '')
-    .replace(',', '.')
-    .trim()
-}
-
-
-/**
- * End of Move this to Utility class of function
- */

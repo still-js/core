@@ -21,7 +21,7 @@ class ProcessosGrid extends ViewComponent {
         width: 20,
       },
       { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title:"Progress", field:"progress", sorter:"30", hozAlign:"left", formatter:"progress"},
+      { title:"Progresso", field:"progress", sorter:"30", hozAlign:"left", formatter:"progress"},
       { title: "Referência", field: "ref", sorter: "string" },
       { title: "Assunto", field: "assunto", sorter: "string" },
       { title: "Área", field: "area", sorter: "string" },

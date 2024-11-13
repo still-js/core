@@ -4,6 +4,9 @@ class CMenu extends ViewComponent {
   userName = ``;
   userRole = "Admin";
 
+  roles;
+  canCreateProcess;
+
   template = `
     <ul class="menu-julaw">
       <li>
@@ -18,16 +21,16 @@ class CMenu extends ViewComponent {
       <li class="menu-item-julaw">
           <a href="#" class="item-menu"  (click)="gotoView('Home')"><i class="fas fa-home"></i> Início</a>
       </li>
-      <li class="menu-item-julaw">
-            <a class="item-menu" href="#"><i class="fas fa-folder"></i> Processos</a>
+      <li class="menu-item-julaw active">
+            <a class="item-menu active" href="#"><i class="fas fa-folder"></i> Processos</a>
             <ul class="submenu">
                 <li><a href="#" (click)="gotoView('ProcessoForm')"> Criar </a></li>
                 <li><a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a></li>
                 <li><a href="#" (click)="gotoView('ColaboradorDashboard')"> Meus Processos </a></li>
             </ul>
       </li>
-      <li class="menu-item-julaw active">
-            <a href="#" class="item-menu active"><i class="fas fa-users"></i> Clientes</a>
+      <li class="menu-item-julaw">
+            <a href="#" class="item-menu "><i class="fas fa-users"></i> Clientes</a>
             <ul class="submenu">
                 <li><a href="#" (click)="gotoView('ClientForm')"> Cadastrar </a></li>
                 <li><a href="#" (click)="gotoView('ClientsGrid')"> Listar</a></li>
@@ -43,7 +46,25 @@ class CMenu extends ViewComponent {
     </ul> 
     `;
 
-  stAfterInit(val) { }
+    getRolesByLoggedUser() {
+      try {
+        const userLogged = JSON.parse(localStorage.getItem("_user"));
+        const  { mappings }  = userLogged.auth.roles
+        this.roles = mappings.map((role) => {
+          return role.name;
+        });    
+      }catch(e){
+        console.log(e)
+      }      
+    }
+  
+
+  stAfterInit(val) {
+
+    this.getRolesByLoggedUser()
+    this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS')
+
+  }
 
   async onRender() {
     /**
@@ -55,6 +76,7 @@ class CMenu extends ViewComponent {
   gotoView(viewComponent) {
     Router.goto(viewComponent);
   }
+
 
   constructor() {
     super();

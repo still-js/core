@@ -1,5 +1,9 @@
 class ProcessosGrid extends ViewComponent {
 
+  roles = Prop()
+  canCreateProcess = Prop()
+
+  
   /** @type { TabulatorComponent } */
   dataTableListProcessos = Proxy;
   dataTableLabels = Prop(
@@ -68,7 +72,25 @@ class ProcessosGrid extends ViewComponent {
               <div class="header">
                   <h2><strong>Lista </strong>Geral dos Processos</h2>
                   <p style="font-size: 12px">Encontre aqui, todos os processos</p>
-              </div>
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div>
+                <span 
+                (showIf)="self.canCreateProcess"
+                >
+                <button (click)="gotoView('ProcessoForm')" type="button" class="btn btn-primary m-t-15 waves-effect">
+                <span style="display: flex;
+                             gap: 10px;
+                             align-items: center;"
+                >
+                <i class="material-icons">create_new_folder</i>
+                  Novo
+                </span>
+                </button>
+                
+            </span>
+
+    
               <div class="body">
                   <div class="table-responsive">
                       <st-element component="TabulatorComponent" proxy="dataTableListProcessos"
@@ -93,8 +115,26 @@ class ProcessosGrid extends ViewComponent {
     Router.goto(viewComponent);
   }
 
+  getRolesByLoggedUser() {
+    try {
+      const userLogged = JSON.parse(localStorage.getItem("_user"));
+      this.roles = userLogged.auth.roles 
+    }catch(e){
+      console.log(e)
+    }      
+  }
+
+  
+  onRender() {
+    this.getRolesByLoggedUser()
+    this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS')
+    console.log("on render canCreateProcess here ... ", this.canCreateProcess);
+  }
+
   stAfterInit(val) {
 
+    this.getRolesByLoggedUser()
+ 
     $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
       (r) => {
         if (r.data) {

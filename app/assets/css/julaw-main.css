@@ -141,9 +141,48 @@ STARTING LOADING STYLE
     display: flex !important;
 }
 
-input[name="title"] {
+/* input[name="title"] {
     display: none !important;
 }
+
+div.toastui-calendar-popup-section:nth-child(3) {
+    margin-top: 8px !important;
+}
+
+div[contenteditable]:empty {
+    content: "Descrição value";
+    color: grey;
+    font-style: italic;
+}
+
+*/
+div.toastui-calendar-popup-section:nth-child(2) {
+    height: 185px;
+}
+
+div.toastui-calendar-popup-section:nth-child(2) button {
+    display: none;
+}
+
+div.toastui-calendar-popup-section:nth-child(2) span {
+    margin-top: 10px;
+}
+
+div.toastui-calendar-popup-section:nth-child(2) div:first-child {
+    height: 176px;
+    display: flex;
+    width: 445px;
+}
+
+textarea[name=title] {
+    border: none !important;
+    height: 164px;
+    font-size: 12px;
+    color: black;
+    padding: 10px;
+    width: 445px;
+}
+
 
 .adjust-toastui-calendar-content {
     height: 124px !important;

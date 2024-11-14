@@ -117,7 +117,6 @@ class ProcessoTimeSheet extends ViewComponent {
             <div style="positon: relative">
             <st-element
               component="TUICalendarComponent"
-              proxy="timeSheet"
               (onEventCreate)="saveEvent()"
               editLabel="Editar"
               milestoneTitle="Objectivo"
@@ -206,22 +205,22 @@ class ProcessoTimeSheet extends ViewComponent {
   stAfterInit(val) {
 
     try {
-      
-      this.userLoggedIn = JSON.parse(localStorage.getItem("_user"));      
+
+      this.userLoggedIn = JSON.parse(localStorage.getItem("_user"));
       console.log(this.userLoggedIn);
 
       document.getElementById('colaboradorInputId').innerHTML = this.userLoggedIn.value.nome_completo;
       document.getElementById('colaboradorInputFuncao').innerHTML = this.userLoggedIn.value.tipo.description;
-      
+
       const routeData = Router.data("ProcessoTimeSheet");
       this.processoId = routeData
-      
+
       this.init()
-    }catch(e) {
+    } catch (e) {
       console.log("fn populates attributes", e);
     }
 
-  
+
   }
 
   populateAttributes(data) {
@@ -250,8 +249,8 @@ class ProcessoTimeSheet extends ViewComponent {
 
   async saveEvent(data) {
 
-    if(this.userLoggedIn.value.id === "")
-        alert("Nenhum Colaborador definido.")
+    if (this.userLoggedIn.value.id === "")
+      alert("Nenhum Colaborador definido.")
 
     let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
 
@@ -274,16 +273,20 @@ class ProcessoTimeSheet extends ViewComponent {
           "Content-Type": "application/json",
         },
       }
-    )
-
-    console.log("save response", response);
+    );
 
     if (response.status !== 201) {
-      console.log(response.errors);
       return false
     } else {
-      console.log("Salvo com sucesso");
-      this.init()
+
+      const eventData = {
+        ...data,
+        start: data.start.d.d,
+        end: data.end.d.d,
+      };
+
+      this.calendarProxy.addNewEvents(eventData);
+      //this.init()
       return true
     }
 
@@ -291,15 +294,15 @@ class ProcessoTimeSheet extends ViewComponent {
 
   async updateEvent(evt, changes) {
 
-    if(!changes) 
-        return true;
+    if (!changes)
+      return true;
 
-    if(evt.id === "")
+    if (evt.id === "")
       alert("Evento sem ID")
-  
+
     let startDate = changes.start ? changes.start.d.d : evt.start.d.d
     let endDate = changes.end ? changes.end.d.d : evt.end.d.d
-    let tipoEventoId = changes.calendarId  ? changes.calendarId : evt.calendarId
+    let tipoEventoId = changes.calendarId ? changes.calendarId : evt.calendarId
     let horasCalculadas = (endDate - startDate) / 3600000
 
     let payload = {
@@ -336,8 +339,8 @@ class ProcessoTimeSheet extends ViewComponent {
 
   async deleteEvent(env) {
 
-    if(env.id === undefined) return false;
-    
+    if (env.id === undefined) return false;
+
     let response = await $still.HTTPClient.delete(
       `http://localhost:3000/api/v1/processo_time_sheets/${env.id}`,
       {
@@ -366,5 +369,5 @@ class ProcessoTimeSheet extends ViewComponent {
   getValueById(id) {
     return document.getElementById(id).value;
   }
-  
+
 }

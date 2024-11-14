@@ -315,7 +315,7 @@ class TUICalendarComponent extends ViewComponent {
 
     replaceTitleInputByTextArea(elm, tgtClicks) {
 
-        const thisInstance = this;
+        /* const thisInstance = this;
         let inputContent = '';
         if (tgtClicks[1] == elm.className) {
             inputContent = this.getExistingEventDescription();
@@ -341,27 +341,19 @@ class TUICalendarComponent extends ViewComponent {
                     thisInstance.resetCheckboxClickEvent();
 
                     clearInterval(timerEventPopup);
-                    const placeHolder = descInput.getAttribute('placeholder');
-                    descInput.id = uuid;
-                    parent.classList.add('adjusted-tui-calendar-title');
-                    parent.parentNode.classList.add('adjusted-tui-calendar-title-grand-parent');
-                    const ta = document.createElement('textarea');
-                    parent.insertAdjacentHTML(
-                        'beforeend',
-                        `<textarea 
-                            name="title"  rows="4" col="100"
-                            id="${uuid}_"
-                            onkeyup="updateMainInputValue_${uuid}('${uuid}', this.value)"
-                            class="toastui-calendar-content adjust-toastui-calendar-content" 
-                            placeholder="${placeHolder}" required="">${inputContent}</textarea>`
-                    );
+                    const textAread = document.querySelectorAll('.toastui-calendar-popup-section')[1];
+                    textAread.contentEditable = true;
+                    textAread.innerHTML = inputContent;
+                    textAread.onkeyup = (e) => {
+                        parent.getElementsByTagName('input')[0].value = e.target.innerText;
+                    };
                     parent.firstChild.style.marginTop = '8px';
 
                 }
 
             }
 
-        }, 500);
+        }, 500); */
 
     }
 

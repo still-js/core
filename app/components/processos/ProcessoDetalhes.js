@@ -77,49 +77,49 @@ class ProcessoDetalhes extends ViewComponent {
       { title: "Função", field: "funcao", sorter: "string" },
     ])
   );
-        /** @type { TabulatorComponent } */
-        dataTableListProcessosTarefas = Proxy;
-        dataTableLabelsTarefas = Prop(
-          JSON.stringify([
-            {
-              hozAlign: "center",
-              editRow: true,
-              icon: "<i class='fa fa-pen'></i>",
-              width: 20,
-            },
-            {
-              hozAlign: "center",
-              deleteRow: true,
-              icon: "<i class='fas fa-trash-alt'></i>",
-              width: 20,
-            },
-            { title: "Descrição", field: "descricao", sorter: "string" },
-            { title: "Estado", field: "status", sorter: "string" },
-            { title: "Data Registo", field: "created_at", sorter: "string" },
-          ])
-        );
+  /** @type { TabulatorComponent } */
+  dataTableListProcessosTarefas = Proxy;
+  dataTableLabelsTarefas = Prop(
+    JSON.stringify([
+      {
+        hozAlign: "center",
+        editRow: true,
+        icon: "<i class='fa fa-pen'></i>",
+        width: 20,
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fas fa-trash-alt'></i>",
+        width: 20,
+      },
+      { title: "Descrição", field: "descricao", sorter: "string" },
+      { title: "Estado", field: "status", sorter: "string" },
+      { title: "Data Registo", field: "created_at", sorter: "string" },
+    ])
+  );
 
-                /** @type { TabulatorComponent } */
-                dataTableListProcessosPrecedentes = Proxy;
-                dataTableLabelsPrecedentes = Prop(
-                  JSON.stringify([
-                    {
-                      hozAlign: "center",
-                      editRow: false,
-                      icon: "<i class='fa fa-pen'></i>",
-                      width: 20,
-                    },
-                    {
-                      hozAlign: "center",
-                      deleteRow: true,
-                      icon: "<i class='fas fa-trash-alt'></i>",
-                      width: 20,
-                    },
-                    { title: "Referência", field: "precedente_refencia", sorter: "string" },
-                    { title: "Assunto", field: "precedente_assunto", sorter: "string" },
-                    { title: "#", field: "precedente_id", sorter: "string" },
-                  ])
-                );
+  /** @type { TabulatorComponent } */
+  dataTableListProcessosPrecedentes = Proxy;
+  dataTableLabelsPrecedentes = Prop(
+    JSON.stringify([
+      {
+        hozAlign: "center",
+        editRow: false,
+        icon: "<i class='fa fa-pen'></i>",
+        width: 20,
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fas fa-trash-alt'></i>",
+        width: 20,
+      },
+      { title: "Referência", field: "precedente_refencia", sorter: "string" },
+      { title: "Assunto", field: "precedente_assunto", sorter: "string" },
+      { title: "#", field: "precedente_id", sorter: "string" },
+    ])
+  );
 
 
 
@@ -292,6 +292,24 @@ class ProcessoDetalhes extends ViewComponent {
                 <div><input id="input_gestor" (value)="gestor" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
               </div>
   
+              <div style="margin-bottom: 5px">
+              <div style="font-weight: bold;">Data de Registo</div>
+              <div><input (value)="dataRegisto" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+              
+              <div style="margin-bottom: 5px">
+              <div style="font-weight: bold;">Data Encerramento</div>
+              <div><input (value)="dataEncerramento" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+              <div style="margin-bottom: 5px">
+              <div style="font-weight: bold;">Data Suspensão</div>
+              <div><input (value)="dataSuspensao" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+              </div>
+
+
+
             </div>
           </div>
         </div>
@@ -796,18 +814,18 @@ class ProcessoDetalhes extends ViewComponent {
     ).then((r) => {
       if (r.status === 200) {
         try {
-      
+
           this.populateAttributes(r.data[0]);
           this.getListColaboradores();
           this.getListPrecedentes();
-            
+
         } catch (e) {
           console.log("fn populates attributes", e);
         }
       }
     });
 
-    this.getTimeSheet(routeData);
+    this.getTimeSheet(idProcesso);
     this.getListColaboradores();
     this.getListPrecedentes();
   }
@@ -817,7 +835,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     const routeData = Router.data("ProcessoDetalhes");
 
-    this.getDetalhesProcesso(routeData) 
+    this.getDetalhesProcesso(routeData)
 
     document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -1341,10 +1359,10 @@ class ProcessoDetalhes extends ViewComponent {
         if (response.status === 200) {
           alert("Removido com Sucesso!")
         }
-          if(response.status === 200){
-            alert("Removido com Sucesso!")
-            this.getDetalhesProcesso(this.id.value)
-          }
+        if (response.status === 200) {
+          alert("Removido com Sucesso!")
+          this.getDetalhesProcesso(this.id.value)
+        }
 
       })
       .catch((err) => {
@@ -1410,8 +1428,8 @@ class ProcessoDetalhes extends ViewComponent {
           alert(response.errors);
         } else {
           alert("Actualizado com sucesso a tarefa");
-          this.toggleForms(idForm)
           this.getDetalhesProcesso(this.id.value)
+          // this.toggleForms(idForm)
         }
       })
       .catch((err) => {
@@ -1437,17 +1455,17 @@ class ProcessoDetalhes extends ViewComponent {
         },
       }
     ).then((response) => {
-        console.log("ver anexo processo response >> ", response)
+      console.log("ver anexo processo response >> ", response)
 
-        if (response.status === 200) {
+      if (response.status === 200) {
 
-          alert("Removido com Sucesso!")
-          this.getDetalhesProcesso(this.id.value)
-        }else {
-          alert("Erro ao remover o Processo!")
-        }
+        alert("Removido com Sucesso!")
+        this.getDetalhesProcesso(this.id.value)
+      } else {
+        alert("Erro ao remover o Processo!")
+      }
 
-      })
+    })
       .catch((err) => {
         console.log(`Erro ao cadastrar processo: `, err);
       });
@@ -1459,7 +1477,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     console.log('view_anexo_processo >>  ', record.id)
 
-    
+
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
       {

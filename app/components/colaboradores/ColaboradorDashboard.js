@@ -19,6 +19,7 @@ class ColaboradorDashboard extends ViewComponent {
         width: 20,
       },
       { title: "Estado", field: "estado", sorter: "string", width: 100 },
+      { title:"Progresso", field:"progress", sorter:"30", hozAlign:"left", formatter:"progress"},
       { title: "Referência", field: "ref", sorter: "string" },
       { title: "Assunto", field: "assunto", sorter: "string" },
       { title: "Área", field: "area", sorter: "string" },
@@ -113,6 +114,43 @@ class ColaboradorDashboard extends ViewComponent {
     Router.goto(viewComponent);
   }
 
+  transformDataTable(data) {
+
+    function calculateDays(dataEncerramento) {
+      if(dataEncerramento) {
+      const inicio = new Date();
+      const fim = new Date(dataEncerramento);
+      const diferencaEmMilissegundos = fim - inicio;
+      const milissegundosPorDia = 1000 * 60 * 60 * 24;
+      const diferencaEmDias = diferencaEmMilissegundos / milissegundosPorDia;
+      return Math.floor(diferencaEmDias) + 1;
+      }else {
+        return 100
+      }
+    }
+
+    return data.map(item => {
+      return {
+        id: item.id,
+        ref: item.ref,
+        estado: item.estado,
+        assunto: item.assunto,
+        area: item.area,
+        fase: item.fase,
+        instituicao: item.instituicao,
+        modo_facturacao: item.modo_facturacao,
+        gestor: item.gestor,
+        cliente: item.cliente,
+        contra_parte: item.contra_parte,
+        data_registo: item.data_registo ? new Date(item.data_registo).toLocaleDateString("PT") : item.data_registo,
+        data_suspensao: item.data_suspensao ? new Date(item.data_suspensao).toLocaleDateString("PT") : item.data_suspensao,
+        colaborador_id_suspendeu: item.colaborador_id_suspendeu,
+        data_encerramento:  item.data_encerramento ? new Date(item.data_encerramento).toLocaleDateString("PT") :  item.data_encerramento,
+        progress: 100 - calculateDays(item.data_encerramento)
+      }
+    })
+  }
+
   stAfterInit(val) {
     const userLogged = JSON.parse(localStorage.getItem('_user'))
 
@@ -121,7 +159,7 @@ class ColaboradorDashboard extends ViewComponent {
         `http://localhost:3000/api/v1/processo_colaborador/${userLogged.id}`
       ).then((r) => {
         if (r.data) {
-          this.dataTable.dataSource = r.data;
+          this.dataTable.dataSource = this.transformDataTable(r.data);
           this.populateCards(r.data);
         } else {
           this.hideLoading();

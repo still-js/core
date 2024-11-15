@@ -1,7 +1,7 @@
 class ProcessosGrid extends ViewComponent {
 
   roles = Prop()
-  canCreateProcess = Prop;
+  canCreateProcess = Prop(true);
 
   
   /** @type { TabulatorComponent } */

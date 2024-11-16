@@ -170,7 +170,14 @@ class Components {
                 this.template = currentView.template.replace(
                     this.stillCmpConst, `<div id="${this.stillAppConst}">${this.template}</div>`
                 );
+
+                this.template = (new BaseComponent).parseStSideComponent(
+                    this.template, 'fixed-part', $still.context.currentView.getUUID()
+                );
+
                 this.renderOnViewFor('stillUiPlaceholder');
+                setTimeout(() => Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
+                setTimeout(() => Components.handleInPlaceParts($still.context.currentView));
                 return;
             }
 
@@ -615,10 +622,10 @@ class Components {
      * 
      * @param { ViewComponent } parentCmp 
      */
-    static handleInPlaceParts(parentCmp) {
+    static handleInPlaceParts(parentCmp, cmpInternalId = null) {
 
         /** @type { Array<ComponentPart> } */
-        const cmpParts = Components.componentPartsMap[parentCmp.cmpInternalId];
+        const cmpParts = Components.componentPartsMap[cmpInternalId || parentCmp.cmpInternalId];
         const placeHolders = document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
         /**
          * Get all <st-element> component to replace with the
@@ -626,6 +633,7 @@ class Components {
          */
 
         parentCmp.versionId = UUIDUtil.newId();
+        const cmpVersionId = cmpInternalId == 'fixed-part' ? null : parentCmp.versionId;
         for (let idx = 0; idx < cmpParts.length; idx++) {
             const parentClss = placeHolders[idx].parentNode.classList;
 
@@ -647,7 +655,7 @@ class Components {
              * TOUCH TO REINSTANTIATE
              */
             const cmp = (new Components).getNewParsedComponent(instance, cmpName);
-            cmp.parentVersionId = parentCmp.versionId;
+            cmp.parentVersionId = cmpVersionId;
             parentCmp[proxy] = cmp;
             cmp.setParentComponent(parentCmp);
             const allProps = Object.entries(props);

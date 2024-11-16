@@ -786,7 +786,10 @@ class BaseComponent extends BehaviorComponent {
         Router.goto(this.getProperInstanceName());
     }
 
-    parseStSideComponent(template) {
+    parseStSideComponent(template, cmpInternalId = null, cmpUUID = null) {
+
+        const uuid = cmpUUID || this.getUUID();
+        if (cmpInternalId) this.cmpInternalId = cmpInternalId;
 
         const parseValue = (r, v, f, mt) => {
 
@@ -830,6 +833,7 @@ class BaseComponent extends BehaviorComponent {
             });
 
             const [cmpId, cmp] = [`st_${UUIDUtil.numberId()}`, eval(`new ${cmpName}()`)];
+            cmp.onRender();
             cmp.dynCmpGeneratedId = cmpId;
             cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
             cmp.stillElement = true;
@@ -850,7 +854,7 @@ class BaseComponent extends BehaviorComponent {
                 })
             );
 
-            return `<still-placeholder style="display:content;" class="still-placeholder${this.getUUID()}"></still-placeholder>`;
+            return `<still-placeholder style="display:content;" class="still-placeholder${uuid}"></still-placeholder>`;
 
         });
 

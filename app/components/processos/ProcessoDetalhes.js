@@ -1146,7 +1146,7 @@ class ProcessoDetalhes extends ViewComponent {
           console.log("Salvo com sucesso");
           this.toggleForms(idForm);
 
-          const dados = this.qeuipaSelectedColaborador.split('-');
+          const dados = this.qeuipaSelectedColaborador.value.split('-');
           const funcao = [dados[0], dados[1]].join('');
           const colaborador = dados[2].trim()
 

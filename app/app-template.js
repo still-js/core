@@ -11,7 +11,8 @@ class AppTemplate extends Template {
     template = `
         <nav class="navbar" id="topNavBar" style="position: fixed;"></nav>
         <div>
-            <aside id="leftsidebar" class="sidebar"></aside>
+            <st-element component="Menu"></st-element>
+            <!-- <aside id="leftsidebar" class="sidebar"></aside> -->
         </div>
         <still-component/>
     `;

@@ -47,7 +47,7 @@ class Home extends BaseComponent {
         BarChart,
         CircularAnimatedChart,
         ProjectGrid,
-        Menu,
+        /* Menu, */
         /* CTopNavBar */
       ],
       scripts: [

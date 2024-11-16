@@ -1,13 +1,14 @@
-class CMenu extends ViewComponent {
+class Menu extends ViewComponent {
   htmlRefId = "leftsidebar";
 
   userName = ``;
   userRole = "Admin";
 
   roles;
-  canCreateProcess;
+  canCreateProcess = Prop(true);
 
   template = `
+  <aside id="leftsidebar" class="sidebar">
     <ul class="menu-julaw">
       <li>
         <div class="sidebar-profile clearfix">
@@ -24,9 +25,11 @@ class CMenu extends ViewComponent {
       <li class="menu-item-julaw active">
             <a class="item-menu active" href="#"><i class="fas fa-folder"></i> Processos</a>
             <ul class="submenu">
-                <li><a href="#" (click)="gotoView('ProcessoForm')"> Criar </a></li>
+                <li
+                  (renderIf)="self.canCreateProcess"
+                  ><a href="#" (click)="gotoView('ProcessoForm')"> Criar </a></li>
                 <li><a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a></li>
-                <li><a href="#" (click)="gotoView('ColaboradorDashboard')"> Meus Processos </a></li>
+                <li><a href="#" (click)="gotoView('ColaboradorDashboard')">Meus Processos </a></li>
             </ul>
       </li>
       <li class="menu-item-julaw">
@@ -43,26 +46,23 @@ class CMenu extends ViewComponent {
                   <li><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a></li>
             </ul>
         </li>
-    </ul> 
+    </ul>
+  </aside>
     `;
 
-    getRolesByLoggedUser() {
-      try {
-        const userLogged = JSON.parse(localStorage.getItem("_user"));
-        const  { mappings }  = userLogged.auth.roles
-        this.roles = mappings.map((role) => {
-          return role.name;
-        });    
-      }catch(e){
-        console.log(e)
-      }      
+  getRolesByLoggedUser() {
+    try {
+      const userLogged = JSON.parse(localStorage.getItem("_user"));
+      this.roles = userLogged.auth.roles;
+    } catch (e) {
+      console.log(e)
     }
-  
+  }
+
 
   stAfterInit(val) {
 
-    this.getRolesByLoggedUser()
-    this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS')
+    //this.roles.includes('CAN_CREATE_PROCESS')
 
   }
 
@@ -71,6 +71,7 @@ class CMenu extends ViewComponent {
      * Isso quer dizer que o import do JQuery foi feito no index principal
      * ou no ficheiro de rotas em eagerImport
      */
+    this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS');
   }
 
   gotoView(viewComponent) {
@@ -82,8 +83,9 @@ class CMenu extends ViewComponent {
     super();
     //this.userName = AppTemplate.get().storageGet('userName');
     this.setup({});
+    this.getRolesByLoggedUser();
   }
 
 }
 
-const Menu = $still.component.expose(new CMenu());
+//const Menu = $still.component.expose(new CMenu());

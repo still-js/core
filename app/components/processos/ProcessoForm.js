@@ -33,6 +33,10 @@ class ProcessoForm extends ViewComponent {
     listEquipas;
     listClientes;
 
+    horasMes;
+    valorTotal;
+    dataEmissaoFactura;
+
     listEstado = [
         {
             id: 1,
@@ -59,19 +63,15 @@ class ProcessoForm extends ViewComponent {
         },
         {
             id: 2,
-            descricao: "Taxa horária",
+            descricao: "Success Fee",
         },
         {
             id: 3,
-            descricao: "Valor Fixo",
+            descricao: "Fixo",
         },
         {
             id: 4,
-            descricao: "Sucess fee",
-        },
-        {
-            id: 5,
-            descricao: "pro bono",
+            descricao: "Probono",
         },
     ];
 
@@ -132,8 +132,7 @@ class ProcessoForm extends ViewComponent {
                                 Dados Processo
                             </h3>
 
-                            <h2 class="card-inside-title">Detalhes do processo</h2>
-                            <div class="row clearfix">
+                            <div class="row clearfix" style="margin-top: 30px">
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
@@ -145,6 +144,8 @@ class ProcessoForm extends ViewComponent {
                                         </div>
                                     </div>
                                 </div>
+
+                                
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
@@ -156,6 +157,17 @@ class ProcessoForm extends ViewComponent {
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="material-icons">today</i> Contra Parte
+                                    </span>
+                                    <div class="form-line">
+                                        <input type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
+                                    </div>
+                                </div>
+                            </div>
+
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <div class="input-field col">
@@ -186,27 +198,8 @@ class ProcessoForm extends ViewComponent {
                                     </select>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="input-field col s12">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">person</i> Modo de Facturação
-                                        </span> 
-                                        <select (change)="updateModoFacturacao($event)" (value)="modoFacturacaoId" (forEach)="listModoFacturacao">
-                                            <option each="item" value="">Selecione uma opção</option>
-                                            <option each="item" value="{item.id}">{item.descricao}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="material-icons">today</i> Contra Parte
-                                        </span>
-                                        <div class="form-line">
-                                            <input type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
-                                        </div>
-                                    </div>
-                                </div>
+
+                               
                                 <div class="col-md-4">
                                     <div class="input-field col s12">
                                         <span class="input-group-addon">
@@ -245,7 +238,6 @@ class ProcessoForm extends ViewComponent {
                                 </div>
                             </div>
 
-
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
@@ -257,6 +249,39 @@ class ProcessoForm extends ViewComponent {
                                     </div>
                                 </div>
 
+                                <div class="col-md-4">
+                                <div class="input-field col s12">
+                                    <span class="input-group-addon">
+                                        <i class="material-icons">person</i> Modo de Facturação
+                                    </span> 
+                                    <select (change)="updateModoFacturacao($event)" (value)="modoFacturacaoId" (forEach)="listModoFacturacao">
+                                        <option each="item" value="">Selecione uma opção</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="material-icons">access_time</i> Horas / Mês
+                                </span>
+                                <div class="form-line">
+                                    <input id="horasMesInput" disabled type="numeric" class="form-control" placeholder="00 H" (value)="horasMes">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="material-icons">attach_money</i> Valor Total
+                            </span>
+                            <div class="form-line">
+                                <input type="numeric" id="valorTotalInput" disabled class="form-control" placeholder=" 0,00 Kz" (value)="valorTotal">
+                            </div>
+                        </div>
+                    </div>
+                 
                                 <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-addon">
@@ -278,6 +303,18 @@ class ProcessoForm extends ViewComponent {
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="material-icons">date_range</i> Data para Emissão Factura
+                            </span>
+                            <div class="form-line">
+                                <input type="date" id="dataEmissaoFacturaInput" (change)="updateDataEmissaoFactura($event)" class="form-control date" (value)="dataEmissaoFactura">
+                            </div>
+                        </div>
+                    </div>
+    
 
                             </div>
                         <div style="display: flex;
@@ -308,9 +345,6 @@ class ProcessoForm extends ViewComponent {
     }
 
     registerProcesso() {
-        // this.precedentes = listPrecedentesArray.length ? listPrecedentesArray.map((el) => el.id) : []
-        // this.equipas = listEquipasArray.length ? listEquipasArray.map((el) => el.id) : []
-        // this.tarefas = listTarefasArray
 
         const payload = {
             "assunto": this.assunto.value,
@@ -335,22 +369,47 @@ class ProcessoForm extends ViewComponent {
             "precedentes": this.precedentes.value,
             "equipas": this.equipas.value,
             "tarefas": this.tarefas.value,
+
+            "horasMes": this.horasMes.value,
+            "valorTotal": this.valorTotal.value,
+            "dataEmissaoFactura": this.dataEmissaoFactura.value,
         };
 
-        console.log("payload >>> ", payload);
+        console.log(payload)
 
-        if (this.id.value !== "") {
-            this.updateProcesso(payload)
-        } else {
-            this.saveProcesso(payload)
+        return 0
+
+        if(this.formProcessoValidade()) {  
+            if (this.id.value !== "") {
+                this.updateProcesso(payload)
+            } else {
+                this.saveProcesso(payload)
+            }
         }
+    }
 
+    formProcessoValidade() {
+
+        if(Number(this.modoFacturacaoId.value) == 1 && this.horasMes.value == "") {
+            alert("Para modo de facturação Avença, as horas/meses deve ser preenchida!")
+            document.getElementById("horasMesInput").focus()
+            return false
+        }
+        if(Number(this.modoFacturacaoId.value) == 2 && this.valorTotal.value == "") {
+            alert("Para modo de facturação Success Fee, a valor total deve ser preenchida")
+            document.getElementById("valorTotalInput").focus()
+            return false
+        }
+        if(Number(this.modoFacturacaoId.value) == 3 && this.valorTotal.value == "") {
+            alert("Para modo de facturação Fixo, a valor total deve ser preenchida")
+            document.getElementById("valorTotalInput").focus()
+            return false
+        }
+        return true;
     }
 
 
     saveProcesso(payload) {
-
-        console.log("save processo")
 
         if (this.isValidInputForm()) {
             $still.HTTPClient.post(
@@ -363,7 +422,6 @@ class ProcessoForm extends ViewComponent {
                 }
             )
                 .then((response) => {
-                    console.log(`processo criado com sucesso: `, response);
                     if (response.status !== 201) {
                         if (response.message) {
                             alert(response.message);
@@ -372,7 +430,6 @@ class ProcessoForm extends ViewComponent {
                         }
                     } else {
                         alert("Salvo com sucesso");
-                        console.log("cadastro do colaborador ... ", response);
                         //AppTemplate.get().store('logged', true);
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.id,
@@ -400,7 +457,6 @@ class ProcessoForm extends ViewComponent {
                 }
             )
                 .then((response) => {
-                    console.log(`processo criado com sucesso: `, response);
                     if (response.status !== 200) {
                         alert(response.errors);
                         // Router.goto('Init');
@@ -485,8 +541,6 @@ class ProcessoForm extends ViewComponent {
 
     populateAttributes(data) {
 
-        console.log("populateAttributes - data >>>>>>  ", data);
-
         this.id = data.id;
         this.estado = data.estado;
         this.referencia = data.ref;
@@ -513,6 +567,10 @@ class ProcessoForm extends ViewComponent {
         this.tipoCliente = data.tipo_cliente;
         this.gestor = data.gestor;
 
+        this.horasMes = data.horasMes;;
+        this.valorTotal = data.valorTotal;
+        this.dataEmissaoFactura = data.dataEmissaoFactura;
+
         setTimeout(() => {
 
             if (this.dataRegisto.value)
@@ -523,6 +581,9 @@ class ProcessoForm extends ViewComponent {
 
             if (this.dataEncerramento.value)
                 document.getElementById('dataEncerramentoInput').value = this.dataEncerramento.value.substr(0, 10)
+        
+            if (this.dataEmissaoFactura.value)
+                document.getElementById('dataEmissaoFacturaInput').value = this.dataEncerramento.value.substr(0, 10)
 
             this.modoFacturacaoId = data.modo_facturacao_id;
             this.instituicaoId = data.instituicao_id;
@@ -530,13 +591,7 @@ class ProcessoForm extends ViewComponent {
             this.gestorId = data.gestor_id;
             this.clienteId = data.cliente_id;
 
-            console.log(">>>>><<<   ", this.gestorId)
-
         }, 500)
-
-
-        console.log(this.gestorId)
-        console.log(this.listColaboradores)
 
     }
 
@@ -550,7 +605,9 @@ class ProcessoForm extends ViewComponent {
     }
 
     updateModoFacturacao(evt) {
-        this.modoFacturacaoId = evt.target.value;
+        let value = evt.target.value;
+        this.modoFacturacaoId = value;
+        this.checkModoFacturacao(value)
     }
 
     updateGestorProcesso(evt) {
@@ -585,62 +642,36 @@ class ProcessoForm extends ViewComponent {
         this.dataEncerramento = document.getElementById("dataEncerramentoInput").value
     }
 
+    updateDataEmissaoFactura(evt){
+        this.dataEmissaoFactura = document.getElementById("dataEmissaoFacturaInput").value
+    }
+
+    checkModoFacturacao(value) {
+
+        switch(value) {
+            case '1':
+                document.getElementById("horasMesInput").disabled = false;
+                document.getElementById("valorTotalInput").disabled = true;
+                document.getElementById("valorTotalInput").value = "";
+                this.valorTotal = ""
+                break;
+            case '2':
+                document.getElementById("horasMesInput").disabled = true;
+                document.getElementById("horasMesInput").value = "";
+                this.horasMes = ""
+                document.getElementById("valorTotalInput").disabled = false;
+                break;
+            case '3':
+                document.getElementById("horasMesInput").disabled = true;
+                document.getElementById("horasMesInput").value = "";
+                this.horasMes = ""
+                document.getElementById("valorTotalInput").disabled = false;
+                break;
+            default:
+                document.getElementById("horasMesInput").disabled = true;
+                document.getElementById("valorTotalInput").disabled = true;
+        }
+
+    }
+
 }
-
-/*
-function loadWizard() {
-    //Advanced form with validation
-    var form = $("#wizard_with_validation").show();
-    form.steps({
-        showFinishButtonAlways: false,
-        enableFinishButton: false,
-        labels: {
-            finish: "Submeter",
-            next: "Próximo",
-            previous: "Voltar",
-        },
-        headerTag: "h3",
-        bodyTag: "fieldset",
-        transitionEffect: "slideLeft",
-        onInit: function (event, currentIndex) {
-            //Set tab width
-            var $tab = $(event.currentTarget).find('ul[role="tablist"] li');
-            var tabCount = $tab.length;
-            $tab.css("width", 100 / tabCount + "%");
-
-            //set button waves effect
-            setButtonWavesEffect(event);
-        },
-        onStepChanging: function (event, currentIndex, newIndex) {
-            if (currentIndex > newIndex) {
-                return true;
-            }
-
-            if (currentIndex < newIndex) {
-                form.find(".body:eq(" + newIndex + ") label.error").remove();
-                form.find(".body:eq(" + newIndex + ") .error").removeClass("error");
-            }
-
-            //form.validate().settings.ignore = ':disabled,:hidden';
-            return form; //.valid();
-        },
-        onStepChanged: function (event, currentIndex, priorIndex) {
-            setButtonWavesEffect(event);
-        },
-        onFinishing: function (event, currentIndex) {
-            //form.validate().settings.ignore = ':disabled';
-            return form; //.valid();
-        },
-        onFinished: function (event, currentIndex) {
-            swal("Good job!", "Submitted!", "success");
-        },
-    });
-}
-
-function setButtonWavesEffect(event) {
-    $(event.currentTarget).find('[role="menu"] li a').removeClass("waves-effect");
-    $(event.currentTarget)
-        .find('[role="menu"] li:not(.disabled) a')
-        .addClass("waves-effect");
-}
-*/

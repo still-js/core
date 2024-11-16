@@ -12,9 +12,12 @@ class Login extends ViewComponent {
         <div class="">
         <div>
         <div class="center">
-            <p class="logo">
-                <span class="logo-first">Ju</span><span class="logo-second">law</span>
-            </p>
+        <img 
+        src="assets/images/julaw-logo.png" 
+        style="width: 42px;"
+        alt="" 
+    />
+    <span class="logo-name" style="color: #555">SOFTLAW</span>
         </div>
     </div>
             <form onsubmit="javascript: return false;">

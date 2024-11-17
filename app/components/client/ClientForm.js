@@ -81,7 +81,7 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">person</i> Nome
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
+                                                <input (validate)="anyvalue" type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
                                             </div>
                                         </div>
                                     </div>
@@ -91,7 +91,12 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">group</i> Sobrenome
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="sobrenome" placeholder="Sobrenome">
+                                                <input 
+                                                    type="text"
+                                                    class="form-control date"
+                                                    (value)="sobrenome"
+                                                    required
+                                                    placeholder="Sobrenome">
                                             </div>
                                         </div>
                                     </div>
@@ -103,7 +108,12 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">location_city</i> Endereço
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="endereco" placeholder="Endereço">
+                                                <input 
+                                                    pattern="number"
+                                                    type="text" 
+                                                    class="form-control date" 
+                                                    (value)="endereco" 
+                                                    placeholder="Endereço">
                                             </div>
                                         </div>
                                     </div>
@@ -151,7 +161,13 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">contact_phone</i> Contacto para Cobrança
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="contactoCobranca" placeholder="Contacto para cobrança">
+                                                <input 
+                                                    type="text" 
+                                                    class="form-control date" 
+                                                    (value)="contactoCobranca" 
+                                                    placeholder="Contacto para cobrança"
+                                                    (validate)="anyValidation"
+                                                    >
                                             </div>
                                         </div>
                                     </div>

@@ -247,8 +247,13 @@ class BaseComponent extends BehaviorComponent {
          */
         fields.forEach(field => {
             tamplateWithState = tamplateWithState.replace(`@${field}`, currentClass[field]?.value || currentClass[field]);
-            tamplateWithState = this.getBoundInputForm(tamplateWithState, field);
+            tamplateWithState = this.getBoundInputForm(tamplateWithState);
         });
+
+        const formRef = this.#getFormReference(tamplateWithState);
+        if (formRef) currentClass[formRef] = new STForm();
+
+
         return tamplateWithState;
     }
 
@@ -358,7 +363,7 @@ class BaseComponent extends BehaviorComponent {
 
     }
 
-    getBoundInputForm(template, field, value) {
+    getBoundInputForm(template) {
         /**
          * Bind (value) on the input form
          */
@@ -371,6 +376,7 @@ class BaseComponent extends BehaviorComponent {
             const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z0-9 \{ \} \[ \] \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"\w*\"\s?/.source;
             const matchForEachRE = '(forEach)=\"';
+
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe, "gi");
 
             template = template.replace(valueBindRE, (mt) => {
@@ -877,6 +883,17 @@ class BaseComponent extends BehaviorComponent {
                 ${cls.constructor.name} as referenced on ${matchInstance}
             `);
         }
+    }
+
+    #getFormReference(template) {
+
+        const matchFormRefRE = /\(formRef\)\={1}\"[a-zA-Z0-9]{0,}\"/;
+        const formRef = template.match(matchFormRefRE);
+        if (formRef) {
+            return formRef[0].split("=")[1].replaceAll('"', '');
+        }
+        return null;
+
     }
 
 }

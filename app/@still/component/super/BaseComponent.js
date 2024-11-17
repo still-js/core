@@ -368,7 +368,7 @@ class BaseComponent extends BehaviorComponent {
             const emptyField = '';
             const clsPath = this.getClassPath();
 
-            const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \"]{0,}/.source;
+            const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z0-9 \{ \} \[ \] \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"\w*\"\s?/.source;
             const matchForEachRE = '(forEach)=\"';
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe, "gi");
@@ -399,7 +399,9 @@ class BaseComponent extends BehaviorComponent {
 
                     let replacer = `${subscriptionCls} `;
                     if (!(isThereComboBox))
-                        replacer = `${forEachValue} value="${val}" ${subscriptionCls} onkeyup="${clsPath}.onValueInput('${field}',this.value)"`;
+                        replacer = `${forEachValue} value="${val}" ${subscriptionCls}  onkeyup="${clsPath}.onValueInput(event,'${field}',this)"`;
+
+                    BehaviorComponent.setOnValueInput(mt, this, field);
 
                     mt = mt.replace(`(value)="${field}"`, replacer);
                 }

@@ -243,7 +243,7 @@ class Components {
 
         cmp.__defineGetter__(field, () => {
 
-            return {
+            const result = {
                 value: cmp['$still_' + field],
                 onChange: (callback = function () { }) => {
                     cmp[`$still${field}Subscribers`].push(callback);
@@ -251,6 +251,15 @@ class Components {
                 defined: true,
                 firstPropag: false
             };
+
+            const validator = BehaviorComponent.currentFormsValidators;
+            if (validator[cmp.constructor.name]) {
+                if (field in validator[cmp.constructor.name]) {
+                    result['isValid'] = validator[cmp.constructor.name][field]['isValid'];
+                }
+            }
+
+            return result;
         });
 
     }

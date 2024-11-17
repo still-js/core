@@ -12,6 +12,10 @@ class ClientForm extends ViewComponent {
     clientNota;
     tipoClienteSelecionado = "";
 
+    /** @type { STForm } */
+    clientForm;
+
+
     /**
      * Fields not bound to the form fields but for internal
      */
@@ -53,7 +57,7 @@ class ClientForm extends ViewComponent {
                         </ul>
                     </div>
                     <div class="body">
-                        <form id="client_wizard_with_validation" onsubmit="javascript: return false;">
+                        <form id="client_wizard_with_validation" (formRef)="clientForm" onsubmit="javascript: return false;">
                             <h3>Dados Pessoais</h3>
                             <fieldset>
 

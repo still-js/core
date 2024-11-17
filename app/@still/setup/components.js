@@ -320,6 +320,14 @@ class Components {
 
             const inspectField = cmp[field];
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop') {
+
+                if (inspectField.sTForm) {
+                    cmp[field].validate = function () {
+                        return BehaviorComponent.validateForm(cmp.constructor.name);
+                    }
+                    return;
+                }
+
                 const listenerFlag = inspectField?.listenerFlag;
                 cmp[field] = cmp[field].value;
                 if (listenerFlag) {

@@ -32,7 +32,6 @@ class BehaviorComponent {
      */
     onValueInput(event, field, inpt) {
 
-        console.log(event);
         if (
             BehaviorComponent.ignoreKeys.includes(event.key.toString().toLowerCase())
         ) return;
@@ -111,6 +110,16 @@ class BehaviorComponent {
                 clearTimeout(hideTimeout);
             }
         }, 100)
+    }
+
+    static validateForm(fieldPath) {
+
+        const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
+        const invalid = Object.entries(formFields).some(r => r[1].isValid == false);
+
+        if (invalid) return false;
+        return true;
+
     }
 
 }

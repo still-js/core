@@ -1,3 +1,8 @@
 .still-hide-view-part {
     display: none;
 }
+
+.still-validation-failed-style {
+    background: #ff000024 !important;
+    border: 1px solid #ff000052 !important;
+}

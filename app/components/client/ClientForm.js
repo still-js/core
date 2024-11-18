@@ -70,6 +70,7 @@ class ClientForm extends ViewComponent {
                                                     <i class="material-icons">person</i> Tipo de cliente
                                                 </span>
                                                 <select 
+                                                    (required)="true"
                                                     (value)="tipoClienteSelecionado"
                                                     (change)="updateTipoCliente($event)" 
                                                     (forEach)="clientType">
@@ -99,7 +100,7 @@ class ClientForm extends ViewComponent {
                                                     type="text"
                                                     class="form-control date"
                                                     (value)="sobrenome"
-                                                    required
+                                                    (required)="true"
                                                     placeholder="Sobrenome">
                                             </div>
                                         </div>
@@ -113,8 +114,8 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
-                                                    pattern="number"
-                                                    type="text" 
+                                                    (validator)="number"
+                                                    type="text"
                                                     class="form-control date" 
                                                     (value)="endereco" 
                                                     placeholder="Endereço">

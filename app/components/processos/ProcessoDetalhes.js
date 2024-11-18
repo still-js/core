@@ -1213,6 +1213,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   addTarefaProcesso(idForm) {
+    
     const tarefa = this.getValueById('input_form_tarefa')
     let inputTarefa = document.getElementById('input_form_tarefa')
 

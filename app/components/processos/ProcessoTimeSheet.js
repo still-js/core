@@ -313,6 +313,27 @@ class ProcessoTimeSheet extends ViewComponent {
     let endDate = changes.end ? changes.end.d.d : evt.end.d.d
     let tipoEventoId = changes.calendarId ? changes.calendarId : evt.calendarId
     let horasCalculadas = (endDate - startDate) / 3600000
+    let horasCalculadasEvt = (evt.end.d.d - evt.start.d.d) / 3600000
+
+    let isChanged = false
+    let isPlus = false
+    let horasPlus = 0
+
+    if(horasCalculadas == horasCalculadasEvt) {
+      isChanged = false
+    }
+
+   if(horasCalculadas > horasCalculadasEvt) {
+     isChanged = true
+     isPlus = true
+     horasPlus = horasCalculadas - horasCalculadasEvt
+    }
+     
+    if(horasCalculadas < horasCalculadasEvt) {
+      isChanged = true
+      isPlus = false
+      horasPlus = horasCalculadasEvt - horasCalculadas
+    }
 
     let payload = {
       tipoEventoId: tipoEventoId = 'entrevista' ? 1 : 2,
@@ -340,9 +361,10 @@ class ProcessoTimeSheet extends ViewComponent {
       return false
     } else {
       console.log("Alterações feita com sucesso");
-      this.calendarProxy.clearGrid()
-      this.init()
-      //this.updateHorasColaborador(true, horasCalculadas)
+      //this.calendarProxy.clearGrid()
+      //this.init()
+      if(isChanged)
+        this.updateHorasColaborador(isPlus, horasPlus)
       return true
     }
 

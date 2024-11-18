@@ -327,8 +327,21 @@ class BaseComponent extends BehaviorComponent {
             const paramVal = evtComposition[1].replace(')', '');
             const uiElm = elm._className;
             document.querySelector(`.${uiElm}`).onchange = async (event) => {
+                const inpt = event.target;
+                const { value, dataset: { formref, field, cls } } = inpt;
+                const fieldPath = `${cls}${formref ? `-${formref}` : ''}`;
+
+                let isValid = true;
+                if (value == '')
+                    isValid = false;
+
+                if (!isValid) inpt.classList.add('still-validation-failed-style');
+                else inpt.classList.remove('still-validation-failed-style');
+                BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
+
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
+                    eval(this.getClassPath())[field] = value;
                     eval(this.getClassPath())[evt](param);
                 })
             }
@@ -895,20 +908,29 @@ class BaseComponent extends BehaviorComponent {
             val = this[field];
 
         const validatorClass = BehaviorComponent.setOnValueInput(mt, this, field, (formRef?.formRef || null));
-        const classList = `listenChangeOn-${this.getProperInstanceName()}-${field} ${validatorClass}`;
+        const classList = `${validatorClass} listenChangeOn-${this.getProperInstanceName()}-${field}`;
 
         const clsPath = this.getClassPath();
+
         let subscriptionCls = '';
-        let comboSuffix = isThereComboBox ? '-combobox' : '';
+        const clsName = this.constructor.name;
+        const comboSuffix = isThereComboBox ? '-combobox' : '';
+        const dataFields = `${isThereComboBox
+            ? `data-formRef="${formRef?.formRef || ''}" 
+                   data-field="${field}" 
+                   data-cls="${clsName}"`
+            : ''
+            }`;
+
         if (mt.indexOf(`class="`) >= 0)
-            mt = mt.replace(`class="`, `class="${classList}${comboSuffix} `);
+            mt = mt.replace(`class="`, `${dataFields} class="${classList}${comboSuffix} `);
         else
-            subscriptionCls = `class="${classList}${comboSuffix}" `;
+            subscriptionCls = `${dataFields} class="${classList}${comboSuffix}" `;
 
         let replacer = `${subscriptionCls} `;
         if (!(isThereComboBox))
             replacer = `${forEachValue} 
-                        value="${val}" ${subscriptionCls} 
+                        value="${val}" ${subscriptionCls}  
                         onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
 
         return { mt, replacer };

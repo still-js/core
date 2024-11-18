@@ -340,18 +340,24 @@ class ProcessoTimeSheet extends ViewComponent {
       return false
     } else {
       console.log("Alterações feita com sucesso");
+      this.calendarProxy.clearGrid()
       this.init()
+      //this.updateHorasColaborador(true, horasCalculadas)
       return true
     }
 
   }
 
-  async deleteEvent(env) {
+  async deleteEvent(evt) {
 
-    if (env.id === undefined) return false;
+    if (evt.id === undefined) return false;
+
+    let startDate = evt.start.d.d
+    let endDate = evt.end.d.d
+    let horasCalculadas = (endDate - startDate) / 3600000
 
     let response = await $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/processo_time_sheets/${env.id}`,
+      `http://localhost:3000/api/v1/processo_time_sheets/${evt.id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -364,7 +370,7 @@ class ProcessoTimeSheet extends ViewComponent {
       return false
     } else {
       console.log("Alterações feita com sucesso");
-      this.init()
+      this.updateHorasColaborador(false, horasCalculadas)
       return true
     }
 

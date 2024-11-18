@@ -540,15 +540,10 @@ class ProcessoDetalhes extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="material-icons">person</i> Equipas
                                     </span>
-<<<<<<< HEAD
-                                    <select 
-                                        id="qeuipaSelectedColaborador"
-                                        (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
-                                        <option each="item" value="">Selecione uma opção</option>
-=======
-                                    <select (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
+                                    <select
+                                    id="qeuipaSelectedColaborador"
+                                    (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
                                         <option each="item" value="">Selecione um Advogado</option>
->>>>>>> d1ebae2 (fix: processo detalhes)
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
                                 </div>
@@ -1050,12 +1045,9 @@ class ProcessoDetalhes extends ViewComponent {
   qeuipaSelectedColaborador;
   updateEquipasProcesso(evt) {
     this.equipaInput = evt.target.value;
-<<<<<<< HEAD
     const e = document.getElementById("qeuipaSelectedColaborador");
     this.qeuipaSelectedColaborador = e.options[e.selectedIndex].text;
     console.log(" <<<<<<<<<< this.equipasProcesso  ", this.equipaInput)
-=======
->>>>>>> d1ebae2 (fix: processo detalhes)
   }
 
   updatePrecedentes(evt) {

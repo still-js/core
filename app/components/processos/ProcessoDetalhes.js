@@ -975,33 +975,12 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     const payload = {
-      //"assunto": this.assunto.value,
-      //"area": this.area.value,
-      //"fase": this.fase.value,
-      //"instituicaoId": this.instituicaoId.value,
-      //"modoFacturacaoId": this.modoFacturacaoId.value,
-      //"clienteId": this.clienteId.value,
-      //"gestorId": this.gestorId.value,
-      //"contraParte": this.contraParte.value,
-      //"dataRegisto": this.dataRegisto.value,
-      //"dataSuspensao": this.dataSuspensao.value,
-      //"colaboradorIdSuspendeu": null,
-      //"dataEncerramento": this.dataEncerramento.value,
-      //"colaboradorIdEnderrou": null,
       "metodologia": this.metodologia.value,
       "estrategia": this.estrategia.value,
       "factos": this.factos.value,
       "objectivos": this.objectivos.value,
-      "dataImportantes": this.dadosImportantes.value,
-      //"statusId": this.statusId.value,
-      //"precedentes": this.precedentes.value,
-      //"equipas": this.equipas.value,
-      //"tarefas": this.tarefas.value,
+      "dataImportantes": this.dadosImportantes.value
     };
-
-
-    //console.log("payload ",payload)
-    //return 0
 
     this.updateProcesso(payload)
     this.toggleEditarInputArea(id, false)
@@ -1019,17 +998,14 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log(`processo criado com sucesso: `, response);
         if (response.status !== 200) {
-          console.log(response)
           alert(response.errors);
         } else {
           alert("Salvo com sucesso");
-          console.log("cadastro do colaborador ... ", response);
         }
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        alert(err.message)
       });
   }
 
@@ -1047,13 +1023,11 @@ class ProcessoDetalhes extends ViewComponent {
     this.equipaInput = evt.target.value;
     const e = document.getElementById("qeuipaSelectedColaborador");
     this.qeuipaSelectedColaborador = e.options[e.selectedIndex].text;
-    console.log(" <<<<<<<<<< this.equipasProcesso  ", this.equipaInput)
   }
 
   updatePrecedentes(evt) {
     this.precedenteInput = evt.target.value;
   }
-
 
 
   getListColaboradores() {

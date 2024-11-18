@@ -287,8 +287,17 @@ class ProcessoTimeSheet extends ViewComponent {
 
       this.calendarProxy.addNewEvents(eventData);
       //this.init()
+      this.updateHorasColaborador(true, horasCalculadas)
       return true
     }
+
+  }
+
+  updateHorasColaborador(isPlus, time){
+
+    let currentTime = eval(document.getElementById('horasInputId').innerHTML)
+    let calculateTime = isPlus ? currentTime + time : currentTime - time
+    document.getElementById('horasInputId').innerHTML = calculateTime
 
   }
 

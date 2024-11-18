@@ -123,6 +123,12 @@ class TabulatorComponent extends ViewComponent {
         this.dataSource = existingData;
     }
 
+    removeRow(columnId, id){
+        const existingData = [...this.table.getData()];
+        const filterData = existingData.filter( item => item[columnId] !== id)
+        this.dataSource = filterData
+    }
+
     /**
      * Method signature for parent to call as event
      * @type {{componentEvent: true}} 

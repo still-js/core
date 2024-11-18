@@ -118,6 +118,7 @@ class ProcessoDetalhes extends ViewComponent {
       { title: "Referência", field: "precedente_refencia", sorter: "string" },
       { title: "Assunto", field: "precedente_assunto", sorter: "string" },
       { title: "#", field: "precedente_id", sorter: "string" },
+      { title: "#", field: "id", sorter: "string" },
     ])
   );
 
@@ -815,6 +816,8 @@ class ProcessoDetalhes extends ViewComponent {
       if (r.status === 200) {
         try {
 
+          console.log("here... ", r.data[0])
+          
           this.populateAttributes(r.data[0]);
           this.getListColaboradores();
           this.getListPrecedentes();
@@ -1069,6 +1072,8 @@ class ProcessoDetalhes extends ViewComponent {
             processoData.push({
               id: processo.id,
               descricao: `${processo.assunto} - ${processo.ref}`,
+              ref: processo.ref,
+              assunto: processo.assunto,
             });
           }
 
@@ -1112,7 +1117,7 @@ class ProcessoDetalhes extends ViewComponent {
           const colaborador = dados[2].trim()
 
           this.dataTableListProcessosEquipas.insertRow(
-            { colaborador, funcao }
+            { 'id': equipa, colaborador, funcao }
           );
           //this.getDetalhesProcesso(this.id.value)
         }
@@ -1127,9 +1132,6 @@ class ProcessoDetalhes extends ViewComponent {
 
   async addPrecedentesProcesso(idForm) {
 
-    console.log("addPrecedentesProcesso... ", this.precedenteInput.value);
-
-    const tarefa = this.getValueById('input_form_tarefa')
     const precedente = this.precedenteInput.value;
 
     const payload = {
@@ -1147,15 +1149,19 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log(`processo criado com sucesso: `, response);
         if (response.status !== 201) {
           console.log(response)
           alert(response.errors);
         } else {
           alert("Salvo com sucesso");
-          console.log("cadastro do colaborador ... ", response);
           this.toggleForms(idForm)
-          this.getDetalhesProcesso(this.id.value)
+
+          let processoSalvo = this.listPrecedentes.value.filter((processo) => processo.id == precedente)
+          let { id, descricao, ref, assunto } = processoSalvo[0]
+
+          this.dataTableListProcessosPrecedentes.insertRow(
+            { 'precedente_refencia': ref, 'precedente_assunto': assunto, 'precedente_id': precedente, 'id': id}
+          );
         }
       })
       .catch((err) => {
@@ -1169,20 +1175,17 @@ class ProcessoDetalhes extends ViewComponent {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
 
-    console.log(userLogged)
     let userId = userLogged.id 
+    let descricaoAnexo = this.inputAnexoDescricao.value
 
     const payload = {
       "processoId": this.id.value,
       "colaboradorId": userId,
       "anexos": [{
-        "descricao": this.inputAnexoDescricao.value,
+        "descricao": descricaoAnexo,
         "anexo": document.getElementById('inputUploadAnexoHidden').src
       }]
     }
-
-
-    console.log("payload anexo", payload)
 
     $still.HTTPClient.post(
       "http://localhost:3000/api/v1/anexos_processo",
@@ -1194,15 +1197,13 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log(`processo criado com sucesso: `, response);
         if (response.status !== 201) {
           console.log(response)
           alert(response.errors);
         } else {
           alert("Salvo com sucesso");
-          console.log("cadastro do colaborador ... ", response);
           this.toggleForms(idForm)
-          this.getDetalhesProcesso(this.id.value)
+          this.dataTableListProcessosAnexos.dataSource = response.data
         }
       })
       .catch((err) => {
@@ -1213,7 +1214,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   addTarefaProcesso(idForm) {
-    
+
     const tarefa = this.getValueById('input_form_tarefa')
     let inputTarefa = document.getElementById('input_form_tarefa')
 
@@ -1245,9 +1246,13 @@ class ProcessoDetalhes extends ViewComponent {
             alert(response.errors);
           } else {
             alert("Actualizado com sucesso");
-            console.log("cadastro do colaborador ... ", response);
+            console.log("add tarefa processo  ... here ... ", response);
             this.toggleForms(idForm)
-            this.getDetalhesProcesso(this.id.value)
+            this.dataTableListProcessosTarefas.insertRow(
+              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at' : new Date().toLocaleString("PT")},
+            );
+           
+            //this.getDetalhesProcesso(this.id.value)
           }
         })
         .catch((err) => {
@@ -1256,6 +1261,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     } else {
 
+      let idTarefa = inputTarefa.dataset.id
       const payload = {
         "processoId": this.id.value,
         "tarefas": [tarefa]
@@ -1272,15 +1278,18 @@ class ProcessoDetalhes extends ViewComponent {
         }
       )
         .then((response) => {
-          console.log(`processo criado com sucesso: `, response);
           if (response.status !== 201) {
             console.log(response)
             alert(response.errors);
           } else {
-            alert("Salvo com sucesso");
-            console.log("cadastro do colaborador ... ", response);
+            alert("Tarefa adicionada com sucesso");
+            console.log("nava tarefa adicionada ao Processo ... ", response);
             this.toggleForms(idForm)
-            this.getDetalhesProcesso(this.id.value)
+
+            this.dataTableListProcessosTarefas.insertRow(
+              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at' : new Date().toLocaleString("PT")},
+            );
+            
           }
         })
         .catch((err) => {
@@ -1309,6 +1318,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerColaboradorProcesso(_, record) {
 
+
     let payload = {
       "type": "colaborador",
       "valueId": record.id
@@ -1331,7 +1341,7 @@ class ProcessoDetalhes extends ViewComponent {
         }
         if (response.status === 200) {
           alert("Removido com Sucesso!")
-          this.getDetalhesProcesso(this.id.value)
+          this.dataTableListProcessosEquipas.removeRow('id', record.id)
         }
 
       })
@@ -1363,11 +1373,10 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
 
         if (response.status === 200) {
           alert("Removido com Sucesso!")
-          this.getDetalhesProcesso(this.id.value)
+          this.dataTableListProcessosTarefas.removeRow('id', record.id)
         }
 
       })
@@ -1415,7 +1424,6 @@ class ProcessoDetalhes extends ViewComponent {
       "valueId": record.id
     }
 
-
     $still.HTTPClient.delete(
       `http://localhost:3000/api/v1/recursos_processo/`,
       JSON.stringify(payload),
@@ -1425,28 +1433,24 @@ class ProcessoDetalhes extends ViewComponent {
         },
       }
     ).then((response) => {
-      console.log("ver anexo processo response >> ", response)
 
       if (response.status === 200) {
-
-        alert("Removido com Sucesso!")
-        this.getDetalhesProcesso(this.id.value)
+        alert("Processo desassociado com Sucesso!")
+        //this.getDetalhesProcesso(this.id.value)
+        this.dataTableListProcessosPrecedentes.removeRow('id', payload.valueId)
       } else {
-        alert("Erro ao remover o Processo!")
+        alert("Erro ao desassociar o Processo!")
       }
 
     })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        console.log(`Erro ao associar processo: `, err);
       });
   }
 
 
 
   downalodAnexoProcesso(_, record) {
-
-    console.log('view_anexo_processo >>  ', record.id)
-
 
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
@@ -1465,10 +1469,11 @@ class ProcessoDetalhes extends ViewComponent {
           const link = document.createElement('a');
           link.setAttribute("target", '_blank');
           link.href = `${pathDownload}/${response.data.fileName}`;
-          link.download = 'Processo Anexo'; // Define o nome do arquivo ao fazer o download
+          link.download = 'Processo Anexo';
           document.body.appendChild(link);
-          link.click(); // Simula o clique no link
-          document.body.removeChild(link); // Remove o link após o download
+          console.log("o link do download ", link)
+          link.click(); 
+          document.body.removeChild(link); 
         }
       })
       .catch((err) => {
@@ -1533,7 +1538,7 @@ class ProcessoDetalhes extends ViewComponent {
 
         if (response.status === 200) {
           alert("Removido com Sucesso!")
-          this.getDetalhesProcesso(this.id.value)
+          this.dataTableListProcessosAnexos.removeRow('id', record.id)
         }
 
       })

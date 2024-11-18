@@ -36,11 +36,14 @@ class BehaviorComponent {
             BehaviorComponent.ignoreKeys.includes(event.key.toString().toLowerCase())
         ) return;
 
-        const { value, required, pattern } = inpt;
+        const pattern = inpt.getAttribute('(validator)');
+        let required = inpt.getAttribute('(required)');
+        required = required == 'false' ? false : required;
 
-        const fieldPath = `${this.constructor.name}${formRef ? `-${formRef}` : ''}`;
+        const { value } = inpt;
+
+        const fieldPath = `${this.constructor.name}${formRef && formRef != 'null' ? `-${formRef}` : ''}`;
         let isValid = true;
-
 
         if (pattern && value.trim() != '') {
             let regex = pattern;
@@ -78,10 +81,10 @@ class BehaviorComponent {
             BehaviorComponent.currentFormsValidators[fieldPath][field] = {};
 
         if (
-            mt.indexOf(' required ') >= 0
-            || mt.indexOf('\nrequired\n') >= 0
-            || mt.indexOf('\nrequired') >= 0
-            || mt.indexOf('required\n') >= 0
+            mt.indexOf(' (required)="true" ') >= 0
+            || mt.indexOf('\n(required)="true"\n') >= 0
+            || mt.indexOf('\n(required)="true"') >= 0
+            || mt.indexOf('(required)="true"\n') >= 0
             /* || mt.indexOf('pattern="') >= 0
             || mt.indexOf('\npattern="') >= 0 */
         ) {

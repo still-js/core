@@ -30,7 +30,7 @@ class BehaviorComponent {
      * @param {*} field 
      * @param {{ value: string, required: Blob, pattern: RegExp }} inpt 
      */
-    onValueInput(event, field, inpt) {
+    onValueInput(event, field, inpt, formRef) {
 
         if (
             BehaviorComponent.ignoreKeys.includes(event.key.toString().toLowerCase())
@@ -38,7 +38,7 @@ class BehaviorComponent {
 
         const { value, required, pattern } = inpt;
 
-        const fieldPath = `${this.constructor.name}`;
+        const fieldPath = `${this.constructor.name}${formRef ? `-${formRef}` : ''}`;
         let isValid = true;
 
 
@@ -66,9 +66,9 @@ class BehaviorComponent {
      * @param {Object} cmp 
      * @param {string} field 
      */
-    static setOnValueInput(mt, cmp, field) {
+    static setOnValueInput(mt, cmp, field, formRef) {
 
-        const fieldPath = cmp.constructor.name;
+        const fieldPath = `${cmp.constructor.name}${formRef ? `-${formRef}` : ''}`;
         let isValid = true;
 
         if (!(fieldPath in BehaviorComponent.currentFormsValidators))
@@ -82,8 +82,8 @@ class BehaviorComponent {
             || mt.indexOf('\nrequired\n') >= 0
             || mt.indexOf('\nrequired') >= 0
             || mt.indexOf('required\n') >= 0
-            || mt.indexOf('pattern="') >= 0
-            || mt.indexOf('\npattern="') >= 0
+            /* || mt.indexOf('pattern="') >= 0
+            || mt.indexOf('\npattern="') >= 0 */
         ) {
             isValid = false;
         }
@@ -92,8 +92,16 @@ class BehaviorComponent {
 
         BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
         if (!isValid) {
-            //Object.assign(cmp[field], { isValid });
+            let validatorClass = 'still-validation-class';
+            const specificValidatorClass = `still-validation-class-${fieldPath}-${field}`;
+            validatorClass = `${validatorClass} ${specificValidatorClass}`;
+            BehaviorComponent.currentFormsValidators[fieldPath][field]['inputClass'] = specificValidatorClass;
+            return validatorClass;
         }
+
+        return '';
+
+
     }
 
     changeState(input, value) { }
@@ -115,10 +123,28 @@ class BehaviorComponent {
     static validateForm(fieldPath) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
-        const invalid = Object.entries(formFields).some(r => r[1].isValid == false);
+        let valid = true;
+        const validators = Object.entries(formFields);
 
-        if (invalid) return false;
-        return true;
+        for (let [field, validator] of validators) {
+
+            if (!validator.isValid) valid = false;
+
+            if (validator.inputClass) {
+                if (!validator.isValid) {
+                    document
+                        .querySelector('.' + validator.inputClass)
+                        .classList.add('still-validation-failed-style');
+
+                } else {
+                    document
+                        .querySelector('.' + validator.inputClass)
+                        .classList.remove('still-validation-failed-style');
+                }
+            }
+        }
+
+        return valid;
 
     }
 

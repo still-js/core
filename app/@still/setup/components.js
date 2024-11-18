@@ -323,7 +323,7 @@ class Components {
 
                 if (inspectField.sTForm) {
                     cmp[field].validate = function () {
-                        return BehaviorComponent.validateForm(cmp.constructor.name);
+                        return BehaviorComponent.validateForm(`${cmp.constructor.name}-${field}`);
                     }
                     return;
                 }

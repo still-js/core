@@ -241,18 +241,21 @@ class BaseComponent extends BehaviorComponent {
             currentClass[`dynCmpGeneratedId`]
         );
 
+        let formsRef = [];
+        if (this.isThereAForm()) {
+            formsRef = this.#getFormReference(tamplateWithState);
+            if (formsRef?.length)
+                formsRef.forEach(r => currentClass[r.formRef] = new STForm());
+        }
+
         /**
          * Inject/Bind the component state/properties to the
          * referenced place
          */
         fields.forEach(field => {
             tamplateWithState = tamplateWithState.replace(`@${field}`, currentClass[field]?.value || currentClass[field]);
-            tamplateWithState = this.getBoundInputForm(tamplateWithState);
+            tamplateWithState = this.getBoundInputForm(tamplateWithState, formsRef);
         });
-
-        const formRef = this.#getFormReference(tamplateWithState);
-        if (formRef) currentClass[formRef] = new STForm();
-
 
         return tamplateWithState;
     }
@@ -363,15 +366,11 @@ class BaseComponent extends BehaviorComponent {
 
     }
 
-    getBoundInputForm(template) {
+    getBoundInputForm(template, formsRef) {
         /**
          * Bind (value) on the input form
          */
-
         if (this.isThereAForm()) {
-
-            const emptyField = '';
-            const clsPath = this.getClassPath();
 
             const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z0-9 \{ \} \[ \] \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"\w*\"\s?/.source;
@@ -379,7 +378,7 @@ class BaseComponent extends BehaviorComponent {
 
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe, "gi");
 
-            template = template.replace(valueBindRE, (mt) => {
+            template = template.replace(valueBindRE, (mt, matchPos) => {
 
                 const isThereComboBox = mt.indexOf('select') >= 0;
                 const matchForEach = mt.indexOf(matchForEachRE);
@@ -391,25 +390,12 @@ class BaseComponent extends BehaviorComponent {
 
                     const checkPos = mt.indexOf(`(value)="`) + 9;
                     const field = mt.slice(checkPos, mt.indexOf('"', checkPos));
+                    const formRef = formsRef?.find(r => matchPos > r.pos) || '';
 
-                    let val = emptyField
-                    if (!(this[field] instanceof Object) && !!(this[field]))
-                        val = this[field];
-
-                    let subscriptionCls = '';
-                    let comboSuffix = isThereComboBox ? '-combobox' : '';
-                    if (mt.indexOf(`class="`) >= 0)
-                        mt = mt.replace(`class="`, `class="listenChangeOn-${this.getProperInstanceName()}-${field}${comboSuffix} `);
-                    else
-                        subscriptionCls = `class="listenChangeOn-${this.getProperInstanceName()}-${field}${comboSuffix}" `;
-
-                    let replacer = `${subscriptionCls} `;
-                    if (!(isThereComboBox))
-                        replacer = `${forEachValue} value="${val}" ${subscriptionCls}  onkeyup="${clsPath}.onValueInput(event,'${field}',this)"`;
-
-                    BehaviorComponent.setOnValueInput(mt, this, field);
-
-                    mt = mt.replace(`(value)="${field}"`, replacer);
+                    const { replacer, mt: updatedMt } = this.#getFormInputReplacer(
+                        mt, field, isThereComboBox, forEachValue, formRef
+                    );
+                    mt = updatedMt.replace(`(value)="${field}"`, replacer);
                 }
                 return mt;
             });
@@ -885,14 +871,47 @@ class BaseComponent extends BehaviorComponent {
         }
     }
 
+    /**
+     * 
+     * @param { string } template 
+     * @returns { Array<{ formRef: string, pos: number }> }
+     */
     #getFormReference(template) {
 
-        const matchFormRefRE = /\(formRef\)\={1}\"[a-zA-Z0-9]{0,}\"/;
-        const formRef = template.match(matchFormRefRE);
-        if (formRef) {
-            return formRef[0].split("=")[1].replaceAll('"', '');
+        const matchFormRefRE = /\(formRef\)\={1}\"[a-zA-Z0-9]{0,}\"/g;
+        const formRef = [...template.matchAll(matchFormRefRE)];
+        if (formRef.length) {
+            const allForms = formRef.map(r => ({ formRef: r[0].split("=")[1].replaceAll('"', ''), pos: r.index }));
+            return allForms;
         }
         return null;
+
+    }
+
+    #getFormInputReplacer(mt, field, isThereComboBox, forEachValue, formRef) {
+
+        let val = ''
+        if (!(this[field] instanceof Object) && !!(this[field]))
+            val = this[field];
+
+        const validatorClass = BehaviorComponent.setOnValueInput(mt, this, field, (formRef?.formRef || null));
+        const classList = `listenChangeOn-${this.getProperInstanceName()}-${field} ${validatorClass}`;
+
+        const clsPath = this.getClassPath();
+        let subscriptionCls = '';
+        let comboSuffix = isThereComboBox ? '-combobox' : '';
+        if (mt.indexOf(`class="`) >= 0)
+            mt = mt.replace(`class="`, `class="${classList}${comboSuffix} `);
+        else
+            subscriptionCls = `class="${classList}${comboSuffix}" `;
+
+        let replacer = `${subscriptionCls} `;
+        if (!(isThereComboBox))
+            replacer = `${forEachValue} 
+                        value="${val}" ${subscriptionCls} 
+                        onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
+
+        return { mt, replacer };
 
     }
 

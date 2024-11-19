@@ -57,10 +57,12 @@
     background-color: #d3d3d3;
 }
 
+/*
 .sidebar li:hover .submenu {
-    max-height: 200px; /* altura máxima para a transição */
+    max-height: 200px;
     opacity: 1;
 }
+*/
 
 .active .submenu {
     max-height: 200px; /* altura máxima para a transição */

@@ -740,18 +740,6 @@ class ProcessoDetalhes extends ViewComponent {
     <!-- Fim TAB Anexos -->
 
     <div class="still-popup-curtain" (showIf)="self.showFactura"></div>
-  
-    <div 
-      class="factura-wrapper" 
-      (showIf)="self.showFactura"
-      >
-      <st-element
-        component="Factura"
-        proxy="facturaProxy"
-        (onCloseFactura)="fecharFactura()"
-        >
-      </st-element>
-    <div>
 
     <style>
       
@@ -760,10 +748,12 @@ class ProcessoDetalhes extends ViewComponent {
         top: 0;
         background: white;
         z-index: 529985;
-        width: 90%;
-        top: 0;
-        left: 0;
+        width: 66%;
         margin: 0 auto;
+        position: absolute;
+        left: 50%;
+        top: 25%;
+        transform: translate(-50%,-50%);
       }
 
       .still-popup-curtain{
@@ -783,6 +773,19 @@ class ProcessoDetalhes extends ViewComponent {
     </style>
   
   </section>
+
+  <div 
+    class="factura-wrapper" 
+    (showIf)="self.showFactura"
+    >
+    <st-element
+      component="Factura"
+      proxy="facturaProxy"
+      (onCloseFactura)="fecharFactura()"
+      >
+    </st-element>
+  <div>
+
     `;
 
   constructor() {

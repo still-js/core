@@ -114,7 +114,7 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
-                                                    (validator)="number"
+                                                    (validator)="text"
                                                     type="text"
                                                     class="form-control date" 
                                                     (value)="endereco" 
@@ -128,7 +128,13 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">receipt</i> Número de Identificação Fiscal
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="nif" placeholder="NIF">
+                                                <input 
+                                                    (validator)="alhpanumeric"
+                                                    (validator-warn)="Digite um NIF válido, ex: 000300931LA009"
+                                                    type="text" 
+                                                    class="form-control date" 
+                                                    (value)="nif" 
+                                                    placeholder="NIF">
                                             </div>
                                         </div>
                                     </div>
@@ -138,7 +144,16 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">person_outline</i> Pessoa de contacto
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="pessoaContacto" placeholder="Pessoa de Contacto">
+                                                <input 
+                                                    (validator)="phone"
+                                                    (required)="true"
+                                                    type="text" 
+                                                    class="form-control date" 
+                                                    (value)="pessoaContacto" 
+                                                    (validation-trigger)="losefocus"
+                                                    placeholder="Pessoa de Contacto"
+                                                    (validator-warn)="O formato da data é (+244 123 456)"
+                                                    >
                                             </div>
                                         </div>
                                     </div>
@@ -156,7 +171,11 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">phone</i> Telefone
                                             </span>
                                             <div class="form-line">
-                                                <input type="text" class="form-control date" (value)="telefone" placeholder="Telefone">
+                                                <input 
+                                                    type="text" 
+                                                    class="form-control date" 
+                                                    (value)="telefone" 
+                                                    placeholder="Telefone">
                                             </div>
                                         </div>
                                     </div>
@@ -210,12 +229,12 @@ class ClientForm extends ViewComponent {
                                                 </ul>
                                             </div>
                                             <div class="body">
-                                                <textarea required cols="100" rows="30"></textarea>
+                                                <textarea cols="100" rows="30"></textarea>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <input type="submit" class="julaw-submit-button" (click)="registerClient()" value="Submeter">
+                                    <button class="julaw-submit-button" (click)="registerClient()">Submeter</button>
                                     <button class="julaw-cancel-button" (click)="resetState()">Cancelar</button>
 
                                 </div>
@@ -274,10 +293,14 @@ class ClientForm extends ViewComponent {
             "status": "pending"
         }
 
-        if (!routingData) {
-            this.saveClient(payload);
-        } else {
-            this.updateClient(payload);
+        const isValidForm = this.clientForm.validate();
+
+        if (isValidForm) {
+            if (!routingData) {
+                this.saveClient(payload);
+            } else {
+                this.updateClient(payload);
+            }
         }
 
     }

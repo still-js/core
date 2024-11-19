@@ -19,7 +19,8 @@ const $stillconst = {
     PART_HIDE_CSS: 'still-hide-view-part',
     PART_REMOVE_CSS: 'still-del-view-part',
     SUBSEQUENT_NO_PARSE: 'please-do-not-parse-me-still',
-
+    VALID_TRIGGER_ONTYPE: 'still-validation-on-type',
+    VALID_TRIGGER_SET: 'still-validation-trigger-set',
 
 
 

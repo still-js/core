@@ -6,3 +6,8 @@
     background: #ff000024 !important;
     border: 1px solid #ff000052 !important;
 }
+
+.still-validation-warning {
+    font-size: 10px;
+    color: red;
+}

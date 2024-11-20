@@ -1,7 +1,7 @@
 class Menu extends ViewComponent {
   htmlRefId = "leftsidebar";
 
-  userName = ``;
+  userName;
   userRole = "Admin";
 
   roles;
@@ -14,7 +14,8 @@ class Menu extends ViewComponent {
         <div class="sidebar-profile clearfix">
             <div class="profile-info">
               <h3 id="userNameMenuPlaceholder"></h3>
-              <p>Menu Principal</p>
+              Logado como:
+              <p>@userName</p>
             </div>
         </div>
       </li>
@@ -53,24 +54,24 @@ class Menu extends ViewComponent {
   getRolesByLoggedUser() {
     try {
       const userLogged = JSON.parse(localStorage.getItem("_user"));
+      this.userName = userLogged.nome_completo;
       this.roles = userLogged.auth.roles;
     } catch (e) {
       console.log(e)
     }
   }
 
-
   stAfterInit(val) {
+    setTimeout(() => Menu.propagateEventsIntoAllItemMenu(), 2000);
+  }
 
-    //this.roles.includes('CAN_CREATE_PROCESS')
-
+  constructor() {
+    super();
+    this.setup({});
+    this.getRolesByLoggedUser();
   }
 
   async onRender() {
-    /**
-     * Isso quer dizer que o import do JQuery foi feito no index principal
-     * ou no ficheiro de rotas em eagerImport
-     */
     this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS');
   }
 
@@ -78,14 +79,41 @@ class Menu extends ViewComponent {
     Router.goto(viewComponent);
   }
 
+  static propagateEventsIntoAllItemMenu() {
+    const elms = document.querySelectorAll(".item-menu");
 
-  constructor() {
-    super();
-    //this.userName = AppTemplate.get().storageGet('userName');
-    this.setup({});
-    this.getRolesByLoggedUser();
+    elms.forEach(function (elm) {
+      elm.addEventListener("click", (e) => {
+        console.log(e);
+        e.preventDefault();
+        Menu.removeAllActiveClassIntoMenuLi();
+        Menu.removeAllActiveClassIntoMenuLiA();
+
+        console.log(elm.parentNode);
+        console.log(elm.parentElement);
+        elm.classList.add("active");
+
+        try {
+          elm.parentNode.classList.add("active");
+        } catch (e) {
+          console.log(e);
+        }
+      });
+    });
+  }
+
+  static removeAllActiveClassIntoMenuLi() {
+    const elms = document.querySelectorAll(".menu-item-julaw");
+    elms.forEach(function (elm) {
+      elm.classList.remove("active");
+    });
+  }
+
+  static removeAllActiveClassIntoMenuLiA() {
+    const elms = document.querySelectorAll(".item-menu");
+    elms.forEach(function (elm) {
+      elm.classList.remove("active");
+    });
   }
 
 }
-
-//const Menu = $still.component.expose(new CMenu());

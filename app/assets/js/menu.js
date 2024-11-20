@@ -1,5 +1,6 @@
 "use strict";
 
+/* 
 function propagateEventsIntoAllItemMenu() {
   const elms = document.querySelectorAll(".item-menu");
 
@@ -44,3 +45,4 @@ function removeAllActiveClassIntoMenuLiA() {
 }
 
 setTimeout(() => propagateEventsIntoAllItemMenu(), 2000);
+ */

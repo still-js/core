@@ -37,7 +37,7 @@ class Home extends BaseComponent {
         Router.goto('init');
     }
     */
-
+    AppTemplate.showLoading();
     this.setup({
       includs: [
         TopNavBar,
@@ -59,14 +59,14 @@ class Home extends BaseComponent {
       ],
     });
 
-    this.hideLoading();
-
     /* CardDisplay.cardDataSource.onChange((value) => {
             console.log(`Home component detected changes: `,value);
         }); */
   }
 
   async stAfterInit() {
+
+    AppTemplate.hideLoading();
 
   }
 }

@@ -94,8 +94,8 @@ class ClientsGrid extends ViewComponent {
 
     constructor() {
         super();
+        AppTemplate.showLoading();
         this.setup({});
-        //this.showLoading();
     }
 
     deleteRow(_, record) {
@@ -181,25 +181,17 @@ class ClientsGrid extends ViewComponent {
 
     async onRender() {
 
-        /**
-         * Isso quer dizer que o import do JQuery foi feito no index principal
-         * ou no ficheiro de rotas em eagerImport
-         */
-        /* this.stRunOnFirstLoad(() => {
-            $('.js-basic-example').DataTable({
-                responsive: true
-            });
-        }); */
-
         /** For Test purpose only */
         await this.stLazyExecution(async () => {
 
             /** @type { ClientForm } */
-            /* const clientFormView = $still.view.get('ClientForm');
 
+            /* 
+            const clientFormView = $still.view.get('ClientForm');
             clientFormView.onChange((newState) => {
                 console.log(`Client grid detectou mudança no client form: `, newState);
-            }); */
+            }); 
+            */
 
         });
 
@@ -212,11 +204,8 @@ class ClientsGrid extends ViewComponent {
             .get('http://localhost:3000/api/v1/cliente/')
             .then((r) => {
                 this.dataSource = r.data;
-                //console.log(`DATA IS: `,this.dataSource);
                 this.dataTable.dataSource = r.data;
-                console.log(`WILL HIDE LOADING`);
-                this.hideLoading();
-                console.log(`AFTER WILL HIDE LOADING`);
+                AppTemplate.hideLoading();
             });
 
     }

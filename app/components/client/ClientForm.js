@@ -86,7 +86,11 @@ class ClientForm extends ViewComponent {
                                                 <i class="material-icons">person</i> Nome
                                             </span>
                                             <div class="form-line">
-                                                <input (validate)="anyvalue" type="text" class="form-control date" (value)="nome" placeholder="Sobre nome">
+                                                <input 
+                                                    type="text" 
+                                                    class="form-control date" 
+                                                    (value)="nome" 
+                                                    placeholder="Sobre nome">
                                             </div>
                                         </div>
                                     </div>
@@ -258,7 +262,7 @@ class ClientForm extends ViewComponent {
                 'assets/js/form.min.js',
             ],
         });
-        //this.showLoading();
+        AppTemplate.showLoading();
 
     }
 
@@ -268,7 +272,6 @@ class ClientForm extends ViewComponent {
     }
 
     onRender() {
-        //this.showLoading();
         this.routingData = Router.data('ClientForm');
         loadWizard({ enableAllSteps: this.routingData ? true : false });
     }
@@ -276,7 +279,6 @@ class ClientForm extends ViewComponent {
 
     registerClient() {
 
-        //this.showLoading();
         const routingData = Router.data('ClientForm');
         let tipoClientId = this.tipoClienteId.value;
         if ((!tipoClientId || tipoClientId == '') && routingData)
@@ -307,6 +309,7 @@ class ClientForm extends ViewComponent {
 
     saveClient(payload) {
 
+        AppTemplate.showLoading();
         $still.HTTPClient.post(
             'http://localhost:3000/api/v1/cliente',
             JSON.stringify(payload),
@@ -316,10 +319,10 @@ class ClientForm extends ViewComponent {
                 }
             }
         ).then((r) => {
-            this.hideLoading();
+            AppTemplate.hideLoading();
             Router.goto('ClientsGrid');
         }).catch((err) => {
-            this.hideLoading();
+            AppTemplate.hideLoading();
             console.log(`Erro ao cadastrar cliente: `, err);
         });
 
@@ -342,10 +345,10 @@ class ClientForm extends ViewComponent {
                 }
             }
         ).then((r) => {
-            //this.hideLoading();
+            AppTemplate.hideLoading();
             Router.goto('ClientsGrid');
         }).catch((err) => {
-            //this.hideLoading();
+            AppTemplate.hideLoading();
             console.log(`Erro ao cadastrar cliente: `, err);
         });
 
@@ -384,7 +387,7 @@ class ClientForm extends ViewComponent {
             //});
 
         }
-        this.hideLoading();
+        AppTemplate.hideLoading();
 
     }
 

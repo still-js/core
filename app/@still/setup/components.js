@@ -178,14 +178,20 @@ class Components {
                 this.renderOnViewFor('stillUiPlaceholder');
                 setTimeout(() => Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
                 setTimeout(() => Components.handleInPlaceParts($still.context.currentView));
+                setTimeout(() => {
+                    $still.context.currentView.stAfterInit();
+                    AppTemplate.injectToastContent();
+                });
+
                 return;
             }
 
             if (document.getElementById(this.stillAppConst))
                 this.renderOnViewFor(this.stillAppConst);
-            else {
+            else
                 new Components().renderPublicComponent($still.context.currentView);
-            }
+
+            setTimeout(() => $still.context.currentView.stAfterInit());
         });
     }
 
@@ -643,7 +649,13 @@ class Components {
 
         /** @type { Array<ComponentPart> } */
         const cmpParts = Components.componentPartsMap[cmpInternalId || parentCmp.cmpInternalId];
-        const placeHolders = document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
+
+        if (!cmpParts) return;
+
+        const placeHolders = cmpInternalId == 'fixed-part'
+            ? [document.getElementById(`stillUiPlaceholder`)]
+            : document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
+
         /**
          * Get all <st-element> component to replace with the
          * actual component template
@@ -722,6 +734,7 @@ class Components {
                  * the User interface
                  */
                 await cmp.load();
+                setTimeout(() => cmp.stAfterInit(), 100);
                 Components.handleMarkedToRemoveParts();
             });
         }

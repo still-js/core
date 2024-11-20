@@ -1,6 +1,7 @@
 class Template {
 
     static instance = {};
+    static toastId = null;
 
     constructor() {
         const clsName = 'AppTemplate';
@@ -98,5 +99,120 @@ class Template {
         //Router.goto('init');
         window.location.reload();
     }
+
+    static showLoading() {
+        const content = Template.spinnerContent();
+        document.body.insertAdjacentHTML('beforeend', content);
+    }
+
+    static hideLoading() {
+
+        setTimeout(() => {
+            const id = "stllAppGlobalLoadingCurtain";
+            const spinner = document.getElementById(id);
+            if (spinner) document.body.removeChild(spinner);
+        }, 100);
+
+    }
+
+    static spinnerContent() {
+        return `
+            <!-- Overlay For Sidebars -->
+            <div id="stllAppGlobalLoadingCurtain">
+                
+                <div class="overlay"></div>
+                <div class="page-loader-wrapper">
+                    <div class="loader">
+                        <div class="m-t-30">
+                            <!--<img class="loading-img-spin" src="assets/images/loading.png" alt="admin">-->
+                        </div>
+                        <p>Por favor, aguarde...</p>
+                    </div>
+                </div>
+                <div class="still-lds-spinner">
+                    <div></div><div></div><div></div><div></div><div></div><div></div>
+                    <div></div><div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+        `
+    }
+
+    static toast({ status, message } = {}) {
+
+        const uuid = Template.getToastId();
+        const stat = status || 'Successo';
+        const msg = message || 'Operação realizada com sucesso';
+
+        const statPlaceId = `${uuid}-status`;
+        const msgPlaceId = `${uuid}-msg`;
+
+        document.getElementById(statPlaceId).innerHTML = stat;
+        document.getElementById(msgPlaceId).innerHTML = msg;
+
+        let timer1, timer2;
+        const toast = document.querySelector(".still-toast");
+        const closeIcon = document.querySelector(".close");
+        const progress = document.querySelector(".still-toast-progress");
+
+        toast.classList.add("still-toast-active");
+        progress.classList.add("still-toast-active");
+
+        timer1 = setTimeout(() => {
+            toast.classList.remove("still-toast-active");
+        }, 5000);
+
+        timer2 = setTimeout(() => {
+            progress.classList.remove("still-toast-active");
+        }, 5300);
+
+
+        closeIcon.addEventListener("click", () => {
+            toast.classList.remove("still-toast-active");
+
+            setTimeout(() => {
+                progress.classList.remove("still-toast-active");
+            }, 300);
+
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+
+        });
+
+    }
+
+
+    static injectToastContent() {
+
+        const uuid = Template.getToastId();
+
+        const content = `
+            <div class="still-toast">
+                <div class="still-toast-content">
+                    <i class="fas fa-solid fa-check check"></i>
+                    <div class="still-toast-message">
+                    <span class="text text-1" id="${uuid}-status"></span>
+                    <span class="text text-2" id="${uuid}-msg"></span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-xmark close">X</i>
+                <div class="still-toast-progress"></div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforebegin', content);
+
+    }
+
+
+    static getToastId() {
+
+        if (!Template.toastId)
+            Template.toastId = `toast_${UUIDUtil.newId()}`;
+
+        return Template.toastId;
+
+    }
+
+
 
 }

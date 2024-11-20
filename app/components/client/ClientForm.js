@@ -194,7 +194,6 @@ class ClientForm extends ViewComponent {
                                                     class="form-control date" 
                                                     (value)="contactoCobranca" 
                                                     placeholder="Contacto para cobrança"
-                                                    (validate)="anyValidation"
                                                     >
                                             </div>
                                         </div>

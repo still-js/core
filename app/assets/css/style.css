@@ -14293,8 +14293,9 @@ fieldset[disabled] .form-control {
 
 .profile-info>p {
     color: #333;
-    font-size: 11px;
-    margin-top: 5px
+    font-size: 12px;
+    margin-top: 5px;
+    text-align: center;
 }
 
 .leftSideProgress {

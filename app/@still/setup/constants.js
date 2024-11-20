@@ -20,7 +20,8 @@ const $stillconst = {
     PART_REMOVE_CSS: 'still-del-view-part',
     SUBSEQUENT_NO_PARSE: 'please-do-not-parse-me-still',
     VALID_TRIGGER_ONTYPE: 'still-validation-on-type',
-    VALID_TRIGGER_SET: 'still-validation-trigger-set',
+    MIN_VALID_MSG_PT: 'O valor deve ser maior ou igual à {{}}',
+    MAX_VALID_MSG_PT: 'O valor deve ser menor ou igual à {{}}',
 
 
 

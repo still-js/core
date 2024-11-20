@@ -14,12 +14,16 @@ const validationTriggers = {
     focus: 'onfocus'
 }
 
+const validatorMinMaxTypes = ['number', 'date'];
+
 class BehaviorComponent {
 
     $stillClassLvlSubscribers = [];
     static currentFormsValidators = {};
     #triggetSet = $stillconst.VALID_TRIGGER_SET;
     #triggetOnType = $stillconst.VALID_TRIGGER_ONTYPE;
+    _const = $stillconst;
+    lang = 'PT';
 
     onChange(callback = (newState) => { }) {
         this.$stillClassLvlSubscribers.push(callback);
@@ -102,32 +106,83 @@ class BehaviorComponent {
     #handleInputValidation(inpt, field, formRef, pattern, required) {
 
         const { value } = inpt;
-
-        const fieldPath = `${this.constructor.name}${formRef && formRef != 'null' ? `-${formRef}` : ''}`;
         let isValid = true;
+        const fieldPath = `${this.constructor.name}${formRef && formRef != 'null' ? `-${formRef}` : ''}`;
+        const numOutRangeMsg = this.#handleMinMaxValidation(inpt, pattern, value, fieldPath);
 
-        if (pattern && value.trim() != '') {
-            let regex = pattern;
-            if (pattern in validationPatterns) {
-                regex = validationPatterns[pattern];
-            } else {
+        /** Only apply out of range validation in case there is a value in the input  */
+        if (numOutRangeMsg && value != '') {
+            this.#handleValidationWarning('add', inpt, fieldPath, numOutRangeMsg, 'range');
+        }
+        else {
+            /** Remove Out of range warning if added before */
+            this.#handleValidationWarning('remove', inpt, fieldPath, 'to-remove', 'range');
 
-                const datePattern = this.#checkDatePattern(pattern);
-                if (datePattern) regex = datePattern;
-                if (!datePattern) regex = String.raw`${regex}`;
+            if (pattern && value.trim() != '') {
+                let regex = pattern;
+                if (pattern in validationPatterns) {
+                    regex = validationPatterns[pattern];
+                } else {
+
+                    const datePattern = this.#checkDatePattern(pattern);
+                    if (datePattern) regex = datePattern;
+                    if (!datePattern) regex = String.raw`${regex}`;
+                }
+
+
+                const validation = value.match(new RegExp(regex));
+                if (!validation || !validation[0]?.length) isValid = false;
             }
 
+            if (value.trim() == '' && required) isValid = false;
 
-            const validation = value.match(new RegExp(regex));
-            if (!validation || !validation[0]?.length) isValid = false;
+            if (!isValid) this.#handleValidationWarning('add', inpt, fieldPath);
+            else this.#handleValidationWarning('remove', inpt, fieldPath);
+
         }
 
-        if (value.trim() == '' && required) isValid = false;
-
-        if (!isValid) this.#handleValidationWarning('add', inpt, fieldPath);
-        else this.#handleValidationWarning('remove', inpt, fieldPath);
 
         BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
+
+    }
+
+    #handleMinMaxValidation(inpt, pattern, value, fieldPath) {
+
+        this.#handleValidationWarning('remove', inpt, fieldPath, 'to-remove', 'range');
+        if (validatorMinMaxTypes.includes(pattern)) {
+
+            let min = this.#parseLikelyNumber(inpt.getAttribute('(validator-min)'));
+            let max = this.#parseLikelyNumber(inpt.getAttribute('(validator-max)'));
+
+            /**
+             * If not min and max restriction stated then 
+             * any value will be allowed and get passed to
+             * the next validation on the pipeline
+             */
+            if (!min && !max) return false;
+
+            const isValidNum = this.#parseLikelyNumber(value);
+            let msg = null;
+
+            if (min) {
+                if (isValidNum < min) {
+                    msg = inpt.getAttribute('(validator-min-warn)');
+                    msg = msg || this._const.value['MIN_VALID_MSG_' + this.lang.value].replace('{{}}', min);
+                }
+            }
+
+            if (max) {
+                if (isValidNum > max) {
+                    msg = inpt.getAttribute('(validator-min-warn)');
+                    msg = msg || this._const.value['MAX_VALID_MSG_' + this.lang.value].replace('{{}}', max);
+                }
+            }
+
+            if (msg) return msg;
+
+        }
+
+        return false;
 
     }
 
@@ -164,12 +219,14 @@ class BehaviorComponent {
      * @param {string} message 
      * @param {string} fieldPath 
      */
-    #handleValidationWarning(opt, inpt, fieldPath) {
+    #handleValidationWarning(opt, inpt, fieldPath, msg = null, msgSuffix = '') {
 
-        const validationWarning = inpt.getAttribute('(validator-warn)');
+        let validationWarning = msg;
+        if (!validationWarning) validationWarning = inpt.getAttribute('(validator-warn)');
+
         if (validationWarning) {
 
-            const id = `still-validation-warning${fieldPath}`;
+            const id = `still-validation-warning${fieldPath}${msgSuffix ? msgSuffix : ''}`;
             const classList = `still-validation-warning`;
 
             if (opt == 'add') {
@@ -278,5 +335,12 @@ class BehaviorComponent {
         return valid;
 
     }
+
+    #parseLikelyNumber(value) {
+        if (!value) return null;
+        if (!isNaN(value)) return parseFloat(value);
+        return null;
+    }
+
 
 }

@@ -132,7 +132,7 @@ class BaseComponent extends BehaviorComponent {
                 const fieldInspect = this[field];
                 if (fieldInspect?.name == 'Prop'
                     || fieldInspect?.onlyPropSignature)
-                    return true;
+                    return false;
 
                 /**
                  * Check the liklyhood

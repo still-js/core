@@ -297,20 +297,6 @@ class BehaviorComponent {
 
     changeState(input, value) { }
 
-    showLoading() {
-        document.getElementById('stllAppGlobalLoadingCurtain').style.display = 'flex';
-    }
-
-    hideLoading() {
-        const hideTimeout = setTimeout(() => {
-            const elm = document.getElementById('stllAppGlobalLoadingCurtain');
-            if (elm) {
-                elm.style.display = 'none';
-                clearTimeout(hideTimeout);
-            }
-        }, 100)
-    }
-
     static validateForm(fieldPath) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
@@ -341,6 +327,5 @@ class BehaviorComponent {
         if (!isNaN(value)) return parseFloat(value);
         return null;
     }
-
 
 }

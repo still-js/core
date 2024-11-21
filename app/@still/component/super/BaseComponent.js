@@ -337,7 +337,9 @@ class BaseComponent extends BehaviorComponent {
 
                 if (!isValid) inpt.classList.add('still-validation-failed-style');
                 else inpt.classList.remove('still-validation-failed-style');
-                BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
+
+                if (fieldPath && field)
+                    BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
 
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;

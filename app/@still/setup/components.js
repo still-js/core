@@ -653,7 +653,7 @@ class Components {
         if (!cmpParts) return;
 
         const placeHolders = cmpInternalId == 'fixed-part'
-            ? [document.getElementById(`stillUiPlaceholder`)]
+            ? document.getElementById(`stillUiPlaceholder`).getElementsByTagName('still-placeholder')
             : document.getElementsByClassName(`still-placeholder${parentCmp.getUUID()}`);
 
         /**
@@ -664,14 +664,14 @@ class Components {
         parentCmp.versionId = UUIDUtil.newId();
         const cmpVersionId = cmpInternalId == 'fixed-part' ? null : parentCmp.versionId;
         for (let idx = 0; idx < cmpParts.length; idx++) {
-            const parentClss = placeHolders[idx].parentNode.classList;
+            const parentClss = placeHolders[idx]?.parentNode?.classList;
 
             /**
              * Preventing this component to be instantiated in case it 
              * should not be rendered due to the (renderIf) flag value
              * is found to be false
              */
-            if (parentClss.contains($stillconst.PART_REMOVE_CSS))
+            if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
                 continue;
 
             const { proxy, component: instance, props } = cmpParts[idx];

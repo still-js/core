@@ -817,7 +817,9 @@ class BaseComponent extends BehaviorComponent {
                 .replace(">", "");
         }
 
-        const re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
+        let re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
+        if (cmpInternalId == 'fixed-part')
+            re = /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
 
         if (this.cmpInternalId in Components.componentPartsMap) {
             delete Components.componentPartsMap[this.cmpInternalId];

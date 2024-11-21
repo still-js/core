@@ -287,8 +287,17 @@ class ProcessoTimeSheet extends ViewComponent {
 
       this.calendarProxy.addNewEvents(eventData);
       //this.init()
+      this.updateHorasColaborador(true, horasCalculadas)
       return true
     }
+
+  }
+
+  updateHorasColaborador(isPlus, time){
+
+    let currentTime = eval(document.getElementById('horasInputId').innerHTML)
+    let calculateTime = isPlus ? currentTime + time : currentTime - time
+    document.getElementById('horasInputId').innerHTML = calculateTime
 
   }
 
@@ -304,6 +313,27 @@ class ProcessoTimeSheet extends ViewComponent {
     let endDate = changes.end ? changes.end.d.d : evt.end.d.d
     let tipoEventoId = changes.calendarId ? changes.calendarId : evt.calendarId
     let horasCalculadas = (endDate - startDate) / 3600000
+    let horasCalculadasEvt = (evt.end.d.d - evt.start.d.d) / 3600000
+
+    let isChanged = false
+    let isPlus = false
+    let horasPlus = 0
+
+    if(horasCalculadas == horasCalculadasEvt) {
+      isChanged = false
+    }
+
+   if(horasCalculadas > horasCalculadasEvt) {
+     isChanged = true
+     isPlus = true
+     horasPlus = horasCalculadas - horasCalculadasEvt
+    }
+     
+    if(horasCalculadas < horasCalculadasEvt) {
+      isChanged = true
+      isPlus = false
+      horasPlus = horasCalculadasEvt - horasCalculadas
+    }
 
     let payload = {
       tipoEventoId: tipoEventoId = 'entrevista' ? 1 : 2,
@@ -331,18 +361,25 @@ class ProcessoTimeSheet extends ViewComponent {
       return false
     } else {
       console.log("Alterações feita com sucesso");
-      this.init()
+      //this.calendarProxy.clearGrid()
+      //this.init()
+      if(isChanged)
+        this.updateHorasColaborador(isPlus, horasPlus)
       return true
     }
 
   }
 
-  async deleteEvent(env) {
+  async deleteEvent(evt) {
 
-    if (env.id === undefined) return false;
+    if (evt.id === undefined) return false;
+
+    let startDate = evt.start.d.d
+    let endDate = evt.end.d.d
+    let horasCalculadas = (endDate - startDate) / 3600000
 
     let response = await $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/processo_time_sheets/${env.id}`,
+      `http://localhost:3000/api/v1/processo_time_sheets/${evt.id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -355,7 +392,7 @@ class ProcessoTimeSheet extends ViewComponent {
       return false
     } else {
       console.log("Alterações feita com sucesso");
-      this.init()
+      this.updateHorasColaborador(false, horasCalculadas)
       return true
     }
 

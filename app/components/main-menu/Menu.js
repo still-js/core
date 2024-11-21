@@ -5,7 +5,7 @@ class Menu extends ViewComponent {
   userRole = "Admin";
 
   roles;
-  canCreateProcess = Prop(true);
+  canCreateProcess = Prop(false);
 
   template = `
   <aside id="leftsidebar" class="sidebar">

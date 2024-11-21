@@ -4,6 +4,10 @@ class ColaboradorDashboard extends ViewComponent {
 
   /** @type { TabulatorComponent } */
   dataTable = Proxy;
+
+  /** @type { TUICalendarComponent } */
+  agendaColaboradorProxy = Proxy;
+
   dataTableLabels = Prop(
     JSON.stringify([
       {
@@ -19,7 +23,7 @@ class ColaboradorDashboard extends ViewComponent {
         width: 20,
       },
       { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title:"Progresso", field:"progress", sorter:"30", hozAlign:"left", formatter:"progress"},
+      { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
       { title: "Referência", field: "ref", sorter: "string" },
       { title: "Assunto", field: "assunto", sorter: "string" },
       { title: "Área", field: "area", sorter: "string" },
@@ -35,73 +39,149 @@ class ColaboradorDashboard extends ViewComponent {
   <section class="content">
   <br />
 
-  <div class="row">
-    <div class="col-lg-3 col-sm-6">
-      <div class="info-box7 l-bg-green order-info-box7">
-        <div class="info-box7-block">
-          <h4 class="m-b-20">Processos Rascunho</h4>
-          <h2 class="text-right">
-            <i class="fas fa-folder-open pull-left"></i><span id="processosRascunho">0</span>
-          </h2>
-        </div>
-      </div>
-    </div>
+  
+  <div class="col-xs-12">
+    <div class="card">
+      <div class="body">
+          
+          <ul class="nav nav-tabs tab-nav-right" role="tablist">
+              <li role="presentation">
+                  <a href="#dashoboardMeusProcessos" data-toggle="tab" class="active show">Meus Processos</a>
+              </li>
+              <li role="presentation">
+                  <a href="#dashoboardMinhaAgenda" data-toggle="tab">Minha Agenda</a>
+              </li>
+          </ul>
 
-    <div class="col-lg-3 col-sm-6">
-      <div class="info-box7 l-bg-purple order-info-box7">
-        <div class="info-box7-block">
-          <h4 class="m-b-20">Processos Proposta</h4>
-          <h2 class="text-right">
-            <i class="far fa-folder-open pull-left"></i><span id="processosProposta">0</span>
-          </h2>
-        </div>
-      </div>
-    </div>
+          <div class="tab-content colaborador-dashboard">
 
-    <div class="col-lg-3 col-sm-6">
-      <div class="info-box7 l-bg-orange order-info-box7">
-        <div class="info-box7-block">
-          <h4 class="m-b-20">Processos Suspenso</h4>
-          <h2 class="text-right">
-            <i class="far fa-folder pull-left"></i><span id="processosSuspenso">0</span>
-          </h2>
-        </div>
-      </div>
-    </div>
+            <div role="tabpanel" class="tab-pane fade in active show" id="dashoboardMeusProcessos">
 
-    <div class="col-lg-3 col-sm-6">
-      <div class="info-box7 l-bg-cyan order-info-box7">
-        <div class="info-box7-block">
-          <h4 class="m-b-20">Processos Encerrado</h4>
-          <h2 class="text-right">
-            <i class="fas fa-folder pull-left"></i><span id="processosEncerrado">0</span>
-          </h2>
-        </div>
-      </div>
-    </div>
-  </div>
+              <div class="row">
+                <div class="col-lg-3 col-sm-6">
+                  <div class="info-box7 l-bg-green order-info-box7">
+                    <div class="info-box7-block">
+                      <h4 class="m-b-20">Processos Rascunho</h4>
+                      <h2 class="text-right">
+                        <i class="fas fa-folder-open pull-left"></i><span id="processosRascunho">0</span>
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+            
+                <div class="col-lg-3 col-sm-6">
+                  <div class="info-box7 l-bg-purple order-info-box7">
+                    <div class="info-box7-block">
+                      <h4 class="m-b-20">Processos Proposta</h4>
+                      <h2 class="text-right">
+                        <i class="far fa-folder-open pull-left"></i><span id="processosProposta">0</span>
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+            
+                <div class="col-lg-3 col-sm-6">
+                  <div class="info-box7 l-bg-orange order-info-box7">
+                    <div class="info-box7-block">
+                      <h4 class="m-b-20">Processos Suspenso</h4>
+                      <h2 class="text-right">
+                        <i class="far fa-folder pull-left"></i><span id="processosSuspenso">0</span>
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+            
+                <div class="col-lg-3 col-sm-6">
+                  <div class="info-box7 l-bg-cyan order-info-box7">
+                    <div class="info-box7-block">
+                      <h4 class="m-b-20">Processos Encerrado</h4>
+                      <h2 class="text-right">
+                        <i class="fas fa-folder pull-left"></i><span id="processosEncerrado">0</span>
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+              <div class="row clearfix">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <div class="card">
+                    <div class="header">
+                      <h2><strong>Teus </strong>Processos</h2>
+                      <p style="font-size: 12px">Encontre aqui, os processos que foram partilhados consigo</p>
+                    </div>
+                    <div class="body table-responsive">
+            
+                      <st-element
+                        component="TabulatorComponent"
+                        proxy="dataTable"
+                        tableHeader="parent.dataTableLabels"
+                        (onEditColumn)="getTimeSheetProcesso(fieldName, data)"
+                        (onDeleteRow)="getDetailsProcesso(fieldName, data)"
+                        (onCellClick)="detalheProcesso(row, col, data)"
+                      >
+                      </st-element>
+                      
+                    </div>
+            
+                  </div>
+                </div>
+              </div>
 
-  <div class="row clearfix">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      <div class="card">
-        <div class="header">
-          <h2><strong>Teus </strong>Processos</h2>
-          <p style="font-size: 12px">Encontre aqui, os processos que foram partilhados consigo</p>
-        </div>
-        <div class="body table-responsive">
-          <st-element
-            component="TabulatorComponent"
-            proxy="dataTable"
-            tableHeader="parent.dataTableLabels"
-            (onEditColumn)="getTimeSheetProcesso(fieldName, data)"
-            (onDeleteRow)="getDetailsProcesso(fieldName, data)"
-            (onCellClick)="detalheProcesso(row, col, data)"
-          >
-          </st-element>
-        </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade in active" id="dashoboardMinhaAgenda">
+
+              <div 
+                   class="dashoboardMinhaAgenda"
+                   style="background: #fff;
+                          padding: 15px;
+                          margin-left: 10px;
+                          display: flex;
+                          flex-direction: column;
+                          min-width: 750px;
+                          width: 1050px;
+                          color: #555;
+                          font-size: 14px;
+                          border: 1px solid #e1e0e0;
+              ">  
+                <st-element
+                  component="TUICalendarComponent"
+                  milestoneTitle="Objectivo"
+                  proxy="agendaColaboradorProxy"
+                  >
+                </st-element>
+              </div>
+
+            </div>
+
+          </div>
+
       </div>
     </div>
-  </div>
+  <div>
+
+  <style>
+
+    #dashoboardMinhaAgenda, #dashoboardMeusProcessos {
+      background: none !important;
+    }
+
+    #dashoboardMinhaAgenda  .toastui-calendar-section-button {
+      display: none;
+    }
+
+    #dashoboardMinhaAgenda  .toastui-calendar-section-detail {
+      display: none;
+    }
+
+    .dashoboardMinhaAgenda .toastui-calendar-popup-container {
+      top: 50% !important;
+      left: 25% !important;
+    }
+
+  </style>
+
 </section>
     `;
 
@@ -117,14 +197,14 @@ class ColaboradorDashboard extends ViewComponent {
   transformDataTable(data) {
 
     function calculateDays(dataEncerramento) {
-      if(dataEncerramento) {
-      const inicio = new Date();
-      const fim = new Date(dataEncerramento);
-      const diferencaEmMilissegundos = fim - inicio;
-      const milissegundosPorDia = 1000 * 60 * 60 * 24;
-      const diferencaEmDias = diferencaEmMilissegundos / milissegundosPorDia;
-      return Math.floor(diferencaEmDias) + 1;
-      }else {
+      if (dataEncerramento) {
+        const inicio = new Date();
+        const fim = new Date(dataEncerramento);
+        const diferencaEmMilissegundos = fim - inicio;
+        const milissegundosPorDia = 1000 * 60 * 60 * 24;
+        const diferencaEmDias = diferencaEmMilissegundos / milissegundosPorDia;
+        return Math.floor(diferencaEmDias) + 1;
+      } else {
         return 100
       }
     }
@@ -145,7 +225,7 @@ class ColaboradorDashboard extends ViewComponent {
         data_registo: item.data_registo ? new Date(item.data_registo).toLocaleDateString("PT") : item.data_registo,
         data_suspensao: item.data_suspensao ? new Date(item.data_suspensao).toLocaleDateString("PT") : item.data_suspensao,
         colaborador_id_suspendeu: item.colaborador_id_suspendeu,
-        data_encerramento:  item.data_encerramento ? new Date(item.data_encerramento).toLocaleDateString("PT") :  item.data_encerramento,
+        data_encerramento: item.data_encerramento ? new Date(item.data_encerramento).toLocaleDateString("PT") : item.data_encerramento,
         progress: 100 - calculateDays(item.data_encerramento)
       }
     })
@@ -165,7 +245,52 @@ class ColaboradorDashboard extends ViewComponent {
           this.hideLoading();
         }
       });
+
+      this.getTarefaByColaboradorId();
     }
+  }
+
+  getTarefaByColaboradorId() {
+
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+    let userId = userLogged.id;
+
+    $still.HTTPClient.get(
+      `http://localhost:3000/api/v1/tarefas_processo/colaborador/${userId}`
+    ).then((r) => {
+      if (r.status === 200) {
+        try {
+          console.log("Tarefas encontradas", r);
+
+          if (r.data.length) {
+
+            const data = r.data.map((item) => {
+
+              const start = new Date(item.data_para_realizacao);
+              start.setHours(new Date().getHours());
+              const end = new Date(item.data_para_realizacao);
+              end.setHours(new Date().getHours() + 2);
+
+              return {
+                id: item.id,
+                calendarId: 'entrevista',
+                title: item.descricao,
+                start, end
+              };
+
+            });
+
+            this.agendaColaboradorProxy.addNewEvents(data);
+
+          }
+
+
+        } catch (e) {
+          console.log("Error on finding tarefas", e);
+        }
+      }
+    });
+
   }
 
   populateCards(data) {

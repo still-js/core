@@ -44,6 +44,7 @@ class ProcessoDetalhes extends ViewComponent {
   listClientes;
 
   valueInputTarefa;
+  valueRealizacaoTarefa;
   equipaInput;
   precedenteInput;
 
@@ -217,7 +218,8 @@ class ProcessoDetalhes extends ViewComponent {
   showFactura = Prop(false);
   totalFactura = Prop(0);
 
-  template = `<section class="content">
+  template = `
+  <section class="content">
     <div class="block-header">
       <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height: 100px; margin-top: 30px">
@@ -233,15 +235,17 @@ class ProcessoDetalhes extends ViewComponent {
           <div class="body">
             <div id="mail-nav">
               <div class="display-flex">
-                <input id="input_estado" (value)="estado" style="border: none; 
-                                          font-size: 18px;
-                                          font-weight: 600;" readonly="true" />
+                <input 
+                  id="input_estado" 
+                  (value)="estado" 
+                  style="border: none; font-size: 18px; font-weight: 600;" 
+                  readonly="true" />
                 <button 
                   title="Editar Processo"
                   (click)="editProcesso(undefined)"
                   style="color: #fff; width: 65px; height: 35px; background-color: #343d45"
                   >
-                    <i class="fas fa-edit"></i></button>
+                <i class="fas fa-edit"></i></button>
               </div>
               <div style="border-bottom: 2px solid #f5f5f5;"></div>
   
@@ -293,22 +297,20 @@ class ProcessoDetalhes extends ViewComponent {
               </div>
   
               <div style="margin-bottom: 5px">
-              <div style="font-weight: bold;">Data de Registo</div>
-              <div><input (value)="dataRegisto" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+                <div style="font-weight: bold;">Data de Registo</div>
+                <div><input (value)="dataRegisto" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
               </div>
 
               
               <div style="margin-bottom: 5px">
-              <div style="font-weight: bold;">Data Encerramento</div>
-              <div><input (value)="dataEncerramento" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+                <div style="font-weight: bold;">Data Encerramento</div>
+                <div><input (value)="dataEncerramento" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
               </div>
 
               <div style="margin-bottom: 5px">
-              <div style="font-weight: bold;">Data Suspensão</div>
-              <div><input (value)="dataSuspensao" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
+                <div style="font-weight: bold;">Data Suspensão</div>
+                <div><input (value)="dataSuspensao" style="border: none; background-color: #f5f5f5;" readonly="true" /></div>
               </div>
-
-
 
             </div>
           </div>
@@ -320,7 +322,7 @@ class ProcessoDetalhes extends ViewComponent {
       <!-- ABAs -->
 
 
-      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+  <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
     <div class="card">
         <div class="body">
             <!-- Nav tabs -->
@@ -576,17 +578,53 @@ class ProcessoDetalhes extends ViewComponent {
 
                     <!-- inicio form add tarefas -->
                     <div class="form_add_resources hiddenForm" id="form_tab_tarefas">
-                        <form id="wizard_with_validatio" class="" onsubmit="javascript: return false;">
-                            <div>
-                                <label>Descrição da Tarefa</label>
-                                <input (value)="valueInputTarefa" placeholder="Digite uma tarefa" type="text"
-                                    id="input_form_tarefa" />
+                      <form id="wizard_with_validatio" class="" onsubmit="javascript: return false;">
+
+                        <div class="row clearfix">
+
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Descrição da Tarefa</span>
+                                    <div class="form-line">
+                                      <input 
+                                        (value)="valueInputTarefa" 
+                                        placeholder="Digite uma tarefa" 
+                                        type="text" 
+                                        id="input_form_tarefa" 
+                                      />
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <button (click)="addTarefaProcesso('form_tab_tarefas')"
-                                    class="btn btn-default">Salvar</button>
+                          
+                          </div>
+
+                          <div class="row clearfix">
+
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Data para execução</span>
+                                    <div class="form-line">
+                                        <input 
+                                          type="date" 
+                                          id="valueRealizacaoTarefa" 
+                                          (change)="updateDataTarefa($event)" 
+                                          class="form-control date" 
+                                          (value)="valueRealizacaoTarefa"
+                                        >
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+
+                        </div>
+
+                        <div>
+                            <button 
+                              (click)="addTarefaProcesso('form_tab_tarefas')"
+                              class="btn btn-default">
+                              Salvar
+                            </button>
+                        </div>
+                      </form>
                     </div>
                     <!-- fim form add tarefas -->
 
@@ -606,13 +644,13 @@ class ProcessoDetalhes extends ViewComponent {
        <!-- Inicio TAB Precedentes -->
         <div role="tabpanel" class="tab-pane fade" id="precedentes">
 
-                <div class="div-title-abas display-flex">
-                    <label class="title-abas">Processos Associados</label>
-                    <span (click)="toggleForms('form_tab_precedentes')" class="btn-details-processo-form"
-                        title="Vincular Processos">
-                        <i class="fas fa-plus"></i>
-                    </span>
-                </div>
+            <div class="div-title-abas display-flex">
+                <label class="title-abas">Processos Associados</label>
+                <span (click)="toggleForms('form_tab_precedentes')" class="btn-details-processo-form"
+                    title="Vincular Processos">
+                    <i class="fas fa-plus"></i>
+                </span>
+            </div>
             
 
             <!-- inicio form add tarefas -->
@@ -876,7 +914,7 @@ class ProcessoDetalhes extends ViewComponent {
     this.gestorId = data.gestor_id ? data.gestor_id : "";
     this.contraParte = data.contra_parte ? data.contra_parte : "";
     this.dataRegisto = data.data_registo ? new Date(data.data_registo).toLocaleDateString("PT") : "";
-    this.dataSuspensao = data.data_suspensao ? new Date(data.data_suspensao).toLocaleDateString("PT")  : "";
+    this.dataSuspensao = data.data_suspensao ? new Date(data.data_suspensao).toLocaleDateString("PT") : "";
     this.dataEncerramento = data.data_encerramento
       ? new Date(data.data_encerramento).toLocaleDateString("PT")
       : "";
@@ -923,16 +961,16 @@ class ProcessoDetalhes extends ViewComponent {
     this.setValueById('input_gestor', this.gestor.value)
 
     /** populate table Proxy Components */
-    if(data.equipas)
+    if (data.equipas)
       this.dataTableListProcessosEquipas.dataSource = data.equipas;
 
-    if(data.tarefas)
+    if (data.tarefas)
       this.dataTableListProcessosTarefas.dataSource = data.tarefas;
 
-    if(data.precedentes)
+    if (data.precedentes)
       this.dataTableListProcessosPrecedentes.dataSource = data.precedentes;
 
-    if(data.anexos)
+    if (data.anexos)
       this.dataTableListProcessosAnexos.dataSource = data.anexos;
 
   }
@@ -1112,7 +1150,7 @@ class ProcessoDetalhes extends ViewComponent {
   async addEquipaProcesso(idForm) {
 
     const equipa = this.equipaInput.value;
-    
+
     const payload = {
       "processoId": this.id.value,
       "colaboradoresId": [equipa]
@@ -1199,7 +1237,7 @@ class ProcessoDetalhes extends ViewComponent {
     const userLogged = JSON.parse(localStorage.getItem("_user"));
 
     console.log(userLogged)
-    let userId = userLogged.id 
+    let userId = userLogged.id
 
     const payload = {
       "processoId": this.id.value,
@@ -1254,7 +1292,8 @@ class ProcessoDetalhes extends ViewComponent {
 
       let idTarefa = inputTarefa.dataset.id
       const payload = {
-        "descricao": tarefa
+        "descricao": tarefa,
+        data_para_realizacao: this.valueRealizacaoTarefa.value,
       }
 
       $still.HTTPClient.put(
@@ -1286,7 +1325,7 @@ class ProcessoDetalhes extends ViewComponent {
 
       const payload = {
         "processoId": this.id.value,
-        "tarefas": [tarefa]
+        "tarefas": [{ descricao: tarefa, data_para_realizacao: this.valueRealizacaoTarefa.value }]
       }
 
 
@@ -1684,6 +1723,11 @@ class ProcessoDetalhes extends ViewComponent {
     //this.dataTableListProcessosAnexos
     console.log(this.dataTableListProcessosAnexos.table.getData());
     //this.honorarioProxy.inse
+  }
+
+  updateDataTarefa(event) {
+    const { value } = event.target;
+    this.valueRealizacaoTarefa = value;
   }
 
 }

@@ -1,8 +1,7 @@
 class ProcessosGrid extends ViewComponent {
 
   roles = Prop()
-  canCreateProcess = Prop(true);
-
+  canCreateProcess = Prop(false);
   
   /** @type { TabulatorComponent } */
   dataTableListProcessos = Proxy;
@@ -194,4 +193,5 @@ class ProcessosGrid extends ViewComponent {
       data: data.id,
     });
   }
+
 }

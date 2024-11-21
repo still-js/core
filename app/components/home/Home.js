@@ -37,7 +37,7 @@ class Home extends BaseComponent {
         Router.goto('init');
     }
     */
-    AppTemplate.showLoading();
+    //AppTemplate.showLoading();
     this.setup({
       includs: [
         TopNavBar,

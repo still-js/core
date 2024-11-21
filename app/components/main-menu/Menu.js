@@ -6,6 +6,7 @@ class Menu extends ViewComponent {
 
   roles;
   canCreateProcess = Prop(true);
+  devProfile = Prop(false);
 
   template = `
   <aside id="leftsidebar" class="sidebar">
@@ -46,7 +47,13 @@ class Menu extends ViewComponent {
                   <li><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a></li>
                   <li><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a></li>
             </ul>
-        </li>
+      </li>
+      <li (renderIf)="self.devProfile" class="menu-item-julaw">
+            <a href="#" class="item-menu"><i class="fas fa-user"></i> POC</a>
+            <ul class="submenu">
+                  <li><a href="#" (click)="gotoView('POC')"> Generico </a></li>
+            </ul>
+      </li>
     </ul>
   </aside>
     `;

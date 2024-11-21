@@ -55,7 +55,7 @@ class POC extends ViewComponent {
             (onCellClick)="cellClick(row, col, data)"
             >
         </st-element>
-
+        
         <!--
             renderIf:
                 - Is to be used whe component shouldn't render in case its 
@@ -72,8 +72,32 @@ class POC extends ViewComponent {
                 
         <button (click)="showDemo()">Mostra</button>
         <button (click)="hideDemo()">Ocultar</button>
+
+        <form>
+
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        Nome
+                    </span>
+                    <div class="form-line">
+                        <input 
+                            type="text" 
+                            (validator)="number"
+                            class="form-control date" 
+                            (value)="contactoCobranca" 
+                            placeholder="Nome pessoal"
+                            
+                            (validator-min)="4"
+                            (validator-max)="10"
+                            >
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
         <span 
-            (renderIf)="self.canUserSeeGrid"
             (showIf)="self.showHideGrid"
             >
             <st-element
@@ -110,7 +134,8 @@ class POC extends ViewComponent {
     constructor() {
         super();
         this.setup({});
-        this.showLoading();
+        //AppTemplate.showLoading();
+        setTimeout(() => AppTemplate.hideLoading(), 2000);
     }
 
     showDemo() {
@@ -239,8 +264,8 @@ class POC extends ViewComponent {
             .then((r) => {
                 this.dataSource = r.data;
                 //console.log(`DATA IS: `,this.dataSource);
+                //AppTemplate.hideLoading();
                 this.dataTable.dataSource = r.data;
-                this.hideLoading();
             });
 
     }

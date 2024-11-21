@@ -40,7 +40,7 @@ class Home extends BaseComponent {
     //AppTemplate.showLoading();
     this.setup({
       includs: [
-        TopNavBar,
+        /* TopNavBar, */
         LineChart,
         Calendar,
         CardDisplay,

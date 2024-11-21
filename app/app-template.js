@@ -4,15 +4,18 @@ class AppTemplate extends Template {
      * <still-component> is the placeholder where components 
      * should be render both when loading or routing to the component
      * 
-     * THIS SHOULD NOT BE CHANGES AS ANY LAYOUT SPECIFIC CUSTOMIZATION SHOULD BE DONE
-     * ON THE entryComponent STATED IN components-setup.js FILE AS NEEDS TO BE SECIFIED 
-     * THE NAME AND PATH ON entryComponentPath and entryComponentName respectively
+     * <still-fixed> is the specification of a specific component part from the 
+     * User interface that needs to be fiexed (e.g. Header, Footer, Menu, Navigation, etc.)
+     * 
+     * THIS SHOULD BE CHANGED ACCORDING TO MY LAYOUT WHERE I'M HAVING COMPONENTS FOR
+     * EACH PART AND THE FIXED ONES WIIL BE REFERENCED AS <st-fixed> AND THE COMPONENT
+     * TO BE RENDERED WILL BE PASSED AS THE VALUES OF component PROPERTY OF <st-fixed>
+     * e.g. <st-fixed component="AppHeader">
      */
     template = `
-        <nav class="navbar" id="topNavBar" style="position: fixed;"></nav>
+        <st-fixed component="TopNavBar" />
         <div>
-            <st-element component="Menu"></st-element>
-            <!-- <aside id="leftsidebar" class="sidebar"></aside> -->
+            <st-fixed component="Menu" />
         </div>
         <still-component/>
     `;

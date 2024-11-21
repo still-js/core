@@ -1,6 +1,7 @@
-class CTopNavBar extends ViewComponent {
+class TopNavBar extends ViewComponent {
     htmlRefId = "topNavBar";
     template = `
+    <nav class="navbar" id="topNavBar" style="position: fixed;">
         <div class="container-fluid" style="margin-top: -7px;
         margin-left: -13px;">
             <div class="navbar-header">
@@ -80,7 +81,8 @@ class CTopNavBar extends ViewComponent {
                     </li>
                 </ul>
             </div>
-        </div>    
+        </div>
+    </nav>    
     `;
 
     constructor() {
@@ -137,4 +139,4 @@ class CTopNavBar extends ViewComponent {
     }
 }
 
-const TopNavBar = $still.component.expose(new CTopNavBar());
+//const TopNavBar = $still.component.expose(new CTopNavBar());

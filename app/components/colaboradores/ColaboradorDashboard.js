@@ -8,6 +8,9 @@ class ColaboradorDashboard extends ViewComponent {
   /** @Proxy @type { TUICalendarComponent } */
   agendaColaboradorProxy;
 
+  /** @Inject @type { ProcessoService } */
+  processoService;
+
   dataTableLabels = Prop(
     JSON.stringify([
       {

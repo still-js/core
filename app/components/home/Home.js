@@ -40,15 +40,12 @@ class Home extends BaseComponent {
     //AppTemplate.showLoading();
     this.setup({
       includs: [
-        /* TopNavBar, */
         LineChart,
         Calendar,
         CardDisplay,
         BarChart,
         CircularAnimatedChart,
         ProjectGrid,
-        /* Menu, */
-        /* CTopNavBar */
       ],
       scripts: [
         "assets/js/chart.min.js",

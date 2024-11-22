@@ -2,9 +2,14 @@ class ClientsGrid extends ViewComponent {
 
     htmlRefId = 'clientDataTable';
     dataSource;
-    /** @type { TabulatorComponent } */
-    dataTable = Proxy;
-    dataTableLabels = Prop(JSON.stringify([
+    /** 
+     * @Proxy
+     * @type { TabulatorComponent } 
+     */
+    dataTable;
+
+    /** @Prop */
+    dataTableLabels = JSON.stringify([
         { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
         { hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },
         { title: "Tipo Cliente", field: "tipo_id", sorter: "string", width: 200 },
@@ -13,32 +18,34 @@ class ClientsGrid extends ViewComponent {
         { title: "Endereco", field: "endereco", sorter: "string" },
         { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
         { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
-    ]));
+    ]);
 
-    /** @type { TUICalendarComponent } */
-    calendarProxy = Proxy;
+    /** @Proxy @type { TUICalendarComponent } */
+    calendarProxy;
 
-    /** @type { TBDragableGrid } */
-    dragableTBProxy = Proxy;
-    dragableData = Prop(JSON.stringify([
+    /** 
+     * @Proxy 
+     * @type { TBDragableGrid } */
+    dragableTBProxy;
+
+    /** @Prop */
+    dragableData = JSON.stringify([
         { name: "Atendimento no Escritório", custo: "AKZ 0.0" },
         { name: "Elaboração de contracto", custo: "AKZ 0.0" },
         { name: "Rectificação do processo", custo: "AKZ 0.0" }
-    ]));
+    ]);
 
-    dragableFields = Prop(
-        JSON.stringify([
-            { title: "Name", field: "name" },
-            { title: "Custo", field: "custo" }
-        ])
-    );
+    /** @Prop */
+    dragableFields = JSON.stringify([
+        { title: "Name", field: "name" },
+        { title: "Custo", field: "custo" }
+    ]);
 
-    dragableDestFields = Prop(
-        JSON.stringify([
-            { title: "Name", field: "name" },
-            { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
-        ])
-    );
+    /** @Prop */
+    dragableDestFields = JSON.stringify([
+        { title: "Name", field: "name" },
+        { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
+    ]);
 
     template = `
     <section class="content">

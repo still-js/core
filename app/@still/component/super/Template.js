@@ -117,15 +117,12 @@ class Template {
 
     static spinnerContent() {
         return `
-            <!-- Overlay For Sidebars -->
             <div id="stllAppGlobalLoadingCurtain">
                 
                 <div class="overlay"></div>
                 <div class="page-loader-wrapper">
                     <div class="loader">
-                        <div class="m-t-30">
-                            <!--<img class="loading-img-spin" src="assets/images/loading.png" alt="admin">-->
-                        </div>
+                        <div class="m-t-30"></div>
                         <p>Por favor, aguarde...</p>
                     </div>
                 </div>
@@ -134,7 +131,7 @@ class Template {
                     <div></div><div></div><div></div><div></div><div></div><div></div>
                 </div>
             </div>
-        `
+        `;
     }
 
     static toast({ status, message } = {}) {

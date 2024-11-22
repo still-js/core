@@ -2,11 +2,11 @@ class ColaboradorDashboard extends ViewComponent {
   htmlRefId = "clientDataTable";
   dataSource;
 
-  /** @type { TabulatorComponent } */
-  dataTable = Proxy;
+  /** @Proxy @type { TabulatorComponent } */
+  dataTable;
 
-  /** @type { TUICalendarComponent } */
-  agendaColaboradorProxy = Proxy;
+  /** @Proxy @type { TUICalendarComponent } */
+  agendaColaboradorProxy;
 
   dataTableLabels = Prop(
     JSON.stringify([

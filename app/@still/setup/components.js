@@ -89,6 +89,7 @@ class Components {
     stillCmpConst = $stillconst.STILL_COMPONENT;
     stillAppConst = $stillconst.APP_PLACEHOLDER;
     static componentPartsMap = {};
+    static annotations = {};
 
     /**
      * @returns { ComponentSetup }
@@ -178,8 +179,8 @@ class Components {
                 this.renderOnViewFor('stillUiPlaceholder');
                 setTimeout(() => Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
                 setTimeout(() => Components.handleInPlaceParts($still.context.currentView));
-                setTimeout(() => {
-                    $still.context.currentView.stAfterInit();
+                setTimeout(async () => {
+                    await $still.context.currentView.stAfterInit();
                     AppTemplate.injectToastContent();
                 });
 
@@ -191,7 +192,7 @@ class Components {
             else
                 new Components().renderPublicComponent($still.context.currentView);
 
-            setTimeout(() => $still.context.currentView.stAfterInit());
+            setTimeout(async () => await $still.context.currentView.stAfterInit());
         });
     }
 
@@ -625,7 +626,7 @@ class Components {
         }, 500);
 
         await newInstance.onRender();
-        newInstance.stAfterInit();
+        await newInstance.stAfterInit();
 
     }
 
@@ -674,7 +675,7 @@ class Components {
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
                 continue;
 
-            const { proxy, component: instance, props } = cmpParts[idx];
+            const { proxy, component: instance, props, annotations } = cmpParts[idx];
             let cmpName;
             if (instance) {
                 cmpName = 'constructor' in instance ? instance.constructor.name : null;
@@ -685,7 +686,8 @@ class Components {
              */
             const cmp = (new Components).getNewParsedComponent(instance, cmpName);
             cmp.parentVersionId = cmpVersionId;
-            parentCmp[proxy] = cmp;
+            Components.parseProxy(proxy, cmp, parentCmp, annotations);
+
             cmp.setParentComponent(parentCmp);
             const allProps = Object.entries(props);
             for (const [prop, value] of allProps) {
@@ -734,7 +736,7 @@ class Components {
                  * the User interface
                  */
                 await cmp.load();
-                setTimeout(() => cmp.stAfterInit(), 100);
+                setTimeout(async () => await cmp.stAfterInit(), 100);
                 Components.handleMarkedToRemoveParts();
             });
         }
@@ -805,6 +807,26 @@ class Components {
                 versionId => delete $still.context.componentRegistror.componentList[versionId]
             );
         }
+    }
+
+    static parseProxy(proxy, cmp, parentCmp, annotations) {
+
+        const cmpName = parentCmp.constructor.name;
+        if (proxy) {
+            if (!(proxy in parentCmp)) {
+                AppTemplate.hideLoading();
+                throw new Error(`${cmpName}.${proxy} proxy property is not define`);
+            }
+            if (annotations?.get(proxy)?.proxy) {
+
+                parentCmp[proxy] = cmp;
+            } else {
+                AppTemplate.hideLoading();
+                throw new Error(`The ${cmpName}.${proxy} proxy is not properly annotated with @Proxy`);
+            }
+
+        }
+
     }
 
 

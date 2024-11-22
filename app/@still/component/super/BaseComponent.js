@@ -955,8 +955,9 @@ class BaseComponent extends BehaviorComponent {
         const newLineRE = /[\n]{0,}/;
         const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
         const re = injectOrProxyRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
+        const cmp = this;
 
-        classDefinition.replace(new RegExp(re, 'g'), (mt) => {
+        classDefinition.replace(new RegExp(re, 'g'), async (mt) => {
 
             /**
              * If statement is in place to not parse skip method 
@@ -972,8 +973,23 @@ class BaseComponent extends BehaviorComponent {
                     const prop = mt.includes('@Prop');
                     let type = mt.split('{')[1].split('}')[0].trim();
                     type = type.replace(/\s/g, '');
-                    const propParsing = proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
-                    this.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+                    const propParsing = inject || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
+
+                    if (inject) {
+
+                        let service = ComponentSetup.get()?.services?.get(type);
+                        if (!service) {
+                            const servicePath = ComponentSetup.get().servicePath;
+                            await ComponentSetup.get().loadFromPath(servicePath, type);
+                            service = eval(`new ${type}()`);
+                            ComponentSetup.get()?.services?.set(type, service);
+                        }
+
+                        cmp[propertyName] = service;
+
+                    }
+
+                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
                 }
             }
 

@@ -24,16 +24,19 @@ class ComponentPart {
     template;
     proxy;
     props;
+    /** @type { Map<{ type: string, inject: boolean, proxy: boolean, prop: boolean, propParsing: boolean }> } */
+    annotations;
     /**
      * @type { ViewComponent }
      */
     component;
 
-    constructor({ template, component, proxy, props }) {
+    constructor({ template, component, proxy, props, annotations }) {
         this.template = template;
         this.component = component;
         this.proxy = proxy;
         this.props = props;
+        this.annotations = annotations;
     }
 
     render() {
@@ -70,10 +73,7 @@ class BaseComponent extends BehaviorComponent {
     proxyName = null;
     parentVersionId = null;
     versionId = null;
-    /**
-     * @type { Array<ComponentPart> }
-     */
-    $stillExternComponentParts = [];
+    #annotations = new Map();
 
 
     /**
@@ -159,6 +159,7 @@ class BaseComponent extends BehaviorComponent {
 
                 return !excludingFields.includes(field)
                     && !field.startsWith(this.$stillpfx)
+                    && !(this.#annotations.get(field)?.propParsing)
             }
         );
 
@@ -569,6 +570,9 @@ class BaseComponent extends BehaviorComponent {
 
         console.time('tamplateBindFor' + this.getName());
 
+        this.#parseAnnotations();
+        console.log(`Annotations are: `, this.#annotations);
+
         /**
          * Bind the component state and return it (template)
          * NOTE: Needs to be always the first to be called
@@ -862,6 +866,7 @@ class BaseComponent extends BehaviorComponent {
                 new ComponentPart({
                     template: null, component: cmp,
                     proxy, props,
+                    annotations: this.#annotations
                 })
             );
 
@@ -938,6 +943,41 @@ class BaseComponent extends BehaviorComponent {
                         onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
 
         return { mt, replacer };
+
+    }
+
+    ignoreProp = ['']
+    #parseAnnotations() {
+
+        const classDefinition = this.constructor.toString();
+        const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop){0,1}[\n \s \*]{0,}/;
+        const commentRE = /(\@type){1}[\s \@ \{ \} \: \| A-Za-z0-9]{1,}\*{1,}\//;
+        const newLineRE = /[\n]{0,}/;
+        const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
+        const re = injectOrProxyRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
+
+        classDefinition.replace(new RegExp(re, 'g'), (mt) => {
+
+            /**
+             * If statement is in place to not parse skip method 
+             * parsing when it find a comment annotation
+             */
+            if (!mt.includes('(')) {
+                const commentEndPos = mt.indexOf('*/') + 2;
+                const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
+
+                if (propertyName != '') {
+                    const inject = mt.includes('@Inject');
+                    const proxy = mt.includes('@Proxy');
+                    const prop = mt.includes('@Prop');
+                    let type = mt.split('{')[1].split('}')[0].trim();
+                    type = type.replace(/\s/g, '');
+                    const propParsing = proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
+                    this.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+                }
+            }
+
+        });
 
     }
 

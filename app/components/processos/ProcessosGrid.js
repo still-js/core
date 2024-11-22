@@ -2,9 +2,9 @@ class ProcessosGrid extends ViewComponent {
 
   roles = Prop()
   canCreateProcess = Prop(false);
-  
-  /** @type { TabulatorComponent } */
-  dataTableListProcessos = Proxy;
+
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessos;
   dataTableLabels = Prop(
     JSON.stringify([
       {
@@ -20,7 +20,7 @@ class ProcessosGrid extends ViewComponent {
         width: 20,
       },
       { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title:"Progresso", field:"progress", sorter:"30", hozAlign:"left", formatter:"progress"},
+      { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
       { title: "Referência", field: "ref", sorter: "string" },
       { title: "Assunto", field: "assunto", sorter: "string" },
       { title: "Área", field: "area", sorter: "string" },
@@ -112,13 +112,13 @@ class ProcessosGrid extends ViewComponent {
   getRolesByLoggedUser() {
     try {
       const userLogged = JSON.parse(localStorage.getItem("_user"));
-      this.roles = userLogged.auth.roles 
-    }catch(e){
+      this.roles = userLogged.auth.roles
+    } catch (e) {
       console.log(e)
-    }      
+    }
   }
 
-  
+
   onRender() {
     this.getRolesByLoggedUser()
     this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS')
@@ -128,7 +128,7 @@ class ProcessosGrid extends ViewComponent {
   stAfterInit(val) {
 
     this.getRolesByLoggedUser()
- 
+
     $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
       (r) => {
         if (r.data) {
@@ -142,14 +142,14 @@ class ProcessosGrid extends ViewComponent {
   transformDataTable(data) {
 
     function calculateDays(dataEncerramento) {
-      if(dataEncerramento) {
-      const inicio = new Date();
-      const fim = new Date(dataEncerramento);
-      const diferencaEmMilissegundos = fim - inicio;
-      const milissegundosPorDia = 1000 * 60 * 60 * 24;
-      const diferencaEmDias = diferencaEmMilissegundos / milissegundosPorDia;
-      return Math.floor(diferencaEmDias) + 1;
-      }else {
+      if (dataEncerramento) {
+        const inicio = new Date();
+        const fim = new Date(dataEncerramento);
+        const diferencaEmMilissegundos = fim - inicio;
+        const milissegundosPorDia = 1000 * 60 * 60 * 24;
+        const diferencaEmDias = diferencaEmMilissegundos / milissegundosPorDia;
+        return Math.floor(diferencaEmDias) + 1;
+      } else {
         return 100
       }
     }
@@ -170,7 +170,7 @@ class ProcessosGrid extends ViewComponent {
         data_registo: item.data_registo ? new Date(item.data_registo).toLocaleDateString("PT") : item.data_registo,
         data_suspensao: item.data_suspensao ? new Date(item.data_suspensao).toLocaleDateString("PT") : item.data_suspensao,
         colaborador_id_suspendeu: item.colaborador_id_suspendeu,
-        data_encerramento:  item.data_encerramento ? new Date(item.data_encerramento).toLocaleDateString("PT") :  item.data_encerramento,
+        data_encerramento: item.data_encerramento ? new Date(item.data_encerramento).toLocaleDateString("PT") : item.data_encerramento,
         progress: 100 - calculateDays(item.data_encerramento)
       }
     })

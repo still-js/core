@@ -830,4 +830,19 @@ class Components {
     }
 
 
+    async loadFromPath(path, className) {
+
+        return new Promise((resolve) => {
+
+            const script = $stillLoadScript(path, className);
+            script.addEventListener('load', () => {
+                if (document.getElementById(script.id)) {
+                    setTimeout(() => resolve([]));
+                }
+            });
+
+        });
+
+    }
+
 }

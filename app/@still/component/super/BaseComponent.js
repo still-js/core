@@ -151,12 +151,6 @@ class BaseComponent extends BehaviorComponent {
                         return false;
                 }
 
-                /* if (typeof fieldInspect == 'function') {
-                    if (fieldInspect.name == 'Prop') {
-                        return false;
-                    }
-                } */
-
                 return !excludingFields.includes(field)
                     && !field.startsWith(this.$stillpfx)
                     && !(this.#annotations.get(field)?.propParsing)
@@ -571,7 +565,6 @@ class BaseComponent extends BehaviorComponent {
         console.time('tamplateBindFor' + this.getName());
 
         this.#parseAnnotations();
-        console.log(`Annotations are: `, this.#annotations);
 
         /**
          * Bind the component state and return it (template)
@@ -946,7 +939,6 @@ class BaseComponent extends BehaviorComponent {
 
     }
 
-    ignoreProp = ['']
     #parseAnnotations() {
 
         const classDefinition = this.constructor.toString();
@@ -974,25 +966,38 @@ class BaseComponent extends BehaviorComponent {
                     let type = mt.split('{')[1].split('}')[0].trim();
                     type = type.replace(/\s/g, '');
                     const propParsing = inject || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
+                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+
+                    /* if (inject || proxy)
+                        Components.subscribeStAfterInit(cmp.constructor.name, cmp); */
 
                     if (inject) {
 
                         let service = ComponentSetup.get()?.services?.get(type);
-                        if (!service) {
-                            const servicePath = ComponentSetup.get().servicePath;
-                            await ComponentSetup.get().loadFromPath(servicePath, type);
-                            service = eval(`new ${type}()`);
-                            ComponentSetup.get()?.services?.set(type, service);
-                        }
+                        if (service) cmp[propertyName] = service;
+                        const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
 
-                        cmp[propertyName] = service;
+                        if (!document.getElementById(servicePath)) {
+                            const script = document.createElement('script');
+                            [script.src, script.id] = [servicePath, servicePath];
+                            script.onload = function () {
+                                const service = eval(`new ${type}()`);
+                                ComponentSetup.get()?.services?.set(type, service);
+                                cmp[propertyName] = service;
+                                Components.emitAction(cmp.constructor.name);
+                            }
+                            document.head.insertAdjacentElement('beforeend', script);
 
+                        } else {
+                            Components.subscribeAction(
+                                cmp.constructor.name,
+                                () => cmp[propertyName] = ComponentSetup.get()?.services?.get(type)
+                            );
+                        };
+                        cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
                     }
-
-                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
                 }
             }
-
         });
 
     }

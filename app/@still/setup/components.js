@@ -1,8 +1,12 @@
 const $stillLoadScript = (path, className) => {
 
+    const prevScript = document.getElementById(`${path}/${className}.js`);
+    if (prevScript) return false;
+
     const script = document.createElement('script');
     script.src = `${path}/${className}.js`;
-    script.id = script.src;
+    script.id = `${path}/${className}.js`;
+    //document.head.insertAdjacentElement('beforeend', script);
     return script;
 
 }
@@ -32,7 +36,10 @@ const loadComponentFromPath = (path, className, callback = () => { }) => {
 
                 script.addEventListener('load', () => {
                     if (document.getElementById(script.id)) {
-                        setTimeout(() => resolve([]));
+                        setTimeout(() => {
+                            callback();
+                            resolve([]);
+                        });
                     }
                 });
             }
@@ -90,6 +97,9 @@ class Components {
     stillAppConst = $stillconst.APP_PLACEHOLDER;
     static componentPartsMap = {};
     static annotations = {};
+    servicePath;
+    services = new Map();
+    static subscriptions = {};
 
     /**
      * @returns { ComponentSetup }
@@ -621,12 +631,11 @@ class Components {
 
         container.style.display = 'contents';
 
-        setTimeout(() => {
+        setTimeout(async () => {
             newInstance.parseOnChange();
-        }, 500);
-
-        await newInstance.onRender();
-        await newInstance.stAfterInit();
+            await newInstance.onRender();
+            await newInstance.stAfterInit();
+        }, 200);
 
     }
 
@@ -661,7 +670,6 @@ class Components {
          * Get all <st-element> component to replace with the
          * actual component template
          */
-
         parentCmp.versionId = UUIDUtil.newId();
         const cmpVersionId = cmpInternalId == 'fixed-part' ? null : parentCmp.versionId;
         for (let idx = 0; idx < cmpParts.length; idx++) {
@@ -835,14 +843,82 @@ class Components {
         return new Promise((resolve) => {
 
             const script = $stillLoadScript(path, className);
-            script.addEventListener('load', () => {
-                if (document.getElementById(script.id)) {
-                    setTimeout(() => resolve([]));
+
+            if (!script) {
+                resolve([]);
+                return;
+            }
+
+            const timer = setInterval(() => {
+
+                let scriptLoad = document.getElementById(script.id);
+                if (scriptLoad) {
+                    clearInterval(timer);
+                    resolve(scriptLoad);
                 }
-            });
+
+            }, 200);
 
         });
 
+    }
+
+    /**
+     * @type { { Object<[key]: ViewComponent> } }
+     */
+    static afterIniSubscriptions = {};
+
+    /**
+     * 
+     * @param {string} event 
+     * @param {ViewComponent} cmp 
+     */
+    static subscribeStAfterInit(cpmName, cmp) {
+        Components.afterIniSubscriptions[cpmName] = cmp;
+    }
+
+    /**
+     * 
+     * @param {string} event 
+     */
+    static emitAfterIni(cpmName) {
+        $still.context.componentRegistror.componentList[cpmName].instance.stAfterInit();
+        delete Components.afterIniSubscriptions[cpmName];
+    }
+
+    /**  @returns { boolean } */
+    static checkStInit(cpmName) {
+        return cpmName in Components.afterIniSubscriptions;
+    }
+
+    static subscribeAction(actonName, action) {
+
+        if (actonName in Components.subscriptions) {
+            if (Components.subscriptions[actonName].status == $stillconst.A_STATUS.DONE) {
+                action();
+                return;
+            }
+        }
+
+        if (!(actonName in Components.subscriptions)) {
+            const status = $stillconst.A_STATUS.PENDING
+            Components.subscriptions[actonName] = { status, actions: [], count: 0 };
+        }
+
+        const count = Components.subscriptions[actonName].count;
+        Components.subscriptions[actonName].actions.push(action);
+        Components.subscriptions[actonName].count = count + 1;
+
+    }
+
+    static emitAction(actonName) {
+
+        Components.subscriptions[actonName].actions.forEach(action => action());
+        Components.subscriptions[actonName].status = $stillconst.A_STATUS.DONE;
+    }
+
+    static clearSubscriptionAction(actonName) {
+        delete Components.subscriptions[actonName];
     }
 
 }

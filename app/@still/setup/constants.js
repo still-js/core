@@ -23,6 +23,10 @@ const $stillconst = {
     MIN_VALID_MSG_PT: 'O valor deve ser maior ou igual à {{}}',
     MAX_VALID_MSG_PT: 'O valor deve ser menor ou igual à {{}}',
     PROP_TYPE_IGNORE: ['STForm'],
+    A_STATUS: {
+        PENDING: 'pending',
+        DONE: 'done'
+    },
 
 
 

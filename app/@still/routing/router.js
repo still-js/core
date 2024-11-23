@@ -181,7 +181,7 @@ class Router {
                             componentInstance.parseOnChange();
                         }, 500);
                         await componentInstance.onRender();
-                        await componentInstance.stAfterInit();
+                        //await componentInstance.stAfterInit();
 
                     } else {
                         await Components.reloadedComponent(componentInstance, isHome);
@@ -231,7 +231,8 @@ class Router {
                  * Runs stAfterInit special method 
                  * in case it exists
                  */
-                await cmp.stAfterInit();
+                if (!Components.checkStInit(cmp.constructor.name))
+                    setTimeout(async () => await cmp.stAfterInit(), 200);
 
                 /**
                  * Load component parts or sub-components

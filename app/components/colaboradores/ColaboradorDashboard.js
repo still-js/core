@@ -234,65 +234,53 @@ class ColaboradorDashboard extends ViewComponent {
     })
   }
 
-  stAfterInit(val) {
-    const userLogged = JSON.parse(localStorage.getItem('_user'))
+  async stAfterInit(val) {
+
+    const userLogged = JSON.parse(localStorage.getItem('_user'));
+    const service = this.processoService;
 
     if (userLogged) {
-      $still.HTTPClient.get(
-        `http://localhost:3000/api/v1/processo_colaborador/${userLogged.id}`
-      ).then((r) => {
-        if (r.data) {
-          this.dataTable.dataSource = this.transformDataTable(r.data);
-          this.populateCards(r.data);
-        } else {
-          this.hideLoading();
-        }
-      });
 
-      this.getTarefaByColaboradorId();
+      try {
+
+        AppTemplate.showLoading();
+        const processosByColaborador = await service.getProcessoByColaborador(userLogged.id);
+        this.dataTable.dataSource = this.transformDataTable(processosByColaborador);
+        this.populateCards(processosByColaborador);
+        const tasksData = await service.getTarefaByColaboradorId();
+        this.pushDataToCalendar(tasksData);
+        AppTemplate.hideLoading();
+
+      } catch (error) {
+        AppTemplate.hideLoading();
+      }
+
+
     }
   }
 
-  getTarefaByColaboradorId() {
+  pushDataToCalendar(tasksData) {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
     let userId = userLogged.id;
 
-    $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/tarefas_processo/colaborador/${userId}`
-    ).then((r) => {
-      if (r.status === 200) {
-        try {
-          console.log("Tarefas encontradas", r);
+    const tasks = tasksData.map((item) => {
 
-          if (r.data.length) {
+      const start = new Date(item.data_para_realizacao);
+      start.setHours(new Date().getHours());
+      const end = new Date(item.data_para_realizacao);
+      end.setHours(new Date().getHours() + 2);
 
-            const data = r.data.map((item) => {
+      return {
+        id: item.id,
+        calendarId: 'entrevista',
+        title: item.descricao,
+        start, end
+      };
 
-              const start = new Date(item.data_para_realizacao);
-              start.setHours(new Date().getHours());
-              const end = new Date(item.data_para_realizacao);
-              end.setHours(new Date().getHours() + 2);
-
-              return {
-                id: item.id,
-                calendarId: 'entrevista',
-                title: item.descricao,
-                start, end
-              };
-
-            });
-
-            this.agendaColaboradorProxy.addNewEvents(data);
-
-          }
-
-
-        } catch (e) {
-          console.log("Error on finding tarefas", e);
-        }
-      }
     });
+
+    this.agendaColaboradorProxy.addNewEvents(tasks);
 
   }
 

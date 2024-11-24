@@ -27,45 +27,10 @@ const routesMap = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let routeMapInverse = [];
 function $stillGetRouteMap() {
 
-    if (!routeMapInverse.length) {
+    /* if (!routeMapInverse.length) {
 
         routeMapInverse = Object
             .entries(routesMap.viewRoutes)
@@ -73,13 +38,13 @@ function $stillGetRouteMap() {
                 accum[path] = cmp;
                 return accum;
             }, {});
-    }
+    } */
 
     return {
         route: {
             ...routesMap.viewRoutes.regular,
             ...routesMap.viewRoutes.lazyInitial
         },
-        inverse: routeMapInverse
+        //inverse: routeMapInverse
     }
 }

@@ -11,32 +11,31 @@ class ColaboradorDashboard extends ViewComponent {
   /** @Inject @type { ProcessoService } */
   processoService;
 
-  dataTableLabels = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='far fa-calendar-alt'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-file-alt'></i>",
-        width: 20,
-      },
-      { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
-      { title: "Referência", field: "ref", sorter: "string" },
-      { title: "Assunto", field: "assunto", sorter: "string" },
-      { title: "Área", field: "area", sorter: "string" },
-      { title: "Instituição", field: "instituicao", sorter: "string" },
-      { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
-      { title: "Cliente", field: "cliente", sorter: "string" },
-      { title: "Gestor", field: "gestor", sorter: "string" },
-      { title: "Data Cadastro", field: "data_registo", sorter: "string" },
-    ])
-  );
+  /** @Prop */
+  dataTableLabels = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='far fa-calendar-alt'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-file-alt'></i>",
+      width: 20,
+    },
+    { title: "Estado", field: "estado", sorter: "string", width: 100 },
+    { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
+    { title: "Referência", field: "ref", sorter: "string" },
+    { title: "Assunto", field: "assunto", sorter: "string" },
+    { title: "Área", field: "area", sorter: "string" },
+    { title: "Instituição", field: "instituicao", sorter: "string" },
+    { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
+    { title: "Cliente", field: "cliente", sorter: "string" },
+    { title: "Gestor", field: "gestor", sorter: "string" },
+    { title: "Data Cadastro", field: "data_registo", sorter: "string" },
+  ];
 
   template = `
   <section class="content">
@@ -263,6 +262,7 @@ class ColaboradorDashboard extends ViewComponent {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
     let userId = userLogged.id;
+    const agendaProxy = this.agendaColaboradorProxy;
 
     const tasks = tasksData.map((item) => {
 
@@ -280,7 +280,10 @@ class ColaboradorDashboard extends ViewComponent {
 
     });
 
-    this.agendaColaboradorProxy.addNewEvents(tasks);
+
+    this.agendaColaboradorProxy.on('load', () => {
+      this.agendaColaboradorProxy.addNewEvents(tasks);
+    });
 
   }
 

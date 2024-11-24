@@ -42,7 +42,7 @@ class CCalendar extends ViewComponent {
         super();
 
         BarChart.onChange((newState) => {
-            console.log(`New state do Bar chart: `, newState.qualquerProp.value);
+            console.log(`New state do Bar chart: `, newState.qualquerProp?.value);
         });
 
     }

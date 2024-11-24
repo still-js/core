@@ -11,19 +11,33 @@ class TabulatorComponent extends ViewComponent {
         </div>
     `;
 
-    table = Prop;
-    tableHeader = Prop;
+    /**
+     * @Prop
+     */
+    table;
+
+    /** @Prop */
+    tableHeader;
+
     dataSource;
     firstLoad = false;
-    /** @type { Array<{ pos, icon }> } */
-    deleteColMetadata = Prop;
-    /** @type { Array<{ pos, icon }> } */
-    editColMetadata = Prop;
+
+    /**
+     * @Prop
+     * @type { Array<{ pos, icon }> } 
+     * */
+    deleteColMetadata;
+
+    /**
+     * @Prop 
+     * @type { Array<{ pos, icon }> } 
+     * */
+    editColMetadata;
     tableHeight = Prop("317px");
 
     async load() {
 
-        const fields = JSON.parse(this.tableHeader);
+        const fields = this.tableHeader;
         this.parseDeleteRowColumn(fields);
         this.parseEditRowColumn(fields);
 
@@ -123,9 +137,9 @@ class TabulatorComponent extends ViewComponent {
         this.dataSource = existingData;
     }
 
-    removeRow(columnId, id){
+    removeRow(columnId, id) {
         const existingData = [...this.table.getData()];
-        const filterData = existingData.filter( item => item[columnId] !== id)
+        const filterData = existingData.filter(item => item[columnId] !== id)
         this.dataSource = filterData
     }
 

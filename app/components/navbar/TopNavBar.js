@@ -1,4 +1,11 @@
 class TopNavBar extends ViewComponent {
+
+    /** 
+     * @Inject 
+     * @type { ProcessoService } 
+     * */
+    processService;
+
     htmlRefId = "topNavBar";
     template = `
     <nav class="navbar" id="topNavBar" style="position: fixed;">
@@ -88,6 +95,10 @@ class TopNavBar extends ViewComponent {
     constructor() {
         super();
         console.log(`instantiated top nav bar added plus`);
+    }
+
+    stAfterInit() {
+        console.log(`SERVICE ON TOP MENU: `, this.processService);
     }
 
     gotoView(viewComponent) {

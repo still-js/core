@@ -1,18 +1,35 @@
 class TUICalendarComponent extends ViewComponent {
 
 
-    calendar = Prop(null);
-    saveLabel = Prop('Salvar');
-    editLabel = Prop('Editar');
-    delLabel = Prop('Excluir');
-    updateLabel = Prop('Actualizar');
-    eventEditValue = Prop(null);
-    weekDaysPT = Prop({
+    /** @Prop */
+    calendar = null;
+
+    /** @Prop */
+    saveLabel = 'Salvar';
+
+    /** @Prop */
+    editLabel = 'Editar';
+
+    /** @Prop */
+    delLabel = 'Excluir';
+
+    /** @Prop */
+    updateLabel = 'Actualizar';
+
+    /** @Prop */
+    eventEditValue = null;
+
+    /** @Prop */
+    weekDaysPT = {
         Sun: 'Dom', Mon: 'Seg', Tue: 'Ter', Wed: 'Qua',
         Thu: 'Qui', Fri: 'Sex', Sat: 'Sab',
-    });
-    dateRangePlaceId = Prop(`date_${Math.random().toString().split('.')[1]}`);
-    eventCategries = Prop([
+    };
+
+
+    dateRangePlaceId = `date_${Math.random().toString().split('.')[1]}`;
+
+    /** @Prop */
+    eventCategries = [
         {
             id: 'entrevista',
             name: 'Entrevista cliente',
@@ -23,9 +40,13 @@ class TUICalendarComponent extends ViewComponent {
             name: 'Visite ao cliente',
             backgroundColor: '#00a9ff',
         },
-    ]);
-    milestoneTitle = Prop(null);
-    taskTitle = Prop(null);
+    ];
+
+    /** @Prop */
+    milestoneTitle = null;
+
+    /** @Prop */
+    taskTitle = null;
 
     template = `
         <div>
@@ -71,6 +92,8 @@ class TUICalendarComponent extends ViewComponent {
         this.listenClickEvent();
         this.handleOnUpdateEvent();
         this.handleOnDeleteEvent();
+
+        this.emit('load');
 
 
     }
@@ -138,7 +161,9 @@ class TUICalendarComponent extends ViewComponent {
             html.push(' ~ ');
             html.push(end.toLocaleDateString());
         }
-        renderRange.innerHTML = html.join('');
+
+        /* if (html)
+            renderRange.innerHTML = html?.join(''); */
     }
 
     navigateCalendar(action) {

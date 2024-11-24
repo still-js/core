@@ -188,10 +188,8 @@ class Components {
                 );
 
                 this.renderOnViewFor('stillUiPlaceholder');
-                setTimeout(() =>
-                    Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
-                setTimeout(() =>
-                    Components.handleInPlaceParts($still.context.currentView));
+                setTimeout(() => Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
+                setTimeout(() => Components.handleInPlaceParts($still.context.currentView));
                 setTimeout(async () => {
                     await $still.context.currentView.stAfterInit();
                     AppTemplate.injectToastContent();

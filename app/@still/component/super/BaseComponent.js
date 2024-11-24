@@ -993,17 +993,49 @@ class BaseComponent extends BehaviorComponent {
 
     #handleServiceInjection(cmp, propertyName, type, service) {
 
-        if (service) cmp[propertyName] = service;
+        //cmp[propertyName]['subscribers'] = [];
+        const tempObj = {
+
+            on: async (_, action) => {
+
+                if (cmp[propertyName]?.ready) {
+                    await action();
+                    return;
+                }
+
+                if (!('subscribers' in tempObj)) {
+                    Object.assign(tempObj, { subscribers: [], status: $stillconst.A_STATUS.PENDING })
+                }
+                tempObj.subscribers.push(action);
+            },
+
+            load: () => {
+
+                if (!('status' in tempObj)) {
+                    Object.assign(tempObj, { status: $stillconst.A_STATUS.DONE, subscribers: [] });
+                    return;
+                }
+
+                tempObj.status = $stillconst.A_STATUS.PENDING;
+                tempObj.subscribers?.forEach(async (action) => await action());
+            }
+
+        }
+
+        cmp[propertyName] = tempObj;
+
+        if (service) cmp[propertyName] = { ...cmp[propertyName], ...service, ready: true };
 
         const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
 
         if (!document.getElementById(servicePath)) {
             const script = document.createElement('script');
             [script.src, script.id] = [servicePath, servicePath];
-            script.onload = function () {
+            script.onload = async function () {
+
                 const service = eval(`new ${type}()`);
                 ComponentSetup.get()?.services?.set(type, service);
-                cmp[propertyName] = service;
+                handleServiceAssignement(service);
                 Components.emitAction(cmp.constructor.name);
             }
             document.head.insertAdjacentElement('beforeend', script);
@@ -1011,9 +1043,24 @@ class BaseComponent extends BehaviorComponent {
         } else {
             Components.subscribeAction(
                 cmp.constructor.name,
-                () => cmp[propertyName] = ComponentSetup.get()?.services?.get(type)
+                () => {
+                    const service = ComponentSetup.get()?.services?.get(type);
+                    handleServiceAssignement(service);
+                }
             );
         };
+
+        function handleServiceAssignement(service) {
+
+            service['ready'] = true;
+            service['status'] = cmp[propertyName].status;
+            service['subscribers'] = cmp[propertyName].subscribers;
+            service['load'] = cmp[propertyName].load;
+            service['on'] = cmp[propertyName].on;
+            cmp[propertyName] = service;
+            cmp[propertyName].load();
+
+        }
 
     }
 

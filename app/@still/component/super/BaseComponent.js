@@ -827,6 +827,7 @@ class BaseComponent extends BehaviorComponent {
         }
 
         this.versionId = UUIDUtil.newId();
+        const parentCmp = this;
         template = template.replace(re, (mt) => {
 
             const propMapper = {};
@@ -839,6 +840,8 @@ class BaseComponent extends BehaviorComponent {
             });
 
             const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
+            parentCmp[proxy] = { on: () => { } };
+            console.log(`PROXY ON THE OTHER SIDE: `, proxy);
             const props = {};
             Object.entries(propMapper).forEach(([prop, val]) => {
                 props[prop] = val;
@@ -1024,7 +1027,7 @@ class BaseComponent extends BehaviorComponent {
 
         cmp[propertyName] = tempObj;
 
-        if (service) cmp[propertyName] = { ...cmp[propertyName], ...service, ready: true };
+        if (service) handleServiceAssignement(service);
 
         const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
 

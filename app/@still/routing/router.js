@@ -15,6 +15,8 @@ class Router {
 
     static init() {
         ComponentSetup.get().loadComponent();
+        AppTemplate.get().storageSet('stAppInitStatus', true);
+        //localStorage.setItem('stAppInitStatus', true);
     }
 
     static data(cmpName) {
@@ -47,6 +49,8 @@ class Router {
             (AppTemplate.get().isAuthN() && !ComponentSetup.get().isAppLoaded())
         ) {
             ComponentSetup.get().loadComponent();
+            AppTemplate.get().storageSet('stAppInitStatus', true);
+            //localStorage.setItem('stAppInitStatus', true);
         }
 
         if (cmp === 'exit') {
@@ -244,7 +248,10 @@ class Router {
                  * has been handled previously on the Components Funamentals (components.js)
                  * by already calling Components.handleInPlaceParts($still.context.currentView))
                  */
-                if (!Components.stAppInitStatus)
+                if (
+                    !Components.stAppInitStatus
+                    || AppTemplate.get().storageGet('stAppInitStatus')
+                )
                     Components.handleInPlaceParts(cmp);
                 else {
                     Components.stAppInitStatus = false;

@@ -100,6 +100,7 @@ class Components {
     servicePath;
     services = new Map();
     static subscriptions = {};
+    static stAppInitStatus = true;
 
     /**
      * @returns { ComponentSetup }
@@ -187,8 +188,10 @@ class Components {
                 );
 
                 this.renderOnViewFor('stillUiPlaceholder');
-                setTimeout(() => Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
-                setTimeout(() => Components.handleInPlaceParts($still.context.currentView));
+                setTimeout(() =>
+                    Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
+                setTimeout(() =>
+                    Components.handleInPlaceParts($still.context.currentView));
                 setTimeout(async () => {
                     await $still.context.currentView.stAfterInit();
                     AppTemplate.injectToastContent();
@@ -701,7 +704,7 @@ class Components {
             for (const [prop, value] of allProps) {
 
                 //Proxy gets ignored becuase it was assigned above and it should be the child class
-                if (prop != 'proxy') {
+                if (prop != 'proxy' && prop != 'component') {
                     if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
                         const method = prop.replace('(', '').replace(')', '');
                         cmp[method] = function (...param) {
@@ -913,8 +916,10 @@ class Components {
 
     static emitAction(actonName) {
 
-        Components.subscriptions[actonName].actions.forEach(action => action());
-        Components.subscriptions[actonName].status = $stillconst.A_STATUS.DONE;
+        if (actonName in Components.subscriptions) {
+            Components.subscriptions[actonName].actions.forEach(action => action());
+            Components.subscriptions[actonName].status = $stillconst.A_STATUS.DONE;
+        }
     }
 
     static clearSubscriptionAction(actonName) {

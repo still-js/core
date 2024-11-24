@@ -13,6 +13,10 @@ class Router {
 
     }
 
+    static init() {
+        ComponentSetup.get().loadComponent();
+    }
+
     static data(cmpName) {
 
         console.log("log do data router.js", cmpName);
@@ -29,7 +33,6 @@ class Router {
     static goto(cmp, { data = {} } = { data: {} }) {
 
         Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
-        console.log(`CURRENT COMPONENT TO UNMOUNT: `, $still.context.currentView?.versionId);
         /**
          * The or (||) conditions serves to mount the application 
          * so the user can be redirected straight to a specific 
@@ -235,10 +238,17 @@ class Router {
                     setTimeout(async () => await cmp.stAfterInit(), 200);
 
                 /**
-                 * Load component parts or sub-components
-                 * inside the main loaded component
+                 * Load component parts or sub-components inside the main loaded component
+                 * if(!Components.stAppInitStatus) is to prevent compoenent parts Parsing
+                 * When this is called in the App mounting phase, as this (handleInPlaceParts) 
+                 * has been handled previously on the Components Funamentals (components.js)
+                 * by already calling Components.handleInPlaceParts($still.context.currentView))
                  */
-                Components.handleInPlaceParts(cmp);
+                if (!Components.stAppInitStatus)
+                    Components.handleInPlaceParts(cmp);
+                else {
+                    Components.stAppInitStatus = false;
+                }
                 clearTimeout(loadTImer);
             }
 

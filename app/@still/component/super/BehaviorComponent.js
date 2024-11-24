@@ -24,6 +24,7 @@ class BehaviorComponent {
     #triggetOnType = $stillconst.VALID_TRIGGER_ONTYPE;
     _const = $stillconst;
     lang = 'PT';
+    behaviorEvtSubscriptions = {};
 
     onChange(callback = (newState) => { }) {
         this.$stillClassLvlSubscribers.push(callback);
@@ -326,6 +327,48 @@ class BehaviorComponent {
         if (!value) return null;
         if (!isNaN(value)) return parseFloat(value);
         return null;
+    }
+
+    /**
+     * 
+     * @param {'load'} evt 
+     */
+    on(evt, action) {
+
+        if (evt in this.behaviorEvtSubscriptions) {
+            if (this.behaviorEvtSubscriptions[evt].status == $stillconst.A_STATUS.DONE) {
+                setTimeout(() => {
+                    action(this);
+                }, 200);
+                return;
+            }
+        }
+
+        if (!(evt in this.behaviorEvtSubscriptions)) {
+            const status = $stillconst.A_STATUS.PENDING
+            this.behaviorEvtSubscriptions[evt] = { status, actions: [], count: 0 };
+        }
+
+        const count = this.behaviorEvtSubscriptions[evt].count;
+        this.behaviorEvtSubscriptions[evt].actions.push(action);
+        this.behaviorEvtSubscriptions[evt].count = count + 1;
+
+    }
+
+    /**
+     * 
+     * @param {'load'} evt 
+     */
+    emit(evt) {
+        if (!(evt in this.behaviorEvtSubscriptions)) {
+            const status = $stillconst.A_STATUS.DONE;
+            this.behaviorEvtSubscriptions[evt] = { status, actions: [], count: 0 };
+            return;
+        }
+        setTimeout(() => {
+            this.behaviorEvtSubscriptions[evt].actions.forEach(action => action(this));
+        }, 200);
+        this.behaviorEvtSubscriptions[evt].status = $stillconst.A_STATUS.DONE;
     }
 
 }

@@ -74,6 +74,7 @@ class BaseComponent extends BehaviorComponent {
     parentVersionId = null;
     versionId = null;
     #annotations = new Map();
+    wasAnnotParsed = false;
 
 
     /**
@@ -116,6 +117,8 @@ class BaseComponent extends BehaviorComponent {
 
     getProperties() {
 
+        if (!this.wasAnnotParsed) this.#parseAnnotations();
+
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = [
             'settings', 'componentName', 'template',
@@ -124,7 +127,8 @@ class BaseComponent extends BehaviorComponent {
             '$stillIsThereForm', '$stillpfx', 'subImported',
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
             'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
-            'parentVersionId', 'versionId'
+            'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
+            'wasAnnotParsed'
         ];
         return fields.filter(
             field => {
@@ -939,11 +943,13 @@ class BaseComponent extends BehaviorComponent {
 
     }
 
+    ignoreProp = [];
+    services = [];
     #parseAnnotations() {
 
         const classDefinition = this.constructor.toString();
         const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop){0,1}[\n \s \*]{0,}/;
-        const commentRE = /(\@type){1}[\s \@ \{ \} \: \| A-Za-z0-9]{1,}\*{1,}\//;
+        const commentRE = /(\@type){0,1}[\s \@ \{ \} \: \| \< \> \, A-Za-z0-9]{1,}[\* \s]{1,}\//;
         const newLineRE = /[\n]{0,}/;
         const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
         const re = injectOrProxyRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
@@ -953,52 +959,61 @@ class BaseComponent extends BehaviorComponent {
 
             /**
              * If statement is in place to not parse skip method 
-             * parsing when it find a comment annotation
+             * parsing when it finds a comment annotation
              */
             if (!mt.includes('(')) {
                 const commentEndPos = mt.indexOf('*/') + 2;
                 const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
 
+                let inject, proxy, prop, propParsing, type;
                 if (propertyName != '') {
-                    const inject = mt.includes('@Inject');
-                    const proxy = mt.includes('@Proxy');
-                    const prop = mt.includes('@Prop');
-                    let type = mt.split('{')[1].split('}')[0].trim();
-                    type = type.replace(/\s/g, '');
-                    const propParsing = inject || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
-                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
 
-                    /* if (inject || proxy)
-                        Components.subscribeStAfterInit(cmp.constructor.name, cmp); */
+                    inject = mt.includes('@Inject');
+                    proxy = mt.includes('@Proxy');
+                    prop = mt.includes('@Prop');
+
+                    if (mt.includes("@type")) {
+                        type = mt.split('{')[1].split('}')[0].trim();
+                        type = type.replace(/\s/g, '');
+                    }
+                    propParsing = inject || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
 
                     if (inject) {
-
                         let service = ComponentSetup.get()?.services?.get(type);
-                        if (service) cmp[propertyName] = service;
-                        const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
-
-                        if (!document.getElementById(servicePath)) {
-                            const script = document.createElement('script');
-                            [script.src, script.id] = [servicePath, servicePath];
-                            script.onload = function () {
-                                const service = eval(`new ${type}()`);
-                                ComponentSetup.get()?.services?.set(type, service);
-                                cmp[propertyName] = service;
-                                Components.emitAction(cmp.constructor.name);
-                            }
-                            document.head.insertAdjacentElement('beforeend', script);
-
-                        } else {
-                            Components.subscribeAction(
-                                cmp.constructor.name,
-                                () => cmp[propertyName] = ComponentSetup.get()?.services?.get(type)
-                            );
-                        };
-                        cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+                        cmp.#handleServiceInjection(cmp, propertyName, type, service);
                     }
                 }
+                cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+
             }
         });
+        this.wasAnnotParsed = true;
+
+    }
+
+    #handleServiceInjection(cmp, propertyName, type, service) {
+
+        if (service) cmp[propertyName] = service;
+
+        const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
+
+        if (!document.getElementById(servicePath)) {
+            const script = document.createElement('script');
+            [script.src, script.id] = [servicePath, servicePath];
+            script.onload = function () {
+                const service = eval(`new ${type}()`);
+                ComponentSetup.get()?.services?.set(type, service);
+                cmp[propertyName] = service;
+                Components.emitAction(cmp.constructor.name);
+            }
+            document.head.insertAdjacentElement('beforeend', script);
+
+        } else {
+            Components.subscribeAction(
+                cmp.constructor.name,
+                () => cmp[propertyName] = ComponentSetup.get()?.services?.get(type)
+            );
+        };
 
     }
 

@@ -57,6 +57,8 @@ class ProcessoDetalhes extends ViewComponent {
     { code: 3, designacao: 'Cash' },
   ]
 
+  userLogged;
+
 
   /** @type { TabulatorComponent } */
   dataTableListProcessosEquipas = Proxy;
@@ -849,16 +851,12 @@ class ProcessoDetalhes extends ViewComponent {
 
   getDetalhesProcesso(idProcesso) {
 
-    console.log("lista dos Detalhes do Processo... here ...")
-
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/processo/${idProcesso}`
     ).then((r) => {
       if (r.status === 200) {
         try {
 
-          console.log("here... ", r.data[0])
-          
           this.populateAttributes(r.data[0]);
           this.getListColaboradores();
           this.getListPrecedentes();
@@ -1676,15 +1674,72 @@ class ProcessoDetalhes extends ViewComponent {
 
   generateHonorario() {
 
+    this.userLogged = JSON.parse(localStorage.getItem("_user"));
+   
+
     const data = this.honorarioProxy.getDestData();
     console.log(data);
-    this.showFactura = true;
 
     const totalFactura = data
-      .map(
-        r => parseFloat(cleanCurrencyValue(r.total))
-      )
-      .reduce((accum, val) => accum + val);
+    .map(
+      r => parseFloat(cleanMoedaValue(r.total))
+    )
+    .reduce((accum, val) => accum + val);
+
+    const totalHoras = data
+    .map(
+      r => parseFloat(cleanHorasValue(r.qtd))
+    )
+    .reduce((accum, val) => accum + val);
+
+    let payloadItems = {
+      'processo_id': this.id.value,
+      'cliente_id': this.clienteId.value,
+      'colaborador_id':  this.userLogged.value.id,
+      'horas': totalHoras,
+      'custo': totalFactura,
+      'status': 'pendente',
+      'items': [...data]
+
+    }
+
+    console.log("payload a salvar ", payloadItems)
+
+    return 0;
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/processo",
+      JSON.stringify(payload),
+      {
+          headers: {
+              "Content-Type": "application/json",
+          },
+      }
+  )
+      .then((response) => {
+          if (response.status !== 201) {
+              if (response.message) {
+                  alert(response.message);
+              } else {
+                  alert(JSON.stringify(response.errors));
+              }
+          } else {
+              alert("Salvo com sucesso");
+              //AppTemplate.get().store('logged', true);
+              Router.goto("ProcessoDetalhes", {
+                  data: response.data.id,
+              });
+              // aonde guardar os dados do user logado com seguranca
+          }
+      })
+      .catch((err) => {
+          console.log(`Erro ao cadastrar processo: `, err);
+      });
+
+    
+
+
+    this.showFactura = true;
 
     const invoiceNum = Math.random().toString().split('.')[1];
     this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5));
@@ -1740,6 +1795,19 @@ function cleanCurrencyValue(val) {
     .replace('AKZ', '')
     .replace('.', '')
     .replace(',', '.')
+    .trim()
+}
+
+function cleanMoedaValue(val) {
+  return val
+    .replace('AKZ', '')
+    .replace(',', '')
+    .trim()
+}
+
+function cleanHorasValue(val){
+  return val
+    .replace('Hrs','')
     .trim()
 }
 

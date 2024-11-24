@@ -10,6 +10,7 @@ const routesMap = {
             ClientsGrid: 'components/client',
         },
         lazyInitial: {
+            ClienteDetalhes: 'components/client',
             ColaboradorForm: 'components/colaboradores',
             ColaboradorGrid: 'components/colaboradores',
             ColaboradorDashboard: 'components/colaboradores',

@@ -3,18 +3,17 @@ class ClientForm extends ViewComponent {
     tipoClienteId;
     nome;
     sobrenome;
+    denominacao;
     nif;
     endereco;
     pessoaContacto;
-    telefone;
-    email;
     contactoCobranca;
+    e_mail;
     clientNota;
-    tipoClienteSelecionado = "";
+    tipoClienteSelecionado;
 
     /** @type { STForm } */
     clientForm;
-
 
     /**
      * Fields not bound to the form fields but for internal
@@ -80,35 +79,21 @@ class ClientForm extends ViewComponent {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-8">
                                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <i class="material-icons">person</i> Nome
+                                                <i class="material-icons">person</i> Nome / Denominação
                                             </span>
                                             <div class="form-line">
                                                 <input 
                                                     type="text" 
                                                     class="form-control date" 
-                                                    (value)="nome" 
-                                                    placeholder="Sobre nome">
+                                                    (value)="denominacao" 
+                                                    placeholder="Denominação do cliente">
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="material-icons">group</i> Sobrenome
-                                            </span>
-                                            <div class="form-line">
-                                                <input 
-                                                    type="text"
-                                                    class="form-control date"
-                                                    (value)="sobrenome"
-                                                    (required)="true"
-                                                    placeholder="Sobrenome">
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </div>
                                 <div class="row clearfix">
                                     <div class="col-md-4">
@@ -149,15 +134,11 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
-                                                    (validator)="phone"
-                                                    (required)="true"
                                                     type="text" 
                                                     class="form-control date" 
                                                     (value)="pessoaContacto" 
-                                                    (validation-trigger)="losefocus"
                                                     placeholder="Pessoa de Contacto"
-                                                    (validator-warn)="O formato da data é (+244 123 456)"
-                                                    >
+                                                >
                                             </div>
                                         </div>
                                     </div>
@@ -178,22 +159,22 @@ class ClientForm extends ViewComponent {
                                                 <input 
                                                     type="text" 
                                                     class="form-control date" 
-                                                    (value)="telefone" 
-                                                    placeholder="Telefone">
+                                                    (value)="contactoCobranca" 
+                                                    placeholder="ex.: 900 000 000">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <i class="material-icons">contact_phone</i> Contacto para Cobrança
+                                                <i class="material-icons">mail</i> E-mail
                                             </span>
                                             <div class="form-line">
                                                 <input 
                                                     type="text" 
                                                     class="form-control date" 
-                                                    (value)="contactoCobranca" 
-                                                    placeholder="Contacto para cobrança"
+                                                    (value)="e_mail" 
+                                                    placeholder="cliente@exemplo.com"
                                                     >
                                             </div>
                                         </div>
@@ -284,12 +265,13 @@ class ClientForm extends ViewComponent {
             tipoClientId = routingData?.tipo_id;
 
         const payload = {
-            "denominacao": this.nome.value,
+            "denominacao": this.denominacao.value,
             "tipo_id": tipoClientId,
             "nif": this.nif.value,
             "endereco": this.endereco.value,
             "pessoa_contacto": this.pessoaContacto.value,
             "contacto_cobranca": this.contactoCobranca.value,
+            "e_mail": this.e_mail.value,
             "nota": this.clientNota.value,
             "status": "pending"
         }
@@ -318,8 +300,14 @@ class ClientForm extends ViewComponent {
                 }
             }
         ).then((r) => {
+
             AppTemplate.hideLoading();
-            Router.goto('ClientsGrid');
+            if(r.status === 201) {
+                Router.goto('ClientsGrid');
+            }else{
+                alert(r.errors)
+            }
+
         }).catch((err) => {
             AppTemplate.hideLoading();
             console.log(`Erro ao cadastrar cliente: `, err);
@@ -329,12 +317,11 @@ class ClientForm extends ViewComponent {
 
     updateClient(payload) {
 
-
         const tipoCliente = this.routingData.value.tipo;
         delete tipoCliente.created_at;
         payload.id = this.routingData.value.id;
-        payload.tipo = tipoCliente;
-
+        //payload.tipo = tipoCliente;
+        
         $still.HTTPClient.put(
             'http://localhost:3000/api/v1/cliente',
             JSON.stringify(payload),
@@ -356,34 +343,35 @@ class ClientForm extends ViewComponent {
     stAfterInit() {
 
         this.clientType = [
-            { value: 'Particular', id: 1 },
-            { value: 'Ministério', id: 2 },
-            { value: 'Instituto', id: 3 },
-            { value: 'Associação', id: 4 },
-            { value: 'Outro', id: 5 }
+            { value: 'Empresa', id: 1 },
+            { value: 'Particular', id: 2 },
+            { value: 'Ministério', id: 3 },
+            { value: 'Instituto Público', id: 4 },
+            { value: 'Associação', id: 5 },
+            { value: 'Outro', id: 6 }
         ];
-
 
         const routeData = Router.data('ClientForm');
         if (routeData) {
 
-            //setTimeout(() => {
+            console.log("tipoId " , routeData)
+
             const {
                 id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
-                contacto_cobranca, nota, status,
+                contacto_cobranca, nota, status, e_mail
             } = routeData;
 
-            const nomes = denominacao.split(" ");
-            this.nome = nomes[0];
-            this.sobrenome = nomes[1] || '';
+            this.nif = nif;
+            this.denominacao = denominacao || '';
             this.endereco = endereco;
             this.pessoaContacto = pessoa_contacto;
             this.contactoCobranca = contacto_cobranca;
-            this.nif = nif;
-            this.telefone = contacto_cobranca;
-            this.pessoaContacto = pessoa_contacto;
-            this.tipoClienteSelecionado = tipo_id;
-            //});
+            this.e_mail = e_mail;
+
+            setTimeout(()=> {
+                this.tipoClienteSelecionado = tipo_id;
+            },500)
+
 
         }
         AppTemplate.hideLoading();

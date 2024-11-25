@@ -1,10 +1,10 @@
-const $stillLoadScript = (path, className) => {
+const $stillLoadScript = (path, className, base = null) => {
 
     const prevScript = document.getElementById(`${path}/${className}.js`);
     if (prevScript) return false;
 
     const script = document.createElement('script');
-    script.src = `${path}/${className}.js`;
+    script.src = `${base ? base : ''}${path}/${className}.js`;
     script.id = `${path}/${className}.js`;
     //document.head.insertAdjacentElement('beforeend', script);
     return script;
@@ -170,6 +170,9 @@ class Components {
             this.entryComponentPath,
             this.entryComponentName
         ).then(async () => {
+
+            Components.preProcessAnnotations();
+
             $still.context.currentView = this.init();
 
             /**  @type { ViewComponent } */
@@ -822,7 +825,8 @@ class Components {
 
         const cmpName = parentCmp.constructor.name;
         if (proxy) {
-            if (!(proxy in parentCmp)) {
+            parentCmp[proxy] = cmp;
+            /* if (!(proxy in parentCmp)) {
                 AppTemplate.hideLoading();
                 throw new Error(`${cmpName}.${proxy} proxy property is not define`);
             }
@@ -832,7 +836,7 @@ class Components {
             } else {
                 AppTemplate.hideLoading();
                 throw new Error(`The ${cmpName}.${proxy} proxy is not properly annotated with @Proxy`);
-            }
+            } */
 
         }
 
@@ -922,6 +926,90 @@ class Components {
 
     static clearSubscriptionAction(actonName) {
         delete Components.subscriptions[actonName];
+    }
+
+    static parseAnnottationRE() {
+
+        const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop){0,1}[\n \s \*]{0,}/;
+        const commentRE = /(\@type){0,1}[\s \@ \{ \} \: \| \< \> \, A-Za-z0-9]{1,}[\* \s]{1,}\//;
+        const newLineRE = /[\n]{0,}/;
+        const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
+        return injectOrProxyRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
+
+    }
+
+    static processAnnotation(mt, propertyName = null) {
+
+        if (!propertyName) {
+            const commentEndPos = mt.indexOf('*/') + 2;
+            propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
+        }
+
+        let inject, proxy, prop, propParsing, type;
+        if (propertyName != '') {
+
+            inject = mt.includes('@Inject');
+            proxy = mt.includes('@Proxy');
+            prop = mt.includes('@Prop');
+
+            if (mt.includes("@type")) {
+                type = mt.split('{')[1].split('}')[0].trim();
+                type = type.replace(/\s/g, '');
+            }
+        }
+
+        propParsing = inject || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
+
+        return { type, inject, proxy, prop, propParsing, propertyName };
+
+    }
+
+    static processedAnnotations = {};
+
+    static registerAnnotation(cmp, prop, annotations) {
+        if (!(cmp in Components.processedAnnotations)) {
+            Components.processedAnnotations[cmp] = {};
+        }
+        Components.processedAnnotations[cmp][prop] = annotations;
+    }
+
+    static preProcessAnnotations() {
+
+        const re = Components.parseAnnottationRE();
+
+        setTimeout(() => {
+
+            const routes = routesMap.viewRoutes.lazyInitial;
+            console.time('PARSING');
+            const cmps = Object.keys(routesMap.viewRoutes.lazyInitial);
+
+            for (const cmp of cmps) {
+
+                const script = $stillLoadScript(routes[cmp], cmp, './');
+                script.onload = function () {
+
+                    try {
+                        console.log(`LOADED SCRIPT WITH NAME: `, cmp);
+                        eval(`${cmp}`).toString().replace(new RegExp(re, 'g'), async (mt) => {
+                            const {
+                                type, inject, proxy, prop, propParsing, propertyName
+                            } = Components.processAnnotation(mt);
+                            Components.registerAnnotation(cmp, propertyName, {
+                                type, inject, proxy, prop, propParsing
+                            });
+                        });
+                    } catch (error) {
+                        console.log(`ERROR ON LOADING SCRIPT: `, error);
+                    }
+
+                }
+                document.head.insertAdjacentElement('beforeend', script);
+            };
+            console.log(`PROCESS ANNOT: `, Components.processedAnnotations);
+            console.timeEnd('PARSING')
+
+        });
+
     }
 
 }

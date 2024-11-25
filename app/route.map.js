@@ -11,14 +11,14 @@ const routesMap = {
         },
         lazyInitial: {
             ColaboradorForm: 'components/colaboradores',
-            ColaboradorGrid: 'components/colaboradores',
+            ColaboradoresGrid: 'components/colaboradores',
             ColaboradorDashboard: 'components/colaboradores',
             UserProfile: 'components/colaboradores',
             UserNotification: 'components/colaboradores',
             ProcessoForm: 'components/processos',
             ProcessosGrid: 'components/processos',
             ProcessoDetalhes: 'components/processos',
-            Factura: 'components/facture',
+            Factura: 'components/factura',
             POC: 'components/uipoc',
         }
     },

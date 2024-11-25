@@ -9,7 +9,7 @@ class ClientsGrid extends ViewComponent {
     dataTable;
 
     /** @Prop */
-    dataTableLabels = JSON.stringify([
+    dataTableLabels = [
         { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
         { hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },
         { title: "Tipo Cliente", field: "tipo_id", sorter: "string", width: 200 },
@@ -18,7 +18,7 @@ class ClientsGrid extends ViewComponent {
         { title: "Endereco", field: "endereco", sorter: "string" },
         { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
         { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
-    ]);
+    ];
 
     /** @Proxy @type { TUICalendarComponent } */
     calendarProxy;
@@ -29,23 +29,23 @@ class ClientsGrid extends ViewComponent {
     dragableTBProxy;
 
     /** @Prop */
-    dragableData = JSON.stringify([
+    dragableData = [
         { name: "Atendimento no Escritório", custo: "AKZ 0.0" },
         { name: "Elaboração de contracto", custo: "AKZ 0.0" },
         { name: "Rectificação do processo", custo: "AKZ 0.0" }
-    ]);
+    ];
 
     /** @Prop */
-    dragableFields = JSON.stringify([
+    dragableFields = [
         { title: "Name", field: "name" },
         { title: "Custo", field: "custo" }
-    ]);
+    ];
 
     /** @Prop */
-    dragableDestFields = JSON.stringify([
+    dragableDestFields = [
         { title: "Name", field: "name" },
         { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
-    ]);
+    ];
 
     template = `
     <section class="content">

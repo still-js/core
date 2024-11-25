@@ -36,8 +36,8 @@ class TBDragableGrid extends ViewComponent {
     async load() {
 
         this.tableRecords = this.tableData;
-        const fields = JSON.parse(this.tableFields);
-        const destFields = this.destFields && JSON.parse(this.destFields);
+        const fields = this.tableFields;
+        const destFields = this.destFields;
 
         this.#handleFieldFieldsEdition(fields);
         this.#handleFieldFieldsEdition(destFields);

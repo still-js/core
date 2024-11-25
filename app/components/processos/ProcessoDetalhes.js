@@ -58,166 +58,169 @@ class ProcessoDetalhes extends ViewComponent {
   ]
 
 
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosEquipas = Proxy;
-  dataTableLabelsEquipas = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: false,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Colaborador", field: "colaborador", sorter: "string" },
-      { title: "Função", field: "funcao", sorter: "string" },
-    ])
-  );
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosTarefas = Proxy;
-  dataTableLabelsTarefas = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Descrição", field: "descricao", sorter: "string" },
-      { title: "Estado", field: "status", sorter: "string" },
-      { title: "Data Registo", field: "created_at", sorter: "string" },
-    ])
-  );
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessosEquipas;
 
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosPrecedentes = Proxy;
-  dataTableLabelsPrecedentes = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: false,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Referência", field: "precedente_refencia", sorter: "string" },
-      { title: "Assunto", field: "precedente_assunto", sorter: "string" },
-      { title: "#", field: "precedente_id", sorter: "string" },
-      { title: "#", field: "id", sorter: "string" },
-    ])
-  );
+  /** @Prop */
+  dataTableLabelsEquipas = [
+    {
+      hozAlign: "center",
+      editRow: false,
+      icon: "<i class='fa fa-pen'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-trash-alt'></i>",
+      width: 20,
+    },
+    { title: "Colaborador", field: "colaborador", sorter: "string" },
+    { title: "Função", field: "funcao", sorter: "string" },
+  ];
 
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessosTarefas;
 
+  /** @Prop */
+  dataTableLabelsTarefas = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='fa fa-pen'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-trash-alt'></i>",
+      width: 20,
+    },
+    { title: "Descrição", field: "descricao", sorter: "string" },
+    { title: "Estado", field: "status", sorter: "string" },
+    { title: "Data Registo", field: "created_at", sorter: "string" },
+  ];
 
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosTarefas = Proxy;
-  dataTableLabelsTarefas = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Descrição", field: "descricao", sorter: "string" },
-      { title: "Estado", field: "status", sorter: "string" },
-      { title: "Data Registo", field: "created_at", sorter: "string" },
-    ])
-  );
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessosPrecedentes;
 
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosPrecedentes = Proxy;
-  dataTableLabelsPrecedentes = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: false,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Referência", field: "precedente_refencia", sorter: "string" },
-      { title: "Assunto", field: "precedente_assunto", sorter: "string" }
-    ])
-  );
+  /** @Prop */
+  dataTableLabelsPrecedentes = [
+    {
+      hozAlign: "center",
+      editRow: false,
+      icon: "<i class='fa fa-pen'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-trash-alt'></i>",
+      width: 20,
+    },
+    { title: "Referência", field: "precedente_refencia", sorter: "string" },
+    { title: "Assunto", field: "precedente_assunto", sorter: "string" },
+    { title: "#", field: "precedente_id", sorter: "string" },
+    { title: "#", field: "id", sorter: "string" },
+  ];
 
 
-  /** @type { TabulatorComponent } */
-  dataTableListProcessosAnexos = Proxy;
-  dataTableLabelsAnexos = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fas fa-file-download'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-trash-alt'></i>",
-        width: 20,
-      },
-      { title: "Descrição", field: "descricao", sorter: "string" },
-      { title: "Data Registo", field: "created_at", sorter: "string" },
-    ])
-  );
 
-  horarioCabecalho = Prop(
-    JSON.stringify([
-      { title: "Designação", field: "name" },
-      { title: "Início", field: "start" },
-      { title: "Fim", field: "end" },
-      { title: "Custo", field: "custo", hozAlign: "right" }
-    ])
-  );
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessosTarefas;
 
-  horarioDestCabecalho = Prop(
-    JSON.stringify([
-      { title: "Designação", field: "name" },
-      { title: "Início", field: "start" },
-      { title: "Fim", field: "end" },
-      { title: "Custo", field: "custo", hozAlign: "right", editor: "parent.editPricingValue()" }
-    ])
-  );
+  /** @Prop */
+  dataTableLabelsTarefas = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='fa fa-pen'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-trash-alt'></i>",
+      width: 20,
+    },
+    { title: "Descrição", field: "descricao", sorter: "string" },
+    { title: "Estado", field: "status", sorter: "string" },
+    { title: "Data Registo", field: "created_at", sorter: "string" },
+  ];
 
-  dadosTimeSheet = Prop(JSON.stringify([]));
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessosPrecedentes;
 
-  /** @type { TBDragableGrid } */
+  /** @Prop */
+  dataTableLabelsPrecedentes = [
+    {
+      hozAlign: "center",
+      editRow: false,
+      icon: "<i class='fa fa-pen'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-trash-alt'></i>",
+      width: 20,
+    },
+    { title: "Referência", field: "precedente_refencia", sorter: "string" },
+    { title: "Assunto", field: "precedente_assunto", sorter: "string" }
+  ];
+
+
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListProcessosAnexos;
+
+  /** @Prop */
+  dataTableLabelsAnexos = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='fas fa-file-download'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-trash-alt'></i>",
+      width: 20,
+    },
+    { title: "Descrição", field: "descricao", sorter: "string" },
+    { title: "Data Registo", field: "created_at", sorter: "string" },
+  ];
+
+  /** @Prop */
+  horarioCabecalho = [
+    { title: "Designação", field: "name" },
+    { title: "Início", field: "start" },
+    { title: "Fim", field: "end" },
+    { title: "Custo", field: "custo", hozAlign: "right" }
+  ];
+
+  /** @Prop */
+  horarioDestCabecalho = [
+    { title: "Designação", field: "name" },
+    { title: "Início", field: "start" },
+    { title: "Fim", field: "end" },
+    { title: "Custo", field: "custo", hozAlign: "right", editor: "parent.editPricingValue()" }
+  ];
+
+  /** @Prop */
+  dadosTimeSheet = [];
+
+  /** @Proxy @type { TBDragableGrid } */
   honorarioProxy = Proxy;
 
-  /** @type { Factura } */
-  facturaProxy = Proxy;
+  /** @Proxy @type { Factura } */
+  facturaProxy;
 
-  showFactura = Prop(false);
-  totalFactura = Prop(0);
+  /** @Prop */
+  showFactura = false;
+
+  /** @Prop */
+  totalFactura = 0;
 
   template = `
   <section class="content">
@@ -837,11 +840,6 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   async onRender() {
-    this.stRunOnFirstLoad(() => {
-      $(".js-basic-example").DataTable({
-        responsive: true,
-      });
-    });
 
     /** For Test purpose only */
     await this.stLazyExecution(async () => { });
@@ -858,7 +856,7 @@ class ProcessoDetalhes extends ViewComponent {
         try {
 
           console.log("here... ", r.data[0])
-          
+
           this.populateAttributes(r.data[0]);
           this.getListColaboradores();
           this.getListPrecedentes();
@@ -1201,7 +1199,7 @@ class ProcessoDetalhes extends ViewComponent {
           let { id, descricao, ref, assunto } = processoSalvo[0]
 
           this.dataTableListProcessosPrecedentes.insertRow(
-            { 'precedente_refencia': ref, 'precedente_assunto': assunto, 'precedente_id': precedente, 'id': id}
+            { 'precedente_refencia': ref, 'precedente_assunto': assunto, 'precedente_id': precedente, 'id': id }
           );
         }
       })
@@ -1291,9 +1289,9 @@ class ProcessoDetalhes extends ViewComponent {
             console.log("add tarefa processo  ... here ... ", response);
             this.toggleForms(idForm)
             this.dataTableListProcessosTarefas.insertRow(
-              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at' : new Date().toLocaleString("PT")},
+              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at': new Date().toLocaleString("PT") },
             );
-           
+
             //this.getDetalhesProcesso(this.id.value)
           }
         })
@@ -1329,9 +1327,9 @@ class ProcessoDetalhes extends ViewComponent {
             this.toggleForms(idForm)
 
             this.dataTableListProcessosTarefas.insertRow(
-              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at' : new Date().toLocaleString("PT")},
+              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at': new Date().toLocaleString("PT") },
             );
-            
+
           }
         })
         .catch((err) => {
@@ -1514,8 +1512,8 @@ class ProcessoDetalhes extends ViewComponent {
           link.download = 'Processo Anexo';
           document.body.appendChild(link);
           console.log("o link do download ", link)
-          link.click(); 
-          document.body.removeChild(link); 
+          link.click();
+          document.body.removeChild(link);
         }
       })
       .catch((err) => {

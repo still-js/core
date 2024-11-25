@@ -1,12 +1,14 @@
 class TopNavBar extends ViewComponent {
 
-    /** 
-     * @Inject 
-     * @type { ProcessoService } 
-     * */
-    processService;
-
     htmlRefId = "topNavBar";
+    totalNotifications = 19;
+
+    /**
+     * @Inject
+     * @type { ProcessoService }
+     */
+    processoService;
+
     template = `
     <nav class="navbar" id="topNavBar" style="position: fixed;">
         <div class="container-fluid" style="margin-top: -7px;
@@ -40,14 +42,18 @@ class TopNavBar extends ViewComponent {
                     <!-- #END# Full Screen Button -->
                     <!-- #START# Notifications-->
                     <li class="dropdown">
-                        <a href="#" onClick="return false;" class="dropdown-toggle" data-toggle="dropdown"
+                        <a href="#" 
+                            onClick="return false;" 
+                            class="dropdown-toggle ring-ball-top-nav-bar" 
+                            data-toggle="dropdown"
+                            counter="@totalNotifications"
                             role="button">
                             <i class="nav-hdr-btn ti-bell"></i>
                             <span class="notify"></span>
-                            <!--<span class="heartbeat"></span>-->
+                            <span class="heartbeat"></span>
                         </a>
                         <ul class="dropdown-menu pullDown">
-                            <li class="header">NOTIFICATIONS</li>
+                            <li class="header">NOTIFICAÇÕES</li>
                             <li class="body">
                                 <div style="display: flex; padding-left: 10px ">
                                     <p>Sem notificações</p>
@@ -89,7 +95,26 @@ class TopNavBar extends ViewComponent {
                 </ul>
             </div>
         </div>
-    </nav>    
+    </nav>
+    
+    <style id="thisIsMenuStyle">
+
+        .ring-ball-top-nav-bar::before {
+            content: attr(counter);
+            position: absolute;
+            margin-left: 17px;
+            margin-top: 5px;
+            background: #c859599c;
+            color: white;
+            width: 20px;
+            text-align: center;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+    </style>
+    
     `;
 
     constructor() {
@@ -98,7 +123,7 @@ class TopNavBar extends ViewComponent {
     }
 
     stAfterInit() {
-        console.log(`SERVICE ON TOP MENU: `, this.processService);
+        console.log(`TIPE OF IS: `, this.processoService);
     }
 
     gotoView(viewComponent) {
@@ -149,5 +174,3 @@ class TopNavBar extends ViewComponent {
               */
     }
 }
-
-//const TopNavBar = $still.component.expose(new CTopNavBar());

@@ -1,38 +1,41 @@
 class ProcessosGrid extends ViewComponent {
 
-  roles = Prop()
-  canCreateProcess = Prop(false);
+  /** @Prop */
+  roles;
+
+  /** @Prop */
+  canCreateProcess = false;
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessos;
-  dataTableLabels = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-file-alt'></i>",
-        width: 20,
-      },
-      { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
-      { title: "Referência", field: "ref", sorter: "string" },
-      { title: "Assunto", field: "assunto", sorter: "string" },
-      { title: "Área", field: "area", sorter: "string" },
-      { title: "Instituição", field: "instituicao", sorter: "string" },
-      { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
-      { title: "Cliente", field: "cliente", sorter: "string" },
-      { title: "Gestor", field: "gestor", sorter: "string" },
-      { title: "Data Cadastro", field: "data_registo", sorter: "string" },
-      { title: "Data Suspensão", field: "data_suspensao", sorter: "string" },
-      { title: "Data Encerramento", field: "data_encerramento", sorter: "string" },
-    ])
-  );
+
+  /** @Prop */
+  dataTableLabels = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='fa fa-pen'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-file-alt'></i>",
+      width: 20,
+    },
+    { title: "Estado", field: "estado", sorter: "string", width: 100 },
+    { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
+    { title: "Referência", field: "ref", sorter: "string" },
+    { title: "Assunto", field: "assunto", sorter: "string" },
+    { title: "Área", field: "area", sorter: "string" },
+    { title: "Instituição", field: "instituicao", sorter: "string" },
+    { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
+    { title: "Cliente", field: "cliente", sorter: "string" },
+    { title: "Gestor", field: "gestor", sorter: "string" },
+    { title: "Data Cadastro", field: "data_registo", sorter: "string" },
+    { title: "Data Suspensão", field: "data_suspensao", sorter: "string" },
+    { title: "Data Encerramento", field: "data_encerramento", sorter: "string" },
+  ];
 
 
   template = `

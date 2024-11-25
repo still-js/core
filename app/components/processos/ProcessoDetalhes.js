@@ -1692,23 +1692,26 @@ class ProcessoDetalhes extends ViewComponent {
     )
     .reduce((accum, val) => accum + val);
 
-    let payloadItems = {
+    let payload = {
       'processo_id': this.id.value,
       'cliente_id': this.clienteId.value,
       'colaborador_id':  this.userLogged.value.id,
       'horas': totalHoras,
       'custo': totalFactura,
       'status': 'pendente',
-      'items': [...data]
+      'items': data.map((item) => ({
+          "processos_timesheet_id": item.id,
+          "horas": parseFloat(cleanHorasValue(item.qtd)),
+          "custo": parseFloat(cleanMoedaValue(item.custo)),
+          "dados_adicionais": JSON.stringify(item)
+      }))
 
     }
 
-    console.log("payload a salvar ", payloadItems)
-
-    return 0;
+    AppTemplate.showLoading();
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo",
+      "http://localhost:3000/api/v1/processo_factura",
       JSON.stringify(payload),
       {
           headers: {
@@ -1717,35 +1720,33 @@ class ProcessoDetalhes extends ViewComponent {
       }
   )
       .then((response) => {
+        AppTemplate.hideLoading();
           if (response.status !== 201) {
               if (response.message) {
-                  alert(response.message);
+                  AppTemplate.toast({ status: 'error', message: response.message })
               } else {
-                  alert(JSON.stringify(response.errors));
+                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
               }
-          } else {
-              alert("Salvo com sucesso");
-              //AppTemplate.get().store('logged', true);
-              Router.goto("ProcessoDetalhes", {
-                  data: response.data.id,
-              });
-              // aonde guardar os dados do user logado com seguranca
+          } else {            
+
+            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+            let dataResponse = response.data
+            this.showFactura = true;
+
+            const invoiceNum = Math.random().toString().split('.')[1];
+            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+            this.facturaProxy.setNomeDocliente(this.cliente.value);
+            this.facturaProxy.setTotalFactura(totalFactura);
+            this.facturaProxy.itensFactura = data;
+
           }
       })
       .catch((err) => {
-          console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'error', message: err.message })
       });
 
-    
-
-
-    this.showFactura = true;
-
-    const invoiceNum = Math.random().toString().split('.')[1];
-    this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5));
-    this.facturaProxy.setNomeDocliente(this.cliente.value);
-    this.facturaProxy.setTotalFactura(totalFactura);
-    this.facturaProxy.itensFactura = data;
 
   }
 

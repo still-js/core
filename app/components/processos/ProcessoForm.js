@@ -114,6 +114,9 @@ class ProcessoForm extends ViewComponent {
         },
     ];
 
+   /** @type { STForm } */
+   processoForm;
+
     template = `
     <section class="content">
     <div class="row clearfix">
@@ -125,7 +128,7 @@ class ProcessoForm extends ViewComponent {
             </div>
             <div class="card">
                 <div class="body" style="margin-top: -55px;">
-                    <form id="wizard_with_validatio" onsubmit="javascript: return false;">
+                    <form id="wizard_with_validatio" (formRef)="processoForm" onsubmit="javascript: return false;">
                             <h3 style="background-color: #009688;
                                         padding: 15px;
                                         color: #fff;">
@@ -139,7 +142,10 @@ class ProcessoForm extends ViewComponent {
                                             <i class="material-icons">note</i> Assunto
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="assunto"
+                                            <input 
+                                            (required)="true"
+                                            (validator)="text" 
+                                            type="text" class="form-control date" (value)="assunto"
                                                 placeholder="assunto">
                                         </div>
                                     </div>
@@ -152,7 +158,10 @@ class ProcessoForm extends ViewComponent {
                                             <i class="material-icons">group</i> Área
                                         </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="area"
+                                            <input 
+                                            (required)="true"
+                                            (validator)="text" 
+                                            type="text" class="form-control date" (value)="area"
                                                 placeholder="área">
                                         </div>
                                     </div>
@@ -163,7 +172,10 @@ class ProcessoForm extends ViewComponent {
                                         <i class="material-icons">today</i> Contra Parte
                                     </span>
                                     <div class="form-line">
-                                        <input type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
+                                        <input 
+                                        (required)="true"
+                                        (validator)="text" 
+                                        type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
                                     </div>
                                 </div>
                             </div>
@@ -177,6 +189,8 @@ class ProcessoForm extends ViewComponent {
                                             <select 
                                                 (change)="updateFase($event)" 
                                                 (value)="fase"
+                                                (required)="true"
+                                                
                                                 >
                                                 <option value="" disabled selected>Selecione a fase
                                                 </option>
@@ -192,7 +206,9 @@ class ProcessoForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Instituição
                                         </span>
-                                    <select (change)="updateInstituicao($event)" (value)="instituicaoId" (forEach)="listInstituicao">
+                                    <select
+                                    (required)="true"
+                                    (change)="updateInstituicao($event)" (value)="instituicaoId" (forEach)="listInstituicao">
                                         <option each="item" value="">Selecione uma opção</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
@@ -244,7 +260,9 @@ class ProcessoForm extends ViewComponent {
                                             <i class="material-icons">date_range</i> Data de registo
                                         </span>
                                         <div class="form-line">
-                                            <input type="date" id="dataRegistoInput" (change)="updateDataRegisto($event)" class="form-control date" (value)="dataRegisto">
+                                            <input 
+                                            (required)="true"
+                                            type="date" id="dataRegistoInput" (change)="updateDataRegisto($event)" class="form-control date" (value)="dataRegisto">
                                         </div>
                                     </div>
                                 </div>
@@ -254,7 +272,9 @@ class ProcessoForm extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="material-icons">person</i> Modo de Facturação
                                     </span> 
-                                    <select (change)="updateModoFacturacao($event)" (value)="modoFacturacaoId" (forEach)="listModoFacturacao">
+                                    <select
+                                    (required)="true"
+                                    (change)="updateModoFacturacao($event)" (value)="modoFacturacaoId" (forEach)="listModoFacturacao">
                                         <option each="item" value="">Selecione uma opção</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>

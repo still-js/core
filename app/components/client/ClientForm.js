@@ -86,6 +86,8 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
+                                                    (required)="true"
+                                                    (validator)="text"
                                                     type="text" 
                                                     class="form-control date" 
                                                     (value)="denominacao" 
@@ -134,6 +136,8 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
+                                                    (required)="true"
+                                                    (validator)="text"
                                                     type="text" 
                                                     class="form-control date" 
                                                     (value)="pessoaContacto" 
@@ -157,6 +161,7 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
+                                                    (required)="true"
                                                     type="text" 
                                                     class="form-control date" 
                                                     (value)="contactoCobranca" 
@@ -171,6 +176,8 @@ class ClientForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
+                                                    (required)="true"
+                                                    (validator)="email"
                                                     type="text" 
                                                     class="form-control date" 
                                                     (value)="e_mail" 

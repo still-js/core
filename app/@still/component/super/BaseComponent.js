@@ -953,55 +953,55 @@ class BaseComponent extends BehaviorComponent {
         const cmp = this;
         const cmpName = this.constructor.name;
 
-        /* if (cmpName in Components.processedAnnotations) {
+        if (cmpName in Components.processedAnnotations) {
 
-            const annotations = Object.entries(Components.processedAnnotations);
+            const annotations = Object.entries(Components.processedAnnotations[cmpName]);
             for (const [propertyName, annotation] of annotations) {
-
                 if (annotation?.propParsing) {
-                    let service = ComponentSetup.get()?.services?.get(annotation?.type);
-                    cmp.#handleServiceInjection(cmp, propertyName, annotation?.type, service);
+                    if (annotation?.inject) {
+                        let service = ComponentSetup.get()?.services?.get(annotation?.type);
+                        cmp.#handleServiceInjection(cmp, propertyName, annotation?.type, service);
+                    }
                     cmp.#annotations.set(propertyName, annotation);
                 }
-
             }
 
-        } else { */
+        } else {
 
-        const classDefinition = this.constructor.toString();
-        const re = Components.parseAnnottationRE();
+            const classDefinition = this.constructor.toString();
+            const re = Components.parseAnnottationRE();
 
-        classDefinition.replace(new RegExp(re, 'g'), async (mt) => {
+            classDefinition.replace(new RegExp(re, 'g'), async (mt) => {
 
-            /**
-             * If statement is in place to not parse skip method 
-             * parsing when it finds a comment annotation
-             */
-            if (!mt.includes('(')) {
-                const commentEndPos = mt.indexOf('*/') + 2;
-                const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
+                /**
+                 * If statement is in place to not parse skip method 
+                 * parsing when it finds a comment annotation
+                 */
+                if (!mt.includes('(')) {
+                    const commentEndPos = mt.indexOf('*/') + 2;
+                    const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
 
-                let inject, proxy, prop, propParsing, type;
-                if (propertyName != '') {
+                    let inject, proxy, prop, propParsing, type;
+                    if (propertyName != '') {
 
-                    const result = Components.processAnnotation(mt, propertyName);
-                    inject = result.inject;
-                    prop = result.prop;
-                    proxy = result.proxy;
-                    type = result.type;
-                    propParsing = result.propParsing;
+                        const result = Components.processAnnotation(mt, propertyName);
+                        inject = result.inject;
+                        prop = result.prop;
+                        proxy = result.proxy;
+                        type = result.type;
+                        propParsing = result.propParsing;
 
-                    if (inject) {
-                        let service = ComponentSetup.get()?.services?.get(type);
-                        cmp.#handleServiceInjection(cmp, propertyName, type, service);
+                        if (inject) {
+                            let service = ComponentSetup.get()?.services?.get(type);
+                            cmp.#handleServiceInjection(cmp, propertyName, type, service);
+                        }
                     }
+                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+
                 }
-                cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+            });
 
-            }
-        });
-
-        //}
+        }
 
         this.wasAnnotParsed = true;
 
@@ -1014,7 +1014,9 @@ class BaseComponent extends BehaviorComponent {
 
             on: async (_, action) => {
 
-                if (cmp[propertyName]?.ready) {
+                if (
+                    cmp[propertyName]?.ready
+                    && cmp[propertyName]?.status == $stillconst.A_STATUS.DONE) {
                     await action();
                     return;
                 }
@@ -1033,7 +1035,10 @@ class BaseComponent extends BehaviorComponent {
                 }
 
                 tempObj.status = $stillconst.A_STATUS.PENDING;
-                tempObj.subscribers?.forEach(async (action) => await action());
+                tempObj.subscribers?.forEach(async (action) => {
+                    await action()
+                    tempObj.subscribers?.shift();
+                });
             }
 
         }

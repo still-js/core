@@ -980,34 +980,30 @@ class Components {
         setTimeout(() => {
 
             const routes = routesMap.viewRoutes.lazyInitial;
-            console.time('PARSING');
             const cmps = Object.keys(routesMap.viewRoutes.lazyInitial);
 
             for (const cmp of cmps) {
 
                 const script = $stillLoadScript(routes[cmp], cmp, './');
-                script.onload = function () {
+                if (script) {
 
-                    try {
-                        console.log(`LOADED SCRIPT WITH NAME: `, cmp);
-                        eval(`${cmp}`).toString().replace(new RegExp(re, 'g'), async (mt) => {
-                            const {
-                                type, inject, proxy, prop, propParsing, propertyName
-                            } = Components.processAnnotation(mt);
-                            Components.registerAnnotation(cmp, propertyName, {
-                                type, inject, proxy, prop, propParsing
+                    script.onload = function () {
+
+                        try {
+                            eval(`${cmp}`).toString().replace(new RegExp(re, 'g'), async (mt) => {
+                                const {
+                                    type, inject, proxy, prop, propParsing, propertyName
+                                } = Components.processAnnotation(mt);
+                                Components.registerAnnotation(cmp, propertyName, {
+                                    type, inject, proxy, prop, propParsing
+                                });
                             });
-                        });
-                    } catch (error) {
-                        console.log(`ERROR ON LOADING SCRIPT: `, error);
+                        } catch (error) { }
+
                     }
-
+                    document.head.insertAdjacentElement('beforeend', script);
                 }
-                document.head.insertAdjacentElement('beforeend', script);
             };
-            console.log(`PROCESS ANNOT: `, Components.processedAnnotations);
-            console.timeEnd('PARSING')
-
         });
 
     }

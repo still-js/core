@@ -3,6 +3,7 @@ class Router {
     #data = {};
     static instance = null;
     static appPlaceholder = $stillconst.APP_PLACEHOLDER;
+    static initRouting = false;
 
     /** @returns { Router } */
     static getInstance() {
@@ -16,6 +17,7 @@ class Router {
     static init() {
         ComponentSetup.get().loadComponent();
         AppTemplate.get().storageSet('stAppInitStatus', true);
+        Router.initRouting = true;
         //localStorage.setItem('stAppInitStatus', true);
     }
 
@@ -33,7 +35,7 @@ class Router {
      * @param {{data, path}} param1 
      */
     static goto(cmp, { data = {} } = { data: {} }) {
-
+        Router.initRouting = false;
         Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
         /**
          * The or (||) conditions serves to mount the application 
@@ -50,6 +52,7 @@ class Router {
         ) {
             ComponentSetup.get().loadComponent();
             AppTemplate.get().storageSet('stAppInitStatus', true);
+            Router.initRouting = true;
             //localStorage.setItem('stAppInitStatus', true);
         }
 
@@ -241,6 +244,7 @@ class Router {
                 if (!Components.checkStInit(cmp.constructor.name))
                     setTimeout(async () => await cmp.stAfterInit(), 200);
 
+                console.log(`FOUTING FLAG: `, Router.initRouting);
                 /**
                  * Load component parts or sub-components inside the main loaded component
                  * if(!Components.stAppInitStatus) is to prevent compoenent parts Parsing
@@ -249,8 +253,9 @@ class Router {
                  * by already calling Components.handleInPlaceParts($still.context.currentView))
                  */
                 if (
-                    !Components.stAppInitStatus
-                    || AppTemplate.get().storageGet('stAppInitStatus')
+                    (!Components.stAppInitStatus
+                        || AppTemplate.get().storageGet('stAppInitStatus'))
+                    && !Router.initRouting
                 )
                     Components.handleInPlaceParts(cmp);
                 else {

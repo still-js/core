@@ -841,7 +841,7 @@ class BaseComponent extends BehaviorComponent {
 
             const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
             parentCmp[proxy] = { on: () => { } };
-            console.log(`PROXY ON THE OTHER SIDE: `, proxy);
+
             const props = {};
             Object.entries(propMapper).forEach(([prop, val]) => {
                 props[prop] = val;
@@ -1009,15 +1009,24 @@ class BaseComponent extends BehaviorComponent {
 
     #handleServiceInjection(cmp, propertyName, type, service) {
 
-        //cmp[propertyName]['subscribers'] = [];
+        /**
+         * This is because first time service is instantiated it is assigned assynchronously
+         * By the time the assignment is taking place it might happen that the template parsing
+         * did initiate and it can again go over property parsin
+         */
+        if (cmp[propertyName]?.assigned) return;
+
         const tempObj = {
 
             on: async (_, action) => {
 
+                const svcInstance = Components.get().services.get(type);
                 if (
-                    cmp[propertyName]?.ready
-                    && cmp[propertyName]?.status == $stillconst.A_STATUS.DONE) {
-                    await action();
+                    (cmp[propertyName]?.ready
+                        && cmp[propertyName]?.status == $stillconst.A_STATUS.DONE)
+                    || svcInstance
+                ) {
+                    await action(svcInstance);
                     return;
                 }
 
@@ -1027,7 +1036,7 @@ class BaseComponent extends BehaviorComponent {
                 tempObj.subscribers.push(action);
             },
 
-            load: () => {
+            load: async () => {
 
                 if (!('status' in tempObj)) {
                     Object.assign(tempObj, { status: $stillconst.A_STATUS.DONE, subscribers: [] });
@@ -1036,20 +1045,26 @@ class BaseComponent extends BehaviorComponent {
 
                 tempObj.status = $stillconst.A_STATUS.PENDING;
                 tempObj.subscribers?.forEach(async (action) => {
-                    await action()
+                    const svcInstance = Components.get().services.get(type);
+                    await action(svcInstance);
                     tempObj.subscribers?.shift();
                 });
-            }
+            },
+            assigned: true
 
         }
 
         cmp[propertyName] = tempObj;
 
-        if (service) handleServiceAssignement(service);
+        if (service) {
+            handleServiceAssignement(service);
+            return;
+        }
 
         const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
 
         if (!document.getElementById(servicePath)) {
+
             const script = document.createElement('script');
             [script.src, script.id] = [servicePath, servicePath];
             script.onload = async function () {
@@ -1057,13 +1072,13 @@ class BaseComponent extends BehaviorComponent {
                 const service = eval(`new ${type}()`);
                 ComponentSetup.get()?.services?.set(type, service);
                 handleServiceAssignement(service);
-                Components.emitAction(cmp.constructor.name);
+                Components.emitAction(type);
             }
             document.head.insertAdjacentElement('beforeend', script);
 
         } else {
             Components.subscribeAction(
-                cmp.constructor.name,
+                type,
                 () => {
                     const service = ComponentSetup.get()?.services?.get(type);
                     handleServiceAssignement(service);

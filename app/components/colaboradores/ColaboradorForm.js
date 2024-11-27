@@ -83,12 +83,17 @@ class ColaboradorForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">person</i> Tipo de colaborador
                                         </span>
-                                        <select id="select-tipo-colaborador" (change)="updateTipoColaborador($event)" (value)="tipo_colaborador_id">
+                                        <select 
+                                            (required)="true" 
+                                            id="select-tipo-colaborador" 
+                                            (change)="updateTipoColaborador($event)"
+                                            (value)="tipo_colaborador_id"
+                                        >
                                             <option 
-                                            (required)="true"                                            
-                                            value="" 
-                                            disabled 
-                                            selected>Selecione o tipo de colaborador</option>
+                                                value="" 
+                                                disabled 
+                                                selected>Selecione o tipo de colaborador
+                                            </option>
                                             <option value="1">Administrativo</option>
                                             <option value="2">Advogado - Júnior</option>
                                             <option value="3">Advogado - Sénior</option>
@@ -103,8 +108,12 @@ class ColaboradorForm extends ViewComponent {
                                 <span class="input-group-addon">
                                     <i class="material-icons">person</i> Categoria
                                 </span>
-                                <select (change)="updateTipoCategoria($event)" (value)="funcao">
-                                    <option  (required)="true" value="" disabled selected>Selecione uma categoria</option>
+                                <select  
+                                        (required)="true" 
+                                        (change)="updateTipoCategoria($event)" 
+                                        (value)="funcao"
+                                >
+                                    <option  value="" disabled selected>Selecione uma categoria</option>
                                     <option value="administrativo">Administrativo</option>
                                     <option value="adv_junior">Júnior</option>
                                     <option value="adv_senior">Sénior</option>
@@ -144,12 +153,13 @@ class ColaboradorForm extends ViewComponent {
                                         </span>
                                         <div class="form-line">
                                             <input 
-                                             (required)="true"
-                                            (validator)="text"
-                                            type="text" 
-                                            class="form-control date" 
-                                            (value)="username" 
-                                            placeholder="Nome de Usuário">
+                                                (required)="true"
+                                                (validator)="text"
+                                                type="text" 
+                                                class="form-control date" 
+                                                (value)="username" 
+                                                placeholder="Nome de Usuário"
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -180,7 +190,12 @@ class ColaboradorForm extends ViewComponent {
                                         <i class="material-icons">mail</i> E-mail Corporativo
                                     </span>
                                 <div class="form-line">
-                                <input type="text" class="form-control date" (value)="contactos_email_corporativo" placeholder="e-mail corporativo">
+                                    <input 
+                                        type="text" 
+                                        class="form-control date" 
+                                        (value)="contactos_email_corporativo" 
+                                        placeholder="e-mail corporativo"
+                                    >
                                 </div>
                                 </div>
                             </div>
@@ -191,8 +206,13 @@ class ColaboradorForm extends ViewComponent {
                                 <i class="material-icons">phone</i> Contacto Pessoal
                             </span>
                         <div class="form-line">
-                        <input  (required)="true"
-                        type="text" class="form-control date" (value)="contactos_telefone_pessoal" placeholder="contacto pessoal">
+                            <input  
+                                (required)="true"
+                                type="text" 
+                                class="form-control date" 
+                                (value)="contactos_telefone_pessoal" 
+                                placeholder="contacto pessoal"
+                            >
                         </div>
                         </div>
                             </div>
@@ -202,7 +222,12 @@ class ColaboradorForm extends ViewComponent {
                                         <i class="material-icons">phone</i>Contacto de Emergência
                                     </span>
                                 <div class="form-line">
-                                    <input type="text" class="form-control date" (value)="contactos_telefone_emergencia" placeholder="contacto de emergenciaio">
+                                    <input 
+                                        type="text" 
+                                        class="form-control date" 
+                                        (value)="contactos_telefone_emergencia" 
+                                        placeholder="contacto de emergenciaio"
+                                    >
                             </div>
                                 </div>
                             </div>
@@ -212,7 +237,12 @@ class ColaboradorForm extends ViewComponent {
                                         <span class="input-group-addon">
                                             <i class="material-icons">room</i> Endereço :   </span>
                                         <div class="form-line">
-                                            <input type="text" class="form-control date" (value)="contactos_telefone_endereco" placeholder="Cidade, Bairro - casa n.º">
+                                            <input 
+                                                type="text" 
+                                                class="form-control date" 
+                                                (value)="contactos_telefone_endereco" 
+                                                placeholder="Cidade, Bairro - casa n.º"
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -231,8 +261,13 @@ class ColaboradorForm extends ViewComponent {
                                             </span>
                                             <div class="form-line">
                                                 <input 
-                                                
-                                                id="input-taxa-horaria" type="numeric" class="form-control date" (value)="taxa_horaria" placeholder="0,00kz/h">
+                                                   (required)="true"
+                                                   id="input-taxa-horaria" 
+                                                   type="numeric" 
+                                                   class="form-control date" 
+                                                   (value)="taxa_horaria" 
+                                                   placeholder="0,00kz/h"
+                                                >
                                             </div>
                                         </div>
                                     </div>
@@ -256,8 +291,13 @@ class ColaboradorForm extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="far fa-id-card"></i> N.º de Identificação :   </span>
                                     <div class="form-line">
-                                    <input  (required)="true"
-                                    type="text" class="form-control" (value)="identificacoes_bi" placeholder="n.º identificação">
+                                    <input  
+                                            (required)="true"
+                                            type="text" 
+                                            class="form-control" 
+                                            (value)="identificacoes_bi" 
+                                            placeholder="n.º identificação"
+                                    >
                                     </div>
                                 </div>
                             </div>
@@ -277,7 +317,13 @@ class ColaboradorForm extends ViewComponent {
                                     <span class="input-group-addon">
                                     <i class="far fa-id-card"></i>  N.º de Identificação :   </span>
                                     <div class="form-line">
-                                    <input type="text" class="form-control" (value)="identificacoes_cedula" placeholder="n.º identificação">
+                                    <input 
+                                        (required)="true"    
+                                        type="text" 
+                                        class="form-control" 
+                                        (value)="identificacoes_cedula" 
+                                        placeholder="n.º identificação"
+                                    >
                                     </div>
                                 </div>
                             </div>
@@ -380,7 +426,11 @@ class ColaboradorForm extends ViewComponent {
             },
         };
 
-        if (this.isValidInputForm()) {
+        const isValidForm = this.colaboradorForm.validate();
+
+        if (isValidForm) {
+
+            AppTemplate.showLoading();
 
             $still.HTTPClient.post(
                 "http://localhost:3000/api/v1/colaborador",
@@ -392,25 +442,22 @@ class ColaboradorForm extends ViewComponent {
                 }
             )
                 .then((response) => {
-                    console.log(`colaborador criado com sucesso: `, response);
-                    console.log(`login criado com sucesso: `, response);
                     if (response.status !== 201) {
-                        AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-                        // Router.goto('Init');
+                        AppTemplate.hideLoading();
+                        AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
                     } else {
-                        AppTemplate.toast({ status: 'success', message: 'Colaborador salvo com Sucesso!' })
+                        AppTemplate.hideLoading();
+                        AppTemplate.toast({ status: 'Sucesso!', message: 'Colaborador salvo com Sucesso!' })
                         Router.goto('ColaboradoresGrid');
-                       
                     }
                 })
                 .catch((err) => {
-                    console.log(`Erro ao cadastrar colaborador: `, err);
-                    AppTemplate.toast({ status: 'error', message: err.message })
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Aviso', message: err.message })
                 });
-
-
+        }else{
+            AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
         }
-
     }
 
     updateTipoColaborador(evt) {
@@ -429,10 +476,6 @@ class ColaboradorForm extends ViewComponent {
     }
     updateStatus(evt) {
         this.status = evt.target.value;
-    }
-
-    isValidInputForm() {
-        return true
     }
 
     stAfterInit() {

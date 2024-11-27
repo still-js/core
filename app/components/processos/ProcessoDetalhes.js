@@ -1586,7 +1586,6 @@ class ProcessoDetalhes extends ViewComponent {
         console.log(`Erro ao cadastrar processo: `, err);
       });
 
-
   }
 
 

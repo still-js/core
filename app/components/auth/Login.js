@@ -28,11 +28,15 @@ class Login extends ViewComponent {
                     </span>
                     
                     <div class="wrap-input100">
-                        <input class="input100" autofocus type="text" (value)="username" placeholder="usuario">
+                        <input 
+                        required
+                        class="input100" autofocus type="text" (value)="username" placeholder="usuario">
                     </div>
                     
                     <div class="wrap-input100 validate-input" data-validate="Password is required">
-                        <input class="input100" type="password" (value)="password" placeholder="senha">
+                        <input 
+                        required
+                        class="input100" type="password" (value)="password" placeholder="senha">
                     </div>
 
                     <div class="flex-sb-m w-full p-t-15 p-b-20">
@@ -63,6 +67,8 @@ class Login extends ViewComponent {
     }
 
     logar() {
+
+        AppTemplate.showLoading();
 
         const payload = {
             username: this.username.value,
@@ -99,10 +105,13 @@ class Login extends ViewComponent {
                 })
                 .catch((err) => {
                     console.log(`Erro ao login colaborador: `, err);
+                    AppTemplate.hideLoading();
                     alert(err);
                 });
         } else {
-            alert("Campo usuário e/ou senha, devem ser preenchidos")
+            // AppTemplate.toast({ status: 'error', message: 'usuário e/ou senha, devem ser preenchidos' })
+            
+            AppTemplate.hideLoading();
         }
     }
 

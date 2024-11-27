@@ -917,9 +917,12 @@ class Components {
     }
 
     static emitAction(actonName) {
+        if (!(actonName in Components.subscriptions)) {
+            Components.subscriptions[actonName] = { status: $stillconst.A_STATUS.DONE };
+        }
 
         if (actonName in Components.subscriptions) {
-            Components.subscriptions[actonName].actions.forEach(action => action());
+            Components.subscriptions[actonName].actions?.forEach(async action => await action());
             Components.subscriptions[actonName].status = $stillconst.A_STATUS.DONE;
         }
     }

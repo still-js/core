@@ -1,11 +1,11 @@
 class TopNavBar extends ViewComponent {
 
     htmlRefId = "topNavBar";
-    totalNotifications = 19;
+    totalNotifications = 0;
 
     /**
      * @Inject
-     * @type { ProcessoService }
+     * @type { ProcessoService } }
      */
     processoService;
 
@@ -47,6 +47,8 @@ class TopNavBar extends ViewComponent {
                             class="dropdown-toggle ring-ball-top-nav-bar" 
                             data-toggle="dropdown"
                             counter="@totalNotifications"
+                            data-display="none"
+                            id="toMenuBarTotalNotification"
                             role="button">
                             <i class="nav-hdr-btn ti-bell"></i>
                             <span class="notify"></span>
@@ -54,12 +56,7 @@ class TopNavBar extends ViewComponent {
                         </a>
                         <ul class="dropdown-menu pullDown">
                             <li class="header">NOTIFICAÇÕES</li>
-                            <li class="body">
-                                <div style="display: flex; padding-left: 10px ">
-                                    <p>Sem notificações</p>
-                                </div>
-                                <!--<ul class="menu">
-                                </ul>-->
+                            <li class="body" style="width: 100%;" id="toMenuBarListaNotification">
                             </li>
                             <li class="footer">
                                 <a href="#" (click)="gotoView('UserNotification')">Ver todas as Notificações</a>
@@ -99,8 +96,17 @@ class TopNavBar extends ViewComponent {
     
     <style id="thisIsMenuStyle">
 
+        :root{
+            --display: none;
+        }
+
+        .notify, .heartbeat {
+            display: var(--display);
+        }
+
         .ring-ball-top-nav-bar::before {
             content: attr(counter);
+            display: var(--display);
             position: absolute;
             margin-left: 17px;
             margin-top: 5px;
@@ -113,17 +119,81 @@ class TopNavBar extends ViewComponent {
             font-weight: bold;
         }
 
+        
+        #toMenuBarListaNotification .notification-late-task {
+                background: #d011112e !important;
+                color: red !important;
+                font-weight: 600;
+        }
+
+        #toMenuBarListaNotification .task-item {
+            border-top: 1px solid #8080803d;
+            display: flex; 
+            justify-content: space-between; 
+            padding: 0 10px 0 10px; 
+        }
+        
+        #toMenuBarListaNotification .task-item:nth-child(odd) {
+            background: #8080801c;
+        }
+
     </style>
     
     `;
 
-    constructor() {
-        super();
-        console.log(`instantiated top nav bar added plus`);
+
+    async stAfterInit() {
+
+        this.processoService.on('load', async () => {
+            const notifications = await this.processoService.getTarefaByColaboradorId();
+            this.parseAndDisplayNotifications(notifications);
+        });
     }
 
-    stAfterInit() {
-        console.log(`TIPE OF IS: `, this.processoService);
+    parseAndDisplayNotifications(notifications) {
+
+        let listaNotificacoes = `
+            <div style="display: flex; padding-left: 10px ">
+                <p>Sem notificações</p>
+            </div>`;
+
+        const totalNotif = notifications.length;
+        if (totalNotif) {
+
+            document.getElementById('toMenuBarTotalNotification').setAttribute('counter', totalNotif);
+            document.documentElement.style.setProperty('--display', 'block');
+            listaNotificacoes = notifications.map(r => {
+
+                let textComplement = '1 Dia';
+                let lateTaskClass = '';
+                if (r.dias_em_falta < 0) {
+                    textComplement = `${r.dias_em_falta.toString().slice(1)} Atrás`;
+                    lateTaskClass = `notification-late-task`;
+                }
+
+                if (r.dias_em_falta > 0) {
+                    textComplement = `Em ${r.dias_em_falta} Dias`;
+                }
+
+                return `
+                <div class="task-item ${lateTaskClass}">
+                    <div>
+                        ${r.descricao.slice(0, 30)}
+                    </div>
+                    <div>
+                        ${textComplement}
+                    </div>
+                </div>
+            `;
+
+            })?.join('');
+
+        }
+
+        document
+            .getElementById('toMenuBarListaNotification')
+            .insertAdjacentHTML('afterbegin', listaNotificacoes);
+
     }
 
     gotoView(viewComponent) {
@@ -132,45 +202,8 @@ class TopNavBar extends ViewComponent {
 
     logout() {
 
-        console.log("clear");
-
         localStorage.clear();
-
-        Router.goto("init");
-
-        //setTimeout(() => {
         Router.goto("exit");
-        //}, 1000)
 
-        /*if (this.isValidatedInputForm()) {
-          $still.HTTPClient.post(
-              "http://localhost:3000/api/v1/login",
-              JSON.stringify(payload),
-              {
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-              }
-          )
-              .then((response) => {
-                  console.log(`login criado com sucesso: `, response);
-                  if(response.status !== 200) {
-                          alert(response.errors);
-                          Router.goto('Init');
-                  }else{
-                      localStorage.setItem('_user', JSON.stringify(response.data));
-                      localStorage.setItem('logged', true);
-                      alert("Bem-vindo (a), a plataforma JuLAW")
-                      AppTemplate.get().store('logged', true);
-                      //Router.goto('Home');                        
-                      Router.goto('ColaboradorDashboard');                        
-                      // aonde guardar os dados do user logado com seguranca
-                  }
-    
-              })
-              .catch((err) => {
-                  console.log(`Erro ao login colaborador: `, err);
-              });
-              */
     }
 }

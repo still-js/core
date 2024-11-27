@@ -394,12 +394,17 @@ class ProcessoForm extends ViewComponent {
             "dataEmissaoFactura": this.dataEmissaoFactura.value,
         };
 
-        if(this.formProcessoValidade()) {  
+        const isValidForm = this.processoForm.validate();
+
+        if(isValidForm) { 
+            AppTemplate.showLoading(); 
             if (this.id.value !== "") {
                 this.updateProcesso(payload)
             } else {
                 this.saveProcesso(payload)
             }
+        }else{
+            AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
         }
     }
 
@@ -437,23 +442,23 @@ class ProcessoForm extends ViewComponent {
                 }
             )
                 .then((response) => {
+                    AppTemplate.showLoading();
                     if (response.status !== 201) {
                         if (response.message) {
-                            alert(response.message);
+                            AppTemplate.toast({ status: 'Erro', message: response.message })
                         } else {
-                            alert(JSON.stringify(response.errors));
+                            AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
                         }
                     } else {
-                        alert("Salvo com sucesso");
-                        //AppTemplate.get().store('logged', true);
+                        AppTemplate.toast({ status: 'Sucesso', message: 'Proceso salvo com sucesso!' })
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.id,
                         });
-                        // aonde guardar os dados do user logado com seguranca
                     }
                 })
                 .catch((err) => {
-                    console.log(`Erro ao cadastrar processo: `, err);
+                    AppTemplate.showLoading();
+                    AppTemplate.toast({ status: 'Erro', message: err })
                 });
         }
     }
@@ -473,17 +478,17 @@ class ProcessoForm extends ViewComponent {
             )
                 .then((response) => {
                     if (response.status !== 200) {
-                        alert(response.errors);
-                        // Router.goto('Init');
+                        AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
                     } else {
-                        alert("Alterações salvas com sucesso");
+                        AppTemplate.toast({ status: 'Sucesso', message: 'Alterações salvas com sucesso' })
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.data[0].id,
                         });
                     }
                 })
                 .catch((err) => {
-                    console.log(`Erro ao cadastrar processo: `, err);
+                    AppTemplate.showLoading();
+                    AppTemplate.toast({ status: 'Erro', message: err })
                 });
         }
     }

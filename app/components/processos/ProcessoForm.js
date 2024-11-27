@@ -457,7 +457,7 @@ class ProcessoForm extends ViewComponent {
                     }
                 })
                 .catch((err) => {
-                    AppTemplate.showLoading();
+                    AppTemplate.hideLoading();
                     AppTemplate.toast({ status: 'Erro', message: err })
                 });
         }
@@ -487,7 +487,7 @@ class ProcessoForm extends ViewComponent {
                     }
                 })
                 .catch((err) => {
-                    AppTemplate.showLoading();
+                    AppTemplate.hideLoading();
                     AppTemplate.toast({ status: 'Erro', message: err })
                 });
         }

@@ -57,6 +57,8 @@ class ProcessoDetalhes extends ViewComponent {
     { code: 3, designacao: 'Cash' },
   ]
 
+  userLogged;
+
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosEquipas;
@@ -847,7 +849,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   getDetalhesProcesso(idProcesso) {
 
-    console.log("lista dos Detalhes do Processo... here ...")
+    AppTemplate.showLoading();
 
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/processo/${idProcesso}`
@@ -855,14 +857,14 @@ class ProcessoDetalhes extends ViewComponent {
       if (r.status === 200) {
         try {
 
-          console.log("here... ", r.data[0])
-
           this.populateAttributes(r.data[0]);
           this.getListColaboradores();
           this.getListPrecedentes();
+          AppTemplate.hideLoading();
 
         } catch (e) {
-          console.log("fn populates attributes", e);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: e })
         }
       }
     });
@@ -1041,16 +1043,16 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
         if (response.status !== 200) {
-          alert(response.errors);
+          AppTemplate.toast({ status: 'Sucesso', message: response.errors })
         } else {
-          alert("Salvo com sucesso");
+          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
         }
       })
       .catch((err) => {
-        alert(err.message)
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: err })
       });
   }
-
 
   setValueById(id, value) {
     document.getElementById(id).value = value
@@ -1060,7 +1062,6 @@ class ProcessoDetalhes extends ViewComponent {
     return document.getElementById(id).value
   }
 
-  qeuipaSelectedColaborador;
   updateEquipasProcesso(evt) {
     this.equipaInput = evt.target.value;
     const e = document.getElementById("qeuipaSelectedColaborador");
@@ -1070,7 +1071,6 @@ class ProcessoDetalhes extends ViewComponent {
   updatePrecedentes(evt) {
     this.precedenteInput = evt.target.value;
   }
-
 
   getListColaboradores() {
     $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
@@ -1126,6 +1126,8 @@ class ProcessoDetalhes extends ViewComponent {
   /** Function Save */
   async addEquipaProcesso(idForm) {
 
+    AppTemplate.showLoading();
+
     const equipa = this.equipaInput.value;
 
     const payload = {
@@ -1143,12 +1145,13 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log(`processo criado com sucesso: `, response);
         if (response.status !== 201) {
-          console.log(response)
-          console.log(response.errors);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
         } else {
-          console.log("Salvo com sucesso");
+
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
           this.toggleForms(idForm);
 
           const dados = this.qeuipaSelectedColaborador.value.split('-');
@@ -1158,11 +1161,11 @@ class ProcessoDetalhes extends ViewComponent {
           this.dataTableListProcessosEquipas.insertRow(
             { 'id': equipa, colaborador, funcao }
           );
-          //this.getDetalhesProcesso(this.id.value)
         }
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
   }
@@ -1170,6 +1173,8 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   async addPrecedentesProcesso(idForm) {
+
+    AppTemplate.showLoading();
 
     const precedente = this.precedenteInput.value;
 
@@ -1189,10 +1194,13 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
         if (response.status !== 201) {
-          console.log(response)
-          alert(response.errors);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
         } else {
-          alert("Salvo com sucesso");
+          
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
+          
           this.toggleForms(idForm)
 
           let processoSalvo = this.listPrecedentes.value.filter((processo) => processo.id == precedente)
@@ -1204,13 +1212,16 @@ class ProcessoDetalhes extends ViewComponent {
         }
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
   }
 
 
   addAnexoProcesso(idForm) {
+
+    AppTemplate.showLoading();
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
 
@@ -1237,22 +1248,26 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
         if (response.status !== 201) {
-          console.log(response)
-          alert(response.errors);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
         } else {
-          alert("Salvo com sucesso");
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
           this.toggleForms(idForm)
           this.dataTableListProcessosAnexos.dataSource = response.data
         }
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
   }
 
 
   addTarefaProcesso(idForm) {
+
+    AppTemplate.showLoading();
 
     const tarefa = this.getValueById('input_form_tarefa')
     let inputTarefa = document.getElementById('input_form_tarefa')
@@ -1282,11 +1297,11 @@ class ProcessoDetalhes extends ViewComponent {
         .then((response) => {
           console.log(`processo criado com sucesso: `, response);
           if (response.status !== 200) {
-            console.log(response)
-            alert(response.errors);
+            AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
-            alert("Actualizado com sucesso");
-            console.log("add tarefa processo  ... here ... ", response);
+            AppTemplate.hideLoading();
+            AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
             this.toggleForms(idForm)
             this.dataTableListProcessosTarefas.insertRow(
               { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at': new Date().toLocaleString("PT") },
@@ -1296,10 +1311,13 @@ class ProcessoDetalhes extends ViewComponent {
           }
         })
         .catch((err) => {
-          console.log(`Erro ao cadastrar processo: `, err);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: err })
         });
 
     } else {
+
+      AppTemplate.showLoading();
 
       let idTarefa = inputTarefa.dataset.id
       const payload = {
@@ -1319,11 +1337,12 @@ class ProcessoDetalhes extends ViewComponent {
       )
         .then((response) => {
           if (response.status !== 201) {
-            console.log(response)
-            alert(response.errors);
+            AppTemplate.hideLoading();
+            AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
-            alert("Tarefa adicionada com sucesso");
-            console.log("nava tarefa adicionada ao Processo ... ", response);
+            AppTemplate.hideLoading();
+            AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
+
             this.toggleForms(idForm)
 
             this.dataTableListProcessosTarefas.insertRow(
@@ -1333,7 +1352,8 @@ class ProcessoDetalhes extends ViewComponent {
           }
         })
         .catch((err) => {
-          console.log(`Erro ao cadastrar processo: `, err);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: err })
         });
 
     }
@@ -1358,6 +1378,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerColaboradorProcesso(_, record) {
 
+    AppTemplate.showLoading();
 
     let payload = {
       "type": "colaborador",
@@ -1376,17 +1397,21 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
         console.log("ver anexo processo response >> ", response)
 
-        if (response.status === 200) {
-          alert("Removido com Sucesso!")
+        if (response.status !== 200) {
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
         }
+
         if (response.status === 200) {
-          alert("Removido com Sucesso!")
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
           this.dataTableListProcessosEquipas.removeRow('id', record.id)
         }
 
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
   }
 
@@ -1397,6 +1422,8 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   removerTarefaProcesso(_, record) {
+
+    AppTemplate.showLoading();
 
     let payload = {
       "type": "tarefa",
@@ -1415,19 +1442,23 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
 
         if (response.status === 200) {
-          alert("Removido com Sucesso!")
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
           this.dataTableListProcessosTarefas.removeRow('id', record.id)
         }
 
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
 
   }
 
   concluirTarefaProcesso(_, _col, record) {
+
+    AppTemplate.showLoading(); 
 
     const payload = {
       "status": 1
@@ -1444,20 +1475,25 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
         if (response.status !== 200) {
-          alert(response.errors);
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+
         } else {
-          alert("Actualizado com sucesso a tarefa");
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa concluída com sucesso' })
           this.getDetalhesProcesso(this.id.value)
-          // this.toggleForms(idForm)
         }
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
   }
 
   removerPrecedenteProcesso(_, record) {
+
+    AppTemplate.showLoading();
 
     let payload = {
       "type": "precedente",
@@ -1475,22 +1511,26 @@ class ProcessoDetalhes extends ViewComponent {
     ).then((response) => {
 
       if (response.status === 200) {
-        alert("Processo desassociado com Sucesso!")
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Sucesso', message: 'Processo desassociado com Sucesso!' })
         //this.getDetalhesProcesso(this.id.value)
         this.dataTableListProcessosPrecedentes.removeRow('id', payload.valueId)
       } else {
-        alert("Erro ao desassociar o Processo!")
+         AppTemplate.hideLoading();
+         AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
       }
 
     })
       .catch((err) => {
-        console.log(`Erro ao associar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
   }
 
 
 
   downalodAnexoProcesso(_, record) {
+    AppTemplate.showLoading();
 
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
@@ -1503,27 +1543,33 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
         console.log("ver anexo processo response >> ", response)
 
+        AppTemplate.hideLoading();
         if (response.status === 200) {
 
           let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
           const link = document.createElement('a');
           link.setAttribute("target", '_blank');
+          //link.setAttribute("download", response.data.fileName);
           link.href = `${pathDownload}/${response.data.fileName}`;
-          link.download = 'Processo Anexo';
+          link.download = `Processo anexo _ ${response.data.fileName}`;
+          link.id = `download_processo`;
           document.body.appendChild(link);
           console.log("o link do download ", link)
-          link.click();
-          document.body.removeChild(link);
+          link.click(); 
+          setTimeout(()=> {
+            document.body.removeChild(link); 
+          }, 1000)
         }
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
   }
 
   visualizarAnexoProcesso(_, _col, record) {
-    console.log('visualizarAnexoProcesso ', record.id)
+    AppTemplate.showLoading();
 
     $still.HTTPClient.get(
       `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
@@ -1534,7 +1580,7 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
+        AppTemplate.hideLoading();
 
         if (response.status === 200) {
           let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
@@ -1543,7 +1589,8 @@ class ProcessoDetalhes extends ViewComponent {
 
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
 
   }
@@ -1557,7 +1604,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   removerAnexoProcesso(_, record) {
 
-    console.log('removerAnexoProcesso ', record.id)
+    AppTemplate.showLoading();
 
     let payload = {
       "type": "anexo",
@@ -1574,18 +1621,18 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
+        AppTemplate.hideLoading();
 
         if (response.status === 200) {
-          alert("Removido com Sucesso!")
+          AppTemplate.toast({ status: 'Sucesso', message: 'Removido com Sucesso' })
           this.dataTableListProcessosAnexos.removeRow('id', record.id)
         }
 
       })
       .catch((err) => {
-        console.log(`Erro ao cadastrar processo: `, err);
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
-
 
   }
 
@@ -1636,7 +1683,7 @@ class ProcessoDetalhes extends ViewComponent {
           this.honorarioProxy.setSourceData(timeSheetData);
 
         } catch (e) {
-          console.log("fn populates attributes", e);
+          AppTemplate.toast({ status: 'Erro', message: e.message })
         }
       }
     });
@@ -1674,21 +1721,79 @@ class ProcessoDetalhes extends ViewComponent {
 
   generateHonorario() {
 
+    AppTemplate.showLoading();
+
+    this.userLogged = JSON.parse(localStorage.getItem("_user"));
+   
+
     const data = this.honorarioProxy.getDestData();
-    console.log(data);
-    this.showFactura = true;
 
     const totalFactura = data
-      .map(
-        r => parseFloat(cleanCurrencyValue(r.total))
-      )
-      .reduce((accum, val) => accum + val);
+    .map(
+      r => parseFloat(cleanMoedaValue(r.total))
+    )
+    .reduce((accum, val) => accum + val);
 
-    const invoiceNum = Math.random().toString().split('.')[1];
-    this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5));
-    this.facturaProxy.setNomeDocliente(this.cliente.value);
-    this.facturaProxy.setTotalFactura(totalFactura);
-    this.facturaProxy.itensFactura = data;
+    const totalHoras = data
+    .map(
+      r => parseFloat(cleanHorasValue(r.qtd))
+    )
+    .reduce((accum, val) => accum + val);
+
+    let payload = {
+      'processo_id': this.id.value,
+      'cliente_id': this.clienteId.value,
+      'colaborador_id':  this.userLogged.value.id,
+      'horas': totalHoras,
+      'custo': totalFactura,
+      'status': 'pendente',
+      'items': data.map((item) => ({
+          "processos_timesheet_id": item.id,
+          "horas": parseFloat(cleanHorasValue(item.qtd)),
+          "custo": parseFloat(cleanMoedaValue(item.custo)),
+          "dados_adicionais": JSON.stringify(item)
+      }))
+
+    }
+
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/processo_factura",
+      JSON.stringify(payload),
+      {
+          headers: {
+              "Content-Type": "application/json",
+          },
+      }
+  )
+      .then((response) => {
+        AppTemplate.hideLoading();
+          if (response.status !== 201) {
+              if (response.message) {
+                  AppTemplate.toast({ status: 'error', message: response.message })
+              } else {
+                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
+              }
+          } else {            
+
+            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+            let dataResponse = response.data
+            this.showFactura = true;
+
+            const invoiceNum = Math.random().toString().split('.')[1];
+            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+            this.facturaProxy.setNomeDocliente(this.cliente.value);
+            this.facturaProxy.setTotalFactura(totalFactura);
+            this.facturaProxy.itensFactura = data;
+
+          }
+      })
+      .catch((err) => {
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'error', message: err.message })
+      });
+
 
   }
 
@@ -1738,6 +1843,19 @@ function cleanCurrencyValue(val) {
     .replace('AKZ', '')
     .replace('.', '')
     .replace(',', '.')
+    .trim()
+}
+
+function cleanMoedaValue(val) {
+  return val
+    .replace('AKZ', '')
+    .replace(',', '')
+    .trim()
+}
+
+function cleanHorasValue(val){
+  return val
+    .replace('Hrs','')
     .trim()
 }
 

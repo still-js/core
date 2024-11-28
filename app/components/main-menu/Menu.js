@@ -6,7 +6,15 @@ class Menu extends ViewComponent {
 
   roles;
   devProfile = Prop(false);
+  
   canCreateProcess = Prop(false);
+  canListProcess = Prop(false);
+
+  canCreateClient = Prop(false);
+  canListClient = Prop(true);
+
+  canCreateColaborador = Prop(false);
+  canListColaborador = Prop(true);
 
   template = `
   <aside id="leftsidebar" class="sidebar">
@@ -29,23 +37,43 @@ class Menu extends ViewComponent {
             <ul class="submenu">
                 <li
                   (renderIf)="self.canCreateProcess"
-                  ><a href="#" (click)="gotoView('ProcessoForm')"> Criar </a></li>
-                <li><a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a></li>
+                  >
+                    <a href="#" (click)="gotoView('ProcessoForm')"> Criar </a>
+                </li>
+                <li
+                 (renderIf)="self.canListProcess"
+                >
+                  <a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a>
+                </li>
                 <li><a href="#" (click)="gotoView('ColaboradorDashboard')">Meus Processos </a></li>
             </ul>
       </li>
       <li class="menu-item-julaw">
             <a href="#" class="item-menu "><i class="fas fa-users"></i> Clientes</a>
             <ul class="submenu">
-                <li><a href="#" (click)="gotoView('ClientForm')"> Cadastrar </a></li>
-                <li><a href="#" (click)="gotoView('ClientsGrid')"> Listar</a></li>
+                <li
+                  (renderIf)="self.canCreateClient"
+                >
+                  <a href="#" (click)="gotoView('ClientForm')"> Cadastrar </a>
+                </li>
+                <li
+                    (renderIf)="self.canListClient"
+                >
+                  <a href="#" (click)="gotoView('ClientsGrid')"> Listar</a>
+                </li>
             </ul>
       </li>
       <li class="menu-item-julaw">
             <a href="#" class="item-menu"><i class="fas fa-user"></i> Colaboradores</a>
             <ul class="submenu">
-                  <li><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a></li>
-                  <li><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a></li>
+                  <li
+                      (renderIf)="self.canCreateColaborador"
+                  ><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a>
+                  </li>
+                  <li
+                      (renderIf)="self.canListProcess"
+                  ><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a>
+                  </li>
             </ul>
       </li>
       <li (renderIf)="self.devProfile" class="menu-item-julaw">
@@ -80,6 +108,13 @@ class Menu extends ViewComponent {
 
   async onRender() {
     this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS');
+    this.canListProcess = this.roles.includes('CAN_SEE_LIST_PROCESS');
+
+    this.canCreateClient = this.roles.includes('CAN_CREATE_CLIENT');
+    // this.canListClient = this.roles.includes('CAN_CREATE_PROCESS');
+
+    this.canCreateColaborador = this.roles.includes('CAN_CREATE_COLABORADOR');
+    // this.canListColaborador = this.roles.includes('CAN_CREATE_PROCESS');
   }
 
   gotoView(viewComponent) {

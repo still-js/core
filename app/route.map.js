@@ -20,6 +20,9 @@ const routesMap = {
             ProcessosGrid: 'components/processos',
             ProcessoDetalhes: 'components/processos',
             Factura: 'components/factura',
+            ModalPagamento: 'components/modal',
+            ModalListPagamentos: 'components/modal',
+            ModalDetalhesFactura: 'components/modal',
             POC: 'components/uipoc',
         }
     },

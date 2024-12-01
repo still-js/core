@@ -239,6 +239,13 @@ class ProcessoDetalhes extends ViewComponent {
       /** @Prop */
   showModoProbono = false
 
+
+  /**
+  * @Inject
+  * @type { ProcessoService } }
+  */
+  processoService;
+
   template = `
   <section class="content">
     <div class="block-header">
@@ -995,30 +1002,26 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   async onRender() {
-
     /** For Test purpose only */
     await this.stLazyExecution(async () => { });
   }
 
   getDetalhesProcesso(idProcesso) {
 
-    AppTemplate.showLoading();
+    this.processoService.on('load', async () => {
+      AppTemplate.showLoading();
+      const response = await this.processoService.getDetalhesProcesso(idProcesso);
+      try {
 
-    $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo/${idProcesso}`
-    ).then((r) => {
-      if (r.status === 200) {
-        try {
+        this.populateAttributes(response);
+          
+        AppTemplate.hideLoading();
 
-          this.populateAttributes(r.data[0]);
-            
-          AppTemplate.hideLoading();
-
-        } catch (e) {
-          AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Erro', message: e })
-        }
+      } catch (e) {
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: e })
       }
+
     });
 
     this.getListColaboradores();

@@ -10,10 +10,11 @@ class ClienteDetalhes extends ViewComponent {
   endereco;
   createdAt;
 
-  /** @type { TabulatorComponent } */
+  /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessos = Proxy;
-  dataTableProcessosLabels = Prop(
-    JSON.stringify([
+
+  /** @Prop */
+  dataTableProcessosLabels = [
       { title: "Estado", field: "estado", sorter: "string", width: 100 },
       { title: "Referência", field: "ref", sorter: "string" },
       { title: "Assunto", field: "assunto", sorter: "string" },
@@ -27,13 +28,25 @@ class ClienteDetalhes extends ViewComponent {
         field: "data_encerramento",
         sorter: "string"
       }
-    ])
-  );
+    ]
 
-    /** @type { TabulatorComponent } */
+    /** @Proxy @type { TabulatorComponent } */
     dataTableListFacturas = Proxy;
-    dataTableFacturasLabels = Prop(
-      JSON.stringify([
+
+    /** @Prop */
+    dataTableFacturasLabels = [
+        {
+          hozAlign: "center",
+          editRow: true,
+          icon: "<i class='fas fa-list-alt'></i>",
+          width: 20,
+        },
+        {
+          hozAlign: "center",
+          deleteRow: true,
+          icon: "<i class='fas fa-money-check-alt'></i>",
+          width: 20,
+        },
         { title: "Estado", field: "status", sorter: "string", width: 100 },
         { title: "Referência", field: "ref", sorter: "string" },
         { title: "Assunto", field: "assunto", sorter: "string" },
@@ -41,11 +54,29 @@ class ClienteDetalhes extends ViewComponent {
         { title: "Custo", field: "custo", sorter: "string" },
         { title: "Advogado", field: "colaborador", sorter: "string" },
         { title: "Data Emissão", field: "data_registo_factura", sorter: "string" }
-      ])
-    );
-  
+      ]
 
+    /** @Proxy @type { ModalDetalhesFactura } */
+    modalDetalhesFacturaProxy;
 
+    /** @Proxy @type { ModalPagamento } */
+    modalPagamentoProxy;
+
+    /** @Proxy @type { ModalListPagamentos } */
+    modalListPagamentosProxy;
+
+    /** @Prop */
+    showModalDetalhesFactura = false;
+    /** @Prop */
+    showModalPagamento = true;
+    /** @Prop */
+    showModalListPagamentos = false;
+
+    /**
+    * @Inject
+    * @type { ClienteService }  
+    */
+    clienteService;
 
   template = `
   <section class="content">
@@ -165,9 +196,9 @@ class ClienteDetalhes extends ViewComponent {
                             proxy="dataTableListFacturas"
                             tableHeader="parent.dataTableFacturasLabels" 
                             tableHeight="auto"
-                            (onEditColumn)="editProcesso(fieldName, data)"
-                            (onDeleteRow)="detalhesProcesso(fieldName, data)" 
-                            (onCellClick)="cellClick(row, col, data)">
+                            (onEditColumn)="callModalDetalhesFactura(fieldName, data)"
+                            (onDeleteRow)="callModalListPagamento(fieldName, data)" 
+                            (onCellClick)="callModalPagamento(row, col, data)">
                         </st-element>
                 </div>
                    
@@ -179,9 +210,75 @@ class ClienteDetalhes extends ViewComponent {
    <!-- Fim TAB Facturas -->
 
    </form>
+
+   <style>
+      
+   .modal-wrapper{
+     position: absolute;
+     top: 0;
+     background: white;
+     z-index: 529985;
+     width: 66%;
+     margin: 0 auto;
+     position: absolute;
+     left: 50%;
+     top: 25%;
+     transform: translate(-50%,-50%);
+   }
+
+   .still-popup-curtain{
+
+     position: fixed;
+     padding: 0;
+     margin: 0;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0,0,0,0.5);
+     z-index: 529983;
+
+   }
+
+ </style>
   
   </section>
 
+    <div 
+      class="modal-wrapper" 
+      (showIf)="self.showModalPagamento"
+    >
+      <st-element
+        component="ModalPagamento"
+        proxy="modalPagamentoProxy"
+        (onCloseModal)="fecharModalPagamento()"
+      >
+      </st-element>
+    <div>
+
+    <div 
+    class="modal-wrapper" 
+    (showIf)="self.showModalDetalhesFactura"
+    >
+      <st-element
+        component="ModalDetalhesFactura"
+        proxy="modalDetalhesFacturaProxy"
+        (onCloseModal)="fecharModalDetalhesFactura()"
+      >
+      </st-element>
+    <div>
+
+    <div 
+      class="modal-wrapper" 
+     (showIf)="self.showModalListPagamentos"
+    >
+      <st-element
+        component="ModalListPagamentos"
+        proxy="modalListPagamentosProxy"
+        (onCloseModal)="fecharModalListPagamentos()"
+      >
+      </st-element>
+    <div>
     `;
 
   constructor() {
@@ -212,27 +309,34 @@ class ClienteDetalhes extends ViewComponent {
     }
   }
 
-  getDetalhesCliente(idCliente) {
-    $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/cliente/${idCliente}`
-    ).then((r) => {
-      let dataResponse = r.data[0];
-      if (dataResponse) {
-        console.log(dataResponse);
+  async getDetalhesCliente(idCliente) {
 
-        this.id = dataResponse.id;
-        this.denominacao = dataResponse.denominacao;
-        this.nif = dataResponse.nif;
-        this.endereco = dataResponse.endereco;
-        this.pessoaContacto = dataResponse.pessoa_contacto;
-        this.contacto = dataResponse.contacto_cobranca;
-        this.tipoCliente = dataResponse.tipo.description;
-        this.email = dataResponse.e_mail;
-        this.createdAt = new Date(dataResponse.created_at)
-          .toLocaleString("PT")
-          .substring(0, 10);
-      }
-    });
+    this.clienteService.on('load', async () => {
+
+      console.log("getDetalhesClient ", idCliente)
+
+      let response = await this.clienteService.getDetalhesCliente(idCliente)
+  
+        if (response) {
+  
+          console.log("clienteService ... ", response);
+  
+          this.id = response.id;
+          this.denominacao = response.denominacao;
+          this.nif = response.nif;
+          this.endereco = response.endereco;
+          this.pessoaContacto = response.pessoa_contacto;
+          this.contacto = response.contacto_cobranca;
+          this.tipoCliente = response.tipo.description;
+          this.email = response.e_mail;
+          this.createdAt = new Date(response.created_at)
+            .toLocaleString("PT")
+            .substring(0, 10);
+        }
+
+    })
+
+   
   }
 
   getProcessosCliente(idCliente) {
@@ -259,5 +363,26 @@ class ClienteDetalhes extends ViewComponent {
     });
   }
 
+
+  callModalDetalhesFactura(_, record) {
+
+    console.log("datalhes factura ", _ , record)
+    this.showModalDetalhesFactura = true
+
+  }
+
+  callModalListPagamento(_, record) {
+
+    console.log("callModalListPagamento ", _ , record)
+    this.showModalListPagamentos = true
+
+  }
+
+  callModalPagamento(row, col, record) {
+
+    console.log("callModalPagamento ", row, col, record)
+    this.showModalPagamento = true
+
+  }
 
 }

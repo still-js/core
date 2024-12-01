@@ -108,13 +108,14 @@ class Menu extends ViewComponent {
 
   async onRender() {
     this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS');
-    this.canListProcess = this.roles.includes('CAN_SEE_LIST_PROCESS');
+    this.canListProcess = this.roles.includes('CAN_SEE_PROCESS_LIST');
 
     this.canCreateClient = this.roles.includes('CAN_CREATE_CLIENT');
-    // this.canListClient = this.roles.includes('CAN_CREATE_PROCESS');
+    this.canListClient = this.roles.includes('CAN_SEE_CLIENT_LIST');
 
     this.canCreateColaborador = this.roles.includes('CAN_CREATE_COLABORADOR');
-    // this.canListColaborador = this.roles.includes('CAN_CREATE_PROCESS');
+    this.canListColaborador = this.roles.includes('CAN_SEE_COLABORADOR_LIST');
+
   }
 
   gotoView(viewComponent) {

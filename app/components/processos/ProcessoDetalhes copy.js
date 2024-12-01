@@ -51,11 +51,6 @@ class ProcessoDetalhes extends ViewComponent {
   inputAnexoDescricao;
   inputAnexoFile;
 
-
-  horasMes;
-  custoTotal;
-  custoParcelaApagar;
-
   modePagamento = [
     { code: 1, designacao: 'Transferência Bancária' },
     { code: 2, designacao: 'Depósito' },
@@ -231,11 +226,11 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   /** @Prop */
-  showAvenca = true
+  showAvenca = false
     /** @Prop */
   showModoFixo = false
     /** @Prop */
-  showModoSuccessFee = false
+  showModoSuccessFee = true
       /** @Prop */
   showModoProbono = false
 
@@ -761,17 +756,17 @@ class ProcessoDetalhes extends ViewComponent {
     <!-- Inicio TAB Honorário -->
     <div role="tabpanel" class="tab-pane fade" id="honorarios">
  
-      <!-- Modo Pagamento - Fixo
-        <span 
-          (showIf)="self.showModoProbono"
-        >
-          <div class="display-flex">
-            <p> Modo ProBono </p>
-          </div>
-        </span>
-      -->
+      <!-- Modo Pagamento - Fixo -->
+      <span 
+        (showIf)="self.showModoProbono"
+      >
+        <div class="display-flex">
+          <p> Modo ProBono </p>
+        </div>
+      </span>
 
-      <!-- Modo Pagamento - Fixo 
+
+      <!-- Modo Pagamento - Fixo -->
       <span 
         (showIf)="self.showModoFixo"
       >
@@ -780,9 +775,8 @@ class ProcessoDetalhes extends ViewComponent {
         </div>
       </span>
 
-      -->
 
-      <!-- Modo Pagamento - Success Fee 
+      <!-- Modo Pagamento - Success Fee -->
 
       <span 
         (showIf)="self.showModoSuccessFee"
@@ -791,104 +785,19 @@ class ProcessoDetalhes extends ViewComponent {
         <p> Modo Success Fee </p>
       </div>
       </span>  
-      -->
       
       
-      <!-- Modo Pagamento - Avença 
+      
+      <!-- Modo Pagamento - Avença -->
 
       <span 
       (showIf)="self.showAvenca"
       >
 
-      -->
-      <div>
-
-      <fieldset>
-        <legend>Success Fee</legend>
-
-        <div style="margin-bottom: 5px">
-        <div style="font-weight: bold;">Custo do Projecto</div>
-        <div>
-          <input 
-            id="idCustoProjecto" 
-            (value)="custoTotal" 
-            style="border: none; background-color: #f5f5f5;" 
-            readonly="true" />
-          </div>
-      </div>
-
-      <div>
-        Parcelas pagas
-        <div id="divParcelasPagas">Nenhuma parcela</div>
-      </div>
-      <div>
-        
-      <div class="form-line">
-      <input 
-        id="idCustoParcelaApagar"
-        (required)="true"
-        (validator)="text" 
-        type="text" 
-        class="form-control date" 
-        placeholder="custo da Parcela a pagar" 
-        (value)="custoParcelaApagar">
-      </div>
-
-      </div>
-
-      <div style="display: flex; justify-content: right; margin-top: 30px;">
-        <!-- <span (click)="checkHonorarios()">Validar</span> -->
-        <button 
-          class="btn btn-primary julaw-submit-button" 
-          (click)="generateHonorarioModoSuccessFee()">
-           Gerar Honorário
-        </button>
-      </div>
-     </fieldset>
-
-
-
-     <fieldset>
-     <legend>Fixo</legend>
-
-      <div style="margin-bottom: 5px">
-        <div style="font-weight: bold;">Custo do Projecto</div>
-        <div>
-          <input 
-            (value)="custoTotal" 
-            style="border: none; background-color: #f5f5f5;" 
-            readonly="true" />
-          </div>
-      </div>
-
-      <div style="display: flex; justify-content: right; margin-top: 30px;">
-        <!-- <span (click)="checkHonorarios()">Validar</span> -->
-        <button 
-          class="btn btn-primary julaw-submit-button" 
-          (click)="generateHonorarioModoFixo()">
-           Gerar Honorário
-        </button>
-      </div> 
-
-    </fieldset>
-
-
-    <fieldset>
-      <legend>Avença</legend>
-
-      <div style="margin-bottom: 5px">
-      <div style="font-weight: bold;">Horas Mês do Projecto</div>
-      <div>
-      <input 
-        id="horasMes" 
-        (value)="horasMes" 
-        style="border: none; background-color: #f5f5f5;" 
-        readonly="true" />
-      </div>
-      </div>
-
-
       <div class="display-flex">
+
+
+       Avença
 
         <div class="input-field col s12">
           <select (change)="updatePrecedentes($event)" (forEach)="modePagamento">
@@ -902,8 +811,6 @@ class ProcessoDetalhes extends ViewComponent {
             <option each="item" value="{item.id}">{item.descricao}</option>
         </select>
         </div>
-      </div>
-
       </div>
 
       <st-element
@@ -926,11 +833,8 @@ class ProcessoDetalhes extends ViewComponent {
       </div>
       </div>
 
-      </fieldset>
+      </span>
 
-      <!--
-        </span>
-      -->
    
 
       
@@ -1057,6 +961,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   verifyModoFacturamento(data) {
     
+
     try {
     console.log("here... >>><<<>><<<< ", data)
 
@@ -1098,8 +1003,9 @@ class ProcessoDetalhes extends ViewComponent {
         console.log(" >> probono ", this.showModoProbono)
         console.log(" >>> fixo ", this.showModoFixo)
         console.log(" >>> > success ", this.showModoSuccessFee)
-       
 
+        
+        
     }, 5000)
     }catch(e){
       console.log(e)
@@ -1151,11 +1057,6 @@ class ProcessoDetalhes extends ViewComponent {
     this.tarefas = data.tarefas ? data.tarefas : [];
     this.anexos = data.anexos ? data.anexos : [];
 
-
-    this.horasMes = data.horas_mes ? data.horas_mes : 0;
-    this.custoTotal = data.valor_total ? data.valor_total : 0;
-    
-
     /** Setters values  */
     this.setValueById('input_metodologia', this.metodologia.value)
     this.setValueById('input_estrategias', this.estrategia.value)
@@ -1189,8 +1090,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     
 
-    // here 
-    // this.verifyModoFacturamento(data)
+    this.verifyModoFacturamento(data)
 
 
   }
@@ -1572,7 +1472,10 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: err })
         });
+
     }
+
+
   }
 
   editProcesso(id) {
@@ -1930,102 +1833,10 @@ class ProcessoDetalhes extends ViewComponent {
       qtd: `${hours} Hrs`,
       total: custo
     }
-  }
 
-  
-  getPagamentoFacturaProcesso() {
-    // vai buscar os pagamentos já feitos no processo!
   }
 
   generateHonorario() {
-
-    AppTemplate.showLoading();
-
-    this.userLogged = JSON.parse(localStorage.getItem("_user"));
-   k
-
-    const data = this.honorarioProxy.getDestData();
-
-
-    console.log("data ", data)
-
-    const totalFactura = data
-    .map(
-      r => parseFloat(cleanMoedaValue(r.total))
-    )
-    .reduce((accum, val) => accum + val);
-
-    const totalHoras = data
-    .map(
-      r => parseFloat(cleanHorasValue(r.qtd))
-    )
-    .reduce((accum, val) => accum + val);
-
-    let payload = {
-      'processo_id': this.id.value,
-      'cliente_id': this.clienteId.value,
-      'colaborador_id':  this.userLogged.value.id,
-      'horas': totalHoras,
-      'custo': totalFactura,
-      'status': 'pendente',
-      'items': data.map((item) => ({
-          "processos_timesheet_id": item.id,
-          "horas": parseFloat(cleanHorasValue(item.qtd)),
-          "custo": parseFloat(cleanMoedaValue(item.custo)),
-          "dados_adicionais": JSON.stringify(item)
-      }))
-
-    }
-
-
-    $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_factura",
-      JSON.stringify(payload),
-      {
-          headers: {
-              "Content-Type": "application/json",
-          },
-      }
-  )
-      .then((response) => {
-        AppTemplate.hideLoading();
-          if (response.status !== 201) {
-              if (response.message) {
-                  AppTemplate.toast({ status: 'error', message: response.message })
-              } else {
-                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-              }
-          } else {            
-
-            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
-
-            let dataResponse = response.data
-            this.showFactura = true;
-
-            const invoiceNum = Math.random().toString().split('.')[1];
-            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
-            this.facturaProxy.setNomeDocliente(this.cliente.value);
-            this.facturaProxy.setTotalFactura(totalFactura);
-            this.facturaProxy.itensFactura = data;
-
-          }
-      })
-      .catch((err) => {
-        AppTemplate.hideLoading();
-        AppTemplate.toast({ status: 'error', message: err.message })
-      });
-
-
-  }
-
-
-
-
-  generateHonorarioModoSuccessFee() {
-
-    console.log("generateHonorarioModoSuccessFee")
-
-    return 0
 
     AppTemplate.showLoading();
 
@@ -2102,87 +1913,6 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   }
-
-
-
-
-  generateHonorarioModoFixo() {
-
-
-    if(!this.clienteId.value)
-      return AppTemplate.toast({ status: 'Error', message: 'O Proceso deve ter cliente para facturar.' })
-
-    AppTemplate.showLoading();
-
-    this.userLogged = JSON.parse(localStorage.getItem("_user"));
-  
-    const totalFactura = parseFloat(this.custoTotal.value);
-
-    let payload = {
-      'processo_id': this.id.value,
-      'cliente_id': this.clienteId.value,
-      'colaborador_id':  this.userLogged.value.id,
-      'horas': 0,
-      'custo': totalFactura,
-      'status': 'pendente',
-      'items': []
-    }
-
-    $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_factura",
-      JSON.stringify(payload),
-      {
-          headers: {
-              "Content-Type": "application/json",
-          },
-      }
-  )
-      .then((response) => {
-
-        AppTemplate.hideLoading();
-
-          if (response.status !== 201) {
-              if (response.message) {
-                  AppTemplate.toast({ status: 'error', message: response.message })
-              } else {
-                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-              }
-          } else { 
-
-            console.log("exemplo .... chegou aqui ... ", response.data)
-            
-            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
-
-            let dataResponse = response.data
-            this.showFactura = true;
-
-            console.log("chegou aqui .... ", this.showFactura)
-
-            const invoiceNum = Math.random().toString().split('.')[1];
-            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
-            this.facturaProxy.setNomeDocliente(this.cliente.value);
-            this.facturaProxy.setTotalFactura(totalFactura);
-            this.facturaProxy.itensFactura = [
-              {
-                "processos_timesheet_id": 0,
-                "horas": 0,
-                "custo": parseFloat(cleanMoedaValue(item.custo)),
-                "dados_adicionais": JSON.stringify(item)
-              }
-            ]
-
-            console.log("chegou aqui .... novamente ...  ", this.showFactura)
-
-
-          }
-      })
-      .catch((err) => {
-        
-      });
-
-
-  }
-
 
   fecharFactura() {
     this.showFactura = false;

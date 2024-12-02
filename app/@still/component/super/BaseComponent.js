@@ -342,8 +342,18 @@ class BaseComponent extends BehaviorComponent {
 
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
-                    eval(this.getClassPath())[field] = value;
-                    eval(this.getClassPath())[evt](param);
+                    const instance = eval(this.getClassPath());
+
+                    if (!(field in instance)) {
+                        throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
+                    }
+
+                    if (!(evt in instance)) {
+                        throw new Error(`Method with name ${field}() is not define in ${this.getName()}`);
+                    }
+
+                    instance[field] = value;
+                    instance[evt](param);
                 })
             }
         });

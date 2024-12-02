@@ -1,4 +1,36 @@
 class ClientsGrid extends ViewComponent {
+  htmlRefId = "clientDataTable";
+  dataSource;
+  /** @type { TabulatorComponent } */
+  dataTable = Proxy;
+  dataTableLabels = Prop(
+    JSON.stringify([
+      {
+        hozAlign: "center",
+        editRow: true,
+        icon: "<i class='fa fa-pen'></i>",
+        width: 20
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fa fa-trash'></i>",
+        width: 20
+      },
+      { title: "Tipo Cliente", field: "tipo", sorter: "string", width: 200 },
+      { title: "Nome", field: "denominacao", sorter: "string" },
+      { title: "NIF", field: "nif", sorter: "string" },
+      { title: "Endereco", field: "endereco", sorter: "string" },
+      { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
+      {
+        title: "Telefone Cobrança",
+        field: "contacto_cobranca",
+        sorter: "string"
+      },
+      { title: "E-mail", field: "e_mail", sorter: "string" },
+      { title: "Data Cadastro", field: "created_at", sorter: "string" }
+    ])
+  );
 
     htmlRefId = 'clientDataTable';
     dataSource;
@@ -89,7 +121,7 @@ class ClientsGrid extends ViewComponent {
                     tableHeader="parent.dataTableLabels"
                     (onEditColumn)="getClientDetails(fieldName, data)"
                     (onDeleteRow)="deleteRow(fieldName, data)"
-                    (onCellClick)="cellClick(row, col, data)"
+                    (onCellClick)="goToClienteDetalhes(row, col, data)"
                     >
                 </st-element>
             </div>
@@ -98,169 +130,119 @@ class ClientsGrid extends ViewComponent {
     </section>
     `;
 
-    constructor() {
-        super();
-        AppTemplate.showLoading();
-        this.setup({});
-    }
+  constructor() {
+    super();
+    AppTemplate.showLoading();
+    this.setup({});
+  }
 
-    deleteRow(_, record) {
-        alert(JSON.stringify(record));
-    }
+  goToClienteDetalhes(row, col, data) {
+    console.log(data.id);
 
-    editRow(_, record) {
-        console.log(`ROW WILL BE EDITED: `, record);
-    }
+    Router.goto("ClienteDetalhes", {
+      data: data.id
+    });
+  }
 
-    cellClick(row, col, _) {
-        console.log(`Cliecked on: `, {
-            row, col, _
-        })
-    }
+  deleteRow(_, record) {
+    alert(JSON.stringify(record));
+  }
 
-    saveEvent() {
-        /**
-         * Pôr a regra de negócio e a chamada a BD,
-         * retornar true apenas se for salvo com sucess
-         * caso contrário retornar false 
-         */
-        alert(`Called event creation`);
-        return true;
-    }
+  editRow(_, record) {
+    console.log(`ROW WILL BE EDITED: `, record);
+  }
 
-    updateEvent() {
-        /**
-         * Pôr a regra de negócio e a chamada a BD,
-         * retornar true apenas se for salvo com sucess
-         * caso contrário retornar false 
-         */
-        alert('Event update called from parent');
-        return true;
-    }
+  cellClick(row, col, _) {
+    console.log(`Cliecked on: `, {
+      row,
+      col,
+      _
+    });
+  }
 
-    deleteEvent() {
-        /**
-         * Pôr a regra de negócio e a chamada a BD,
-         * retornar true apenas se for salvo com sucess
-         * caso contrário retornar false 
-         */
-        alert('Called Deletion event from parent');
-        return true;
-    }
-
-    resetCalendario() {
-        this.calendarProxy.clearGrid();
-    }
-
-    createNewEvent() {
-
-        const start = new Date();
-        const end = new Date();
-        end.setHours(end.getHours() + 3);
-
-        const start1 = new Date();
-        start1.setHours(start.getHours() + 50);
-        const end1 = new Date();
-        end1.setHours(end.getHours() + 53);
-
-        /**
-         * Estes dados deverão vir da BD 
-         */
-        const data = [
-            {
-                id: Math.random().toString().split('.')[1],
-                calendarId: 'entrevista',
-                title: 'Descrição do meu novo evento',
-                start, end
-            }, // EventObject
-            {
-                id: Math.random().toString().split('.')[1],
-                calendarId: 'visita',
-                title: 'Estive numa visita ao escritorio do cliente para discutir',
-                start: start1,
-                end: end1
-            }, // EventObject
-        ];
-
-        this.calendarProxy.addNewEvents(data);
-    }
-
-    async onRender() {
-
-        /** For Test purpose only */
-        await this.stLazyExecution(async () => {
-
-            /** @type { ClientForm } */
-
-            /* 
+  async onRender() {
+    /** For Test purpose only */
+    await this.stLazyExecution(async () => {
+      /** @type { ClientForm } */
+      /* 
             const clientFormView = $still.view.get('ClientForm');
             clientFormView.onChange((newState) => {
                 console.log(`Client grid detectou mudança no client form: `, newState);
             }); 
             */
+    });
+  }
 
-        });
-
-    }
-
-    stAfterInit(val) {
-
-        $still
-            .HTTPClient
-            .get('http://localhost:3000/api/v1/cliente/')
-            .then((r) => {
-                this.dataSource = r.data;
-                this.dataTable.dataSource = r.data;
-                AppTemplate.hideLoading();
-            });
-
-    }
-
-    /** For Test purpose only */
-    /** @type { StEvent } */
-    anyState = 'This is the state value';
-    runLocalFunc() {
-        this.dataTable.dataSource = [
-            { denominacao: 'Novo valor', tipo_id: 190 }
-        ];
-    }
-
-    getClientDetails(f, row) {
-        Router.goto('ClientForm', { data: row });
-    }
-
-    editPricingValue(evtType, value, rowData) {
-
-        if (evtType == 'onFocus') {
-            const actualValue = String(value)
-                .slice(4) //Remove AKZ Angola currency code and the space after it
-                .replace('.', '', 'gi') //Remove the period/dot in the thousands separator
-                .split(','); //Separate the integer value from the cents
-            const cents = parseFloat(actualValue[1]);
-            return parseFloat(actualValue[0]) + `${cents > 0 ? ',' + cents : ''}`;
+  stAfterInit(val) {
+    $still.HTTPClient.get("http://localhost:3000/api/v1/cliente/").then((r) => {
+      try {
+        let dataResponse = r.data;
+        if (dataResponse) {
+          let clieteDTO = dataResponse.map((item) => {
+            return {
+              id: item.id,
+              denominacao: item.denominacao,
+              nif: item.nif,
+              endereco: item.endereco,
+              pessoa_contacto: item.pessoa_contacto,
+              contacto_cobranca: item.contacto_cobranca,
+              tipo: item.tipo.description,
+              tipo_id: item.tipo_id,
+              e_mail: item.e_mail,
+              created_at: new Date(item.created_at)
+                .toLocaleString("PT")
+                .substring(0, 10)
+            };
+          });
+          this.dataSource = clieteDTO;
+          this.dataTable.dataSource = clieteDTO;
         }
+      } catch (e) {
+        console.log("erro no processo DTO", e);
+      } finally {
+        AppTemplate.hideLoading();
+      }
+    });
+  }
 
-        if (evtType == 'onLoseFocus') {
+  /** For Test purpose only */
+  /** @type { StEvent } */
+  anyState = "This is the state value";
+  runLocalFunc() {
+    this.dataTable.dataSource = [{ denominacao: "Novo valor", tipo_id: 190 }];
+  }
 
-            const inputValue = String(value).split(',');
-            const amount = inputValue[0];
-            const cents = inputValue[1] ? ',' + inputValue[1] : ',00';
+  getClientDetails(f, row) {
+    Router.goto("ClientForm", { data: row });
+  }
 
-            const formatter = new Intl.NumberFormat('ao-AO',
-                {
-                    style: 'currency', currency: 'AKZ',
-                    maximumFractionDigits: 0, minimumFractionDigits: 0
-                }
-            );
-
-            return formatter.format(amount) + `${cents}`;
-        }
-
+  editPricingValue(evtType, value, rowData) {
+    if (evtType == "onFocus") {
+      const actualValue = String(value)
+        .slice(4) //Remove AKZ Angola currency code and the space after it
+        .replace(".", "", "gi") //Remove the period/dot in the thousands separator
+        .split(","); //Separate the integer value from the cents
+      const cents = parseFloat(actualValue[1]);
+      return parseFloat(actualValue[0]) + `${cents > 0 ? "," + cents : ""}`;
     }
 
-    gotoCreateCliente() {
-        Router.goto('ClientForm');
+    if (evtType == "onLoseFocus") {
+      const inputValue = String(value).split(",");
+      const amount = inputValue[0];
+      const cents = inputValue[1] ? "," + inputValue[1] : ",00";
+
+      const formatter = new Intl.NumberFormat("ao-AO", {
+        style: "currency",
+        currency: "AKZ",
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0
+      });
+
+      return formatter.format(amount) + `${cents}`;
     }
+  }
 
-
+  gotoCreateCliente() {
+    Router.goto("ClientForm");
+  }
 }

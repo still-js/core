@@ -54,6 +54,9 @@ class Menu extends ViewComponent {
                   <li><a href="#" (click)="gotoView('POC')"> Generico </a></li>
             </ul>
       </li>
+      <li class="menu-item-julaw">
+          <a href="#" class="item-menu"  (click)="gotoView('Despesas')"><i class="fas fa-file-invoice"></i> Despesas</a>
+      </li>
     </ul>
   </aside>
     `;

@@ -19,7 +19,9 @@ const routesMap = {
             ProcessosGrid: 'components/processos',
             ProcessoDetalhes: 'components/processos',
             Factura: 'components/factura',
+            Despesas: 'components/despesas',
             POC: 'components/uipoc',
+            CreateButton: 'generics/button',
         }
     },
 }

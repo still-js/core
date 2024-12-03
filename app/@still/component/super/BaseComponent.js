@@ -361,7 +361,7 @@ class BaseComponent extends BehaviorComponent {
 
     getBoundOnChange(template) {
 
-        const extremRe = /[\n \r \( \) A-Za-z0-9 \- \s \" \=]{0,}/.source;
+        const extremRe = /[\n \r \( \) A-Za-z0-9 \- \s \. \_ \" \=]{0,}/.source;
         const mathIfChangeEvt = /\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"/;
         const matchChange = '(change)="';
 

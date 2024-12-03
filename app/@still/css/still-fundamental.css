@@ -1,5 +1,5 @@
 .still-hide-view-part {
-    display: none;
+    display: none !important;
 }
 
 .still-validation-failed-style {

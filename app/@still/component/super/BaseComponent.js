@@ -449,6 +449,7 @@ class BaseComponent extends BehaviorComponent {
         return template;
     }
 
+
     parseShowIf(template, reSIf, matchShowIfRE, handleErrorMessage) {
         const cls = this;
         return template.replace(reSIf, (mt) => {
@@ -464,9 +465,10 @@ class BaseComponent extends BehaviorComponent {
                     const classFlag = `${showFlag.replace('self.', '').trim()}`;
 
                     try {
-                        showFlagValue = eval(`cls.${classFlag}`);
+                        showFlagValue = { value: eval(`cls.${classFlag}`), onlyPropSignature: true };
                         listenerFlag = '_stFlag' + classFlag + '_' + cls.constructor.name + '_change';
                         Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value });
+                        this[classFlag] = showFlagValue;
                     } catch (e) {
                         handleErrorMessage(classFlag, matchInstance);
                     }
@@ -526,7 +528,7 @@ class BaseComponent extends BehaviorComponent {
                  * Validate the if the flag value is false, in case it's false then hide it and
                  * then mark this view part to be removed 
                  */
-                if (!renderFlagValue.value) {
+                if (!renderFlagValue) {
 
                     const isThereShowIf = mt.match(matchShowIfRE);
                     /**

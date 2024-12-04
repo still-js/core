@@ -465,9 +465,10 @@ class BaseComponent extends BehaviorComponent {
                     const classFlag = `${showFlag.replace('self.', '').trim()}`;
 
                     try {
-                        showFlagValue = { value: eval(`cls.${classFlag}`), onlyPropSignature: true };
+                        const value = eval(`cls.${classFlag}`);
+                        showFlagValue = { value: value?.parsed ? value.value : value, onlyPropSignature: true };
                         listenerFlag = '_stFlag' + classFlag + '_' + cls.constructor.name + '_change';
-                        Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value });
+                        Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value, parsed: true });
                         this[classFlag] = showFlagValue;
                     } catch (e) {
                         handleErrorMessage(classFlag, matchInstance);

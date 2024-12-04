@@ -283,13 +283,9 @@ class ClienteDetalhes extends ViewComponent {
 
     this.clienteService.on('load', async () => {
 
-      console.log("getDetalhesClient ", idCliente)
-
       let response = await this.clienteService.getDetalhesCliente(idCliente)
   
         if (response) {
-  
-          console.log("clienteService ... ", response);
   
           this.id = response.id;
           this.denominacao = response.denominacao;
@@ -349,11 +345,12 @@ class ClienteDetalhes extends ViewComponent {
 
     console.log("callModalPagamento ", record)
 
+    this.modalPagamentoProxy.idFactura = record.id
     this.modalPagamentoProxy.ref = record.ref
     this.modalPagamentoProxy.valor = record.custo
 
     document.getElementById('idShowModalPagamento').style.display = "block"
-    
+
   }
 
   fecharModalPagamento(row, col, record) {

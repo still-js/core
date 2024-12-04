@@ -1,11 +1,13 @@
 class ModalPagamento extends ViewComponent {
 
+    idFactura;
     ref;
     valor;
     modoPagamento;    
     modoPagamentoSelecionado;    
     valorPago;
     anexo;
+    userId
 
     
    /** @type { STForm } */
@@ -58,6 +60,7 @@ class ModalPagamento extends ViewComponent {
                                 <i class="material-icons">person</i> Modo de Pagamento
                             </span>
                             <select 
+                                id="idModoPagamentoSelecionado"
                                 (required)="true"
                                 (value)="modoPagamentoSelecionado"
                                 (change)="updateModoPagamento($event)" 
@@ -137,7 +140,7 @@ class ModalPagamento extends ViewComponent {
               reader.onload = function (e) {
                 const base64String = e.target.result;
                 console.log("base64 da modal ", base64String)
-                this.anexo = base64String;
+                document.getElementById('inputUploadAnexoHidden').src = base64String;
       
               };
               reader.readAsDataURL(file); // Converte o arquivo em base64
@@ -157,9 +160,58 @@ class ModalPagamento extends ViewComponent {
 
     salvarPagamento() {
    
-        console.log("payment", this.anexo)
 
-        return 0
+        let anexo = document.getElementById('inputUploadAnexoHidden').src
+        let modoPagamentoId = document.getElementById('idModoPagamentoSelecionado').value
+                
+        if(modoPagamentoId == "")
+            return  AppTemplate.toast({ status: 'Erro', message: "O modo de pagamento é Obrigatório"})
+
+        if(this.valorPago.value == "")
+            return  AppTemplate.toast({ status: 'Erro', message: "O valor pago é Obrigatório"})
+
+        if(anexo == "" || !anexo.toString().includes('base64'))
+            return  AppTemplate.toast({ status: 'Erro', message: "O anexo é Obrigatório"})
+
+        const userLogged = JSON.parse(localStorage.getItem("_user"));
+        let userId = userLogged.id
+
+        const payload = {
+            "factura_id": this.idFactura.value,
+            "colaborador_id": userId,
+            "valor_factura": this.valor.value,
+            "valor_pago": this.valorPago.value,
+            "valor_restante": parseFloat(this.valor.value) - parseFloat(this.valorPago.value),
+            "anexo": anexo,
+            "modo_pagamento_id": modoPagamentoId,
+            "desconto": 0 , 
+            "obs": "" 
+          }
+
+        $still.HTTPClient.post(
+            "http://localhost:3000/api/v1/pagamento_factura",
+            JSON.stringify(payload),
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+            .then((response) => {
+              if (response.status !== 201) {
+                AppTemplate.hideLoading();
+                AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
+              } else {
+                AppTemplate.hideLoading();
+                AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
+                this.closeModal()
+              }
+            })
+            .catch((err) => {
+              AppTemplate.hideLoading();
+              AppTemplate.toast({ status: 'Erro', message: err })
+            });
+      
 
         /**
          * 

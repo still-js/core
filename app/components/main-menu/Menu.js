@@ -5,16 +5,23 @@ class Menu extends ViewComponent {
   userRole = "Admin";
 
   roles;
-  devProfile = Prop(false);
-  
-  canCreateProcess = Prop(false);
-  canListProcess = Prop(false);
+  /** @Prop */
+  devProfile = false;
 
-  canCreateClient = Prop(false);
-  canListClient = Prop(true);
+  /** @Prop */
+  canCreateProcess = true;
+  /** @Prop */
+  canListProcess = true;
 
-  canCreateColaborador = Prop(false);
-  canListColaborador = Prop(true);
+  /** @Prop */
+  canCreateClient = true;
+  /** @Prop */
+  canListClient = true;
+
+  /** @Prop */
+  canCreateColaborador = true;
+  /** @Prop */
+  canListColaborador = true;
 
   template = `
   <aside id="leftsidebar" class="sidebar">
@@ -35,14 +42,10 @@ class Menu extends ViewComponent {
       <li class="menu-item-julaw active">
             <a class="item-menu active" href="#"><i class="fas fa-folder"></i> Processos</a>
             <ul class="submenu">
-                <li
-                  (renderIf)="self.canCreateProcess"
-                  >
+                <li>
                     <a href="#" (click)="gotoView('ProcessoForm')"> Criar </a>
                 </li>
-                <li
-                 (renderIf)="self.canListProcess"
-                >
+                <li>
                   <a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a>
                 </li>
                 <li><a href="#" (click)="gotoView('ColaboradorDashboard')">Meus Processos </a></li>
@@ -51,14 +54,10 @@ class Menu extends ViewComponent {
       <li class="menu-item-julaw">
             <a href="#" class="item-menu "><i class="fas fa-users"></i> Clientes</a>
             <ul class="submenu">
-                <li
-                  (renderIf)="self.canCreateClient"
-                >
+                <li>
                   <a href="#" (click)="gotoView('ClientForm')"> Cadastrar </a>
                 </li>
-                <li
-                    (renderIf)="self.canListClient"
-                >
+                <li>
                   <a href="#" (click)="gotoView('ClientsGrid')"> Listar</a>
                 </li>
             </ul>
@@ -66,13 +65,9 @@ class Menu extends ViewComponent {
       <li class="menu-item-julaw">
             <a href="#" class="item-menu"><i class="fas fa-user"></i> Colaboradores</a>
             <ul class="submenu">
-                  <li
-                      (renderIf)="self.canCreateColaborador"
-                  ><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a>
+                  <li><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a>
                   </li>
-                  <li
-                      (renderIf)="self.canListProcess"
-                  ><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a>
+                  <li><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a>
                   </li>
             </ul>
       </li>
@@ -81,6 +76,9 @@ class Menu extends ViewComponent {
             <ul class="submenu">
                   <li><a href="#" (click)="gotoView('POC')"> Generico </a></li>
             </ul>
+      </li>
+      <li class="menu-item-julaw">
+          <a href="#" class="item-menu"  (click)="gotoView('Despesas')"><i class="fas fa-file-invoice"></i> Despesas</a>
       </li>
     </ul>
   </aside>

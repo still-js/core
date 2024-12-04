@@ -342,8 +342,18 @@ class BaseComponent extends BehaviorComponent {
 
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
-                    eval(this.getClassPath())[field] = value;
-                    eval(this.getClassPath())[evt](param);
+                    const instance = eval(this.getClassPath());
+
+                    if (!(field in instance)) {
+                        throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
+                    }
+
+                    if (!(evt in instance)) {
+                        throw new Error(`Method with name ${field}() is not define in ${this.getName()}`);
+                    }
+
+                    instance[field] = value;
+                    instance[evt](param);
                 })
             }
         });
@@ -351,7 +361,7 @@ class BaseComponent extends BehaviorComponent {
 
     getBoundOnChange(template) {
 
-        const extremRe = /[\n \r \( \) A-Za-z0-9 \- \s \" \=]{0,}/.source;
+        const extremRe = /[\n \r \( \) A-Za-z0-9 \- \s \. \_ \" \=]{0,}/.source;
         const mathIfChangeEvt = /\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"/;
         const matchChange = '(change)="';
 
@@ -439,6 +449,7 @@ class BaseComponent extends BehaviorComponent {
         return template;
     }
 
+
     parseShowIf(template, reSIf, matchShowIfRE, handleErrorMessage) {
         const cls = this;
         return template.replace(reSIf, (mt) => {
@@ -454,9 +465,10 @@ class BaseComponent extends BehaviorComponent {
                     const classFlag = `${showFlag.replace('self.', '').trim()}`;
 
                     try {
-                        showFlagValue = eval(`cls.${classFlag}`);
+                        showFlagValue = { value: eval(`cls.${classFlag}`), onlyPropSignature: true };
                         listenerFlag = '_stFlag' + classFlag + '_' + cls.constructor.name + '_change';
                         Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value });
+                        this[classFlag] = showFlagValue;
                     } catch (e) {
                         handleErrorMessage(classFlag, matchInstance);
                     }
@@ -516,7 +528,7 @@ class BaseComponent extends BehaviorComponent {
                  * Validate the if the flag value is false, in case it's false then hide it and
                  * then mark this view part to be removed 
                  */
-                if (!renderFlagValue.value) {
+                if (!renderFlagValue) {
 
                     const isThereShowIf = mt.match(matchShowIfRE);
                     /**

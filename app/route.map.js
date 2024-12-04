@@ -23,7 +23,9 @@ const routesMap = {
             ModalPagamento: 'components/modal',
             ModalListPagamentos: 'components/modal',
             ModalDetalhesFactura: 'components/modal',
+            Despesas: 'components/despesas',
             POC: 'components/uipoc',
+            CreateButton: 'generics/button',
         }
     },
 }

@@ -85,12 +85,11 @@ class ClientsGrid extends ViewComponent {
         <div class="block-header">
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <button (click)="gotoCreateCliente()" type="button" class="btn btn-primary m-t-15 waves-effect">
-                        <span style="display: flex; gap: 10px; align-items: center;">
-                            <i class="material-icons">create_new_folder</i>
-                            Novo
-                        </span>
-                    </button>
+                                        
+                    <st-element
+                        component="CreateButton"
+                        (onClick)="gotoCreateCliente()"
+                    >
 
                     <ul class="breadcrumb breadcrumb-style" style="
                         display: flex;

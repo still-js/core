@@ -637,9 +637,9 @@ class Components {
 
         setTimeout(async () => {
             newInstance.parseOnChange();
-            await newInstance.onRender();
-            await newInstance.stAfterInit();
         }, 200);
+        await newInstance.stAfterInit();
+        await newInstance.onRender();
 
     }
 

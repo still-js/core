@@ -55,6 +55,7 @@ class ProcessoDetalhes extends ViewComponent {
   horasMes;
   custoTotal;
   custoParcelaApagar;
+  pagamentosProcesso;
 
   modePagamento = [
     { code: 1, designacao: 'Transferência Bancária' },
@@ -231,7 +232,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   /** @Prop */
-  showAvenca = true
+  showAvenca = false
     /** @Prop */
   showModoFixo = false
     /** @Prop */
@@ -765,182 +766,119 @@ class ProcessoDetalhes extends ViewComponent {
     </div>
     <!-- Fim TAB Anexos -->
 
+
+
     <!-- Inicio TAB Honorário -->
     <div role="tabpanel" class="tab-pane fade" id="honorarios">
- 
-      <!-- Modo Pagamento - Fixo
-        <span 
-          (showIf)="self.showModoProbono"
-        >
-          <div class="display-flex">
-            <p> Modo ProBono </p>
-          </div>
-        </span>
-      -->
 
-      <!-- Modo Pagamento - Fixo 
-      <span 
-        (showIf)="self.showModoFixo"
-      >
-        <div class="display-flex">
-          <p> Modo Fixo </p>
-        </div>
-      </span>
-
-      -->
-
-      <!-- Modo Pagamento - Success Fee 
-
-      <span 
-        (showIf)="self.showModoSuccessFee"
-      >
-      <div class="display-flex">
-        <p> Modo Success Fee </p>
-      </div>
-      </span>  
-      -->
-      
-      
-      <!-- Modo Pagamento - Avença 
-
-      <span 
-      (showIf)="self.showAvenca"
-      >
-
-      -->
+    <fieldset id="idShowModoSuccessFee" style="display: none;">
+    <legend> Modo de Facturação: <span style="font-weight: bold">Success Fee</span> </legend>
+  
+    <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
+      <div style="font-weight: bold;">Custo do Projecto</div>
       <div>
-
-      <fieldset>
-        <legend>Success Fee</legend>
-
-        <div style="margin-bottom: 5px">
-        <div style="font-weight: bold;">Custo do Projecto</div>
-        <div>
-          <input 
-            id="idCustoProjecto" 
-            (value)="custoTotal" 
-            style="border: none; background-color: #f5f5f5;" 
-            readonly="true" />
-          </div>
+        <input id="idCustoProjecto" (value)="custoTotal" style="border: none; background-color: #f5f5f5;"
+          readonly="true" />
       </div>
-
-      <div>
-        Parcelas pagas
-        <div id="divParcelasPagas">Nenhuma parcela</div>
-      </div>
-      <div>
-        
+    </div>
+  
+    <div style="background-color: #fff;">
+    <div style="margin-bottom: 30px;">
+      Parcelas pagas
+      <div id="divParcelasPagas">Nenhuma parcela</div>
+    </div>
+    <div>
       <div class="form-line">
-      <input 
-        id="idCustoParcelaApagar"
-        (required)="true"
-        (validator)="text" 
-        type="text" 
-        class="form-control date" 
-        placeholder="custo da Parcela a pagar" 
-        (value)="custoParcelaApagar">
+        <input id="idCustoParcelaApagar" (required)="true" (validator)="number" type="text" class=""
+          placeholder="custo da Parcela a pagar" (value)="custoParcelaApagar">
       </div>
-
-      </div>
-
-      <div style="display: flex; justify-content: right; margin-top: 30px;">
-        <!-- <span (click)="checkHonorarios()">Validar</span> -->
-        <button 
-          class="btn btn-primary julaw-submit-button" 
-          (click)="generateHonorarioModoSuccessFee()">
-           Gerar Honorário
-        </button>
-      </div>
-     </fieldset>
-
-
-
-     <fieldset>
-     <legend>Fixo</legend>
-
-      <div style="margin-bottom: 5px">
-        <div style="font-weight: bold;">Custo do Projecto</div>
-        <div>
-          <input 
-            (value)="custoTotal" 
-            style="border: none; background-color: #f5f5f5;" 
-            readonly="true" />
-          </div>
-      </div>
-
-      <div style="display: flex; justify-content: right; margin-top: 30px;">
-        <!-- <span (click)="checkHonorarios()">Validar</span> -->
-        <button 
-          class="btn btn-primary julaw-submit-button" 
-          (click)="generateHonorarioModoFixo()">
-           Gerar Honorário
-        </button>
-      </div> 
-
-    </fieldset>
-
-
-    <fieldset>
-      <legend>Avença</legend>
-
-      <div style="margin-bottom: 5px">
-      <div style="font-weight: bold;">Horas Mês do Projecto</div>
+    </div>
+    </div>
+  
+    <div style="display: flex; justify-content: right; margin-top: 30px;">
+      <!-- <span (click)="checkHonorarios()">Validar</span> -->
+      <button class="btn btn-primary julaw-submit-button" (click)="generateHonorarioModoSuccessFee()">
+        Gerar Honorário
+      </button>
+    </div>
+  </fieldset>
+  
+  
+  
+  <fieldset id="idShowModoFixo" style="display: none;">
+    <legend> Modo de Facturação: <span style="font-weight: bold">Fixo</span> </legend>
+  
+    <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
+      <div style="font-weight: bold;">Custo do Projecto</div>
       <div>
-      <input 
-        id="horasMes" 
-        (value)="horasMes" 
-        style="border: none; background-color: #f5f5f5;" 
-        readonly="true" />
+        <input (value)="custoTotal" style="border: none; background-color: #f5f5f5;" readonly="true" />
       </div>
+    </div>
+  
+    <div style="display: flex; justify-content: right; margin-top: 30px;">
+      <!-- <span (click)="checkHonorarios()">Validar</span> -->
+      <button class="btn btn-primary julaw-submit-button" (click)="generateHonorarioModoFixo()">
+        Gerar Honorário
+      </button>
+    </div>
+  
+  </fieldset>
+  
+  
+  <fieldset id="idShowAvenca" style="display: none;">
+    <legend> Modo de Facturação: <span style="font-weight: bold">Avença</span> </legend>
+  
+    <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
+      <div style="font-weight: bold;">Horas/Mês do Projecto</div>
+      <div>
+        <input id="horasMes" (value)="horasMes" style="border: none; background-color: #f5f5f5;" readonly="true" />
       </div>
-
-
-      <div class="display-flex">
-
-        <div class="input-field col s12">
-          <select (change)="updatePrecedentes($event)" (forEach)="modePagamento">
-            <option each="item" value="">Modo de pagamento</option>
-            <option each="item" value="{item.code}">{item.designacao}</option>
-          </select>
-        </div>
+    </div>
+  
+  
+    <div class="display-flex">
+  
+      <div class="input-field col s12">
+        <select (change)="updatePrecedentes($event)" (forEach)="modePagamento">
+          <option each="item" value="">Modo de pagamento</option>
+          <option each="item" value="{item.code}">{item.designacao}</option>
+        </select>
+      </div>
       <div class="input-field col s12">
         <select (change)="updatePrecedentes($event)" (forEach)="listEquipas">
-            <option each="item" value="">Nome Advogado</option>
-            <option each="item" value="{item.id}">{item.descricao}</option>
+          <option each="item" value="">Nome Advogado</option>
+          <option each="item" value="{item.id}">{item.descricao}</option>
         </select>
-        </div>
       </div>
-
-      </div>
-
-      <st-element
-        component="TBDragableGrid"
-        proxy="honorarioProxy"
-        tableData="parent.dadosTimeSheet"
-        tableFields="parent.horarioCabecalho"
-        destFields="parent.horarioDestCabecalho"
-        destPlaceholder="Arraste aqui o item a pagar"
-        >
-      </st-element>
-
-      <div style="display: flex; justify-content: right; margin-top: 30px;">
-        <!-- <span (click)="checkHonorarios()">Validar</span> -->
-        <button 
-          class="btn btn-primary julaw-submit-button" 
-          (click)="generateHonorario()">
-          Gerar Honorário
-        </button>
-      </div>
-      </div>
-
-      </fieldset>
-
-      <!--
-        </span>
-      -->
-   
-
+  
+    </div>
+  
+    <st-element component="TBDragableGrid" proxy="honorarioProxy" tableData="parent.dadosTimeSheet"
+      tableFields="parent.horarioCabecalho" destFields="parent.horarioDestCabecalho"
+      destPlaceholder="Arraste aqui o item a pagar">
+    </st-element>
+  
+    <div style="display: flex; justify-content: right; margin-top: 30px;">
+      <!-- <span (click)="checkHonorarios()">Validar</span> -->
+      <button class="btn btn-primary julaw-submit-button" (click)="generateHonorario()">
+        Gerar Honorário
+      </button>
+    </div>
+  
+  </fieldset>
+  
+  
+  <fieldset id="idModoProbono" style="display: none;">
+    <legend>Modo de Facturação: <span style="font-weight: bold">Probono</span></legend>
+  
+    <div style="margin-bottom: 5px">
+      <p>Obs.: O modo de facturação do Processo, é isento de qualquer pagamento.</p>
+    </div>
+  </fieldset>
+  
+</div>
       
+
     <!-- Fim TAB Anexos -->
 
     <div class="still-popup-curtain" (showIf)="self.showFactura"></div>
@@ -1030,12 +968,20 @@ class ProcessoDetalhes extends ViewComponent {
     
   }
 
+  getPaymentsProcesso(idProcesso) {
+
+    this.processoService.on('load', async () => {
+      this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);       
+    }); 
+  }
+
 
   stAfterInit(val) {
 
     const routeData = Router.data("ProcessoDetalhes");
 
     this.getDetalhesProcesso(routeData)
+    this.getPaymentsProcesso(routeData)
 
     document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -1066,44 +1012,31 @@ class ProcessoDetalhes extends ViewComponent {
     switch(data.modo_facturacao){
       case 'Success Fee': 
         console.log("success fee")
+        document.getElementById('idShowModoSuccessFee').style.display = "block"
         this.showModoSuccessFee = true
         break;
       case 'Fixo': 
         console.log("fixo")
+        document.getElementById('idShowModoFixo').style.display = "block"
         this.showModoFixo = true
         break;
       case 'Avença': 
         console.log("Avenca")
+        document.getElementById('idShowAvenca').style.display = "block"
         this.showAvenca = true
         break;
       case 'Probono': 
         console.log("probono")
+        document.getElementById('idModoProbono').style.display = "block"
         this.showModoProbono = true
         break;
       default:
         console.log("default")
+        document.getElementById('idShowAvenca').style.display = "block"
         this.showAvenca = true
         break;
     } 
 
-    console.log(" > avenca ", this.showAvenca)
-    console.log(" >> probono ", this.showModoProbono)
-    console.log(" >>> fixo ", this.showModoFixo)
-    console.log(" >>> > success ", this.showModoSuccessFee)
-
-    setTimeout(() => {
-        this.showModoSuccessFee = false;
-        this.showAvenca = true
-
-        console.log("executor depois de 5 segundos")
-
-        console.log(" > avenca ", this.showAvenca)
-        console.log(" >> probono ", this.showModoProbono)
-        console.log(" >>> fixo ", this.showModoFixo)
-        console.log(" >>> > success ", this.showModoSuccessFee)
-       
-
-    }, 5000)
     }catch(e){
       console.log(e)
     }
@@ -1154,10 +1087,8 @@ class ProcessoDetalhes extends ViewComponent {
     this.tarefas = data.tarefas ? data.tarefas : [];
     this.anexos = data.anexos ? data.anexos : [];
 
-
     this.horasMes = data.horas_mes ? data.horas_mes : 0;
-    this.custoTotal = data.valor_total ? data.valor_total : 0;
-    
+    this.custoTotal = data.valor_total ? data.valor_total : 0;    
 
     /** Setters values  */
     this.setValueById('input_metodologia', this.metodologia.value)
@@ -1193,7 +1124,7 @@ class ProcessoDetalhes extends ViewComponent {
     
 
     // here 
-    // this.verifyModoFacturamento(data)
+    this.verifyModoFacturamento(data)
 
 
   }
@@ -1203,8 +1134,6 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   toggleEditarInputArea(id, isEdit = true) {
-    console.log(id)
-    // document.getElementById("")
     let elm = document.getElementById(id)
     if (isEdit) {
       elm.removeAttribute("readonly")
@@ -1389,7 +1318,6 @@ class ProcessoDetalhes extends ViewComponent {
       });
 
   }
-
 
 
   async addPrecedentesProcesso(idForm) {
@@ -1580,7 +1508,6 @@ class ProcessoDetalhes extends ViewComponent {
 
   editProcesso(id) {
     const idProcesso = id == undefined ? this.id.value : id;
-    console.log("here... ProcessoDetalhes ...", idProcesso)
     Router.goto("ProcessoForm", {
       data: idProcesso,
     });
@@ -1588,7 +1515,6 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** toogle dos forms */
   toggleForms(id) {
-    console.log(id)
     let form = document.getElementById(id)
     form.classList.toggle("showForm")
   }
@@ -1612,7 +1538,6 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
 
         if (response.status !== 200) {
           AppTemplate.hideLoading();
@@ -1758,7 +1683,6 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
 
         AppTemplate.hideLoading();
         if (response.status === 200) {
@@ -1771,7 +1695,6 @@ class ProcessoDetalhes extends ViewComponent {
           link.download = `Processo anexo _ ${response.data.fileName}`;
           link.id = `download_processo`;
           document.body.appendChild(link);
-          console.log("o link do download ", link)
           link.click(); 
           setTimeout(()=> {
             document.body.removeChild(link); 
@@ -1949,9 +1872,6 @@ class ProcessoDetalhes extends ViewComponent {
 
     const data = this.honorarioProxy.getDestData();
 
-
-    console.log("data ", data)
-
     const totalFactura = data
     .map(
       r => parseFloat(cleanMoedaValue(r.total))
@@ -1979,7 +1899,6 @@ class ProcessoDetalhes extends ViewComponent {
       }))
 
     }
-
 
     $still.HTTPClient.post(
       "http://localhost:3000/api/v1/processo_factura",
@@ -2020,49 +1939,29 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   }
-
-
 
 
   generateHonorarioModoSuccessFee() {
 
     console.log("generateHonorarioModoSuccessFee")
 
-    return 0
+    if(this.custoParcelaApagar.value == "" || this.custoParcelaApagar.value == 0)
+        return AppTemplate.toast({ status: 'error', message: "O valor da parcela é Obrigatório!" })
 
     AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
    
-
     const data = this.honorarioProxy.getDestData();
-
-    const totalFactura = data
-    .map(
-      r => parseFloat(cleanMoedaValue(r.total))
-    )
-    .reduce((accum, val) => accum + val);
-
-    const totalHoras = data
-    .map(
-      r => parseFloat(cleanHorasValue(r.qtd))
-    )
-    .reduce((accum, val) => accum + val);
 
     let payload = {
       'processo_id': this.id.value,
       'cliente_id': this.clienteId.value,
       'colaborador_id':  this.userLogged.value.id,
-      'horas': totalHoras,
-      'custo': totalFactura,
+      'horas': 0,
+      'custo': this.custoParcelaApagar.value,
       'status': 'pendente',
-      'items': data.map((item) => ({
-          "processos_timesheet_id": item.id,
-          "horas": parseFloat(cleanHorasValue(item.qtd)),
-          "custo": parseFloat(cleanMoedaValue(item.custo)),
-          "dados_adicionais": JSON.stringify(item)
-      }))
-
+      'items': []
     }
 
 
@@ -2093,7 +1992,7 @@ class ProcessoDetalhes extends ViewComponent {
             const invoiceNum = Math.random().toString().split('.')[1];
             this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
             this.facturaProxy.setNomeDocliente(this.cliente.value);
-            this.facturaProxy.setTotalFactura(totalFactura);
+            this.facturaProxy.setTotalFactura(this.custoParcelaApagar.value);
             this.facturaProxy.itensFactura = data;
 
           }
@@ -2103,14 +2002,10 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.toast({ status: 'error', message: err.message })
       });
 
-
   }
 
 
-
-
   generateHonorarioModoFixo() {
-
 
     if(!this.clienteId.value)
       return AppTemplate.toast({ status: 'Error', message: 'O Proceso deve ter cliente para facturar.' })
@@ -2152,14 +2047,10 @@ class ProcessoDetalhes extends ViewComponent {
               }
           } else { 
 
-            console.log("exemplo .... chegou aqui ... ", response.data)
-            
             AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
 
             let dataResponse = response.data
             this.showFactura = true;
-
-            console.log("chegou aqui .... ", this.showFactura)
 
             const invoiceNum = Math.random().toString().split('.')[1];
             this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
@@ -2173,9 +2064,6 @@ class ProcessoDetalhes extends ViewComponent {
                 "dados_adicionais": JSON.stringify(item)
               }
             ]
-
-            console.log("chegou aqui .... novamente ...  ", this.showFactura)
-
 
           }
       })
@@ -2249,6 +2137,16 @@ function cleanHorasValue(val){
     .trim()
 }
 
+/**
+ * 
+ * idShowAvenca
+idShowModoFixo
+idShowModoSuccessFee
+idModoProbono
+
+
+
+ */
 
 /**
  * End of Move this to Utility class of function

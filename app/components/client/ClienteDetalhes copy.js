@@ -219,20 +219,35 @@ class ClienteDetalhes extends ViewComponent {
      top: 0;
      background: white;
      z-index: 529985;
-     width: 80%;
+     width: 66%;
      margin: 0 auto;
      position: absolute;
      left: 50%;
-     top: 20%;
+     top: 25%;
      transform: translate(-50%,-50%);
+   }
+
+   .still-popup-curtain{
+
+     position: fixed;
+     padding: 0;
+     margin: 0;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0,0,0,0.5);
+     z-index: 529983;
+
    }
 
  </style>
   
+  </section>
+
     <div 
       class="modal-wrapper" 
-      id="idShowModalPagamento"
-      style="display: none"
+      (showIf)="self.showModalPagamento"
     >
       <st-element
         component="ModalPagamento"
@@ -242,8 +257,30 @@ class ClienteDetalhes extends ViewComponent {
       </st-element>
     <div>
 
-  </section>
-  `;
+    <div 
+    class="modal-wrapper" 
+    (showIf)="self.showModalDetalhesFactura"
+    >
+      <st-element
+        component="ModalDetalhesFactura"
+        proxy="modalDetalhesFacturaProxy"
+        (onCloseModal)="fecharModalDetalhesFactura()"
+      >
+      </st-element>
+    <div>
+
+    <div 
+      class="modal-wrapper" 
+     (showIf)="self.showModalListPagamentos"
+    >
+      <st-element
+        component="ModalListPagamentos"
+        proxy="modalListPagamentosProxy"
+        (onCloseModal)="fecharModalListPagamentos()"
+      >
+      </st-element>
+    <div>
+    `;
 
   constructor() {
     super();
@@ -255,6 +292,7 @@ class ClienteDetalhes extends ViewComponent {
       data: record.id,
     });
   }
+
 
   gotoView(viewComponent) {
     Router.goto(viewComponent);
@@ -327,6 +365,7 @@ class ClienteDetalhes extends ViewComponent {
     ).then((r) => {
       let dataResponse = r.data;
       if (dataResponse) {
+        console.log("processo facturas >>>>>>>>>>   ", dataResponse);
         this.dataTableListFacturas.dataSource = dataResponse;
       }
     });
@@ -347,18 +386,9 @@ class ClienteDetalhes extends ViewComponent {
 
   callModalPagamento(row, col, record) {
 
-    console.log("callModalPagamento ", record)
-
-    this.modalPagamentoProxy.ref = record.ref
-    this.modalPagamentoProxy.valor = record.custo
-
-    document.getElementById('idShowModalPagamento').style.display = "block"
-    
-  }
-
-  fecharModalPagamento(row, col, record) {
     console.log("callModalPagamento ", row, col, record)
-    document.getElementById('idShowModalPagamento').style.display = "none"
+    this.showModalPagamento = true
+
   }
 
 }

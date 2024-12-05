@@ -498,9 +498,25 @@ class Components {
                 tmpltContent = childs[1].outerHTML.toString();
             }
 
+            container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field);
+            return container;
+
         } else {
             tmpltContent = elm.firstElementChild.outerHTML.toString();
         }
+
+
+        /** Get the previous table body */
+        const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
+        /** Check if it exists previous table body and remove it */
+        if (oldContainer) elm.parentNode.removeChild(oldContainer);
+
+        container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field);
+        return container;
+
+    }
+
+    parseForEachTemplate(tmpltContent, cmp, field) {
 
         let template = tmpltContent.replace('display:none;', '');
         let result = '';
@@ -512,17 +528,7 @@ class Components {
                 result += this.replaceBoundField(parsingTemplate, fields);
             });
         }
-
-
-        /** Get the previous table body */
-
-        const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
-        /** Check if it exists previous table body and remove it */
-        if (oldContainer) elm.parentNode.removeChild(oldContainer);
-
-        container.innerHTML = result;
-        return container;
-
+        return result;
     }
 
     replaceBoundField(parsingTemplate, fields) {
@@ -581,7 +587,7 @@ class Components {
             .defineNewInstanceMethod();
 
         setTimeout(() => {
-            parsing.parseOnChange().parseGetsAndSets().markParsed();
+            parsing.parseGetsAndSets().markParsed();
         });
 
         return window[componentName];
@@ -638,7 +644,7 @@ class Components {
         setTimeout(async () => {
             newInstance.parseOnChange();
         }, 200);
-        await newInstance.stAfterInit();
+        //await newInstance.stAfterInit();
         await newInstance.onRender();
 
     }

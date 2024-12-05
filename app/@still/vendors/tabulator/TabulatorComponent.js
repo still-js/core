@@ -75,6 +75,8 @@ class TabulatorComponent extends ViewComponent {
             this.onCellClick(clickedRow, clickedCol, rowData);
 
         });
+
+        this.emit('load');
     }
 
     clearTable() {
@@ -131,9 +133,10 @@ class TabulatorComponent extends ViewComponent {
 
     }
 
-    insertRow(data) {
-        const existingData = [...this.table.getData()];
-        existingData.push(data);
+    insertRow(data, dataSource = null) {
+        const existingData = dataSource || [...this.table.getData()];
+        if (!dataSource)
+            existingData.push(data);
         this.dataSource = existingData;
     }
 

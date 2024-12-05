@@ -36,5 +36,35 @@ class ProcessoService {
         return response?.data;
     }
 
+    getListClientes() {
+        return new Promise((resolve) => {
+
+            $still.HTTPClient.get("http://localhost:3000/api/v1/cliente/").then((r) => {
+                if (r.data) {
+                    let clienteData = [];
+
+                    for (let cliente of r.data) {
+                        clienteData.push({
+                            id: cliente.id,
+                            descricao: `${cliente.tipo.description} - ${cliente.denominacao}`,
+                        });
+                    }
+
+                    resolve(clienteData);
+                }
+                resolve(null);
+            });
+
+        })
+    }
+
+    async getProcessos() {
+        const response = await $still.HTTPClient.get(
+            `http://localhost:3000/api/v1/processo/processos/list`
+        );
+
+        return response?.data;
+    }
+
 
 }

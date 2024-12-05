@@ -1,29 +1,10 @@
 class Despesas extends ViewComponent {
 
-    clientType = [
-        { nome: 'Manuel', id: 1 },
-        { nome: 'André', id: 2 },
-        { nome: 'Gerson', id: 3 },
-        { nome: 'Maria', id: 4 },
-        { nome: 'Mila', id: 5 }
-    ];
-
-    listProcesso = [
-        { numero: '091280', id: 1 },
-        { numero: 'S0981232', id: 2 },
-        { numero: '87632TR', id: 3 },
-        { numero: '907324678QT', id: 4 },
-        { numero: '87128SN', id: 5 }
-    ];
+    clientList;
+    listProcesso;
 
     /** @Prop */
     dataTableLabels = [
-        {
-            hozAlign: "center",
-            editRow: true,
-            icon: "<i class='fa fa-pen'></i>",
-            width: 20,
-        },
         {
             hozAlign: "center",
             deleteRow: true,
@@ -44,7 +25,7 @@ class Despesas extends ViewComponent {
     despesaForm;
 
     /** @Prop */
-    createFormVisible = true;
+    createFormVisible = false;
 
     /** @Proxy @type { TabulatorComponent } */
     despesasTableProxy;
@@ -58,6 +39,17 @@ class Despesas extends ViewComponent {
 
     nomeClienteFiltro;
     numProcessoFiltro;
+
+    tipoMovimentos = [
+        { id: 1, name: 'Débito' },
+        { id: 2, name: 'Crédito' },
+    ];
+
+    /** @Prop */
+    tipoMovimentosMap = { 1: 'Débito', 2: 'Crédito' };
+
+    /** @Inject @type { ProcessoService } */
+    processoService;
 
     template = `
     <section class="content">
@@ -90,9 +82,9 @@ class Despesas extends ViewComponent {
                                         (required)="true"
                                         (value)="nomeClienteFiltro"
                                         (change)="setNomeClienteFiltro($event)" 
-                                        (forEach)="clientType">
+                                        (forEach)="clientList">
                                         <option each="item" value="">Selecione uma opção</option>
-                                        <option each="item" value="{item.id}">{item.nome}</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
                                 </div>
                             </div>
@@ -138,7 +130,7 @@ class Despesas extends ViewComponent {
             </form>
 
             <form  
-                
+                (showIf)="self.createFormVisible"
                 (formRef)="despesaForm" 
                 onsubmit="javascript: return false;">
                 <!-- <h3>Da</h3> -->
@@ -156,9 +148,9 @@ class Despesas extends ViewComponent {
                                         (required)="true"
                                         (value)="nomeCliente"
                                         (change)="setNomeCliente($event)" 
-                                        (forEach)="clientType">
+                                        (forEach)="clientList">
                                         <option each="item" value="">Selecione uma opção</option>
-                                        <option each="item" value="{item.id}">{item.nome}</option>
+                                        <option each="item" value="{item.id}">{item.descricao}</option>
                                     </select>
                                 </div>
                             </div>
@@ -192,10 +184,10 @@ class Despesas extends ViewComponent {
                                         (required)="true"
                                         (value)="tipoMovimento"
                                         (change)="setTipoMovimento($event)"
+                                        (forEach)="tipoMovimentos"
                                     >
                                         <option each="item" value="">Selecione uma opção</option>
-                                        <option value="1">Débito</option>
-                                        <option value="2">Crédito</option>
+                                        <option each="item" value="{item.id}">{item.name}</option>
                                     </select>
                                 </div>
                             </div>
@@ -253,6 +245,17 @@ class Despesas extends ViewComponent {
     </section>
     `;
 
+    constructor() {
+        super();
+        AppTemplate.showLoading();
+    }
+
+    async stAfterInit() {
+        this.clientList = await this.processoService.getListClientes();
+        this.listProcesso = await this.processoService.getProcessos();
+        await this.getDespesa();
+    }
+
     setDataDespesa(evt) {
         this.dataDespesa = evt.target.value;
     }
@@ -265,16 +268,22 @@ class Despesas extends ViewComponent {
         this.numProcessoFiltro = evt.target.value;
     }
 
+    /** @Prop */
+    nomeClienteText;
     setNomeCliente(evt) {
         this.nomeCliente = evt.target.value;
+        this.nomeClienteText = evt.target.options[evt.target.selectedIndex].text;
     }
 
     showHideCreateForm() {
-        this.createFormVisible = true;
+        this.createFormVisible = !this.createFormVisible;
     }
 
+    /** @Prop */
+    numProcessoText;
     setNumeroProcesso(evt) {
         this.numeroProcesso = evt.target.value;
+        this.numProcessoText = evt.target.options[evt.target.selectedIndex].text;
     }
 
     setTipoMovimento(evt) {
@@ -284,6 +293,7 @@ class Despesas extends ViewComponent {
     saveNewDespesa() {
 
         const colaboradorId = JSON.parse(localStorage._user).id;
+
 
         const payload = {
             colaboradorId,
@@ -305,15 +315,39 @@ class Despesas extends ViewComponent {
         ).then((r) => {
             AppTemplate.hideLoading();
             this.despesasTableProxy.insertRow({
-                numProcesso: payload.idProcesso,
-                nomeCliente: payload.colaboradorId,
+                numProcesso: this.numProcessoText,
+                nomeCliente: this.nomeClienteText,
                 valor: payload.valor,
-                tipo: payload.tipoMovimento,
+                tipo: this.tipoMovimentosMap[payload.tipoMovimento],
                 dataMovimento: payload.dataMovimento
             });
         }).catch((err) => {
             AppTemplate.hideLoading();
-            console.log(`Erro ao cadastrar cliente: `, err);
+            console.log(`Erro ao cadastrar despesa: `, err);
+        });
+
+    }
+
+    getDespesa() {
+
+        $still.HTTPClient.get(
+            'http://localhost:3000/api/v1/processo/despesa/all'
+        ).then((r) => {
+            AppTemplate.hideLoading();
+
+            const dataSource = r.data.map(item => ({
+                numProcesso: item.numeroProcesso,
+                nomeCliente: item.nomeCliente,
+                valor: item.valor,
+                tipo: this.tipoMovimentosMap[item.tipoMovimento],
+                dataMovimento: item?.dataMovimento?.split('T')[0]
+            }));
+
+            this.despesasTableProxy.insertRow(null, dataSource);
+
+        }).catch((err) => {
+            AppTemplate.hideLoading();
+            console.log(`Erro ao buscar despesas: `, err);
         });
 
     }

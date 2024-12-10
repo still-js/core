@@ -17,7 +17,15 @@ class ModalPagamento extends ViewComponent {
         <div class="julaw-card">
         
         <form id="client_wizard_with_validation" (formRef)="clientForm" onsubmit="javascript: return false;">
-        <h3>Pagamento - Factura</h3>
+        <div style="height: 60px;
+                    background-color: #000;
+                    color: #fff;
+                    margin-bottom: 30px;
+                    display: flex;
+                    padding: 15px;"
+        >
+            <h3 style="color: #fff">Pagamento - Factura</h3>
+        </div>
         <fieldset>
             <div class="row clearfix">
                 <div class="col-md-6">
@@ -104,8 +112,12 @@ class ModalPagamento extends ViewComponent {
             </div>
 
         </fieldset>
+
+        <div>
+            <button class="btn btn-defult" (click)="closeModal()">Cancelar</button>
+            <button class="btn btn-primary julaw-submit-button" (click)="salvarPagamento()">Salvar</button>
+        </div>
    
-        <button class="btn btn-primary julaw-submit-button" (click)="salvarPagamento()">Salvar</button>
     </form>
 
         </div>    

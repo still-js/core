@@ -91,6 +91,7 @@ class Login extends ViewComponent {
                         alert(response.errors);
                         Router.goto('init');
                     } else {
+
                         localStorage.setItem('_user', JSON.stringify(response.data));
                         localStorage.setItem('logged', true);
                         alert("Bem-vindo (a), a plataforma JuLAW");
@@ -98,7 +99,15 @@ class Login extends ViewComponent {
                         AppTemplate.get().store('userName', response.data.nome_completo);
                         AppTemplate.get().store('persmissions', { canSeeGrid: false });
                         AppTemplate.get().setAuthN(true);
-                        Router.goto('ColaboradorDashboard');
+
+                        if(response.data.funcao == "cliente") {
+                            Router.goto("ClienteDetalhes", {
+                                data: response.data.id
+                              });
+                            
+                        }else{
+                            Router.goto('ColaboradorDashboard');
+                        }
                         // aonde guardar os dados do user logado com seguranca
                     }
 

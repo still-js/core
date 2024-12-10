@@ -51,7 +51,6 @@ class ProcessoDetalhes extends ViewComponent {
   inputAnexoDescricao;
   inputAnexoFile;
 
-
   horasMes;
   custoTotal;
   custoParcelaApagar;
@@ -783,11 +782,35 @@ class ProcessoDetalhes extends ViewComponent {
     </div>
   
     <div style="background-color: #fff;">
-    <div style="margin-bottom: 30px;">
-      Parcelas pagas
-      <div id="divParcelasPagas">Nenhuma parcela</div>
+    <div style="
+          margin-bottom: 50px;
+          background-color: #ffffff;
+          padding: 15px;
+          margin-top: 30px;
+          border: 0.5px solid #c3c3c3;
+    ">
+      <h4>Parcelas pagas</h4>
+      <table>
+        <thead>
+          <tr style="text-align: center;">
+              <th>Valor Pago</th>
+              <th>Modo Pagamento</th>
+              <th>Colaborador</th>
+              <th>Data registo</th>
+          </tr>
+        </thead>
+        <tbody (forEach)="pagamentosProcesso">
+          <tr each="item" style="text-align: center">
+              <td class="invoice-align-to-center">{item.valor_pago}</td>
+              <td class="invoice-align-to-center">{item.modo_pagamento}</td>
+              <td class="invoice-align-to-center">{item.colaborador}</td>
+              <td class="invoice-align-to-center">{item.created_at}</td>
+          </tr>
+        </tbody>
+      </table> 
     </div>
     <div>
+    
       <div class="form-line">
         <input id="idCustoParcelaApagar" (required)="true" (validator)="number" type="text" class=""
           placeholder="custo da Parcela a pagar" (value)="custoParcelaApagar">
@@ -971,7 +994,8 @@ class ProcessoDetalhes extends ViewComponent {
   getPaymentsProcesso(idProcesso) {
 
     this.processoService.on('load', async () => {
-      this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);       
+      this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);     
+      console.log("pagamentos >>> ", this.pagamentosProcesso)  
     }); 
   }
 
@@ -2092,6 +2116,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
 }
+
 
 
 /**

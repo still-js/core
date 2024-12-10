@@ -68,7 +68,7 @@ class ClienteDetalhes extends ViewComponent {
     /** @Prop */
     showModalDetalhesFactura = false;
     /** @Prop */
-    showModalPagamento = true;
+    showModalPagamento = false;
     /** @Prop */
     showModalListPagamentos = false;
 
@@ -197,8 +197,8 @@ class ClienteDetalhes extends ViewComponent {
                             proxy="dataTableListFacturas"
                             tableHeader="parent.dataTableFacturasLabels" 
                             tableHeight="auto"
-                            (onEditColumn)="downloadFacturaProcesso(fieldName, data)"
-                            (onDeleteRow)="downloadPagamentosFactura(fieldName, data)" 
+                            (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
+                            (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
                             (onCellClick)="callModalPagamento(row, col, data)">
                         </st-element>
                 </div>
@@ -240,7 +240,35 @@ class ClienteDetalhes extends ViewComponent {
         (onCloseModal)="fecharModalPagamento()"
       >
       </st-element>
-    <div>
+    </div>
+
+
+    <div 
+      class="modal-wrapper" 
+      id="idShowModalDetalhesFactura"
+      style="display: none"
+    >
+    <st-element
+      component="ModalDetalhesFactura"
+      proxy="modalDetalhesFacturaProxy"
+      (onCloseModal)="fecharModalDetalhesFactura()"
+    >
+    </st-element>
+    </div>
+
+
+      <div 
+        class="modal-wrapper" 
+        id="idShowModalPagamentosFactura"
+        style="display: none"
+      >
+      <st-element
+        component="ModalListPagamentos"
+        proxy="modalListPagamentosProxy"
+        (onCloseModal)="fecharModalPagamentosFactura()"
+      >
+      </st-element>
+    </div>
 
   </section>
   `;
@@ -270,7 +298,8 @@ class ClienteDetalhes extends ViewComponent {
 
     try {
       if (routeData) {
-        this.getDetalhesCliente(routeData)      
+        this.getDetalhesCliente(routeData)  
+        this.id = routeData    
       }
     } catch (e) {
       console.log("onRender Cliente Detalhes >>>  >>>  ", e);
@@ -329,21 +358,37 @@ class ClienteDetalhes extends ViewComponent {
   }
 
 
-  downloadFacturaProcesso(_, record) {
+  detalhessFacturaCliente(_, record) {
+    
+    console.log("datalhes factura items", _, record.items)
 
-    console.log("Fazer o download da factura ", _ , record)
+    this.modalDetalhesFacturaProxy.idFactura = record.id
+    this.modalDetalhesFacturaProxy.itensFactura = record.items
+
+    document.getElementById('idShowModalDetalhesFactura').style.display = "block"
+
+    console.log("<<<< here ...  ",  this.modalDetalhesFacturaProxy.itensFactura)
+  }
+
+  detalhessPagamentosFacturaCliente(_, record) {
+
+    console.log("detalhes pagamentos ", _, record)
+
+    this.modalListPagamentosProxy.idFactura = record.id
+    this.modalListPagamentosProxy.estado = record.estado
+    this.modalListPagamentosProxy.ref = record.ref
+    this.modalListPagamentosProxy.horas = record.horas
+    this.modalListPagamentosProxy.custo = record.custo
+    this.modalListPagamentosProxy.dataRegisto = record.created_at
+
+
+    this.modalListPagamentosProxy.listPagamentos = record.pagamentos
+    document.getElementById('idShowModalPagamentosFactura').style.display = "block"
 
   }
 
-  downloadPagamentosFactura(_, record) {
-
-    console.log("fazer o download dos pagamentos  ", _ , record)
-
-  }
 
   callModalPagamento(row, col, record) {
-
-    console.log("callModalPagamento ", record)
 
     this.modalPagamentoProxy.idFactura = record.id
     this.modalPagamentoProxy.ref = record.ref
@@ -353,9 +398,17 @@ class ClienteDetalhes extends ViewComponent {
 
   }
 
+
   fecharModalPagamento(row, col, record) {
-    console.log("callModalPagamento ", row, col, record)
     document.getElementById('idShowModalPagamento').style.display = "none"
+  }
+
+  fecharModalDetalhesFactura(row, col, record) {
+    document.getElementById('idShowModalDetalhesFactura').style.display = "none"
+  }
+
+  fecharModalPagamentosFactura(row, col, record) {
+    document.getElementById('idShowModalPagamentosFactura').style.display = "none"
   }
 
 }

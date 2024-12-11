@@ -119,6 +119,7 @@ class ClientsGrid extends ViewComponent {
                     component="TabulatorComponent"
                     proxy="dataTable"
                     tableHeader="parent.dataTableLabels"
+                     tableHeight="auto"
                     (onEditColumn)="getClientDetails(fieldName, data)"
                     (onDeleteRow)="deleteRow(fieldName, data)"
                     (onCellClick)="goToClienteDetalhes(row, col, data)"

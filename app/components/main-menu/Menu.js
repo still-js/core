@@ -1,27 +1,33 @@
 class Menu extends ViewComponent {
   htmlRefId = "leftsidebar";
 
+  userId;
   userName;
   userRole = "Admin";
+  userFuncao;
 
   roles;
   /** @Prop */
   devProfile = false;
 
   /** @Prop */
-  canCreateProcess = true;
+  canSeeHomePage = false;
   /** @Prop */
-  canListProcess = true;
+  canCreateProcess = false;
+  /** @Prop */
+  canListProcess = false;
+  /** @Prop */
+  canListMineProcess = false;
 
   /** @Prop */
-  canCreateClient = true;
+  canCreateClient = false;
   /** @Prop */
-  canListClient = true;
+  canListClient = false;
 
   /** @Prop */
-  canCreateColaborador = true;
+  canCreateColaborador = false;
   /** @Prop */
-  canListColaborador = true;
+  canListColaborador = false;
 
   template = `
   <aside id="leftsidebar" class="sidebar">
@@ -36,38 +42,39 @@ class Menu extends ViewComponent {
         </div>
       </li>
         
-      <li class="menu-item-julaw">
+      <li class="menu-item-julaw" (renderIf)="self.canSeeHomePage">
           <a href="#" class="item-menu"  (click)="gotoView('Home')"><i class="fas fa-home"></i> Início</a>
       </li>
       <li class="menu-item-julaw active">
             <a class="item-menu active" href="#"><i class="fas fa-folder"></i> Processos</a>
             <ul class="submenu">
-                <li>
+                <li (renderIf)="self.canCreateProcess">
                     <a href="#" (click)="gotoView('ProcessoForm')"> Criar </a>
                 </li>
-                <li>
+                <li (renderIf)="self.canListProcess">
                   <a href="#" (click)="gotoView('ProcessosGrid')"> Listar </a>
                 </li>
-                <li><a href="#" (click)="gotoView('ColaboradorDashboard')">Meus Processos </a></li>
+                <li (renderIf)="self.canListMineProcess"><a href="#" (click)="gotoView('ColaboradorDashboard')">Meus Processos </a></li>
             </ul>
       </li>
       <li class="menu-item-julaw">
             <a href="#" class="item-menu "><i class="fas fa-users"></i> Clientes</a>
             <ul class="submenu">
-                <li>
+                <li (renderIf)="self.canCreateClient">
                   <a href="#" (click)="gotoView('ClientForm')"> Cadastrar </a>
                 </li>
-                <li>
+                <li (renderIf)="self.canListClient">
                   <a href="#" (click)="gotoView('ClientsGrid')"> Listar</a>
                 </li>
+                <li (renderIf)="self.isClient"><a href="#" (click)="gotoViewClient('ClienteDetalhes')">Meus Processos </a></li>
             </ul>
       </li>
       <li class="menu-item-julaw">
             <a href="#" class="item-menu"><i class="fas fa-user"></i> Colaboradores</a>
             <ul class="submenu">
-                  <li><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a>
+                  <li (renderIf)="self.canCreateColaborador"><a href="#" (click)="gotoView('ColaboradorForm')"> Cadastrar </a>
                   </li>
-                  <li><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a>
+                  <li (renderIf)="self.canListColaborador"><a href="#"  (click)="gotoView('ColaboradoresGrid')"> Listar</a>
                   </li>
             </ul>
       </li>
@@ -87,8 +94,16 @@ class Menu extends ViewComponent {
   getRolesByLoggedUser() {
     try {
       const userLogged = JSON.parse(localStorage.getItem("_user"));
+
+      console.log(userLogged.id)
+
+      this.userId = userLogged.id
+      this.userFuncao = userLogged.funcao
       this.userName = userLogged.nome_completo;
       this.roles = userLogged.auth.roles;
+
+      console.log("roles by user logged ... ", this.roles)
+
     } catch (e) {
       console.log(e)
     }
@@ -106,17 +121,29 @@ class Menu extends ViewComponent {
 
   async onRender() {
     this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS');
-    this.canListProcess = this.roles.includes('CAN_SEE_LIST_PROCESS');
+    this.canListProcess = this.roles.includes('CAN_SEE_PROCESS_LIST');
 
     this.canCreateClient = this.roles.includes('CAN_CREATE_CLIENT');
-    // this.canListClient = this.roles.includes('CAN_CREATE_PROCESS');
+    this.canListClient = this.roles.includes('CAN_SEE_CLIENT_LIST');
 
     this.canCreateColaborador = this.roles.includes('CAN_CREATE_COLABORADOR');
-    // this.canListColaborador = this.roles.includes('CAN_CREATE_PROCESS');
+    this.canListColaborador = this.roles.includes('CAN_SEE_COLABORADOR_LIST');
+
+    if(this.userFuncao !== "cliente") {
+      this.canSeeHomePage = true;
+      this.canListMineProcess = true;
+    }else{
+      this.isClient = true
+    }
+
   }
 
   gotoView(viewComponent) {
     Router.goto(viewComponent);
+  }
+
+  gotoViewClient(viewComponent) {
+    Router.goto(viewComponent, {data: this.userId.value});
   }
 
   static propagateEventsIntoAllItemMenu() {

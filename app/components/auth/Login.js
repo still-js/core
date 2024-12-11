@@ -89,8 +89,10 @@ class Login extends ViewComponent {
                     console.log(`login criado com sucesso: `, response);
                     if (response.status !== 200) {
                         alert(response.errors);
+                        AppTemplate.hideLoading();
                         Router.goto('init');
                     } else {
+
                         localStorage.setItem('_user', JSON.stringify(response.data));
                         localStorage.setItem('logged', true);
                         alert("Bem-vindo (a), a plataforma JuLAW");
@@ -98,7 +100,15 @@ class Login extends ViewComponent {
                         AppTemplate.get().store('userName', response.data.nome_completo);
                         AppTemplate.get().store('persmissions', { canSeeGrid: false });
                         AppTemplate.get().setAuthN(true);
-                        Router.goto('ColaboradorDashboard');
+
+                        if(response.data.funcao == "cliente") {
+                            Router.goto("ClienteDetalhes", {
+                                data: response.data.id
+                              });
+                            
+                        }else{
+                            Router.goto('ColaboradorDashboard');
+                        }
                         // aonde guardar os dados do user logado com seguranca
                     }
 

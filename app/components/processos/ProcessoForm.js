@@ -261,8 +261,12 @@ class ProcessoForm extends ViewComponent {
                                         </span>
                                         <div class="form-line">
                                             <input 
-                                            (required)="true"
-                                            type="date" id="dataRegistoInput" (change)="updateDataRegisto($event)" class="form-control date" (value)="dataRegisto">
+                                            type="date" 
+                                            id="dataRegistoInput" 
+                                            (change)="updateDataRegisto($event)" 
+                                            class="form-control date" 
+                                            (value)="dataRegisto"
+                                        >
                                         </div>
                                     </div>
                                 </div>
@@ -375,7 +379,7 @@ class ProcessoForm extends ViewComponent {
             "clienteId": this.clienteId.value === "" ? null : this.clienteId.value,
             "gestorId": this.gestorId.value === "" ? null : this.gestorId.value,
             "contraParte": this.contraParte.value,
-            "dataRegisto": this.dataRegisto.value,
+            "dataRegisto": this.dataRegisto.value === "" ? new Date() : this.dataRegisto.value,
             "dataSuspensao": this.dataSuspensao.value === "" ? null : this.dataSuspensao.value,
             "colaboradorIdSuspendeu": null,
             "dataEncerramento": this.dataEncerramento.value === "" ? null : this.dataEncerramento.value,
@@ -444,6 +448,7 @@ class ProcessoForm extends ViewComponent {
                 .then((response) => {
                     AppTemplate.showLoading();
                     if (response.status !== 201) {
+                        AppTemplate.hideLoading();
                         if (response.message) {
                             AppTemplate.toast({ status: 'Erro', message: response.message })
                         } else {
@@ -477,6 +482,7 @@ class ProcessoForm extends ViewComponent {
                 }
             )
                 .then((response) => {
+                    AppTemplate.hideLoading();
                     if (response.status !== 200) {
                         AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
                     } else {

@@ -51,6 +51,11 @@ class ProcessoDetalhes extends ViewComponent {
   inputAnexoDescricao;
   inputAnexoFile;
 
+  horasMes;
+  custoTotal;
+  custoParcelaApagar;
+  pagamentosProcesso;
+
   modePagamento = [
     { code: 1, designacao: 'Transferência Bancária' },
     { code: 2, designacao: 'Depósito' },
@@ -223,6 +228,23 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** @Prop */
   totalFactura = 0;
+
+
+  /** @Prop */
+  showAvenca = false
+    /** @Prop */
+  showModoFixo = false
+    /** @Prop */
+  showModoSuccessFee = false
+      /** @Prop */
+  showModoProbono = false
+
+
+  /**
+  * @Inject
+  * @type { ProcessoService } }
+  */
+  processoService;
 
   template = `
   <section class="content">
@@ -743,44 +765,143 @@ class ProcessoDetalhes extends ViewComponent {
     </div>
     <!-- Fim TAB Anexos -->
 
+
+
     <!-- Inicio TAB Honorário -->
     <div role="tabpanel" class="tab-pane fade" id="honorarios">
 
-        <div class="display-flex">
-          <div class="input-field col s12">
-            <select (change)="updatePrecedentes($event)" (forEach)="modePagamento">
-                <option each="item" value="">Modo de pagamento</option>
-                <option each="item" value="{item.code}">{item.designacao}</option>
-            </select>
-          </div>
-          <div class="input-field col s12">
-            <select (change)="updatePrecedentes($event)" (forEach)="listEquipas">
-                <option each="item" value="">Nome Advogado</option>
-                <option each="item" value="{item.id}">{item.descricao}</option>
-            </select>
-          </div>
-        </div>
-
-        <st-element
-            component="TBDragableGrid"
-            proxy="honorarioProxy"
-            tableData="parent.dadosTimeSheet"
-            tableFields="parent.horarioCabecalho"
-            destFields="parent.horarioDestCabecalho"
-            destPlaceholder="Arraste aqui o item a pagar"
-            >
-        </st-element>
-
-        <div style="display: flex; justify-content: right; margin-top: 30px;">
-          <!-- <span (click)="checkHonorarios()">Validar</span> -->
-          <button 
-            class="btn btn-primary julaw-submit-button" 
-            (click)="generateHonorario()">
-            Gerar Honorário
-          </button>
-        </div>
-
+    <fieldset id="idShowModoSuccessFee" style="display: none;">
+    <legend> Modo de Facturação: <span style="font-weight: bold">Success Fee</span> </legend>
+  
+    <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
+      <div style="font-weight: bold;">Custo do Projecto</div>
+      <div>
+        <input id="idCustoProjecto" (value)="custoTotal" style="border: none; background-color: #f5f5f5;"
+          readonly="true" />
+      </div>
     </div>
+  
+    <div style="background-color: #fff;">
+    <div style="
+          margin-bottom: 50px;
+          background-color: #ffffff;
+          padding: 15px;
+          margin-top: 30px;
+          border: 0.5px solid #c3c3c3;
+    ">
+      <h4>Parcelas pagas</h4>
+      <table>
+        <thead>
+          <tr style="text-align: center;">
+              <th>Valor Pago</th>
+              <th>Modo Pagamento</th>
+              <th>Colaborador</th>
+              <th>Data registo</th>
+          </tr>
+        </thead>
+        <tbody (forEach)="pagamentosProcesso">
+          <tr each="item" style="text-align: center">
+              <td class="invoice-align-to-center">{item.valor_pago}</td>
+              <td class="invoice-align-to-center">{item.modo_pagamento}</td>
+              <td class="invoice-align-to-center">{item.colaborador}</td>
+              <td class="invoice-align-to-center">{item.created_at}</td>
+          </tr>
+        </tbody>
+      </table> 
+    </div>
+    <div>
+    
+      <div class="form-line">
+        <input id="idCustoParcelaApagar" (required)="true" (validator)="number" type="text" class=""
+          placeholder="custo da Parcela a pagar" (value)="custoParcelaApagar">
+      </div>
+    </div>
+    </div>
+  
+    <div style="display: flex; justify-content: right; margin-top: 30px;">
+      <!-- <span (click)="checkHonorarios()">Validar</span> -->
+      <button class="btn btn-primary julaw-submit-button" (click)="generateHonorarioModoSuccessFee()">
+        Gerar Honorário
+      </button>
+    </div>
+  </fieldset>
+  
+  
+  
+  <fieldset id="idShowModoFixo" style="display: none;">
+    <legend> Modo de Facturação: <span style="font-weight: bold">Fixo</span> </legend>
+  
+    <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
+      <div style="font-weight: bold;">Custo do Projecto</div>
+      <div>
+        <input (value)="custoTotal" style="border: none; background-color: #f5f5f5;" readonly="true" />
+      </div>
+    </div>
+  
+    <div style="display: flex; justify-content: right; margin-top: 30px;">
+      <!-- <span (click)="checkHonorarios()">Validar</span> -->
+      <button class="btn btn-primary julaw-submit-button" (click)="generateHonorarioModoFixo()">
+        Gerar Honorário
+      </button>
+    </div>
+  
+  </fieldset>
+  
+  
+  <fieldset id="idShowAvenca" style="display: none;">
+    <legend> Modo de Facturação: <span style="font-weight: bold">Avença</span> </legend>
+  
+    <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
+      <div style="font-weight: bold;">Horas/Mês do Projecto</div>
+      <div>
+        <input id="horasMes" (value)="horasMes" style="border: none; background-color: #f5f5f5;" readonly="true" />
+      </div>
+    </div>
+  
+  
+    <div class="display-flex">
+  
+      <div class="input-field col s12">
+        <select (change)="updatePrecedentes($event)" (forEach)="modePagamento">
+          <option each="item" value="">Modo de pagamento</option>
+          <option each="item" value="{item.code}">{item.designacao}</option>
+        </select>
+      </div>
+      <div class="input-field col s12">
+        <select (change)="updatePrecedentes($event)" (forEach)="listEquipas">
+          <option each="item" value="">Nome Advogado</option>
+          <option each="item" value="{item.id}">{item.descricao}</option>
+        </select>
+      </div>
+  
+    </div>
+  
+    <st-element component="TBDragableGrid" proxy="honorarioProxy" tableData="parent.dadosTimeSheet"
+      tableFields="parent.horarioCabecalho" destFields="parent.horarioDestCabecalho"
+      destPlaceholder="Arraste aqui o item a pagar">
+    </st-element>
+  
+    <div style="display: flex; justify-content: right; margin-top: 30px;">
+      <!-- <span (click)="checkHonorarios()">Validar</span> -->
+      <button class="btn btn-primary julaw-submit-button" (click)="generateHonorario()">
+        Gerar Honorário
+      </button>
+    </div>
+  
+  </fieldset>
+  
+  
+  <fieldset id="idModoProbono" style="display: none;">
+    <legend>Modo de Facturação: <span style="font-weight: bold">Probono</span></legend>
+  
+    <div style="margin-bottom: 5px">
+      <p>Obs.: O modo de facturação do Processo, é isento de qualquer pagamento.</p>
+    </div>
+  </fieldset>
+  
+</div>
+      
+
     <!-- Fim TAB Anexos -->
 
     <div class="still-popup-curtain" (showIf)="self.showFactura"></div>
@@ -842,43 +963,50 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   async onRender() {
-
     /** For Test purpose only */
     await this.stLazyExecution(async () => { });
   }
 
   getDetalhesProcesso(idProcesso) {
 
-    AppTemplate.showLoading();
+    this.processoService.on('load', async () => {
+      AppTemplate.showLoading();
+      const response = await this.processoService.getDetalhesProcesso(idProcesso);
+      try {
 
-    $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo/${idProcesso}`
-    ).then((r) => {
-      if (r.status === 200) {
-        try {
+        this.populateAttributes(response);
+          
+        AppTemplate.hideLoading();
 
-          this.populateAttributes(r.data[0]);
-          this.getListColaboradores();
-          this.getListPrecedentes();
-          AppTemplate.hideLoading();
-
-        } catch (e) {
-          AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Erro', message: e })
-        }
+      } catch (e) {
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: e })
       }
+
     });
 
-    this.getTimeSheet(idProcesso);
     this.getListColaboradores();
     this.getListPrecedentes();
+    this.getTimeSheet(idProcesso);
+    
   }
 
+  getPaymentsProcesso(idProcesso) {
+
+    this.processoService.on('load', async () => {
+      this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);     
+    }); 
+  }
+
+
   stAfterInit(val) {
+
+    this.showFactura = false;
 
     const routeData = Router.data("ProcessoDetalhes");
 
     this.getDetalhesProcesso(routeData)
+    this.getPaymentsProcesso(routeData)
 
     document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -898,6 +1026,46 @@ class ProcessoDetalhes extends ViewComponent {
         reader.readAsDataURL(file); // Converte o arquivo em base64
       }
     })
+
+
+  }
+
+  verifyModoFacturamento(data) {
+    
+    try {
+    console.log("here... >>><<<>><<<< ", data)
+
+    switch(data.modo_facturacao){
+      case 'Success Fee': 
+        console.log("success fee")
+        document.getElementById('idShowModoSuccessFee').style.display = "block"
+        this.showModoSuccessFee = true
+        break;
+      case 'Fixo': 
+        console.log("fixo")
+        document.getElementById('idShowModoFixo').style.display = "block"
+        this.showModoFixo = true
+        break;
+      case 'Avença': 
+        console.log("Avenca")
+        document.getElementById('idShowAvenca').style.display = "block"
+        this.showAvenca = true
+        break;
+      case 'Probono': 
+        console.log("probono")
+        document.getElementById('idModoProbono').style.display = "block"
+        this.showModoProbono = true
+        break;
+      default:
+        console.log("default")
+        document.getElementById('idShowAvenca').style.display = "block"
+        this.showAvenca = true
+        break;
+    } 
+
+    }catch(e){
+      console.log(e)
+    }
 
   }
 
@@ -945,6 +1113,9 @@ class ProcessoDetalhes extends ViewComponent {
     this.tarefas = data.tarefas ? data.tarefas : [];
     this.anexos = data.anexos ? data.anexos : [];
 
+    this.horasMes = data.horas_mes ? data.horas_mes : 0;
+    this.custoTotal = data.valor_total ? data.valor_total : 0;    
+
     /** Setters values  */
     this.setValueById('input_metodologia', this.metodologia.value)
     this.setValueById('input_estrategias', this.estrategia.value)
@@ -976,6 +1147,12 @@ class ProcessoDetalhes extends ViewComponent {
     if (data.anexos)
       this.dataTableListProcessosAnexos.dataSource = data.anexos;
 
+    
+
+    // here 
+    this.verifyModoFacturamento(data)
+
+
   }
 
   editResourcesProcesso(inputId) {
@@ -983,8 +1160,6 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   toggleEditarInputArea(id, isEdit = true) {
-    console.log(id)
-    // document.getElementById("")
     let elm = document.getElementById(id)
     if (isEdit) {
       elm.removeAttribute("readonly")
@@ -1171,7 +1346,6 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
 
-
   async addPrecedentesProcesso(idForm) {
 
     AppTemplate.showLoading();
@@ -1355,15 +1529,11 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: err })
         });
-
     }
-
-
   }
 
   editProcesso(id) {
     const idProcesso = id == undefined ? this.id.value : id;
-    console.log("here... ProcessoDetalhes ...", idProcesso)
     Router.goto("ProcessoForm", {
       data: idProcesso,
     });
@@ -1371,7 +1541,6 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** toogle dos forms */
   toggleForms(id) {
-    console.log(id)
     let form = document.getElementById(id)
     form.classList.toggle("showForm")
   }
@@ -1395,7 +1564,6 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
 
         if (response.status !== 200) {
           AppTemplate.hideLoading();
@@ -1541,7 +1709,6 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
-        console.log("ver anexo processo response >> ", response)
 
         AppTemplate.hideLoading();
         if (response.status === 200) {
@@ -1554,7 +1721,6 @@ class ProcessoDetalhes extends ViewComponent {
           link.download = `Processo anexo _ ${response.data.fileName}`;
           link.id = `download_processo`;
           document.body.appendChild(link);
-          console.log("o link do download ", link)
           link.click(); 
           setTimeout(()=> {
             document.body.removeChild(link); 
@@ -1716,7 +1882,11 @@ class ProcessoDetalhes extends ViewComponent {
       qtd: `${hours} Hrs`,
       total: custo
     }
+  }
 
+  
+  getPagamentoFacturaProcesso() {
+    // vai buscar os pagamentos já feitos no processo!
   }
 
   generateHonorario() {
@@ -1724,7 +1894,7 @@ class ProcessoDetalhes extends ViewComponent {
     AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
-   
+   k
 
     const data = this.honorarioProxy.getDestData();
 
@@ -1755,7 +1925,6 @@ class ProcessoDetalhes extends ViewComponent {
       }))
 
     }
-
 
     $still.HTTPClient.post(
       "http://localhost:3000/api/v1/processo_factura",
@@ -1797,6 +1966,141 @@ class ProcessoDetalhes extends ViewComponent {
 
   }
 
+
+  generateHonorarioModoSuccessFee() {
+
+    console.log("generateHonorarioModoSuccessFee")
+
+    if(this.custoParcelaApagar.value == "" || this.custoParcelaApagar.value == 0)
+        return AppTemplate.toast({ status: 'error', message: "O valor da parcela é Obrigatório!" })
+
+    AppTemplate.showLoading();
+
+    this.userLogged = JSON.parse(localStorage.getItem("_user"));
+   
+    const data = this.honorarioProxy.getDestData();
+
+    let payload = {
+      'processo_id': this.id.value,
+      'cliente_id': this.clienteId.value,
+      'colaborador_id':  this.userLogged.value.id,
+      'horas': 0,
+      'custo': this.custoParcelaApagar.value,
+      'status': 'pendente',
+      'items': []
+    }
+
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/processo_factura",
+      JSON.stringify(payload),
+      {
+          headers: {
+              "Content-Type": "application/json",
+          },
+      }
+  )
+      .then((response) => {
+        AppTemplate.hideLoading();
+          if (response.status !== 201) {
+              if (response.message) {
+                  AppTemplate.toast({ status: 'error', message: response.message })
+              } else {
+                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
+              }
+          } else {            
+
+            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+            let dataResponse = response.data
+            this.showFactura = true;
+
+            const invoiceNum = Math.random().toString().split('.')[1];
+            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+            this.facturaProxy.setNomeDocliente(this.cliente.value);
+            this.facturaProxy.setTotalFactura(this.custoParcelaApagar.value);
+            this.facturaProxy.itensFactura = data;
+
+          }
+      })
+      .catch((err) => {
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'error', message: err.message })
+      });
+
+  }
+
+
+  generateHonorarioModoFixo() {
+
+    if(!this.clienteId.value)
+      return AppTemplate.toast({ status: 'Error', message: 'O Proceso deve ter cliente para facturar.' })
+
+    AppTemplate.showLoading();
+
+    this.userLogged = JSON.parse(localStorage.getItem("_user"));
+  
+    const totalFactura = parseFloat(this.custoTotal.value);
+
+    let payload = {
+      'processo_id': this.id.value,
+      'cliente_id': this.clienteId.value,
+      'colaborador_id':  this.userLogged.value.id,
+      'horas': 0,
+      'custo': totalFactura,
+      'status': 'pendente',
+      'items': []
+    }
+
+    $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/processo_factura",
+      JSON.stringify(payload),
+      {
+          headers: {
+              "Content-Type": "application/json",
+          },
+      }
+  )
+      .then((response) => {
+
+        AppTemplate.hideLoading();
+
+          if (response.status !== 201) {
+              if (response.message) {
+                  AppTemplate.toast({ status: 'error', message: response.message })
+              } else {
+                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
+              }
+          } else { 
+
+            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+            let dataResponse = response.data
+            this.showFactura = true;
+
+            const invoiceNum = Math.random().toString().split('.')[1];
+            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+            this.facturaProxy.setNomeDocliente(this.cliente.value);
+            this.facturaProxy.setTotalFactura(totalFactura);
+            this.facturaProxy.itensFactura = [
+              {
+                "processos_timesheet_id": 0,
+                "horas": 0,
+                "custo": parseFloat(cleanMoedaValue(item.custo)),
+                "dados_adicionais": JSON.stringify(item)
+              }
+            ]
+
+          }
+      })
+      .catch((err) => {
+        
+      });
+
+
+  }
+
+
   fecharFactura() {
     this.showFactura = false;
   }
@@ -1814,6 +2118,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
 }
+
 
 
 /**
@@ -1859,6 +2164,16 @@ function cleanHorasValue(val){
     .trim()
 }
 
+/**
+ * 
+ * idShowAvenca
+idShowModoFixo
+idShowModoSuccessFee
+idModoProbono
+
+
+
+ */
 
 /**
  * End of Move this to Utility class of function

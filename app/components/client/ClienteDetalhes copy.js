@@ -68,7 +68,7 @@ class ClienteDetalhes extends ViewComponent {
     /** @Prop */
     showModalDetalhesFactura = false;
     /** @Prop */
-    showModalPagamento = false;
+    showModalPagamento = true;
     /** @Prop */
     showModalListPagamentos = false;
 
@@ -197,8 +197,8 @@ class ClienteDetalhes extends ViewComponent {
                             proxy="dataTableListFacturas"
                             tableHeader="parent.dataTableFacturasLabels" 
                             tableHeight="auto"
-                            (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
-                            (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
+                            (onEditColumn)="downloadFacturaProcesso(fieldName, data)"
+                            (onDeleteRow)="downloadPagamentosFactura(fieldName, data)" 
                             (onCellClick)="callModalPagamento(row, col, data)">
                         </st-element>
                 </div>
@@ -219,20 +219,35 @@ class ClienteDetalhes extends ViewComponent {
      top: 0;
      background: white;
      z-index: 529985;
-     width: 80%;
+     width: 66%;
      margin: 0 auto;
      position: absolute;
      left: 50%;
-     top: 20%;
+     top: 25%;
      transform: translate(-50%,-50%);
+   }
+
+   .still-popup-curtain{
+
+     position: fixed;
+     padding: 0;
+     margin: 0;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0,0,0,0.5);
+     z-index: 529983;
+
    }
 
  </style>
   
+  </section>
+
     <div 
       class="modal-wrapper" 
-      id="idShowModalPagamento"
-      style="display: none"
+      (showIf)="self.showModalPagamento"
     >
       <st-element
         component="ModalPagamento"
@@ -240,38 +255,32 @@ class ClienteDetalhes extends ViewComponent {
         (onCloseModal)="fecharModalPagamento()"
       >
       </st-element>
-    </div>
+    <div>
 
+    <div 
+    class="modal-wrapper" 
+    (showIf)="self.showModalDetalhesFactura"
+    >
+      <st-element
+        component="ModalDetalhesFactura"
+        proxy="modalDetalhesFacturaProxy"
+        (onCloseModal)="fecharModalDetalhesFactura()"
+      >
+      </st-element>
+    <div>
 
     <div 
       class="modal-wrapper" 
-      id="idShowModalDetalhesFactura"
-      style="display: none"
+     (showIf)="self.showModalListPagamentos"
     >
-    <st-element
-      component="ModalDetalhesFactura"
-      proxy="modalDetalhesFacturaProxy"
-      (onCloseModal)="fecharModalDetalhesFactura()"
-    >
-    </st-element>
-    </div>
-
-
-      <div 
-        class="modal-wrapper" 
-        id="idShowModalPagamentosFactura"
-        style="display: none"
-      >
       <st-element
         component="ModalListPagamentos"
         proxy="modalListPagamentosProxy"
-        (onCloseModal)="fecharModalPagamentosFactura()"
+        (onCloseModal)="fecharModalListPagamentos()"
       >
       </st-element>
-    </div>
-
-  </section>
-  `;
+    <div>
+    `;
 
   constructor() {
     super();
@@ -283,6 +292,7 @@ class ClienteDetalhes extends ViewComponent {
       data: record.id,
     });
   }
+
 
   gotoView(viewComponent) {
     Router.goto(viewComponent);
@@ -298,8 +308,7 @@ class ClienteDetalhes extends ViewComponent {
 
     try {
       if (routeData) {
-        this.getDetalhesCliente(routeData)  
-        this.id = routeData    
+        this.getDetalhesCliente(routeData)      
       }
     } catch (e) {
       console.log("onRender Cliente Detalhes >>>  >>>  ", e);
@@ -312,9 +321,13 @@ class ClienteDetalhes extends ViewComponent {
 
     this.clienteService.on('load', async () => {
 
+      console.log("getDetalhesClient ", idCliente)
+
       let response = await this.clienteService.getDetalhesCliente(idCliente)
   
         if (response) {
+  
+          console.log("clienteService ... ", response);
   
           this.id = response.id;
           this.denominacao = response.denominacao;
@@ -352,63 +365,30 @@ class ClienteDetalhes extends ViewComponent {
     ).then((r) => {
       let dataResponse = r.data;
       if (dataResponse) {
+        console.log("processo facturas >>>>>>>>>>   ", dataResponse);
         this.dataTableListFacturas.dataSource = dataResponse;
       }
     });
   }
 
 
-  detalhessFacturaCliente(_, record) {
-    
-    console.log("datalhes factura items", _, record.items)
+  downloadFacturaProcesso(_, record) {
 
-    this.modalDetalhesFacturaProxy.idFactura = record.id
-    this.modalDetalhesFacturaProxy.itensFactura = record.items
-
-    document.getElementById('idShowModalDetalhesFactura').style.display = "block"
-
-    console.log("<<<< here ...  ",  this.modalDetalhesFacturaProxy.itensFactura)
-  }
-
-  detalhessPagamentosFacturaCliente(_, record) {
-
-    console.log("detalhes pagamentos ", _, record)
-
-    this.modalListPagamentosProxy.idFactura = record.id
-    this.modalListPagamentosProxy.estado = record.estado
-    this.modalListPagamentosProxy.ref = record.ref
-    this.modalListPagamentosProxy.horas = record.horas
-    this.modalListPagamentosProxy.custo = record.custo
-    this.modalListPagamentosProxy.dataRegisto = record.created_at
-
-
-    this.modalListPagamentosProxy.listPagamentos = record.pagamentos
-    document.getElementById('idShowModalPagamentosFactura').style.display = "block"
+    console.log("Fazer o download da factura ", _ , record)
 
   }
 
+  downloadPagamentosFactura(_, record) {
+
+    console.log("fazer o download dos pagamentos  ", _ , record)
+
+  }
 
   callModalPagamento(row, col, record) {
 
-    this.modalPagamentoProxy.idFactura = record.id
-    this.modalPagamentoProxy.ref = record.ref
-    this.modalPagamentoProxy.valor = record.custo
+    console.log("callModalPagamento ", row, col, record)
+    this.showModalPagamento = true
 
-    document.getElementById('idShowModalPagamento').style.display = "block"
-
-  }
-
-
-  fecharModalPagamento(row, col, record) {
-    document.getElementById('idShowModalPagamento').style.display = "none"
-  }
-
-  fecharModalDetalhesFactura(row, col, record) {
-    document.getElementById('idShowModalDetalhesFactura').style.display = "none"
-  }
-
-  fecharModalPagamentosFactura(row, col, record) {
-    document.getElementById('idShowModalPagamentosFactura').style.display = "none"
   }
 
 }

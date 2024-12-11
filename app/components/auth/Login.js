@@ -89,6 +89,7 @@ class Login extends ViewComponent {
                     console.log(`login criado com sucesso: `, response);
                     if (response.status !== 200) {
                         alert(response.errors);
+                        AppTemplate.hideLoading();
                         Router.goto('init');
                     } else {
 

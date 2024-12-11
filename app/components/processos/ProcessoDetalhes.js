@@ -995,12 +995,13 @@ class ProcessoDetalhes extends ViewComponent {
 
     this.processoService.on('load', async () => {
       this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);     
-      console.log("pagamentos >>> ", this.pagamentosProcesso)  
     }); 
   }
 
 
   stAfterInit(val) {
+
+    this.showFactura = false;
 
     const routeData = Router.data("ProcessoDetalhes");
 
@@ -1025,6 +1026,7 @@ class ProcessoDetalhes extends ViewComponent {
         reader.readAsDataURL(file); // Converte o arquivo em base64
       }
     })
+
 
   }
 

@@ -299,7 +299,7 @@ class ClientForm extends ViewComponent {
 
         AppTemplate.showLoading();
         $still.HTTPClient.post(
-            'http://localhost:3000/api/v1/cliente',
+            '/api/v1/cliente',
             JSON.stringify(payload),
             {
                 headers: {
@@ -309,9 +309,9 @@ class ClientForm extends ViewComponent {
         ).then((r) => {
 
             AppTemplate.hideLoading();
-            if(r.status === 201) {
+            if (r.status === 201) {
                 Router.goto('ClientsGrid');
-            }else{
+            } else {
                 alert(r.errors)
             }
 
@@ -328,9 +328,9 @@ class ClientForm extends ViewComponent {
         delete tipoCliente.created_at;
         payload.id = this.routingData.value.id;
         //payload.tipo = tipoCliente;
-        
+
         $still.HTTPClient.put(
-            'http://localhost:3000/api/v1/cliente',
+            '/api/v1/cliente',
             JSON.stringify(payload),
             {
                 headers: {
@@ -361,7 +361,7 @@ class ClientForm extends ViewComponent {
         const routeData = Router.data('ClientForm');
         if (routeData) {
 
-            console.log("tipoId " , routeData)
+            console.log("tipoId ", routeData)
 
             const {
                 id, denominacao, tipo_id, nif, endereco, pessoa_contacto,
@@ -375,9 +375,9 @@ class ClientForm extends ViewComponent {
             this.contactoCobranca = contacto_cobranca;
             this.e_mail = e_mail;
 
-            setTimeout(()=> {
+            setTimeout(() => {
                 this.tipoClienteSelecionado = tipo_id;
-            },500)
+            }, 500)
 
 
         }

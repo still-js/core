@@ -5,7 +5,7 @@ class ClienteService {
         return new Promise((resolve) => {
 
             $still.HTTPClient.get(
-                `http://localhost:3000/api/v1/cliente/${idCliente}`
+                `/api/v1/cliente/${idCliente}`
             ).then((r) => {
                 if (r.status === 200) {
                     try {

@@ -77,7 +77,7 @@ class Login extends ViewComponent {
 
         if (this.isValidatedInputForm()) {
             $still.HTTPClient.post(
-                "http://localhost:3000/api/v1/login",
+                "/api/v1/login",
                 JSON.stringify(payload),
                 {
                     headers: {
@@ -101,12 +101,12 @@ class Login extends ViewComponent {
                         AppTemplate.get().store('persmissions', { canSeeGrid: false });
                         AppTemplate.get().setAuthN(true);
 
-                        if(response.data.funcao == "cliente") {
+                        if (response.data.funcao == "cliente") {
                             Router.goto("ClienteDetalhes", {
                                 data: response.data.id
-                              });
-                            
-                        }else{
+                            });
+
+                        } else {
                             Router.goto('ColaboradorDashboard');
                         }
                         // aonde guardar os dados do user logado com seguranca
@@ -120,7 +120,7 @@ class Login extends ViewComponent {
                 });
         } else {
             // AppTemplate.toast({ status: 'error', message: 'usuário e/ou senha, devem ser preenchidos' })
-            
+
             AppTemplate.hideLoading();
         }
     }

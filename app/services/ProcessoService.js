@@ -8,7 +8,7 @@ class ProcessoService {
         return new Promise((resolve) => {
 
             $still.HTTPClient.get(
-                `http://localhost:3000/api/v1/tarefas_processo/colaborador/${userId}`
+                `/api/v1/tarefas_processo/colaborador/${userId}`
             ).then((r) => {
                 if (r.status === 200) {
                     try {
@@ -32,7 +32,7 @@ class ProcessoService {
         return new Promise((resolve) => {
 
             $still.HTTPClient.get(
-                `http://localhost:3000/api/v1/processo/${idProcesso}`
+                `/api/v1/processo/${idProcesso}`
             ).then((r) => {
                 if (r.status === 200) {
                     try {
@@ -56,7 +56,7 @@ class ProcessoService {
         return new Promise((resolve) => {
 
             $still.HTTPClient.get(
-                `http://localhost:3000/api/v1/pagamentos_facturas_by_id/${idProcesso}`
+                `/api/v1/pagamentos_facturas_by_id/${idProcesso}`
             ).then((r) => {
                 if (r.status === 200) {
                     try {
@@ -78,7 +78,7 @@ class ProcessoService {
     async getProcessoByColaborador(colaboradorId) {
 
         const response = await $still.HTTPClient.get(
-            `http://localhost:3000/api/v1/processo_colaborador/${colaboradorId}`
+            `/api/v1/processo_colaborador/${colaboradorId}`
         );
 
         return response?.data;
@@ -87,7 +87,7 @@ class ProcessoService {
     getListClientes() {
         return new Promise((resolve) => {
 
-            $still.HTTPClient.get("http://localhost:3000/api/v1/cliente/").then((r) => {
+            $still.HTTPClient.get("/api/v1/cliente/").then((r) => {
                 if (r.data) {
                     let clienteData = [];
 
@@ -108,7 +108,7 @@ class ProcessoService {
 
     async getProcessos() {
         const response = await $still.HTTPClient.get(
-            `http://localhost:3000/api/v1/processo/processos/list`
+            `/api/v1/processo/processos/list`
         );
 
         return response?.data;

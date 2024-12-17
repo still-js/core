@@ -184,7 +184,7 @@ class ColaboradoresGrid extends ViewComponent {
   }
 
   stAfterInit(val) {
-    $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
+    $still.HTTPClient.get("/api/v1/colaborador/").then(
       (r) => {
         if (r.data) {
           console.log(r.data);

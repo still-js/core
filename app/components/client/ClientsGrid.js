@@ -32,54 +32,54 @@ class ClientsGrid extends ViewComponent {
     ])
   );
 
-    htmlRefId = 'clientDataTable';
-    dataSource;
-    /** 
-     * @Proxy
-     * @type { TabulatorComponent } 
-     */
-    dataTable;
+  htmlRefId = 'clientDataTable';
+  dataSource;
+  /** 
+   * @Proxy
+   * @type { TabulatorComponent } 
+   */
+  dataTable;
 
-    /** @Prop */
-    dataTableLabels = [
-        { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
-        { hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },
-        { title: "Tipo Cliente", field: "tipo_id", sorter: "string", width: 200 },
-        { title: "Nome", field: "denominacao", sorter: "string" },
-        { title: "NIF", field: "nif", sorter: "string" },
-        { title: "Endereco", field: "endereco", sorter: "string" },
-        { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
-        { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
-    ];
+  /** @Prop */
+  dataTableLabels = [
+    { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
+    { hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },
+    { title: "Tipo Cliente", field: "tipo_id", sorter: "string", width: 200 },
+    { title: "Nome", field: "denominacao", sorter: "string" },
+    { title: "NIF", field: "nif", sorter: "string" },
+    { title: "Endereco", field: "endereco", sorter: "string" },
+    { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
+    { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
+  ];
 
-    /** @Proxy @type { TUICalendarComponent } */
-    calendarProxy;
+  /** @Proxy @type { TUICalendarComponent } */
+  calendarProxy;
 
-    /** 
-     * @Proxy 
-     * @type { TBDragableGrid } */
-    dragableTBProxy;
+  /** 
+   * @Proxy 
+   * @type { TBDragableGrid } */
+  dragableTBProxy;
 
-    /** @Prop */
-    dragableData = [
-        { name: "Atendimento no Escritório", custo: "AKZ 0.0" },
-        { name: "Elaboração de contracto", custo: "AKZ 0.0" },
-        { name: "Rectificação do processo", custo: "AKZ 0.0" }
-    ];
+  /** @Prop */
+  dragableData = [
+    { name: "Atendimento no Escritório", custo: "AKZ 0.0" },
+    { name: "Elaboração de contracto", custo: "AKZ 0.0" },
+    { name: "Rectificação do processo", custo: "AKZ 0.0" }
+  ];
 
-    /** @Prop */
-    dragableFields = [
-        { title: "Name", field: "name" },
-        { title: "Custo", field: "custo" }
-    ];
+  /** @Prop */
+  dragableFields = [
+    { title: "Name", field: "name" },
+    { title: "Custo", field: "custo" }
+  ];
 
-    /** @Prop */
-    dragableDestFields = [
-        { title: "Name", field: "name" },
-        { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
-    ];
+  /** @Prop */
+  dragableDestFields = [
+    { title: "Name", field: "name" },
+    { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
+  ];
 
-    template = `
+  template = `
     <section class="content">
         <br>
         <div class="block-header">
@@ -175,7 +175,7 @@ class ClientsGrid extends ViewComponent {
   }
 
   stAfterInit(val) {
-    $still.HTTPClient.get("http://localhost:3000/api/v1/cliente/").then((r) => {
+    $still.HTTPClient.get("/api/v1/cliente/").then((r) => {
       try {
         let dataResponse = r.data;
         if (dataResponse) {

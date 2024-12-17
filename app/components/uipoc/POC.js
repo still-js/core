@@ -260,7 +260,7 @@ class POC extends ViewComponent {
 
         $still
             .HTTPClient
-            .get('http://localhost:3000/api/v1/cliente/')
+            .get('/api/v1/cliente/')
             .then((r) => {
                 this.dataSource = r.data;
                 //console.log(`DATA IS: `,this.dataSource);

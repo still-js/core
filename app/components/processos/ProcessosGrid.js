@@ -132,7 +132,7 @@ class ProcessosGrid extends ViewComponent {
 
     this.getRolesByLoggedUser()
 
-    $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
+    $still.HTTPClient.get("/api/v1/processo/").then(
       (r) => {
         if (r.data) {
           this.dataTableListProcessos.dataSource = this.transformDataTable(r.data);

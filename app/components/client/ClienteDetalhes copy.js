@@ -15,68 +15,68 @@ class ClienteDetalhes extends ViewComponent {
 
   /** @Prop */
   dataTableProcessosLabels = [
-      { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title: "Referência", field: "ref", sorter: "string" },
-      { title: "Assunto", field: "assunto", sorter: "string" },
-      { title: "Área", field: "area", sorter: "string" },
-      { title: "Instituição", field: "instituicao", sorter: "string" },
-      { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
-      { title: "Gestor", field: "gestor", sorter: "string" },
-      { title: "Data Cadastro", field: "data_registo", sorter: "string" },
-      {
-        title: "Data Encerramento",
-        field: "data_encerramento",
-        sorter: "string"
-      }
-    ]
+    { title: "Estado", field: "estado", sorter: "string", width: 100 },
+    { title: "Referência", field: "ref", sorter: "string" },
+    { title: "Assunto", field: "assunto", sorter: "string" },
+    { title: "Área", field: "area", sorter: "string" },
+    { title: "Instituição", field: "instituicao", sorter: "string" },
+    { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
+    { title: "Gestor", field: "gestor", sorter: "string" },
+    { title: "Data Cadastro", field: "data_registo", sorter: "string" },
+    {
+      title: "Data Encerramento",
+      field: "data_encerramento",
+      sorter: "string"
+    }
+  ]
 
-    /** @Proxy @type { TabulatorComponent } */
-    dataTableListFacturas = Proxy;
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableListFacturas = Proxy;
 
-    /** @Prop */
-    dataTableFacturasLabels = [
-        {
-          hozAlign: "center",
-          editRow: true,
-          icon: "<i class='fas fa-list-alt'></i>",
-          width: 20,
-        },
-        {
-          hozAlign: "center",
-          deleteRow: true,
-          icon: "<i class='fas fa-money-check-alt'></i>",
-          width: 20,
-        },
-        { title: "Estado", field: "status", sorter: "string", width: 100 },
-        { title: "Referência", field: "ref", sorter: "string" },
-        { title: "Assunto", field: "assunto", sorter: "string" },
-        { title: "Horas", field: "horas", sorter: "string" },
-        { title: "Custo", field: "custo", sorter: "string" },
-        { title: "Advogado", field: "colaborador", sorter: "string" },
-        { title: "Data Emissão", field: "data_registo_factura", sorter: "string" }
-      ]
+  /** @Prop */
+  dataTableFacturasLabels = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='fas fa-list-alt'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-money-check-alt'></i>",
+      width: 20,
+    },
+    { title: "Estado", field: "status", sorter: "string", width: 100 },
+    { title: "Referência", field: "ref", sorter: "string" },
+    { title: "Assunto", field: "assunto", sorter: "string" },
+    { title: "Horas", field: "horas", sorter: "string" },
+    { title: "Custo", field: "custo", sorter: "string" },
+    { title: "Advogado", field: "colaborador", sorter: "string" },
+    { title: "Data Emissão", field: "data_registo_factura", sorter: "string" }
+  ]
 
-    /** @Proxy @type { ModalDetalhesFactura } */
-    modalDetalhesFacturaProxy;
+  /** @Proxy @type { ModalDetalhesFactura } */
+  modalDetalhesFacturaProxy;
 
-    /** @Proxy @type { ModalPagamento } */
-    modalPagamentoProxy;
+  /** @Proxy @type { ModalPagamento } */
+  modalPagamentoProxy;
 
-    /** @Proxy @type { ModalListPagamentos } */
-    modalListPagamentosProxy;
+  /** @Proxy @type { ModalListPagamentos } */
+  modalListPagamentosProxy;
 
-    /** @Prop */
-    showModalDetalhesFactura = false;
-    /** @Prop */
-    showModalPagamento = true;
-    /** @Prop */
-    showModalListPagamentos = false;
+  /** @Prop */
+  showModalDetalhesFactura = false;
+  /** @Prop */
+  showModalPagamento = true;
+  /** @Prop */
+  showModalListPagamentos = false;
 
-    /**
-    * @Inject
-    * @type { ClienteService }  
-    */
-    clienteService;
+  /**
+  * @Inject
+  * @type { ClienteService }  
+  */
+  clienteService;
 
   template = `
   <section class="content">
@@ -308,7 +308,7 @@ class ClienteDetalhes extends ViewComponent {
 
     try {
       if (routeData) {
-        this.getDetalhesCliente(routeData)      
+        this.getDetalhesCliente(routeData)
       }
     } catch (e) {
       console.log("onRender Cliente Detalhes >>>  >>>  ", e);
@@ -324,32 +324,32 @@ class ClienteDetalhes extends ViewComponent {
       console.log("getDetalhesClient ", idCliente)
 
       let response = await this.clienteService.getDetalhesCliente(idCliente)
-  
-        if (response) {
-  
-          console.log("clienteService ... ", response);
-  
-          this.id = response.id;
-          this.denominacao = response.denominacao;
-          this.nif = response.nif;
-          this.endereco = response.endereco;
-          this.pessoaContacto = response.pessoa_contacto;
-          this.contacto = response.contacto_cobranca;
-          this.tipoCliente = response.tipo.description;
-          this.email = response.e_mail;
-          this.createdAt = new Date(response.created_at)
-            .toLocaleString("PT")
-            .substring(0, 10);
-        }
+
+      if (response) {
+
+        console.log("clienteService ... ", response);
+
+        this.id = response.id;
+        this.denominacao = response.denominacao;
+        this.nif = response.nif;
+        this.endereco = response.endereco;
+        this.pessoaContacto = response.pessoa_contacto;
+        this.contacto = response.contacto_cobranca;
+        this.tipoCliente = response.tipo.description;
+        this.email = response.e_mail;
+        this.createdAt = new Date(response.created_at)
+          .toLocaleString("PT")
+          .substring(0, 10);
+      }
 
     })
 
-   
+
   }
 
   getProcessosCliente(idCliente) {
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/cliente_processos/${idCliente}`
+      `/api/v1/cliente_processos/${idCliente}`
     ).then((r) => {
       let dataResponse = r.data;
       if (dataResponse) {
@@ -361,7 +361,7 @@ class ClienteDetalhes extends ViewComponent {
 
   getFacturasCliente(idCliente) {
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/cliente_facturas/${idCliente}`
+      `/api/v1/cliente_facturas/${idCliente}`
     ).then((r) => {
       let dataResponse = r.data;
       if (dataResponse) {
@@ -374,13 +374,13 @@ class ClienteDetalhes extends ViewComponent {
 
   downloadFacturaProcesso(_, record) {
 
-    console.log("Fazer o download da factura ", _ , record)
+    console.log("Fazer o download da factura ", _, record)
 
   }
 
   downloadPagamentosFactura(_, record) {
 
-    console.log("fazer o download dos pagamentos  ", _ , record)
+    console.log("fazer o download dos pagamentos  ", _, record)
 
   }
 

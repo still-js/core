@@ -3,14 +3,14 @@ class ModalPagamento extends ViewComponent {
     idFactura;
     ref;
     valor;
-    modoPagamento;    
-    modoPagamentoSelecionado;    
+    modoPagamento;
+    modoPagamentoSelecionado;
     valorPago;
     anexo;
     userId
 
-    
-   /** @type { STForm } */
+
+    /** @type { STForm } */
     paymentForm;
 
     template = `
@@ -131,33 +131,33 @@ class ModalPagamento extends ViewComponent {
     </style>
     `;
 
-    onRender(){
-        $still.HTTPClient.get("http://localhost:3000/api/v1/modo_pagamentos/").then(
+    onRender() {
+        $still.HTTPClient.get("/api/v1/modo_pagamentos/").then(
             (r) => {
                 if (r.data) {
-                   this.modoPagamento = r.data
+                    this.modoPagamento = r.data
                 }
             }
         );
     }
 
     stAfterInit(val) {
-        
+
         document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
             const file = event.target.files[0];
-      
+
             if (file) {
-              const reader = new FileReader();
-      
-              reader.onload = function (e) {
-                const base64String = e.target.result;
-                console.log("base64 da modal ", base64String)
-                document.getElementById('inputUploadAnexoHidden').src = base64String;
-      
-              };
-              reader.readAsDataURL(file); // Converte o arquivo em base64
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const base64String = e.target.result;
+                    console.log("base64 da modal ", base64String)
+                    document.getElementById('inputUploadAnexoHidden').src = base64String;
+
+                };
+                reader.readAsDataURL(file); // Converte o arquivo em base64
             }
-          })
+        })
     }
 
     closeModal() {
@@ -171,19 +171,19 @@ class ModalPagamento extends ViewComponent {
     }
 
     salvarPagamento() {
-   
+
 
         let anexo = document.getElementById('inputUploadAnexoHidden').src
         let modoPagamentoId = document.getElementById('idModoPagamentoSelecionado').value
-                
-        if(modoPagamentoId == "")
-            return  AppTemplate.toast({ status: 'Erro', message: "O modo de pagamento é Obrigatório"})
 
-        if(this.valorPago.value == "")
-            return  AppTemplate.toast({ status: 'Erro', message: "O valor pago é Obrigatório"})
+        if (modoPagamentoId == "")
+            return AppTemplate.toast({ status: 'Erro', message: "O modo de pagamento é Obrigatório" })
 
-        if(anexo == "" || !anexo.toString().includes('base64'))
-            return  AppTemplate.toast({ status: 'Erro', message: "O anexo é Obrigatório"})
+        if (this.valorPago.value == "")
+            return AppTemplate.toast({ status: 'Erro', message: "O valor pago é Obrigatório" })
+
+        if (anexo == "" || !anexo.toString().includes('base64'))
+            return AppTemplate.toast({ status: 'Erro', message: "O anexo é Obrigatório" })
 
         const userLogged = JSON.parse(localStorage.getItem("_user"));
         let userId = userLogged.id
@@ -196,34 +196,34 @@ class ModalPagamento extends ViewComponent {
             "valor_restante": parseFloat(this.valor.value) - parseFloat(this.valorPago.value),
             "anexo": anexo,
             "modo_pagamento_id": modoPagamentoId,
-            "desconto": 0 , 
-            "obs": "" 
-          }
+            "desconto": 0,
+            "obs": ""
+        }
 
         $still.HTTPClient.post(
-            "http://localhost:3000/api/v1/pagamento_factura",
+            "/api/v1/pagamento_factura",
             JSON.stringify(payload),
             {
-              headers: {
-                "Content-Type": "application/json",
-              },
+                headers: {
+                    "Content-Type": "application/json",
+                },
             }
-          )
+        )
             .then((response) => {
-              if (response.status !== 201) {
-                AppTemplate.hideLoading();
-                AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
-              } else {
-                AppTemplate.hideLoading();
-                AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
-                this.closeModal()
-              }
+                if (response.status !== 201) {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
+                } else {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
+                    this.closeModal()
+                }
             })
             .catch((err) => {
-              AppTemplate.hideLoading();
-              AppTemplate.toast({ status: 'Erro', message: err })
+                AppTemplate.hideLoading();
+                AppTemplate.toast({ status: 'Erro', message: err })
             });
-      
+
 
         /**
          * 

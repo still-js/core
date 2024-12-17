@@ -305,7 +305,7 @@ class Despesas extends ViewComponent {
 
         AppTemplate.showLoading();
         $still.HTTPClient.post(
-            'http://localhost:3000/api/v1/processo/despesa',
+            '/api/v1/processo/despesa',
             JSON.stringify(payload),
             {
                 headers: {
@@ -331,7 +331,7 @@ class Despesas extends ViewComponent {
     getDespesa() {
 
         $still.HTTPClient.get(
-            'http://localhost:3000/api/v1/processo/despesa/all'
+            '/api/v1/processo/despesa/all'
         ).then((r) => {
             AppTemplate.hideLoading();
 

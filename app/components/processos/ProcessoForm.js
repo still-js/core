@@ -114,8 +114,8 @@ class ProcessoForm extends ViewComponent {
         },
     ];
 
-   /** @type { STForm } */
-   processoForm;
+    /** @type { STForm } */
+    processoForm;
 
     template = `
     <section class="content">
@@ -400,31 +400,31 @@ class ProcessoForm extends ViewComponent {
 
         const isValidForm = this.processoForm.validate();
 
-        if(isValidForm) { 
-            AppTemplate.showLoading(); 
+        if (isValidForm) {
+            AppTemplate.showLoading();
             if (this.id.value !== "") {
                 this.updateProcesso(payload)
             } else {
                 this.saveProcesso(payload)
             }
-        }else{
-            AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+        } else {
+            AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
         }
     }
 
     formProcessoValidade() {
 
-        if(Number(this.modoFacturacaoId.value) == 1 && this.horasMes.value == "") {
+        if (Number(this.modoFacturacaoId.value) == 1 && this.horasMes.value == "") {
             alert("Para modo de facturação Avença, as horas/meses deve ser preenchida!")
             document.getElementById("horasMesInput").focus()
             return false
         }
-        if(Number(this.modoFacturacaoId.value) == 2 && this.valorTotal.value == "") {
+        if (Number(this.modoFacturacaoId.value) == 2 && this.valorTotal.value == "") {
             alert("Para modo de facturação Success Fee, a valor total deve ser preenchida")
             document.getElementById("valorTotalInput").focus()
             return false
         }
-        if(Number(this.modoFacturacaoId.value) == 3 && this.valorTotal.value == "") {
+        if (Number(this.modoFacturacaoId.value) == 3 && this.valorTotal.value == "") {
             alert("Para modo de facturação Fixo, a valor total deve ser preenchida")
             document.getElementById("valorTotalInput").focus()
             return false
@@ -437,7 +437,7 @@ class ProcessoForm extends ViewComponent {
 
         if (this.isValidInputForm()) {
             $still.HTTPClient.post(
-                "http://localhost:3000/api/v1/processo",
+                "/api/v1/processo",
                 JSON.stringify(payload),
                 {
                     headers: {
@@ -473,7 +473,7 @@ class ProcessoForm extends ViewComponent {
 
         if (this.isValidInputForm()) {
             $still.HTTPClient.put(
-                `http://localhost:3000/api/v1/processo/${this.id.value}`,
+                `/api/v1/processo/${this.id.value}`,
                 JSON.stringify(payload),
                 {
                     headers: {
@@ -504,7 +504,7 @@ class ProcessoForm extends ViewComponent {
     }
 
     getListColaboradores() {
-        $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
+        $still.HTTPClient.get("/api/v1/colaborador/").then(
             (r) => {
                 if (r.data) {
                     let colaboradorData = [];
@@ -521,7 +521,7 @@ class ProcessoForm extends ViewComponent {
     }
 
     getListClientes() {
-        $still.HTTPClient.get("http://localhost:3000/api/v1/cliente/").then((r) => {
+        $still.HTTPClient.get("/api/v1/cliente/").then((r) => {
             if (r.data) {
                 let clienteData = [];
 
@@ -550,7 +550,7 @@ class ProcessoForm extends ViewComponent {
     getProcessoById(id) {
 
         $still.HTTPClient.get(
-            `http://localhost:3000/api/v1/processo/${id}`
+            `/api/v1/processo/${id}`
         ).then((r) => {
 
             if (r.status === 200) {
@@ -606,13 +606,13 @@ class ProcessoForm extends ViewComponent {
 
             if (this.dataEncerramento.value)
                 document.getElementById('dataEncerramentoInput').value = this.dataEncerramento.value.substr(0, 10)
-        
+
             if (this.dataEmissaoFactura.value)
                 document.getElementById('dataEmissaoFacturaInput').value = this.dataEmissaoFactura.value
 
             if (this.horasMes.value)
                 document.getElementById('horasMesInput').value = this.horasMes.value
-        
+
             if (this.valorTotal.value)
                 document.getElementById('valorTotalInput').value = this.valorTotal.value
 
@@ -621,7 +621,7 @@ class ProcessoForm extends ViewComponent {
             this.instituicaoId = data.instituicao_id;
             this.statusId = data.status_id;
             this.gestorId = data.gestor_id;
-            this.clienteId = data.cliente_id;           
+            this.clienteId = data.cliente_id;
 
             this.checkModoFacturacao(this.modoFacturacaoId.value)
 
@@ -676,7 +676,7 @@ class ProcessoForm extends ViewComponent {
         this.dataEncerramento = document.getElementById("dataEncerramentoInput").value
     }
 
-    updateDataEmissaoFactura(evt){
+    updateDataEmissaoFactura(evt) {
         this.dataEmissaoFactura = document.getElementById("dataEmissaoFacturaInput").value
     }
 
@@ -684,7 +684,7 @@ class ProcessoForm extends ViewComponent {
 
         console.log("checkModoFacturacao fn ", value)
 
-        switch(value) {
+        switch (value) {
             case '1':
                 document.getElementById("horasMesInput").disabled = false;
                 document.getElementById("valorTotalInput").disabled = true;

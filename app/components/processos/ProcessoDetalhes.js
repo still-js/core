@@ -232,11 +232,11 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** @Prop */
   showAvenca = false
-    /** @Prop */
+  /** @Prop */
   showModoFixo = false
-    /** @Prop */
+  /** @Prop */
   showModoSuccessFee = false
-      /** @Prop */
+  /** @Prop */
   showModoProbono = false
 
 
@@ -975,7 +975,7 @@ class ProcessoDetalhes extends ViewComponent {
       try {
 
         this.populateAttributes(response);
-          
+
         AppTemplate.hideLoading();
 
       } catch (e) {
@@ -988,14 +988,14 @@ class ProcessoDetalhes extends ViewComponent {
     this.getListColaboradores();
     this.getListPrecedentes();
     this.getTimeSheet(idProcesso);
-    
+
   }
 
   getPaymentsProcesso(idProcesso) {
 
     this.processoService.on('load', async () => {
-      this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);     
-    }); 
+      this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);
+    });
   }
 
 
@@ -1031,39 +1031,39 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   verifyModoFacturamento(data) {
-    
+
     try {
-    console.log("here... >>><<<>><<<< ", data)
+      console.log("here... >>><<<>><<<< ", data)
 
-    switch(data.modo_facturacao){
-      case 'Success Fee': 
-        console.log("success fee")
-        document.getElementById('idShowModoSuccessFee').style.display = "block"
-        this.showModoSuccessFee = true
-        break;
-      case 'Fixo': 
-        console.log("fixo")
-        document.getElementById('idShowModoFixo').style.display = "block"
-        this.showModoFixo = true
-        break;
-      case 'Avença': 
-        console.log("Avenca")
-        document.getElementById('idShowAvenca').style.display = "block"
-        this.showAvenca = true
-        break;
-      case 'Probono': 
-        console.log("probono")
-        document.getElementById('idModoProbono').style.display = "block"
-        this.showModoProbono = true
-        break;
-      default:
-        console.log("default")
-        document.getElementById('idShowAvenca').style.display = "block"
-        this.showAvenca = true
-        break;
-    } 
+      switch (data.modo_facturacao) {
+        case 'Success Fee':
+          console.log("success fee")
+          document.getElementById('idShowModoSuccessFee').style.display = "block"
+          this.showModoSuccessFee = true
+          break;
+        case 'Fixo':
+          console.log("fixo")
+          document.getElementById('idShowModoFixo').style.display = "block"
+          this.showModoFixo = true
+          break;
+        case 'Avença':
+          console.log("Avenca")
+          document.getElementById('idShowAvenca').style.display = "block"
+          this.showAvenca = true
+          break;
+        case 'Probono':
+          console.log("probono")
+          document.getElementById('idModoProbono').style.display = "block"
+          this.showModoProbono = true
+          break;
+        default:
+          console.log("default")
+          document.getElementById('idShowAvenca').style.display = "block"
+          this.showAvenca = true
+          break;
+      }
 
-    }catch(e){
+    } catch (e) {
       console.log(e)
     }
 
@@ -1114,7 +1114,7 @@ class ProcessoDetalhes extends ViewComponent {
     this.anexos = data.anexos ? data.anexos : [];
 
     this.horasMes = data.horas_mes ? data.horas_mes : 0;
-    this.custoTotal = data.valor_total ? data.valor_total : 0;    
+    this.custoTotal = data.valor_total ? data.valor_total : 0;
 
     /** Setters values  */
     this.setValueById('input_metodologia', this.metodologia.value)
@@ -1147,7 +1147,7 @@ class ProcessoDetalhes extends ViewComponent {
     if (data.anexos)
       this.dataTableListProcessosAnexos.dataSource = data.anexos;
 
-    
+
 
     // here 
     this.verifyModoFacturamento(data)
@@ -1208,7 +1208,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   updateProcesso(payload) {
     $still.HTTPClient.put(
-      `http://localhost:3000/api/v1/processo/${this.id.value}`,
+      `/api/v1/processo/${this.id.value}`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1224,8 +1224,8 @@ class ProcessoDetalhes extends ViewComponent {
         }
       })
       .catch((err) => {
-          AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Erro', message: err })
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
       });
   }
 
@@ -1248,7 +1248,7 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   getListColaboradores() {
-    $still.HTTPClient.get("http://localhost:3000/api/v1/colaborador/").then(
+    $still.HTTPClient.get("/api/v1/colaborador/").then(
       (r) => {
         if (r.data) {
           let colaboradorData = [];
@@ -1277,7 +1277,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   getListPrecedentes() {
-    $still.HTTPClient.get("http://localhost:3000/api/v1/processo/").then(
+    $still.HTTPClient.get("/api/v1/processo/").then(
       (r) => {
         if (r.data) {
           let processoData = [];
@@ -1311,7 +1311,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/recursos_processo",
+      "/api/v1/recursos_processo",
       JSON.stringify(payload),
       {
         headers: {
@@ -1358,7 +1358,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/recursos_processo",
+      "/api/v1/recursos_processo",
       JSON.stringify(payload),
       {
         headers: {
@@ -1371,10 +1371,10 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
         } else {
-          
+
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
-          
+
           this.toggleForms(idForm)
 
           let processoSalvo = this.listPrecedentes.value.filter((processo) => processo.id == precedente)
@@ -1412,7 +1412,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/anexos_processo",
+      "/api/v1/anexos_processo",
       JSON.stringify(payload),
       {
         headers: {
@@ -1460,7 +1460,7 @@ class ProcessoDetalhes extends ViewComponent {
       }
 
       $still.HTTPClient.put(
-        `http://localhost:3000/api/v1/tarefas_processo/${idTarefa}`,
+        `/api/v1/tarefas_processo/${idTarefa}`,
         JSON.stringify(payload),
         {
           headers: {
@@ -1472,7 +1472,7 @@ class ProcessoDetalhes extends ViewComponent {
           console.log(`processo criado com sucesso: `, response);
           if (response.status !== 200) {
             AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+            AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
             AppTemplate.hideLoading();
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
@@ -1501,7 +1501,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
       $still.HTTPClient.post(
-        "http://localhost:3000/api/v1/recursos_processo",
+        "/api/v1/recursos_processo",
         JSON.stringify(payload),
         {
           headers: {
@@ -1555,7 +1555,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/recursos_processo/`,
+      `/api/v1/recursos_processo/`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1599,7 +1599,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/recursos_processo/`,
+      `/api/v1/recursos_processo/`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1626,14 +1626,14 @@ class ProcessoDetalhes extends ViewComponent {
 
   concluirTarefaProcesso(_, _col, record) {
 
-    AppTemplate.showLoading(); 
+    AppTemplate.showLoading();
 
     const payload = {
       "status": 1
     }
 
     $still.HTTPClient.put(
-      `http://localhost:3000/api/v1/tarefas_processo/${record.id}`,
+      `/api/v1/tarefas_processo/${record.id}`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1669,7 +1669,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/recursos_processo/`,
+      `/api/v1/recursos_processo/`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1684,8 +1684,8 @@ class ProcessoDetalhes extends ViewComponent {
         //this.getDetalhesProcesso(this.id.value)
         this.dataTableListProcessosPrecedentes.removeRow('id', payload.valueId)
       } else {
-         AppTemplate.hideLoading();
-         AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
       }
 
     })
@@ -1701,7 +1701,7 @@ class ProcessoDetalhes extends ViewComponent {
     AppTemplate.showLoading();
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
+      `/api/v1/view_anexo_processo/${record.id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -1713,7 +1713,7 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.hideLoading();
         if (response.status === 200) {
 
-          let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
+          let pathDownload = `/api/v1/preview_anexo`
           const link = document.createElement('a');
           link.setAttribute("target", '_blank');
           //link.setAttribute("download", response.data.fileName);
@@ -1721,9 +1721,9 @@ class ProcessoDetalhes extends ViewComponent {
           link.download = `Processo anexo _ ${response.data.fileName}`;
           link.id = `download_processo`;
           document.body.appendChild(link);
-          link.click(); 
-          setTimeout(()=> {
-            document.body.removeChild(link); 
+          link.click();
+          setTimeout(() => {
+            document.body.removeChild(link);
           }, 1000)
         }
       })
@@ -1738,7 +1738,7 @@ class ProcessoDetalhes extends ViewComponent {
     AppTemplate.showLoading();
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/view_anexo_processo/${record.id}`,
+      `/api/v1/view_anexo_processo/${record.id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -1749,7 +1749,7 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.hideLoading();
 
         if (response.status === 200) {
-          let pathDownload = `http://localhost:3000/api/v1/preview_anexo`
+          let pathDownload = `/api/v1/preview_anexo`
           window.open(`${pathDownload}/${response.data.fileName}`, '_blank', 'width=800,height=600');
         }
 
@@ -1778,7 +1778,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/recursos_processo/`,
+      `/api/v1/recursos_processo/`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1839,7 +1839,7 @@ class ProcessoDetalhes extends ViewComponent {
   getTimeSheet(idProcess) {
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo_time_sheets/${idProcess}`
+      `/api/v1/processo_time_sheets/${idProcess}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -1884,7 +1884,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
   }
 
-  
+
   getPagamentoFacturaProcesso() {
     // vai buscar os pagamentos já feitos no processo!
   }
@@ -1894,69 +1894,69 @@ class ProcessoDetalhes extends ViewComponent {
     AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
-   k
+    k
 
     const data = this.honorarioProxy.getDestData();
 
     const totalFactura = data
-    .map(
-      r => parseFloat(cleanMoedaValue(r.total))
-    )
-    .reduce((accum, val) => accum + val);
+      .map(
+        r => parseFloat(cleanMoedaValue(r.total))
+      )
+      .reduce((accum, val) => accum + val);
 
     const totalHoras = data
-    .map(
-      r => parseFloat(cleanHorasValue(r.qtd))
-    )
-    .reduce((accum, val) => accum + val);
+      .map(
+        r => parseFloat(cleanHorasValue(r.qtd))
+      )
+      .reduce((accum, val) => accum + val);
 
     let payload = {
       'processo_id': this.id.value,
       'cliente_id': this.clienteId.value,
-      'colaborador_id':  this.userLogged.value.id,
+      'colaborador_id': this.userLogged.value.id,
       'horas': totalHoras,
       'custo': totalFactura,
       'status': 'pendente',
       'items': data.map((item) => ({
-          "processos_timesheet_id": item.id,
-          "horas": parseFloat(cleanHorasValue(item.qtd)),
-          "custo": parseFloat(cleanMoedaValue(item.custo)),
-          "dados_adicionais": JSON.stringify(item)
+        "processos_timesheet_id": item.id,
+        "horas": parseFloat(cleanHorasValue(item.qtd)),
+        "custo": parseFloat(cleanMoedaValue(item.custo)),
+        "dados_adicionais": JSON.stringify(item)
       }))
 
     }
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_factura",
+      "/api/v1/processo_factura",
       JSON.stringify(payload),
       {
-          headers: {
-              "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-  )
+    )
       .then((response) => {
         AppTemplate.hideLoading();
-          if (response.status !== 201) {
-              if (response.message) {
-                  AppTemplate.toast({ status: 'error', message: response.message })
-              } else {
-                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-              }
-          } else {            
-
-            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
-
-            let dataResponse = response.data
-            this.showFactura = true;
-
-            const invoiceNum = Math.random().toString().split('.')[1];
-            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
-            this.facturaProxy.setNomeDocliente(this.cliente.value);
-            this.facturaProxy.setTotalFactura(totalFactura);
-            this.facturaProxy.itensFactura = data;
-
+        if (response.status !== 201) {
+          if (response.message) {
+            AppTemplate.toast({ status: 'error', message: response.message })
+          } else {
+            AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
           }
+        } else {
+
+          AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+          let dataResponse = response.data
+          this.showFactura = true;
+
+          const invoiceNum = Math.random().toString().split('.')[1];
+          this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+          this.facturaProxy.setNomeDocliente(this.cliente.value);
+          this.facturaProxy.setTotalFactura(totalFactura);
+          this.facturaProxy.itensFactura = data;
+
+        }
       })
       .catch((err) => {
         AppTemplate.hideLoading();
@@ -1971,19 +1971,19 @@ class ProcessoDetalhes extends ViewComponent {
 
     console.log("generateHonorarioModoSuccessFee")
 
-    if(this.custoParcelaApagar.value == "" || this.custoParcelaApagar.value == 0)
-        return AppTemplate.toast({ status: 'error', message: "O valor da parcela é Obrigatório!" })
+    if (this.custoParcelaApagar.value == "" || this.custoParcelaApagar.value == 0)
+      return AppTemplate.toast({ status: 'error', message: "O valor da parcela é Obrigatório!" })
 
     AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
-   
+
     const data = this.honorarioProxy.getDestData();
 
     let payload = {
       'processo_id': this.id.value,
       'cliente_id': this.clienteId.value,
-      'colaborador_id':  this.userLogged.value.id,
+      'colaborador_id': this.userLogged.value.id,
       'horas': 0,
       'custo': this.custoParcelaApagar.value,
       'status': 'pendente',
@@ -1992,36 +1992,36 @@ class ProcessoDetalhes extends ViewComponent {
 
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_factura",
+      "/api/v1/processo_factura",
       JSON.stringify(payload),
       {
-          headers: {
-              "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-  )
+    )
       .then((response) => {
         AppTemplate.hideLoading();
-          if (response.status !== 201) {
-              if (response.message) {
-                  AppTemplate.toast({ status: 'error', message: response.message })
-              } else {
-                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-              }
-          } else {            
-
-            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
-
-            let dataResponse = response.data
-            this.showFactura = true;
-
-            const invoiceNum = Math.random().toString().split('.')[1];
-            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
-            this.facturaProxy.setNomeDocliente(this.cliente.value);
-            this.facturaProxy.setTotalFactura(this.custoParcelaApagar.value);
-            this.facturaProxy.itensFactura = data;
-
+        if (response.status !== 201) {
+          if (response.message) {
+            AppTemplate.toast({ status: 'error', message: response.message })
+          } else {
+            AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
           }
+        } else {
+
+          AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+          let dataResponse = response.data
+          this.showFactura = true;
+
+          const invoiceNum = Math.random().toString().split('.')[1];
+          this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+          this.facturaProxy.setNomeDocliente(this.cliente.value);
+          this.facturaProxy.setTotalFactura(this.custoParcelaApagar.value);
+          this.facturaProxy.itensFactura = data;
+
+        }
       })
       .catch((err) => {
         AppTemplate.hideLoading();
@@ -2033,19 +2033,19 @@ class ProcessoDetalhes extends ViewComponent {
 
   generateHonorarioModoFixo() {
 
-    if(!this.clienteId.value)
+    if (!this.clienteId.value)
       return AppTemplate.toast({ status: 'Error', message: 'O Proceso deve ter cliente para facturar.' })
 
     AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
-  
+
     const totalFactura = parseFloat(this.custoTotal.value);
 
     let payload = {
       'processo_id': this.id.value,
       'cliente_id': this.clienteId.value,
-      'colaborador_id':  this.userLogged.value.id,
+      'colaborador_id': this.userLogged.value.id,
       'horas': 0,
       'custo': totalFactura,
       'status': 'pendente',
@@ -2053,48 +2053,48 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_factura",
+      "/api/v1/processo_factura",
       JSON.stringify(payload),
       {
-          headers: {
-              "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-  )
+    )
       .then((response) => {
 
         AppTemplate.hideLoading();
 
-          if (response.status !== 201) {
-              if (response.message) {
-                  AppTemplate.toast({ status: 'error', message: response.message })
-              } else {
-                  AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-              }
-          } else { 
-
-            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
-
-            let dataResponse = response.data
-            this.showFactura = true;
-
-            const invoiceNum = Math.random().toString().split('.')[1];
-            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
-            this.facturaProxy.setNomeDocliente(this.cliente.value);
-            this.facturaProxy.setTotalFactura(totalFactura);
-            this.facturaProxy.itensFactura = [
-              {
-                "processos_timesheet_id": 0,
-                "horas": 0,
-                "custo": parseFloat(cleanMoedaValue(item.custo)),
-                "dados_adicionais": JSON.stringify(item)
-              }
-            ]
-
+        if (response.status !== 201) {
+          if (response.message) {
+            AppTemplate.toast({ status: 'error', message: response.message })
+          } else {
+            AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
           }
+        } else {
+
+          AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+          let dataResponse = response.data
+          this.showFactura = true;
+
+          const invoiceNum = Math.random().toString().split('.')[1];
+          this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+          this.facturaProxy.setNomeDocliente(this.cliente.value);
+          this.facturaProxy.setTotalFactura(totalFactura);
+          this.facturaProxy.itensFactura = [
+            {
+              "processos_timesheet_id": 0,
+              "horas": 0,
+              "custo": parseFloat(cleanMoedaValue(item.custo)),
+              "dados_adicionais": JSON.stringify(item)
+            }
+          ]
+
+        }
       })
       .catch((err) => {
-        
+
       });
 
 
@@ -2158,9 +2158,9 @@ function cleanMoedaValue(val) {
     .trim()
 }
 
-function cleanHorasValue(val){
+function cleanHorasValue(val) {
   return val
-    .replace('Hrs','')
+    .replace('Hrs', '')
     .trim()
 }
 

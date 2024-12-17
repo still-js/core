@@ -175,7 +175,7 @@ class ProcessoTimeSheet extends ViewComponent {
     this.processoId
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo_time_sheets/${this.processoId.value}/${this.userLoggedIn.value.id}`
+      `/api/v1/processo_time_sheets/${this.processoId.value}/${this.userLoggedIn.value.id}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -188,7 +188,7 @@ class ProcessoTimeSheet extends ViewComponent {
     });
 
     $still.HTTPClient.get(
-      `http://localhost:3000/api/v1/processo/${this.processoId.value}`
+      `/api/v1/processo/${this.processoId.value}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -266,7 +266,7 @@ class ProcessoTimeSheet extends ViewComponent {
     };
 
     let response = await $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_time_sheets",
+      "/api/v1/processo_time_sheets",
       JSON.stringify(payload),
       {
         headers: {
@@ -293,7 +293,7 @@ class ProcessoTimeSheet extends ViewComponent {
 
   }
 
-  updateHorasColaborador(isPlus, time){
+  updateHorasColaborador(isPlus, time) {
 
     let currentTime = eval(document.getElementById('horasInputId').innerHTML)
     let calculateTime = isPlus ? currentTime + time : currentTime - time
@@ -319,17 +319,17 @@ class ProcessoTimeSheet extends ViewComponent {
     let isPlus = false
     let horasPlus = 0
 
-    if(horasCalculadas == horasCalculadasEvt) {
+    if (horasCalculadas == horasCalculadasEvt) {
       isChanged = false
     }
 
-   if(horasCalculadas > horasCalculadasEvt) {
-     isChanged = true
-     isPlus = true
-     horasPlus = horasCalculadas - horasCalculadasEvt
+    if (horasCalculadas > horasCalculadasEvt) {
+      isChanged = true
+      isPlus = true
+      horasPlus = horasCalculadas - horasCalculadasEvt
     }
-     
-    if(horasCalculadas < horasCalculadasEvt) {
+
+    if (horasCalculadas < horasCalculadasEvt) {
       isChanged = true
       isPlus = false
       horasPlus = horasCalculadasEvt - horasCalculadas
@@ -345,7 +345,7 @@ class ProcessoTimeSheet extends ViewComponent {
     };
 
     let response = await $still.HTTPClient.put(
-      `http://localhost:3000/api/v1/processo_time_sheets/${evt.id}`,
+      `/api/v1/processo_time_sheets/${evt.id}`,
       JSON.stringify(payload),
       {
         headers: {
@@ -363,7 +363,7 @@ class ProcessoTimeSheet extends ViewComponent {
       console.log("Alterações feita com sucesso");
       //this.calendarProxy.clearGrid()
       //this.init()
-      if(isChanged)
+      if (isChanged)
         this.updateHorasColaborador(isPlus, horasPlus)
       return true
     }
@@ -379,7 +379,7 @@ class ProcessoTimeSheet extends ViewComponent {
     let horasCalculadas = (endDate - startDate) / 3600000
 
     let response = await $still.HTTPClient.delete(
-      `http://localhost:3000/api/v1/processo_time_sheets/${evt.id}`,
+      `/api/v1/processo_time_sheets/${evt.id}`,
       {
         headers: {
           "Content-Type": "application/json",

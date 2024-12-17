@@ -7,20 +7,10 @@ class HttpRequestOptions {
 
 class StillHTTPClient {
 
+    static #baseUrl = '';
 
-    /**
-     * 
-     * @param {string} url 
-     * @param {HttpRequestOptions} options 
-     * @returns {Promise}
-     */
-    async get(url, options = {}){
-        const { headers, method } = options;
-        return (await fetch(url, {
-            method: method || 'GET',
-            headers: headers || {},
-        }))
-        .json()
+    static setBaseUrl(baseUrl) {
+        StillHTTPClient.#baseUrl = baseUrl;
     }
 
     /**
@@ -29,7 +19,24 @@ class StillHTTPClient {
      * @param {HttpRequestOptions} options 
      * @returns {Promise}
      */
-    async delete(url, body, options = {}){
+    async get(path, options = {}) {
+        const url = `${StillHTTPClient.#baseUrl}${path}`;
+        const { headers, method } = options;
+        return (await fetch(url, {
+            method: method || 'GET',
+            headers: headers || {},
+        }))
+            .json()
+    }
+
+    /**
+     * 
+     * @param {string} url 
+     * @param {HttpRequestOptions} options 
+     * @returns {Promise}
+     */
+    async delete(path, body, options = {}) {
+        const url = `${StillHTTPClient.#baseUrl}${path}`;
         //return await this.get(url, { ...options, method: 'DELETE' })
         const { headers } = options;
         return (await fetch(url, {
@@ -37,7 +44,7 @@ class StillHTTPClient {
             body,
             headers: headers || {},
         }))
-        .json();
+            .json();
     }
 
     /**
@@ -47,14 +54,15 @@ class StillHTTPClient {
      * @param {HttpRequestOptions} options 
      * @returns {Promise}
      */
-    async post(url, body, options = {}){
+    async post(path, body, options = {}) {
+        const url = `${StillHTTPClient.#baseUrl}${path}`;
         const { headers, method } = options;
         return (await fetch(url, {
             method: method || 'POST',
             body,
             headers: headers || {},
         }))
-        .json();
+            .json();
     }
 
     /**
@@ -64,8 +72,9 @@ class StillHTTPClient {
      * @param {HttpRequestOptions} options 
      * @returns {Promise}
      */
-    async put(url, body, options = {}){
-        return await this.post(url, body, {...options, method: 'PUT'});
+    async put(path, body, options = {}) {
+        const url = `${StillHTTPClient.#baseUrl}${path}`;
+        return await this.post(url, body, { ...options, method: 'PUT' });
     }
 
     /**
@@ -75,8 +84,9 @@ class StillHTTPClient {
      * @param {HttpRequestOptions} options 
      * @returns {Promise}
      */
-    async patch(url, body, options = {}){
-        return await this.post(url, body, {...options, method: 'PATCH'});
+    async patch(path, body, options = {}) {
+        const url = `${StillHTTPClient.#baseUrl}${path}`;
+        return await this.post(url, body, { ...options, method: 'PATCH' });
     }
 
 }

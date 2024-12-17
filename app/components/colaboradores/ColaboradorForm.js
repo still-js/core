@@ -433,7 +433,7 @@ class ColaboradorForm extends ViewComponent {
             AppTemplate.showLoading();
 
             $still.HTTPClient.post(
-                "http://localhost:3000/api/v1/colaborador",
+                "/api/v1/colaborador",
                 JSON.stringify(payload),
                 {
                     headers: {
@@ -455,8 +455,8 @@ class ColaboradorForm extends ViewComponent {
                     AppTemplate.hideLoading();
                     AppTemplate.toast({ status: 'Aviso', message: err.message })
                 });
-        }else{
-            AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+        } else {
+            AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
         }
     }
 

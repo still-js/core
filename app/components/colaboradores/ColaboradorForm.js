@@ -318,7 +318,7 @@ class ColaboradorForm extends ViewComponent {
                                     <i class="far fa-id-card"></i>  N.º de Identificação :   </span>
                                     <div class="form-line">
                                     <input 
-                                        (required)="true"    
+                                        id="identificacao_cedula" 
                                         type="text" 
                                         class="form-control" 
                                         (value)="identificacoes_cedula" 
@@ -357,7 +357,7 @@ class ColaboradorForm extends ViewComponent {
     onRender() {
         const routingData = Router.data("ColaboradorForm");
         loadWizard({ enableAllSteps: routingData ? true : false });
-        document.getElementById("input-taxa-horaria").disabled = true;
+        document.getElementById("input-taxa-horaria").disabled = routingData ? false : true;
     }
 
     updateTipoCategoria(evt) {
@@ -386,6 +386,7 @@ class ColaboradorForm extends ViewComponent {
             "data_nascimento": "2000-05-20", //this.data_nascimento.value,
             "funcao": this.funcao.value,
             "tipo_colaborador_id": this.tipo_colaborador_id.value,
+            "taxa_horaria": this.taxa_horaria.value,
             "contactos": [
                 {
                     "tipo": 2,
@@ -429,6 +430,11 @@ class ColaboradorForm extends ViewComponent {
         const isValidForm = this.colaboradorForm.validate();
 
         if (isValidForm) {
+
+            if(!this.isNotEmptyCedula()) {
+                AppTemplate.toast({ status: 'Erro', message: "N.º da Cédula é obrigatória."})
+                return false
+            }
 
             AppTemplate.showLoading();
 
@@ -484,22 +490,38 @@ class ColaboradorForm extends ViewComponent {
 
         if (routeData) {
 
-            const contactos = routeData.contact_value.split(',');
-            const emailPessoal = contactos[0].split('|')[1];
-            const emailEmpresa = contactos[1].split('|')[1];
-            const contactoPessoal = contactos[2].split('|')[1];
-            const contactoEmergencia = contactos[3].split('|')[1];
-            const endereco = contactos[4].split('|')[1];
+            let contactos;
+            let emailPessoal;
+            let emailEmpresa;
+            let contactoPessoal;
+            let contactoEmergencia;
+            let endereco;
 
-            const documentos = routeData.tipo_documentos_code.split(',');
-            const bi = documentos[1].split('|')[1];
-            const cedula = documentos[0].split('|')[1];
+            let documentos;
+            let bi;
+            let cedula;
+
+            if(routeData.contact_value){
+                contactos = routeData.contact_value.split(',');
+                emailPessoal = contactos[0].split('|')[1];
+                emailEmpresa = contactos[1].split('|')[1];
+                contactoPessoal = contactos[2].split('|')[1];
+                contactoEmergencia = contactos[3].split('|')[1];
+                endereco = contactos[4].split('|')[1];
+            }
+
+            if(routeData.tipo_documentos_code) {
+                documentos = routeData.tipo_documentos_code.split(',');
+                bi = documentos[1].split('|')[1];
+                cedula = documentos[0].split('|')[1];
+            }
+
 
             this.nome_completo = routeData.nome_completo;
             this.nome_profissional = routeData.nome_profissional;
             this.tipo_colaborador_id = routeData.tipo_colaborador_id;
             this.status = routeData.status;
-            this.data_nascimento = routeData.data_nascimento;
+            this.data_nascimento = routeData.data_nascimento.toString().substring(0,10);
             this.funcao = routeData.funcao;
             this.status = routeData.status;
             this.contactos_email_pessoal = emailPessoal;
@@ -510,10 +532,28 @@ class ColaboradorForm extends ViewComponent {
 
             this.identificacoes_bi = bi;
             this.identificacoes_cedula = cedula;
+            this.taxa_horaria = routeData.taxa_horaria;
 
         }
 
     }
+
+    isNotEmptyCedula() {
+        var e = document.getElementById("select-tipo-colaborador");
+        var typeCollaborator = e.options[e.selectedIndex].text;    
+    
+        console.log("here ",  (typeCollaborator.toString().includes("Advogado")) 
+        && document.getElementById('identificacao_cedula').value == "")
+    
+        if (
+            (typeCollaborator.toString().includes("Advogado")) 
+                && 
+            (document.getElementById('identificacao_cedula').value == ""))
+            return false
+        else
+            return true;
+    }
+
 }
 
 function loadWizard({ enableAllSteps = false } = {}) {
@@ -579,3 +619,4 @@ function disabledTaxaHoraria() {
     }
 
 }
+

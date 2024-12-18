@@ -242,12 +242,12 @@ class ModalPagamento extends ViewComponent {
 
          */
 
-        if (isValidForm) {
+        /*if (isValidForm) {
             console.log("valido salvar os dados")
 
             return 0
             this.closeModal()
-        }
+        }*/
     }
 
     /**

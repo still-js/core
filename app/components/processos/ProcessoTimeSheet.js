@@ -11,6 +11,11 @@ class ProcessoTimeSheet extends ViewComponent {
   processoId;
   userLoggedIn;
 
+  
+  /** @Proxy @type { TUICalendarComponent } */
+  calendarProxy;
+
+
   template = `<section class="content">
     <div class="block-header">
 
@@ -109,7 +114,7 @@ class ProcessoTimeSheet extends ViewComponent {
                   display: flex;
                   flex-direction: column;
                   min-width: 750px;
-                  width: 1050px;
+                  width: 1200px;
                   color: #555;
                   font-size: 14px;
                   border: 1px solid #e1e0e0;
@@ -279,13 +284,19 @@ class ProcessoTimeSheet extends ViewComponent {
       return false
     } else {
 
-      const eventData = {
-        ...data,
-        start: data.start.d.d,
-        end: data.end.d.d,
-      };
+      // const eventData = {
+      //   ...data,
+      //   start: data.start.d.d,
+      //   end: data.end.d.d,
+      // };
 
-      this.calendarProxy.addNewEvents(eventData);
+      // console.log(">>>> ", this.calendarProxy)
+
+      // this.calendarProxy.on('load', () => {
+      //   this.calendarProxy.addNewEvents(eventData);
+      // });
+
+      //this.calendarProxy.addNewEvents(eventData);
       //this.init()
       this.updateHorasColaborador(true, horasCalculadas)
       return true

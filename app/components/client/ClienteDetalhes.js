@@ -65,12 +65,23 @@ class ClienteDetalhes extends ViewComponent {
   /** @Proxy @type { ModalListPagamentos } */
   modalListPagamentosProxy;
 
+<<<<<<< HEAD
   /** @Prop */
   showModalDetalhesFactura = false;
   /** @Prop */
   showModalPagamento = false;
   /** @Prop */
   showModalListPagamentos = false;
+=======
+    /** @Prop */
+    showModalDetalhesFactura = false;
+    /** @Prop */
+    showModalPagamento = false;
+    /** @Prop */
+    showModalListPagamentos = false;
+    /** @Prop */
+    showModal = false ;
+>>>>>>> ba419f0 (fix: save cliente)
 
   /**
   * @Inject
@@ -212,22 +223,59 @@ class ClienteDetalhes extends ViewComponent {
 
    </form>
 
+
+   <div class="still-popup-curtain" (showIf)="self.showModal"></div>
+
    <style>
       
    .modal-wrapper{
-     position: absolute;
-     top: 0;
-     background: white;
-     z-index: 529985;
-     width: 80%;
-     margin: 0 auto;
-     position: absolute;
-     left: 50%;
-     top: 20%;
-     transform: translate(-50%,-50%);
+    position: absolute;
+        top: 0;
+        background: white;
+        z-index: 529985;
+        width: 66%;
+        margin: 0 auto;
+        position: absolute;
+        left: 50%;
+        top: 25%;
+        transform: translate(-50%,-50%);
    }
 
+    .still-popup-curtain{
+
+      position: fixed;
+      padding: 0;
+      margin: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 529983;
+
+    }
+
+    .modal-pagamento {
+      margin-top: 125px !important ;
+    }
+
  </style>
+
+
+</section>
+
+      <div 
+        class="modal-wrapper"
+        id="idShowModalDetalhesFactura"
+        style="display: none" 
+      > 
+        <st-element
+          component="ModalDetalhesFactura"
+          proxy="modalDetalhesFacturaProxy"
+          (onCloseModal)="fecharModalDetalhesFactura()"
+        >
+        </st-element>
+      </div>
   
     <div 
       class="modal-wrapper" 
@@ -242,23 +290,8 @@ class ClienteDetalhes extends ViewComponent {
       </st-element>
     </div>
 
-
-    <div 
-      class="modal-wrapper" 
-      id="idShowModalDetalhesFactura"
-      style="display: none"
-    >
-    <st-element
-      component="ModalDetalhesFactura"
-      proxy="modalDetalhesFacturaProxy"
-      (onCloseModal)="fecharModalDetalhesFactura()"
-    >
-    </st-element>
-    </div>
-
-
       <div 
-        class="modal-wrapper" 
+        class="modal-wrapper modal-pagamento" 
         id="idShowModalPagamentosFactura"
         style="display: none"
       >
@@ -270,7 +303,6 @@ class ClienteDetalhes extends ViewComponent {
       </st-element>
     </div>
 
-  </section>
   `;
 
   constructor() {
@@ -279,9 +311,17 @@ class ClienteDetalhes extends ViewComponent {
   }
 
   detalhesProcesso(row, col, record) {
-    Router.goto("ProcessoDetalhes", {
-      data: record.id,
-    });
+
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+    // se for cliente não veja os detalhes do Processo!
+    // if(userLogged.funcao != "cliente") {
+    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
+      Router.goto("ProcessoDetalhes", {
+        data: record.id,
+      });
+    }else{
+      console.log("sem permissao para ver detalhes do Processo ")
+    }
   }
 
   gotoView(viewComponent) {
@@ -359,15 +399,23 @@ class ClienteDetalhes extends ViewComponent {
 
 
   detalhessFacturaCliente(_, record) {
+<<<<<<< HEAD
 
     console.log("datalhes factura items", _, record.items)
 
+=======
+    
+>>>>>>> ba419f0 (fix: save cliente)
     this.modalDetalhesFacturaProxy.idFactura = record.id
     this.modalDetalhesFacturaProxy.itensFactura = record.items
 
+    this.showModal = true;
     document.getElementById('idShowModalDetalhesFactura').style.display = "block"
 
+<<<<<<< HEAD
     console.log("<<<< here ...  ", this.modalDetalhesFacturaProxy.itensFactura)
+=======
+>>>>>>> ba419f0 (fix: save cliente)
   }
 
   detalhessPagamentosFacturaCliente(_, record) {
@@ -381,6 +429,7 @@ class ClienteDetalhes extends ViewComponent {
     this.modalListPagamentosProxy.custo = record.custo
     this.modalListPagamentosProxy.dataRegisto = record.created_at
 
+    this.showModal = true;
 
     this.modalListPagamentosProxy.listPagamentos = record.pagamentos
     document.getElementById('idShowModalPagamentosFactura').style.display = "block"
@@ -393,6 +442,7 @@ class ClienteDetalhes extends ViewComponent {
     this.modalPagamentoProxy.idFactura = record.id
     this.modalPagamentoProxy.ref = record.ref
     this.modalPagamentoProxy.valor = record.custo
+    this.showModal = true;
 
     document.getElementById('idShowModalPagamento').style.display = "block"
 
@@ -400,14 +450,17 @@ class ClienteDetalhes extends ViewComponent {
 
 
   fecharModalPagamento(row, col, record) {
+    this.showModal = false;
     document.getElementById('idShowModalPagamento').style.display = "none"
   }
 
   fecharModalDetalhesFactura(row, col, record) {
+    this.showModal = false;
     document.getElementById('idShowModalDetalhesFactura').style.display = "none"
   }
 
   fecharModalPagamentosFactura(row, col, record) {
+    this.showModal = false;
     document.getElementById('idShowModalPagamentosFactura').style.display = "none"
   }
 

@@ -56,6 +56,8 @@ class ProcessoDetalhes extends ViewComponent {
   custoParcelaApagar;
   pagamentosProcesso;
 
+  equipaSelectedColaborador;
+
   modePagamento = [
     { code: 1, designacao: 'Transferência Bancária' },
     { code: 2, designacao: 'Depósito' },
@@ -571,7 +573,7 @@ class ProcessoDetalhes extends ViewComponent {
                                         <i class="material-icons">person</i> Equipas
                                     </span>
                                     <select
-                                    id="qeuipaSelectedColaborador"
+                                    id="equipaSelectedColaborador"
                                     (change)="updateEquipasProcesso($event)" (forEach)="listEquipas">
                                         <option each="item" value="">Selecione um Advogado</option>
                                         <option each="item" value="{item.id}">{item.descricao}</option>
@@ -689,7 +691,7 @@ class ProcessoDetalhes extends ViewComponent {
                             <span class="input-group-addon">
                                 <i class="material-icons">person</i> Processos à Associar
                             </span>
-                            <select (change)="updatePrecedentes($event)" (forEach)="listPrecedentes">
+                            <select id="processoAssociadoInput" (change)="updatePrecedentes($event)" (forEach)="listPrecedentes">
                                 <option each="item" value="">Selecione uma opção</option>
                                 <option each="item" value="{item.id}">{item.descricao}</option>
                             </select>
@@ -1239,8 +1241,11 @@ class ProcessoDetalhes extends ViewComponent {
 
   updateEquipasProcesso(evt) {
     this.equipaInput = evt.target.value;
-    const e = document.getElementById("qeuipaSelectedColaborador");
-    this.qeuipaSelectedColaborador = e.options[e.selectedIndex].text;
+
+    console.log("here ", this.equipaInput)
+
+    const e = document.getElementById("equipaSelectedColaborador");
+    this.equipaSelectedColaborador = e.options[e.selectedIndex].text;
   }
 
   updatePrecedentes(evt) {
@@ -1301,14 +1306,17 @@ class ProcessoDetalhes extends ViewComponent {
   /** Function Save */
   async addEquipaProcesso(idForm) {
 
-    AppTemplate.showLoading();
+  
 
-    const equipa = this.equipaInput.value;
+    //const equipa = this.equipaInput.value;
+    const e = document.getElementById("equipaSelectedColaborador").value;
 
     const payload = {
       "processoId": this.id.value,
-      "colaboradoresId": [equipa]
+      "colaboradoresId": [Number(e)]
     }
+
+    AppTemplate.showLoading();
 
     $still.HTTPClient.post(
       "/api/v1/recursos_processo",
@@ -1329,16 +1337,23 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
           this.toggleForms(idForm);
 
-          const dados = this.qeuipaSelectedColaborador.value.split('-');
+          const e = document.getElementById("equipaSelectedColaborador");
+          let equipaSelectedColaborador = e.options[e.selectedIndex].text;
+
+          const dados = equipaSelectedColaborador.split('-');
           const funcao = [dados[0], dados[1]].join('');
           const colaborador = dados[2].trim()
 
           this.dataTableListProcessosEquipas.insertRow(
-            { 'id': equipa, colaborador, funcao }
+            { 'id': e.value, colaborador, funcao }
           );
+
+          document.getElementById("equipaSelectedColaborador").selectedIndex = 0
+
         }
       })
       .catch((err) => {
+
         AppTemplate.hideLoading();
         AppTemplate.toast({ status: 'Erro', message: err })
       });
@@ -1350,7 +1365,8 @@ class ProcessoDetalhes extends ViewComponent {
 
     AppTemplate.showLoading();
 
-    const precedente = this.precedenteInput.value;
+    // const precedente = this.precedenteInput.value;
+    const precedente = document.getElementById('processoAssociadoInput').value;
 
     const payload = {
       "processoId": this.id.value,
@@ -1441,7 +1457,6 @@ class ProcessoDetalhes extends ViewComponent {
 
   addTarefaProcesso(idForm) {
 
-    AppTemplate.showLoading();
 
     const tarefa = this.getValueById('input_form_tarefa')
     let inputTarefa = document.getElementById('input_form_tarefa')
@@ -1456,7 +1471,7 @@ class ProcessoDetalhes extends ViewComponent {
       let idTarefa = inputTarefa.dataset.id
       const payload = {
         "descricao": tarefa,
-        data_para_realizacao: this.valueRealizacaoTarefa.value,
+        data_para_realizacao: document.getElementById('valueRealizacaoTarefa').value,
       }
 
       $still.HTTPClient.put(
@@ -1469,22 +1484,29 @@ class ProcessoDetalhes extends ViewComponent {
         }
       )
         .then((response) => {
-          console.log(`processo criado com sucesso: `, response);
+
+
+          console.log("here 2")
+
+          AppTemplate.hideLoading();
           if (response.status !== 200) {
+<<<<<<< HEAD
             AppTemplate.hideLoading();
+=======
+>>>>>>> fix_cliente
             AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
-            AppTemplate.hideLoading();
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
             this.toggleForms(idForm)
             this.dataTableListProcessosTarefas.insertRow(
               { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at': new Date().toLocaleString("PT") },
             );
 
-            //this.getDetalhesProcesso(this.id.value)
           }
         })
         .catch((err) => {
+          console.log("here 3")
+
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: err })
         });
@@ -1496,7 +1518,7 @@ class ProcessoDetalhes extends ViewComponent {
       let idTarefa = inputTarefa.dataset.id
       const payload = {
         "processoId": this.id.value,
-        "tarefas": [{ descricao: tarefa, data_para_realizacao: this.valueRealizacaoTarefa.value }]
+        "tarefas": [{ descricao: tarefa, data_para_realizacao: document.getElementById('valueRealizacaoTarefa').value }]
       }
 
 
@@ -1510,11 +1532,14 @@ class ProcessoDetalhes extends ViewComponent {
         }
       )
         .then((response) => {
+
+          console.log("here 2")
+
+          AppTemplate.hideLoading();
+
           if (response.status !== 201) {
-            AppTemplate.hideLoading();
             AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
-            AppTemplate.hideLoading();
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
 
             this.toggleForms(idForm)

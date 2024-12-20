@@ -81,7 +81,10 @@ class ClienteDetalhes extends ViewComponent {
     showModalListPagamentos = false;
     /** @Prop */
     showModal = false ;
+<<<<<<< HEAD
 >>>>>>> ba419f0 (fix: save cliente)
+=======
+>>>>>>> fix_cliente
 
   /**
   * @Inject
@@ -400,12 +403,16 @@ class ClienteDetalhes extends ViewComponent {
 
   detalhessFacturaCliente(_, record) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     console.log("datalhes factura items", _, record.items)
 
 =======
     
 >>>>>>> ba419f0 (fix: save cliente)
+=======
+    
+>>>>>>> fix_cliente
     this.modalDetalhesFacturaProxy.idFactura = record.id
     this.modalDetalhesFacturaProxy.itensFactura = record.items
 
@@ -413,9 +420,12 @@ class ClienteDetalhes extends ViewComponent {
     document.getElementById('idShowModalDetalhesFactura').style.display = "block"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     console.log("<<<< here ...  ", this.modalDetalhesFacturaProxy.itensFactura)
 =======
 >>>>>>> ba419f0 (fix: save cliente)
+=======
+>>>>>>> fix_cliente
   }
 
   detalhessPagamentosFacturaCliente(_, record) {

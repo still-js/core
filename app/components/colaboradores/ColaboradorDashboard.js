@@ -142,7 +142,7 @@ class ColaboradorDashboard extends ViewComponent {
                           display: flex;
                           flex-direction: column;
                           min-width: 750px;
-                          width: 1050px;
+                          width: 99%;
                           color: #555;
                           font-size: 14px;
                           border: 1px solid #e1e0e0;
@@ -151,6 +151,12 @@ class ColaboradorDashboard extends ViewComponent {
                   component="TUICalendarComponent"
                   milestoneTitle="Objectivo"
                   proxy="agendaColaboradorProxy"
+
+                  (onEventCreate)="saveEvent()"
+                  editLabel="Editar"
+                  (onEventUpdate)="updateEvent()"
+                  (onEventDeletion)="deleteEvent()"
+
                   >
                 </st-element>
               </div>
@@ -238,19 +244,29 @@ class ColaboradorDashboard extends ViewComponent {
     const userLogged = JSON.parse(localStorage.getItem('_user'));
     const service = this.processoService;
 
+
     if (userLogged) {
 
       try {
 
         AppTemplate.showLoading();
         const processosByColaborador = await service.getProcessoByColaborador(userLogged.id);
+
         this.dataTable.dataSource = this.transformDataTable(processosByColaborador);
         this.populateCards(processosByColaborador);
+
+        
         const tasksData = await service.getTarefaByColaboradorId();
+
+        console.log("tasksData >>>>> <<<<< ", tasksData)
+
+
+
         this.pushDataToCalendar(tasksData);
         AppTemplate.hideLoading();
 
       } catch (error) {
+        console.log(">>>> ", error)
         AppTemplate.hideLoading();
       }
 
@@ -280,6 +296,9 @@ class ColaboradorDashboard extends ViewComponent {
 
     });
 
+    console.log("load ... ", tasks)
+
+    console.log("load ... ", this.agendaColaboradorProxy)
 
     this.agendaColaboradorProxy.on('load', () => {
       this.agendaColaboradorProxy.addNewEvents(tasks);
@@ -333,6 +352,64 @@ class ColaboradorDashboard extends ViewComponent {
 
   gotoView(viewComponent) {
     Router.goto(viewComponent);
+  }
+
+
+
+  async saveEvent(data) {
+
+    console.log("data ... ", data)
+
+   /* if (this.userLoggedIn.value.id === "")
+      alert("Nenhum Colaborador definido.")
+
+    let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
+
+    let payload = {
+      tipoEventoId: data.calendarId = 'entrevista' ? 1 : 2,
+      processoId: parseInt(this.processoId.value),
+      descricao: data.title,
+      dadosImportantes: JSON.stringify(data),
+      dataInicio: data.start.d.d,
+      dataFim: data.end.d.d,
+      horas: horasCalculadas.toFixed(2),
+      colaboradorId: this.userLoggedIn.value.id
+    };
+
+    let response = await $still.HTTPClient.post(
+      "http://localhost:3000/api/v1/processo_time_sheets",
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status !== 201) {
+      return false
+    } else {
+
+      // const eventData = {
+      //   ...data,
+      //   start: data.start.d.d,
+      //   end: data.end.d.d,
+      // };
+
+      // console.log(">>>> ", this.calendarProxy)
+
+      // this.calendarProxy.on('load', () => {
+      //   this.calendarProxy.addNewEvents(eventData);
+      // });
+
+      //this.calendarProxy.addNewEvents(eventData);
+      //this.init()
+      this.updateHorasColaborador(true, horasCalculadas)
+      return true
+    }
+
+    */
+
   }
 
 }

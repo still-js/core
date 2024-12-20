@@ -7,7 +7,7 @@ class ComponentSetup extends Components {
 
     constructor() {
         super();
-        StillHTTPClient.setBaseUrl('http://localhost:3000');
+        StillHTTPClient.setBaseUrl('http://julaw_backend:3000');
     }
 
     init() {

@@ -48,9 +48,11 @@ class BehaviorComponent {
      */
     onValueInput(event, field, inpt, formRef) {
 
-        if (
-            BehaviorComponent.ignoreKeys.includes(event.key.toString().toLowerCase())
-        ) return;
+        if (event) {
+            if (
+                BehaviorComponent.ignoreKeys.includes(event.key.toString().toLowerCase())
+            ) return;
+        }
 
         const pattern = inpt.getAttribute('(validator)');
         let required = inpt.getAttribute('(required)');
@@ -100,7 +102,7 @@ class BehaviorComponent {
          * In case no validation trigger was not set of set to typing (ontype/onkeyup)
          * then validation function will be called everytime new character is entered
          */
-        this.#handleInputValidation(inpt, field, formRef, pattern, required);
+        return this.#handleInputValidation(inpt, field, formRef, pattern, required);
 
     }
 
@@ -142,8 +144,10 @@ class BehaviorComponent {
 
         }
 
-
+        BehaviorComponent.setValidatorForField(fieldPath, field);
         BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
+
+        return isValid;
 
     }
 
@@ -252,6 +256,14 @@ class BehaviorComponent {
 
     }
 
+    static setValidatorForField(fieldPath, field) {
+        if (!(fieldPath in BehaviorComponent.currentFormsValidators))
+            BehaviorComponent.currentFormsValidators[fieldPath] = {};
+
+        if (!(field in BehaviorComponent.currentFormsValidators[fieldPath]))
+            BehaviorComponent.currentFormsValidators[fieldPath][field] = {};
+    }
+
     /**
      * 
      * @param {string} mt 
@@ -261,13 +273,8 @@ class BehaviorComponent {
     static setOnValueInput(mt, cmp, field, formRef) {
 
         const fieldPath = `${cmp.constructor.name}${formRef ? `-${formRef}` : ''}`;
+        BehaviorComponent.setValidatorForField(fieldPath, field);
         let isValid = true;
-
-        if (!(fieldPath in BehaviorComponent.currentFormsValidators))
-            BehaviorComponent.currentFormsValidators[fieldPath] = {};
-
-        if (!(field in BehaviorComponent.currentFormsValidators[fieldPath]))
-            BehaviorComponent.currentFormsValidators[fieldPath][field] = {};
 
         if (
             mt.indexOf(' (required)="true" ') >= 0
@@ -302,7 +309,22 @@ class BehaviorComponent {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
         let valid = true;
-        const validators = Object.entries(formFields);
+        const intValidators = Object.entries(formFields);
+        const behaviorInstance = new BehaviorComponent();
+        const formRef = String(fieldPath).split('-')[1];
+        const validators = Object
+            .entries(intValidators)
+            .map(
+                ([_, stngs]) => {
+                    const field = stngs[0];
+                    const inpt = document.querySelector(`.stillInputField-${field}`);
+                    return [
+                        field, {
+                            isValid: behaviorInstance.onValueInput(null, field, inpt, formRef),
+                            inputClass: stngs[1].inputClass
+                        }
+                    ];
+                });
 
         for (let [field, validator] of validators) {
 

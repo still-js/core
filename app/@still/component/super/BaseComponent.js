@@ -945,14 +945,14 @@ class BaseComponent extends BehaviorComponent {
             }`;
 
         if (mt.indexOf(`class="`) >= 0)
-            mt = mt.replace(`class="`, `${dataFields} class="${classList}${comboSuffix} `);
+            mt = mt.replace(`class="`, `${dataFields} class="${classList}${comboSuffix} stillInputField-${field} `);
         else
-            subscriptionCls = `${dataFields} class="${classList}${comboSuffix}" `;
+            subscriptionCls = `${dataFields} class="${classList}${comboSuffix} stillInputField-${field}" `;
 
         let replacer = `${subscriptionCls} `;
         if (!(isThereComboBox))
             replacer = `${forEachValue} 
-                        value="${val}" ${subscriptionCls}  
+                        value="${val}" ${subscriptionCls} 
                         onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
 
         return { mt, replacer };

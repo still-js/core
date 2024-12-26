@@ -379,10 +379,10 @@ class ProcessoForm extends ViewComponent {
             "clienteId": this.clienteId.value === "" ? null : this.clienteId.value,
             "gestorId": this.gestorId.value === "" ? null : this.gestorId.value,
             "contraParte": this.contraParte.value,
-            "dataRegisto": this.dataRegisto.value === "" ? new Date() : this.dataRegisto.value,
-            "dataSuspensao": this.dataSuspensao.value === "" ? null : this.dataSuspensao.value,
+            "dataRegisto": document.getElementById('dataRegistoInput').value,
+            "dataSuspensao": document.getElementById('dataSuspensaoInput').value,
             "colaboradorIdSuspendeu": null,
-            "dataEncerramento": this.dataEncerramento.value === "" ? null : this.dataEncerramento.value,
+            "dataEncerramento": document.getElementById('dataEncerramentoInput').value,
             "colaboradorIdEnderrou": null,
             "metodologia": null,
             "estrategia": null,
@@ -395,8 +395,12 @@ class ProcessoForm extends ViewComponent {
             "tarefas": this.tarefas.value,
             "horasMes": this.horasMes.value == "" ? null : this.horasMes.value,
             "valorTotal": this.valorTotal.value == "" ? null : this.valorTotal.value,
-            "dataEmissaoFactura": this.dataEmissaoFactura.value,
+            "dataEmissaoFactura":  document.getElementById('dataEmissaoFacturaInput').value
         };
+
+
+        console.log("payload save processo... ", payload)
+        // return 0
 
         const isValidForm = this.processoForm.validate();
 
@@ -407,8 +411,14 @@ class ProcessoForm extends ViewComponent {
             } else {
                 this.saveProcesso(payload)
             }
+<<<<<<< HEAD
         } else {
             AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
+=======
+        }else{
+
+            AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+>>>>>>> fix_cliente
         }
     }
 
@@ -455,6 +465,7 @@ class ProcessoForm extends ViewComponent {
                             AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
                         }
                     } else {
+                        AppTemplate.hideLoading();
                         AppTemplate.toast({ status: 'Sucesso', message: 'Proceso salvo com sucesso!' })
                         Router.goto("ProcessoDetalhes", {
                             data: response.data.id,

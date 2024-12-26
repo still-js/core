@@ -50,6 +50,9 @@ class Login extends ViewComponent {
                             ENTRAR
                         </button>
                     </div>
+                    <div id="erroAuth" style="display:none">
+                        <p style="color: red; text-align: center">Usuário e/ou senha, incorrectos</p>
+                    </div>
                 </div>
             </form>
             </div>
@@ -86,16 +89,13 @@ class Login extends ViewComponent {
                 }
             )
                 .then((response) => {
-                    console.log(`login criado com sucesso: `, response);
                     if (response.status !== 200) {
-                        alert(response.errors);
+                        document.getElementById('erroAuth').style.display = 'block'
                         AppTemplate.hideLoading();
-                        Router.goto('init');
+                        //  Router.goto('init');
                     } else {
-
                         localStorage.setItem('_user', JSON.stringify(response.data));
                         localStorage.setItem('logged', true);
-                        alert("Bem-vindo (a), a plataforma JuLAW");
                         AppTemplate.get().store('logged', true);
                         AppTemplate.get().store('userName', response.data.nome_completo);
                         AppTemplate.get().store('persmissions', { canSeeGrid: false });
@@ -109,12 +109,10 @@ class Login extends ViewComponent {
                         } else {
                             Router.goto('ColaboradorDashboard');
                         }
-                        // aonde guardar os dados do user logado com seguranca
                     }
 
                 })
                 .catch((err) => {
-                    console.log(`Erro ao login colaborador: `, err);
                     AppTemplate.hideLoading();
                     alert(err);
                 });

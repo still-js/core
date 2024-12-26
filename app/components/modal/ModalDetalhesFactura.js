@@ -50,6 +50,7 @@ class ModalDetalhesFactura extends ViewComponent {
         
         <style>
             .julaw-card {
+                
                 padding: 20px;
                 border: 1px solid #d3d3d3;
             }

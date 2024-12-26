@@ -2,6 +2,23 @@ class ColaboradoresGrid extends ViewComponent {
   htmlRefId = "idDataTable";
   dataSource;
 
+      /** 
+     * @Proxy
+     * @type { TabulatorComponent } 
+     */
+      dataTable;
+
+      /** @Prop */
+      dataTableLabels = [
+          { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
+          { hozAlign: "center", deleteRow: false, icon: "<i class='fa fa-trash'></i>", width: 20 },
+          { title: "Estado", field: "status", sorter: "string", width: 200 },
+          { title: "Tipo Colaborador", field: "description", sorter: "string", width: 200 },
+          { title: "Nome Completo", field: "nome_completo", sorter: "string" },
+          { title: "Nome Profissional", field: "nome_profissional", sorter: "string" },
+          { title: "Contacto", field: "contact_value", sorter: "string" },
+      ];
+
   template = `
     <section class="content">
         <div class="block-header">
@@ -32,33 +49,18 @@ class ColaboradoresGrid extends ViewComponent {
                         </div>
                     </div>
                     <div class="body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
-                                <thead>
-                                    <tr>
-                                        <th width="300px">Nome</th>
-                                        <th>Tipo Colabordor</th>
-                                        <th>Função</th>
-                                        <th>Status</th>
-                                        <th>Acções</th>
-                                    </tr>
-                                </thead>
-                                <!-- <output of="dataSource"> -->
-                                <tbody (forEach)="dataSource">
-                                    <tr each="item">
-                                        <td>{item.nome_completo}</td>
-                                        <td>{item.description}</td>
-                                        <td>{item.funcao}</td>
-                                        <td>{item.status}</td>
-                                        <td class="center" >
-                                           <a title="Editar Colaborador" style="cursor: pointer" (click)="editColaborador('{item.id}')">
-                                                <span class="fas fa-pencil-alt"></span>
-                                           </a>
-                                        </td>
-                                    </tr>
-                                </tbody>                              
-                            </table>
-                        </div>
+                        <div class="body table-responsive">
+                          <st-element
+                            component="TabulatorComponent"
+                            proxy="dataTable"
+                            tableHeader="parent.dataTableLabels"
+                             tableHeight="auto"
+                            (onEditColumn)="editColaborador(fieldName, data)"
+                            (onDeleteRow)="deleteRow(fieldName, data)"
+                            (onCellClick)="goToClienteDetalhes(row, col, data)"
+                          >
+                          </st-element>
+            </div>
                     </div>
                 </div>
             </div>
@@ -88,17 +90,6 @@ class ColaboradoresGrid extends ViewComponent {
 
   gotoView(viewComponent) {
     Router.goto(viewComponent);
-  }
-
-
-  editClient(nif) {
-    console.log(`Clicked client is: `, nif);
-
-    const result = this.dataSource.value.filter((r) => r.nif == nif)
-    Router.goto('ClientForm', {
-      data: result[0]
-    });
-
   }
 
   makeColaboradorDTO(data) {
@@ -173,10 +164,8 @@ class ColaboradoresGrid extends ViewComponent {
 
   }
 
-  editColaborador(idColaborador) {
-    console.log('Edit colaborador', idColaborador);
-    const result = this.dataSource.value.filter((r) => r.id == idColaborador)
-    Router.goto('ColaboradorForm', { data: result[0] });
+  editColaborador(f, row) {
+    Router.goto('ColaboradorForm', { data: row });
   }
 
   gotoView(viewComponent) {
@@ -188,7 +177,8 @@ class ColaboradoresGrid extends ViewComponent {
       (r) => {
         if (r.data) {
           console.log(r.data);
-          this.dataSource = r.data;
+          //this.dataSource = r.data;
+          this.dataTable.dataSource = r.data;
           //this.makeColaboradorDTO(r.data);
         }
       }

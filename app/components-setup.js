@@ -7,7 +7,7 @@ class ComponentSetup extends Components {
 
     constructor() {
         super();
-        StillHTTPClient.setBaseUrl('http://localhost:3000');
+        StillHTTPClient.setBaseUrl('http://5.252.53.178:3000');
     }
 
     init() {

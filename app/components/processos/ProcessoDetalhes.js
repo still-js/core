@@ -155,6 +155,7 @@ class ProcessoDetalhes extends ViewComponent {
     { title: "Descrição", field: "descricao", sorter: "string" },
     { title: "Estado", field: "status", sorter: "string" },
     { title: "Data Registo", field: "created_at", sorter: "string" },
+    { title: "Data para Regalização", field: "data_para_realizacao", sorter: "string" },
   ];
 
   /** @Proxy @type { TabulatorComponent } */
@@ -1306,8 +1307,6 @@ class ProcessoDetalhes extends ViewComponent {
   /** Function Save */
   async addEquipaProcesso(idForm) {
 
-  
-
     //const equipa = this.equipaInput.value;
     const e = document.getElementById("equipaSelectedColaborador").value;
 
@@ -1461,17 +1460,23 @@ class ProcessoDetalhes extends ViewComponent {
     const tarefa = this.getValueById('input_form_tarefa')
     let inputTarefa = document.getElementById('input_form_tarefa')
 
+    console.log("O input da tarefa", tarefa)
+
+
     if (inputTarefa.value.trim() === '') {
-      alert("Preencha o campo da tarefa!");
-      return false;
+      return AppTemplate.toast({ status: 'Error', message: 'Preenha o campo descrição da tarefa' })
     }
 
     if (inputTarefa.hasAttribute("data-id")) {
 
       let idTarefa = inputTarefa.dataset.id
+      let status = inputTarefa.dataset.status
+      let createdAt = inputTarefa.dataset.create
+      let dataRealizacao = document.getElementById('valueRealizacaoTarefa').value
+
       const payload = {
         "descricao": tarefa,
-        data_para_realizacao: document.getElementById('valueRealizacaoTarefa').value,
+        data_para_realizacao: dataRealizacao,
       }
 
       $still.HTTPClient.put(
@@ -1485,28 +1490,47 @@ class ProcessoDetalhes extends ViewComponent {
       )
         .then((response) => {
 
-
-          console.log("here 2")
-
           AppTemplate.hideLoading();
           if (response.status !== 200) {
-<<<<<<< HEAD
-            AppTemplate.hideLoading();
-=======
->>>>>>> fix_cliente
             AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
+
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
-            this.toggleForms(idForm)
-            this.dataTableListProcessosTarefas.insertRow(
-              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at': new Date().toLocaleString("PT") },
-            );
+            this.toggleForms(idForm)     
+
+            console.log("removeID ", idTarefa)
+
+            // this.dataTableListProcessosTarefas.removeRow('id', idTarefa)
+
+            AppTemplate.hideLoading();
+
+            console.log( { 
+              'id': idTarefa, 
+              'descricao': tarefa, 
+              'status': status, 
+              'created_at': createdAt,
+              'data_para_realizacao': dataRealizacao
+            })
+
+            setTimeout(() => {            
+              this.dataTableListProcessosTarefas.updateRow(
+                { 
+                  'id': idTarefa, 
+                  'descricao': tarefa, 
+                  'status': status, 
+                  'created_at': createdAt,
+                  'data_para_realizacao': dataRealizacao
+                },
+                'id',
+                idTarefa
+              );
+            }, 500)
+
+            this.clearFormTarefa()
 
           }
         })
         .catch((err) => {
-          console.log("here 3")
-
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: err })
         });
@@ -1516,9 +1540,11 @@ class ProcessoDetalhes extends ViewComponent {
       AppTemplate.showLoading();
 
       let idTarefa = inputTarefa.dataset.id
+      let dataRealizacao = document.getElementById('valueRealizacaoTarefa').value 
+
       const payload = {
         "processoId": this.id.value,
-        "tarefas": [{ descricao: tarefa, data_para_realizacao: document.getElementById('valueRealizacaoTarefa').value }]
+        "tarefas": [{ descricao: tarefa, data_para_realizacao: dataRealizacao }]
       }
 
 
@@ -1545,8 +1571,16 @@ class ProcessoDetalhes extends ViewComponent {
             this.toggleForms(idForm)
 
             this.dataTableListProcessosTarefas.insertRow(
-              { 'id': idTarefa, 'descricao': tarefa, 'status': 0, 'created_at': new Date().toLocaleString("PT") },
+                { 
+                  'id': idTarefa, 
+                  'descricao': tarefa, 
+                  'status': 0, 
+                  'created_at': new Date().toLocaleString("PT"),
+                  'data_para_realizacao': dataRealizacao
+               },
             );
+
+            this.clearFormTarefa()
 
           }
         })
@@ -1609,9 +1643,16 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   editTarefaProcesso(_, record) {
+
+    console.log("record ", record.created_at)
+
     document.getElementById('input_form_tarefa').value = record.descricao
     document.getElementById('input_form_tarefa').setAttribute("data-id", record.id)
+    document.getElementById('input_form_tarefa').setAttribute("data-status", record.status)
+    document.getElementById('input_form_tarefa').setAttribute("data-create", record.created_at)
     document.getElementById('form_tab_tarefas').classList.toggle("showForm")
+    document.getElementById('valueRealizacaoTarefa').value = record.data_para_realizacao.toString().substring(0,10)
+
   }
 
   removerTarefaProcesso(_, record) {
@@ -1653,9 +1694,11 @@ class ProcessoDetalhes extends ViewComponent {
 
     AppTemplate.showLoading();
 
-    const payload = {
+    let payload = {
       "status": 1
     }
+
+    console.log("record", record)
 
     $still.HTTPClient.put(
       `/api/v1/tarefas_processo/${record.id}`,
@@ -1667,14 +1710,32 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
+        
         if (response.status !== 200) {
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
 
         } else {
-          AppTemplate.hideLoading();
+          
           AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa concluída com sucesso' })
-          this.getDetalhesProcesso(this.id.value)
+          // this.getDetalhesProcesso(this.id.value)
+          // this.toggleForms(idForm)
+
+          const {id, descricao,created_at, data_para_realizacao} = record
+
+          this.dataTableListProcessosTarefas.removeRow('id', id)
+          AppTemplate.hideLoading();
+          setTimeout(() => {            
+            this.dataTableListProcessosTarefas.insertRow(
+              { 
+                'id': id, 
+                'descricao': descricao, 
+                'status': 1, 
+                'created_at': created_at, 
+                'data_para_realizacao': data_para_realizacao
+              }
+            );
+          }, 300)
         }
       })
       .catch((err) => {
@@ -1703,13 +1764,11 @@ class ProcessoDetalhes extends ViewComponent {
       }
     ).then((response) => {
 
+      AppTemplate.hideLoading();
       if (response.status === 200) {
-        AppTemplate.hideLoading();
         AppTemplate.toast({ status: 'Sucesso', message: 'Processo desassociado com Sucesso!' })
-        //this.getDetalhesProcesso(this.id.value)
         this.dataTableListProcessosPrecedentes.removeRow('id', payload.valueId)
       } else {
-        AppTemplate.hideLoading();
         AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.message) })
       }
 
@@ -1919,8 +1978,7 @@ class ProcessoDetalhes extends ViewComponent {
     AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
-    k
-
+    
     const data = this.honorarioProxy.getDestData();
 
     const totalFactura = data
@@ -2140,6 +2198,16 @@ class ProcessoDetalhes extends ViewComponent {
   updateDataTarefa(event) {
     const { value } = event.target;
     this.valueRealizacaoTarefa = value;
+  }
+
+
+  /** CLEAR FORMS */
+  clearFormTarefa(){
+    document.getElementById('valueRealizacaoTarefa').value = ''
+    document.getElementById('input_form_tarefa').value = ''
+    document.getElementById('input_form_tarefa').removeAttribute("data-id")
+    document.getElementById('input_form_tarefa').removeAttribute("data-status")
+    document.getElementById('input_form_tarefa').removeAttribute("data-create")
   }
 
 }

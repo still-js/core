@@ -249,34 +249,29 @@ class ColaboradorDashboard extends ViewComponent {
 
       try {
 
-        AppTemplate.showLoading();
+        //AppTemplate.showLoading();
         const processosByColaborador = await service.getProcessoByColaborador(userLogged.id);
 
         this.dataTable.dataSource = this.transformDataTable(processosByColaborador);
         this.populateCards(processosByColaborador);
-
         
         const tasksData = await service.getTarefaByColaboradorId();
 
-        console.log("tasksData >>>>> <<<<< ", tasksData)
-
-        this.pushDataToCalendar(tasksData);
         AppTemplate.hideLoading();
+        this.pushDataToCalendar(tasksData);
 
       } catch (error) {
-        console.log(">>>> ", error)
         AppTemplate.hideLoading();
       }
-
 
     }
   }
 
   pushDataToCalendar(tasksData) {
 
-    const userLogged = JSON.parse(localStorage.getItem("_user"));
-    let userId = userLogged.id;
-    const agendaProxy = this.agendaColaboradorProxy;
+    //const userLogged = JSON.parse(localStorage.getItem("_user"));
+    //let userId = userLogged.id;
+    //const agendaProxy = this.agendaColaboradorProxy;
 
     const tasks = tasksData.map((item) => {
 
@@ -293,10 +288,6 @@ class ColaboradorDashboard extends ViewComponent {
       };
 
     });
-
-    console.log("load ... ", tasks)
-
-    console.log("load ... ", this.agendaColaboradorProxy)
 
     this.agendaColaboradorProxy.on('load', () => {
       this.agendaColaboradorProxy.addNewEvents(tasks);

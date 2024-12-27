@@ -31,17 +31,34 @@ const loadComponentFromPath = (path, className, callback = () => { }) => {
 
             if (!path) resolve([]);
             else {
-                const script = $stillLoadScript(path, className);
-                document.head.insertAdjacentElement('beforeend', script);
 
-                script.addEventListener('load', () => {
-                    if (document.getElementById(script.id)) {
-                        setTimeout(() => {
-                            callback();
-                            resolve([]);
+                try {
+
+                    console.log("o path", path)
+                    console.log("o className ", className)
+                    const script = $stillLoadScript(path, className);
+
+                    // if(!script) {
+    
+                        
+                        console.log("quem eh ...", script)
+                        
+                        document.head.insertAdjacentElement('beforeend', script);
+                        
+                        script.addEventListener('load', () => {
+                            if (document.getElementById(script.id)) {
+                                setTimeout(() => {
+                                    callback();
+                                    resolve([]);
+                                });
+                            }
                         });
-                    }
-                });
+                   // }
+
+                }catch(e){
+                    console.log(e)
+                }
+               
             }
 
         }

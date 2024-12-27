@@ -260,8 +260,6 @@ class ColaboradorDashboard extends ViewComponent {
 
         console.log("tasksData >>>>> <<<<< ", tasksData)
 
-
-
         this.pushDataToCalendar(tasksData);
         AppTemplate.hideLoading();
 

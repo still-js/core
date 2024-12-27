@@ -1150,12 +1150,8 @@ class ProcessoDetalhes extends ViewComponent {
     if (data.anexos)
       this.dataTableListProcessosAnexos.dataSource = data.anexos;
 
-
-
     // here 
     this.verifyModoFacturamento(data)
-
-
   }
 
   editResourcesProcesso(inputId) {
@@ -1923,7 +1919,7 @@ class ProcessoDetalhes extends ViewComponent {
   getTimeSheet(idProcess) {
 
     $still.HTTPClient.get(
-      `/api/v1/processo_time_sheets/${idProcess}`
+      `/api/v1/processo_time_sheets_nao_faturado/${idProcess}`
     ).then((r) => {
       if (r.status === 200) {
         try {
@@ -2030,6 +2026,9 @@ class ProcessoDetalhes extends ViewComponent {
 
           AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
 
+          this.honorarioProxy.clearDestData()
+          console.log("clear data ....")
+
           let dataResponse = response.data
           this.showFactura = true;
 
@@ -2039,6 +2038,7 @@ class ProcessoDetalhes extends ViewComponent {
           this.facturaProxy.setTotalFactura(totalFactura);
           this.facturaProxy.itensFactura = data;
 
+        
         }
       })
       .catch((err) => {

@@ -155,6 +155,9 @@ class TBDragableGrid extends ViewComponent {
         this.destTable.setData(data);
     }
 
+    clearDestData() {
+        this.destTable.setData([]);
+    }
 
 
 }

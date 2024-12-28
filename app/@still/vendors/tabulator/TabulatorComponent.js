@@ -146,6 +146,19 @@ class TabulatorComponent extends ViewComponent {
         this.dataSource = filterData
     }
 
+
+    updateRow(data, columnId, id) {
+        const existingData = [...this.table.getData()];
+        const filterData = existingData.map((item)  => {
+            if(item[columnId] == id)
+                return data
+            else
+                return item
+        })
+
+        this.dataSource = filterData
+    }
+
     /**
      * Method signature for parent to call as event
      * @type {{componentEvent: true}} 

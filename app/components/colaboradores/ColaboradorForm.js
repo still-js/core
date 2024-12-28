@@ -260,8 +260,7 @@ class ColaboradorForm extends ViewComponent {
                                                 <i class="material-icons">payment</i> Taxa Horária
                                             </span>
                                             <div class="form-line">
-                                                <input 
-                                                   (required)="true"
+                                                <input                                                    
                                                    id="input-taxa-horaria" 
                                                    type="numeric" 
                                                    class="form-control date" 

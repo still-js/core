@@ -1,4 +1,5 @@
 class ProcessoForm extends ViewComponent {
+    
     id;
     assunto;
     area;
@@ -411,14 +412,9 @@ class ProcessoForm extends ViewComponent {
             } else {
                 this.saveProcesso(payload)
             }
-<<<<<<< HEAD
-        } else {
-            AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
-=======
         }else{
 
             AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
->>>>>>> fix_cliente
         }
     }
 

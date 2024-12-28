@@ -391,9 +391,6 @@ class TUICalendarComponent extends ViewComponent {
     }
 
     async addNewEvents(eventsList) {
-
-        console.log(`Creating this records: `, eventsList);
-
         this.calendar.createEvents(eventsList);
     }
 

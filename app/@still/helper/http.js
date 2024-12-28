@@ -74,7 +74,9 @@ class StillHTTPClient {
      */
     async put(path, body, options = {}) {
         const url = `${StillHTTPClient.#baseUrl}${path}`;
-        return await this.post(url, body, { ...options, method: 'PUT' });
+        return await this.post(path, body, { ...options, method: 'PUT' });
+        // url duplicated
+        //return await this.post(url, body, { ...options, method: 'PUT' });
     }
 
     /**

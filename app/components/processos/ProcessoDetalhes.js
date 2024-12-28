@@ -1490,10 +1490,7 @@ class ProcessoDetalhes extends ViewComponent {
 
           AppTemplate.hideLoading();
           if (response.status !== 200) {
-<<<<<<< HEAD
             AppTemplate.hideLoading();
-=======
->>>>>>> fix_cliente
             AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
           } else {
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })

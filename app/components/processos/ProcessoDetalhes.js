@@ -243,10 +243,7 @@ class ProcessoDetalhes extends ViewComponent {
   showModoProbono = false
 
 
-  /**
-  * @Inject
-  * @type { ProcessoService } }
-  */
+  /** @Inject @type { ProcessoService } */
   processoService;
 
   template = `
@@ -976,9 +973,9 @@ class ProcessoDetalhes extends ViewComponent {
     this.processoService.on('load', async () => {
       console.log("2")
       AppTemplate.showLoading();
-      const response = await this.processoService.getDetalhesProcesso(idProcesso);
       try {
-
+        
+        const response = await this.processoService.getDetalhesProcesso(idProcesso);
         console.log("3")
         console.log("o response ", response)
 
@@ -996,6 +993,8 @@ class ProcessoDetalhes extends ViewComponent {
       }
 
     });
+
+    console.log("final here... ")
 
   }
 

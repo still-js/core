@@ -971,15 +971,24 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   getDetalhesProcesso(idProcesso) {
+    console.log("1")
 
     this.processoService.on('load', async () => {
+      console.log("2")
       AppTemplate.showLoading();
       const response = await this.processoService.getDetalhesProcesso(idProcesso);
       try {
 
+        console.log("3")
+        console.log("o response ", response)
+
         this.populateAttributes(response);
 
         AppTemplate.hideLoading();
+
+        this.getListColaboradores();
+        this.getListPrecedentes();
+        this.getTimeSheet(idProcesso);
 
       } catch (e) {
         AppTemplate.hideLoading();
@@ -987,10 +996,6 @@ class ProcessoDetalhes extends ViewComponent {
       }
 
     });
-
-    this.getListColaboradores();
-    this.getListPrecedentes();
-    this.getTimeSheet(idProcesso);
 
   }
 
@@ -1011,8 +1016,12 @@ class ProcessoDetalhes extends ViewComponent {
 
     console.log("routeData", routeData)
 
-    this.getDetalhesProcesso(routeData)
-    this.getPaymentsProcesso(routeData)
+    if(routeData) { 
+      this.getDetalhesProcesso(routeData)
+      this.getPaymentsProcesso(routeData)
+    }else{
+      AppTemplate.toast({ status: 'Erro', message: 'Identificador do Processo não encontrado!' })
+    }
 
     document.getElementById('inputUploadAnexo').addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -1078,6 +1087,8 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   populateAttributes(data) {
+
+    console.log("populando os atributos... 1")
 
     this.id = data.id ? data.id : "";
     this.estado = data.estado ? data.estado : "";
@@ -1158,6 +1169,8 @@ class ProcessoDetalhes extends ViewComponent {
     setTimeout(()=> {
         this.verifyModoFacturamento(data)
     }, 1000)
+
+    console.log("populando os atributos... 2")
   
   }
 

@@ -1004,9 +1004,12 @@ class ProcessoDetalhes extends ViewComponent {
 
   stAfterInit(val) {
 
+    console.log("start ", new Date())
     this.showFactura = false;
 
     const routeData = Router.data("ProcessoDetalhes");
+
+    console.log("routeData", routeData)
 
     this.getDetalhesProcesso(routeData)
     this.getPaymentsProcesso(routeData)
@@ -1029,6 +1032,8 @@ class ProcessoDetalhes extends ViewComponent {
         reader.readAsDataURL(file); // Converte o arquivo em base64
       }
     })
+
+    console.log("end ", new Date())
 
 
   }
@@ -1150,8 +1155,10 @@ class ProcessoDetalhes extends ViewComponent {
     if (data.anexos)
       this.dataTableListProcessosAnexos.dataSource = data.anexos;
 
-    // here 
-    this.verifyModoFacturamento(data)
+    setTimeout(()=> {
+        this.verifyModoFacturamento(data)
+    }, 1000)
+  
   }
 
   editResourcesProcesso(inputId) {

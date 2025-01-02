@@ -314,15 +314,30 @@ class ColaboradorDashboard extends ViewComponent {
   }
 
   getDetailsProcesso(_, record) {
-    Router.goto("ProcessoDetalhes", {
-      data: record.id,
-    });
+     
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+
+    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
+        Router.goto("ProcessoDetalhes", {
+          data: record.id,
+        });
+    }else{
+      console.log("sem permissao para ver detalhes do Processo ")
+    }
+
   }
 
   detalheProcesso(_, _col, record) {
-    Router.goto("ProcessoDetalhes", {
-      data: record.id,
-    });
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+
+    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
+        Router.goto("ProcessoDetalhes", {
+          data: record.id,
+        });
+    }else{
+      console.log("sem permissao para ver detalhes do Processo ")
+    }
+
   }
 
   getTimeSheetProcesso(_, record) {

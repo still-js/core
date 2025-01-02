@@ -30,7 +30,7 @@
 
             <table>
             <thead>
-                <tr style="text-align: center;">
+                <tr>
                     <th>Referência</th>
                     <th>Horas</th>
                     <th>Custo</th>
@@ -55,15 +55,13 @@
             </tbody>
         </table>
 
-        <h4>Lista dos Pagamentos</h4>
-        <div class="modal-list-pagamentos"
-        
-        >
-        
+        <div style="margin-bottom: 10px">
 
+        <h4>Lista dos Pagamentos</h4>
+        <div class="modal-list-pagamentos">
         <table>
         <thead>
-            <tr style="text-align: center;">
+            <tr>
                 <th>Id registo</th>
                 <th>valor Pago</th>
                 <th>Modo Pagamento</th>
@@ -72,7 +70,7 @@
             </tr>
         </thead>
         <tbody (forEach)="listPagamentos">
-            <tr each="item" style="text-align: center">
+            <tr each="item">
                 <td class="invoice-item-description">{item.id}</td>
                 <td class="invoice-align-to-center">{item.valor_pago}</td>
                 <td class="invoice-align-to-center">{item.modo_pagamento}</td>
@@ -82,6 +80,8 @@
         </tbody>
     </table> 
        
+        </div>
+
         </div>
 
        

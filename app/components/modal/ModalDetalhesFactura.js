@@ -16,11 +16,12 @@ class ModalDetalhesFactura extends ViewComponent {
             >
                 <h3 style="color: #fff">Items da Factura</h3>
             </div>
-            <fieldset>  
+
+            <div style="margin-bottom: 15px">  
 
             <table>
             <thead>
-                <tr style="text-align: center;">
+                <tr>
                     <th>Id Registo</th>
                     <th>Horas</th>
                     <th>Custo</th>
@@ -28,7 +29,7 @@ class ModalDetalhesFactura extends ViewComponent {
                 </tr>
             </thead>
             <tbody (forEach)="itensFactura">
-                <tr each="item" style="text-align: center">
+                <tr each="item">
                     <td class="">{item.id}</td>
                     <td class="">{item.horas}</td>
                     <td class="">{item.custo}</td>
@@ -36,25 +37,17 @@ class ModalDetalhesFactura extends ViewComponent {
                 </tr>
             </tbody>
         </table>
-                
-
-            </fieldset>
-    
+            </div>
             <div>
                 <button class="btn btn-defult" (click)="closeModal()">Fechar</button>
             </div>
-       
         </form>
-    
             </div>    
-        
         <style>
             .julaw-card {
-                
                 padding: 20px;
                 border: 1px solid #d3d3d3;
             }
-    
         </style>
         `;
     

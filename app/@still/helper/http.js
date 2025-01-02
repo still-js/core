@@ -13,6 +13,11 @@ class StillHTTPClient {
         StillHTTPClient.#baseUrl = baseUrl;
     }
 
+    getBaseURL(){
+        const url = `${StillHTTPClient.#baseUrl}`;
+        return url
+    }
+
     /**
      * 
      * @param {string} url 

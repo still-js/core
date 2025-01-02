@@ -1441,30 +1441,35 @@ class ProcessoDetalhes extends ViewComponent {
       }]
     }
 
-    $still.HTTPClient.post(
-      "/api/v1/anexos_processo",
-      JSON.stringify(payload),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((response) => {
-        if (response.status !== 201) {
-          AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
-        } else {
-          AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
-          this.toggleForms(idForm)
-          this.dataTableListProcessosAnexos.dataSource = response.data
+    setTimeout(() => {
+      
+      $still.HTTPClient.post(
+        "/api/v1/anexos_processo",
+        JSON.stringify(payload),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      })
-      .catch((err) => {
-        AppTemplate.hideLoading();
-        AppTemplate.toast({ status: 'Erro', message: err })
-      });
+      )
+        .then((response) => {
+          if (response.status !== 201) {
+            AppTemplate.hideLoading();
+            AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+          } else {
+            AppTemplate.hideLoading();
+            AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
+            this.toggleForms(idForm)
+            this.dataTableListProcessosAnexos.dataSource = response.data
+            document.getElementById('inputUploadAnexoHidden').src = ""
+          }
+        })
+        .catch((err) => {
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: err })
+        });
+
+    },1000)
 
   }
 
@@ -1797,6 +1802,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   downalodAnexoProcesso(_, record) {
+
     AppTemplate.showLoading();
 
     $still.HTTPClient.get(
@@ -1810,9 +1816,15 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
 
         AppTemplate.hideLoading();
+
+        console.log("response anexo processo", response)
+
+        let baseURL = $still.HTTPClient.getBaseURL()
+
         if (response.status === 200) {
 
-          let pathDownload = `/api/v1/preview_anexo`
+          let pathDownload = `${baseURL}/api/v1/preview_anexo`
+
           const link = document.createElement('a');
           link.setAttribute("target", '_blank');
           //link.setAttribute("download", response.data.fileName);
@@ -1820,6 +1832,7 @@ class ProcessoDetalhes extends ViewComponent {
           link.download = `Processo anexo _ ${response.data.fileName}`;
           link.id = `download_processo`;
           document.body.appendChild(link);
+          console.log("link", link)
           link.click();
           setTimeout(() => {
             document.body.removeChild(link);
@@ -1990,11 +2003,15 @@ class ProcessoDetalhes extends ViewComponent {
 
   generateHonorario() {
 
-    AppTemplate.showLoading();
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
     
     const data = this.honorarioProxy.getDestData();
+
+    if(data.lenght) {
+
+    AppTemplate.showLoading();
+
 
     const totalFactura = data
       .map(
@@ -2064,6 +2081,10 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.hideLoading();
         AppTemplate.toast({ status: 'error', message: err.message })
       });
+
+    }else{
+        AppTemplate.toast({ status: 'Erro', message: 'Arraste item a pagar â Direita!' })
+    }
 
 
   }

@@ -603,6 +603,7 @@ class ProcessoForm extends ViewComponent {
         this.horasMes = data.horas_mes;
         this.valorTotal = data.valor_total;
         this.dataEmissaoFactura = data.data_emissao_factura;
+      
 
         setTimeout(() => {
 
@@ -623,6 +624,8 @@ class ProcessoForm extends ViewComponent {
 
             if (this.valorTotal.value)
                 document.getElementById('valorTotalInput').value = this.valorTotal.value
+
+            document.getElementById('dataEmissaoFacturaInput').value = data.data_emissao_factura.toString().substr(0,10)
 
 
             this.modoFacturacaoId = data.modo_facturacao_id;

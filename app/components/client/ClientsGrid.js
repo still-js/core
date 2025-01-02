@@ -1,39 +1,8 @@
 class ClientsGrid extends ViewComponent {
+
   htmlRefId = "clientDataTable";
   dataSource;
-  /** @type { TabulatorComponent } */
-  dataTable = Proxy;
-  dataTableLabels = Prop(
-    JSON.stringify([
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='fa fa-pen'></i>",
-        width: 20
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fa fa-trash'></i>",
-        width: 20
-      },
-      { title: "Tipo Cliente", field: "tipo", sorter: "string", width: 200 },
-      { title: "Nome", field: "denominacao", sorter: "string" },
-      { title: "NIF", field: "nif", sorter: "string" },
-      { title: "Endereco", field: "endereco", sorter: "string" },
-      { title: "Telefone", field: "pessoa_contacto", sorter: "string" },
-      {
-        title: "Telefone Cobrança",
-        field: "contacto_cobranca",
-        sorter: "string"
-      },
-      { title: "E-mail", field: "e_mail", sorter: "string" },
-      { title: "Data Cadastro", field: "created_at", sorter: "string" }
-    ])
-  );
-
-  htmlRefId = 'clientDataTable';
-  dataSource;
+  
   /** 
    * @Proxy
    * @type { TabulatorComponent } 
@@ -43,7 +12,7 @@ class ClientsGrid extends ViewComponent {
   /** @Prop */
   dataTableLabels = [
     { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
-    { hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },
+    /*{ hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },*/
     { title: "Tipo Cliente", field: "tipo_id", sorter: "string", width: 200 },
     { title: "Nome", field: "denominacao", sorter: "string" },
     { title: "NIF", field: "nif", sorter: "string" },
@@ -52,33 +21,7 @@ class ClientsGrid extends ViewComponent {
     { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
   ];
 
-  /** @Proxy @type { TUICalendarComponent } */
-  calendarProxy;
-
-  /** 
-   * @Proxy 
-   * @type { TBDragableGrid } */
-  dragableTBProxy;
-
-  /** @Prop */
-  dragableData = [
-    { name: "Atendimento no Escritório", custo: "AKZ 0.0" },
-    { name: "Elaboração de contracto", custo: "AKZ 0.0" },
-    { name: "Rectificação do processo", custo: "AKZ 0.0" }
-  ];
-
-  /** @Prop */
-  dragableFields = [
-    { title: "Name", field: "name" },
-    { title: "Custo", field: "custo" }
-  ];
-
-  /** @Prop */
-  dragableDestFields = [
-    { title: "Name", field: "name" },
-    { title: "Custo", field: "custo", editor: "parent.editPricingValue()" }
-  ];
-
+  
   template = `
     <section class="content">
         <br>
@@ -190,6 +133,7 @@ class ClientsGrid extends ViewComponent {
               tipo: item.tipo.description,
               tipo_id: item.tipo_id,
               e_mail: item.e_mail,
+              nota: item.nota,
               created_at: new Date(item.created_at)
                 .toLocaleString("PT")
                 .substring(0, 10)
@@ -214,6 +158,7 @@ class ClientsGrid extends ViewComponent {
   }
 
   getClientDetails(f, row) {
+    console.log("row do cliente", row)
     Router.goto("ClientForm", { data: row });
   }
 

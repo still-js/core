@@ -335,7 +335,8 @@ class ProcessoForm extends ViewComponent {
                                 <i class="material-icons">date_range</i> Data para Emissão Factura
                             </span>
                             <div class="form-line">
-                                <input type="date" id="dataEmissaoFacturaInput" (change)="updateDataEmissaoFactura($event)" class="form-control date" (value)="dataEmissaoFactura">
+                                <input 
+                                (required)="true" type="date" id="dataEmissaoFacturaInput" (change)="updateDataEmissaoFactura($event)" class="form-control date" (value)="dataEmissaoFactura">
                             </div>
                         </div>
                     </div>    

@@ -220,7 +220,7 @@ class ClientForm extends ViewComponent {
                                                 </ul>
                                             </div>
                                             <div class="body">
-                                                <textarea cols="100" rows="30"></textarea>
+                                                <textarea id="clientNotaID" (value)="clientNota" style="height: 150px; padding: 4px" cols="100" rows="50"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -272,16 +272,19 @@ class ClientForm extends ViewComponent {
             tipoClientId = routingData?.tipo_id;
 
         const payload = {
-            "denominacao": this.denominacao.value,
+            "denominacao": this.denominacao.value ?? routingData.denominacao,
             "tipo_id": tipoClientId,
-            "nif": this.nif.value,
-            "endereco": this.endereco.value,
-            "pessoa_contacto": this.pessoaContacto.value,
-            "contacto_cobranca": this.contactoCobranca.value,
-            "e_mail": this.e_mail.value,
-            "nota": this.clientNota.value,
+            "nif": this.nif.value ?? routingData.nif,
+            "endereco": this.endereco.value ?? routingData.endereco,
+            "pessoa_contacto": this.pessoaContacto.value ?? routingData.pessoa_contacto,
+            "contacto_cobranca": this.contactoCobranca.value ?? routingData.contacto_cobranca,
+            "e_mail": this.e_mail.value  ?? routingData.e_mail,
+            "nota": document.getElementById('clientNotaID').value,
             "status": "pending"
         }
+
+        console.log("payload ", payload)
+
 
         const isValidForm = this.clientForm.validate();
 
@@ -317,7 +320,6 @@ class ClientForm extends ViewComponent {
 
         }).catch((err) => {
             AppTemplate.hideLoading();
-            console.log(`Erro ao cadastrar cliente: `, err);
         });
 
     }
@@ -342,7 +344,6 @@ class ClientForm extends ViewComponent {
             Router.goto('ClientsGrid');
         }).catch((err) => {
             AppTemplate.hideLoading();
-            console.log(`Erro ao cadastrar cliente: `, err);
         });
 
     }
@@ -368,13 +369,16 @@ class ClientForm extends ViewComponent {
                 contacto_cobranca, nota, status, e_mail
             } = routeData;
 
+            console.log("a nota >>> ", nota)
+
             this.nif = nif;
             this.denominacao = denominacao || '';
             this.endereco = endereco;
             this.pessoaContacto = pessoa_contacto;
             this.contactoCobranca = contacto_cobranca;
             this.e_mail = e_mail;
-
+            document.getElementById('clientNotaID').value = nota
+            
             setTimeout(() => {
                 this.tipoClienteSelecionado = tipo_id;
             }, 500)

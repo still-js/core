@@ -1,5 +1,6 @@
 class ColaboradorForm extends ViewComponent {
 
+    id;
     username;
     nome_completo;
     nome_profissional;
@@ -18,6 +19,10 @@ class ColaboradorForm extends ViewComponent {
     taxa_horaria;
 
     status = "Activo";
+    
+
+    /** @Prop */
+    isEditForm = false;
 
     /** @type { STForm } */
     colaboradorForm;
@@ -153,8 +158,7 @@ class ColaboradorForm extends ViewComponent {
                                         </span>
                                         <div class="form-line">
                                             <input 
-                                                (required)="true"
-                                                (validator)="text"
+                                                id="userName"
                                                 type="text" 
                                                 class="form-control date" 
                                                 (value)="username" 
@@ -378,11 +382,12 @@ class ColaboradorForm extends ViewComponent {
 
     registerColaborador() {
 
+
         const payload = {
             "username": this.username.value,
             "nome_completo": this.nome_completo.value,
             "nome_profissional": this.nome_profissional.value,
-            "data_nascimento": "2000-05-20", //this.data_nascimento.value,
+            "data_nascimento": this.data_nascimento.value,
             "funcao": this.funcao.value,
             "tipo_colaborador_id": this.tipo_colaborador_id.value,
             "taxa_horaria": this.taxa_horaria.value,
@@ -431,38 +436,82 @@ class ColaboradorForm extends ViewComponent {
         if (isValidForm) {
 
             if(!this.isNotEmptyCedula()) {
-                AppTemplate.toast({ status: 'Erro', message: "N.º da Cédula é obrigatória."})
+                AppTemplate.toast({ status: 'Error', message: "N.º da Cédula é obrigatória."})
                 return false
             }
 
-            AppTemplate.showLoading();
+            if(!this.isEditForm && this.username.value == "") {
+                AppTemplate.toast({ status: 'Error', message: "O nome de Usuário é obrigatório."})
+                return false
+            }
 
-            $still.HTTPClient.post(
-                "/api/v1/colaborador",
-                JSON.stringify(payload),
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            )
-                .then((response) => {
-                    if (response.status !== 201) {
-                        AppTemplate.hideLoading();
-                        AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
-                    } else {
-                        AppTemplate.hideLoading();
-                        AppTemplate.toast({ status: 'Sucesso!', message: 'Colaborador salvo com Sucesso!' })
-                        Router.goto('ColaboradoresGrid');
-                    }
-                })
-                .catch((err) => {
-                    AppTemplate.hideLoading();
-                    AppTemplate.toast({ status: 'Aviso', message: err.message })
-                });
+            if(this.isEditForm) {
+                this.updateColaborador(payload)
+            }else{
+                this.saveColaborador(payload)
+            }
+         
         } else {
             AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
         }
+    }
+
+    saveColaborador(payload) {
+
+        AppTemplate.showLoading();
+
+        $still.HTTPClient.post(
+            "/api/v1/colaborador",
+            JSON.stringify(payload),
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        )
+            .then((response) => {
+                if (response.status !== 201) {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+                } else {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Sucesso!', message: 'Colaborador salvo com Sucesso!' })
+                    Router.goto('ColaboradoresGrid');
+                }
+            })
+            .catch((err) => {
+                AppTemplate.hideLoading();
+                AppTemplate.toast({ status: 'Aviso', message: err.message })
+            });
+    }
+
+    updateColaborador(payload){
+
+        AppTemplate.showLoading();
+
+        $still.HTTPClient.put(
+            `/api/v1/colaborador/${this.id.value}`,
+            JSON.stringify(payload),
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        )
+            .then((response) => {
+                if (response.status !== 200) {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+                } else {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Sucesso!', message: 'Colaborador salvo com Sucesso!' })
+                    Router.goto('ColaboradoresGrid');
+                }
+            })
+            .catch((err) => {
+                AppTemplate.hideLoading();
+                AppTemplate.toast({ status: 'Aviso', message: err.message })
+            });
     }
 
     updateTipoColaborador(evt) {
@@ -516,6 +565,7 @@ class ColaboradorForm extends ViewComponent {
             }
 
 
+            this.id = routeData.id
             this.nome_completo = routeData.nome_completo;
             this.nome_profissional = routeData.nome_profissional;
             this.tipo_colaborador_id = routeData.tipo_colaborador_id;
@@ -532,6 +582,8 @@ class ColaboradorForm extends ViewComponent {
             this.identificacoes_bi = bi;
             this.identificacoes_cedula = cedula;
             this.taxa_horaria = routeData.taxa_horaria;
+
+            this.isEditForm = true;
 
         }
 

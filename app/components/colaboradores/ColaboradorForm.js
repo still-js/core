@@ -29,12 +29,8 @@ class ColaboradorForm extends ViewComponent {
 
     template = `
     <section class="content">
-    <div class="row clearfix">
-        <div class="title-grid-component" style="display: flex">
-            <span class="fas fa-user-tie title-grid-component-icon"></span>    
-            <h3>Novo Colaborador</h3>
-        </div>
-
+    <div class="container-fluid">"
+       
         <div 
             class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
             style="margin-top: -55px;"
@@ -330,11 +326,23 @@ class ColaboradorForm extends ViewComponent {
                                     </div>
                                 </div>
                             </div>
-                        </div>                 
+                        </div>    
+
+                        <div style="display: flex;
+                        justify-content: end;
+                        align-items: center;"
+
+            >
                         
-                            <button class="julaw-submit-button" (click)="registerColaborador()">Salvar</button>
+                            <button class="btn btn-primary julaw-submit-button" (click)="registerColaborador()">Salvar</button>
 
                         </div>
+
+
+                        
+                        </div>
+                                                
+               
 
                         </div>
                         </fieldset>
@@ -359,7 +367,8 @@ class ColaboradorForm extends ViewComponent {
 
     onRender() {
         const routingData = Router.data("ColaboradorForm");
-        loadWizard({ enableAllSteps: routingData ? true : false });
+        console.log("here....")
+        loadWizardColaborador({ enableAllSteps: routingData ? true : false });
         document.getElementById("input-taxa-horaria").disabled = routingData ? false : true;
     }
 
@@ -607,7 +616,7 @@ class ColaboradorForm extends ViewComponent {
 
 }
 
-function loadWizard({ enableAllSteps = false } = {}) {
+function loadWizardColaborador({ enableAllSteps = false } = {}) {
 
     var form = $('#col_wizard_with_validation').show();
     const [finish, next, previous] = ["Submeter", "Próximo", "Voltar"]

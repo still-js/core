@@ -120,23 +120,21 @@ class ProcessoForm extends ViewComponent {
 
     template = `
     <section class="content">
-    <div class="row clearfix">
-        
+        <div class="container-fluid">        
+       
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="title-grid-component" style="display: flex">
-                <span class="fas fa-archive title-grid-component-icon"></span>    
-                <h3>Novo Processo</h3>
-            </div>
-            <div class="card">
-                <div class="body" style="margin-top: -55px;">
-                    <form id="wizard_with_validatio" (formRef)="processoForm" onsubmit="javascript: return false;">
-                            <h3 style="background-color: #009688;
-                                        padding: 15px;
-                                        color: #fff;">
-                                Dados Processo
-                            </h3>
 
-                            <div class="row clearfix" style="margin-top: 30px">
+            <div class="card">
+
+            <div class="header">
+            <h2>
+                <strong>Novo</strong> Processo</h2>
+        </div>
+
+                <div class="body">
+                    <form id="wizard_with_validatio" (formRef)="processoForm" onsubmit="javascript: return false;">
+                           
+                            <div class="row" style="margin-top: 10px">
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-addon">
@@ -167,6 +165,7 @@ class ProcessoForm extends ViewComponent {
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-4">
                                 <div class="input-group">
                                     <span class="input-group-addon">
@@ -179,7 +178,7 @@ class ProcessoForm extends ViewComponent {
                                         type="text" class="form-control date" placeholder="contra parte" (value)="contraParte">
                                     </div>
                                 </div>
-                            </div>
+                                </div>
 
                                 <div class="col-md-4">
                                     <div class="input-group">
@@ -345,6 +344,7 @@ class ProcessoForm extends ViewComponent {
                         <div style="display: flex;
                                     justify-content: end;
                                     align-items: center;"
+
                         >
                             <button class="btn btn-primary julaw-submit-button" (click)="registerProcesso()">Salvar</button>
                         </div>

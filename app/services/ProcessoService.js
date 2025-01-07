@@ -51,6 +51,30 @@ class ProcessoService {
 
     }
 
+    getFacturasByProcesso(idProcesso) {
+
+        return new Promise((resolve) => {
+
+            $still.HTTPClient.get(
+                `/api/v1/processo_factura/${idProcesso}`
+            ).then((r) => {
+                if (r.status === 200) {
+                    try {
+                        if (r.data)
+                            resolve(r.data);
+                        else
+                            AppTemplate.hideLoading();
+                    } catch (e) {
+                        AppTemplate.hideLoading();
+                        console.log("Error on finding tarefas", e);
+                    }
+                }
+            });
+
+        });
+
+    }
+
     getPaymentsProcesso(idProcesso) {
 
         return new Promise((resolve) => {

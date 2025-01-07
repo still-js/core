@@ -232,6 +232,9 @@ class ProcessoDetalhes extends ViewComponent {
   /** @Prop */
   totalFactura = 0;
 
+  /** @Prop */
+  totalParcelas = 10;
+
 
   /** @Prop */
   showAvenca = false
@@ -241,6 +244,12 @@ class ProcessoDetalhes extends ViewComponent {
   showModoSuccessFee = false
   /** @Prop */
   showModoProbono = false
+
+   /** @Prop */
+   isPayed = false
+
+   /** @Prop */
+   havePayment = false
 
 
   /** @Inject @type { ProcessoService } */
@@ -782,32 +791,34 @@ class ProcessoDetalhes extends ViewComponent {
     </div>
   
     <div style="background-color: #fff;">
-    <div style="
+    <div 
+        (showIf)="self.havePayment"
+        style="
           margin-bottom: 50px;
           background-color: #ffffff;
           padding: 15px;
           margin-top: 30px;
           border: 0.5px solid #c3c3c3;
-    ">
+          "
+      >
       <h4>Parcelas pagas</h4>
       <table>
         <thead>
           <tr style="text-align: center;">
+              <th>#</th>
               <th>Valor Pago</th>
-              <th>Modo Pagamento</th>
-              <th>Colaborador</th>
               <th>Data registo</th>
           </tr>
         </thead>
         <tbody (forEach)="pagamentosProcesso">
           <tr each="item" style="text-align: center">
+              <td class="invoice-align-to-center">{item.id}</td>
               <td class="invoice-align-to-center">{item.valor_pago}</td>
-              <td class="invoice-align-to-center">{item.modo_pagamento}</td>
-              <td class="invoice-align-to-center">{item.colaborador}</td>
               <td class="invoice-align-to-center">{item.created_at}</td>
           </tr>
         </tbody>
       </table> 
+    
     </div>
     <div>
     
@@ -968,16 +979,12 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   getDetalhesProcesso(idProcesso) {
-    console.log("1")
 
     this.processoService.on('load', async () => {
-      console.log("2")
       AppTemplate.showLoading();
       try {
         
         const response = await this.processoService.getDetalhesProcesso(idProcesso);
-        console.log("3")
-        console.log("o response ", response)
 
         this.populateAttributes(response);
 
@@ -994,30 +1001,57 @@ class ProcessoDetalhes extends ViewComponent {
 
     });
 
-    console.log("final here... ")
-
   }
 
-  getPaymentsProcesso(idProcesso) {
+  /*getPaymentsProcesso(idProcesso) {
 
     this.processoService.on('load', async () => {
       this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);
     });
+  }*/
+
+
+  getFacturasByProcesso(idProcesso) {
+
+    this.processoService.on('load', async () => {
+      try {
+        
+        const response = await this.processoService.getFacturasByProcesso(idProcesso);
+
+        if(response.length) {
+            this.havePayment = true
+            this.pagamentosProcesso = response.map((item, index) => {
+                return {
+                    "id": index+1,
+                    "valor_pago": item.custo ? convertToAkzCurrency(item.custo) : 0,
+                    "created_at": new Date(item.created_at).toLocaleString("PT")
+                }
+            })
+        }
+
+        console.log("have payment ", this.havePayment)
+        
+      } catch (e) {
+        AppTemplate.toast({ status: 'Erro', message: e })
+      }
+
+    });
+
   }
 
 
   stAfterInit(val) {
 
-    console.log("start ", new Date())
     this.showFactura = false;
 
     const routeData = Router.data("ProcessoDetalhes");
 
-    console.log("routeData", routeData)
-
     if(routeData) { 
       this.getDetalhesProcesso(routeData)
-      this.getPaymentsProcesso(routeData)
+      //this.getPaymentsProcesso(routeData)
+      setTimeout(()=> {
+        this.getFacturasByProcesso(routeData)
+      }, 1000)
     }else{
       AppTemplate.toast({ status: 'Erro', message: 'Identificador do Processo não encontrado!' })
     }
@@ -1041,15 +1075,11 @@ class ProcessoDetalhes extends ViewComponent {
       }
     })
 
-    console.log("end ", new Date())
-
-
   }
 
   verifyModoFacturamento(data) {
 
     try {
-      console.log("here... >>><<<>><<<< ", data)
 
       switch (data.modo_facturacao) {
         case 'Success Fee':
@@ -1132,7 +1162,7 @@ class ProcessoDetalhes extends ViewComponent {
     this.anexos = data.anexos ? data.anexos : [];
 
     this.horasMes = data.horas_mes ? data.horas_mes : 0;
-    this.custoTotal = data.valor_total ? data.valor_total : 0;
+    this.custoTotal = data.valor_total ? convertToAkzCurrency(data.valor_total) : 0;
 
     /** Setters values  */
     this.setValueById('input_metodologia', this.metodologia.value)
@@ -1169,7 +1199,6 @@ class ProcessoDetalhes extends ViewComponent {
         this.verifyModoFacturamento(data)
     }, 1000)
 
-    console.log("populando os atributos... 2")
   
   }
 
@@ -1480,9 +1509,6 @@ class ProcessoDetalhes extends ViewComponent {
     const tarefa = this.getValueById('input_form_tarefa')
     let inputTarefa = document.getElementById('input_form_tarefa')
 
-    console.log("O input da tarefa", tarefa)
-
-
     if (inputTarefa.value.trim() === '') {
       return AppTemplate.toast({ status: 'Error', message: 'Preenha o campo descrição da tarefa' })
     }
@@ -1517,8 +1543,6 @@ class ProcessoDetalhes extends ViewComponent {
 
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
             this.toggleForms(idForm)     
-
-            console.log("removeID ", idTarefa)
 
             // this.dataTableListProcessosTarefas.removeRow('id', idTarefa)
 
@@ -1578,8 +1602,6 @@ class ProcessoDetalhes extends ViewComponent {
         }
       )
         .then((response) => {
-
-          console.log("here 2")
 
           AppTemplate.hideLoading();
 
@@ -1664,8 +1686,6 @@ class ProcessoDetalhes extends ViewComponent {
 
   editTarefaProcesso(_, record) {
 
-    console.log("record ", record.created_at)
-
     document.getElementById('input_form_tarefa').value = record.descricao
     document.getElementById('input_form_tarefa').setAttribute("data-id", record.id)
     document.getElementById('input_form_tarefa').setAttribute("data-status", record.status)
@@ -1717,8 +1737,6 @@ class ProcessoDetalhes extends ViewComponent {
     let payload = {
       "status": 1
     }
-
-    console.log("record", record)
 
     $still.HTTPClient.put(
       `/api/v1/tarefas_processo/${record.id}`,
@@ -1816,8 +1834,6 @@ class ProcessoDetalhes extends ViewComponent {
       .then((response) => {
 
         AppTemplate.hideLoading();
-
-        console.log("response anexo processo", response)
 
         let baseURL = $still.HTTPClient.getBaseURL()
 
@@ -2008,7 +2024,9 @@ class ProcessoDetalhes extends ViewComponent {
     
     const data = this.honorarioProxy.getDestData();
 
-    if(data.lenght) {
+    console.log("data de destino da table ", data)
+
+    if(data.length) {
 
     AppTemplate.showLoading();
 
@@ -2135,6 +2153,11 @@ class ProcessoDetalhes extends ViewComponent {
 
           AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
 
+          this.getFacturasByProcesso(this.id.value)
+          // this.getPaymentsProcesso(this.id.value)
+
+          document.getElementById('idCustoParcelaApagar').value = ""
+
           let dataResponse = response.data
           this.showFactura = true;
 
@@ -2163,7 +2186,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
 
-    const totalFactura = parseFloat(this.custoTotal.value);
+    const totalFactura = parseFloat(cleanMoedaValue(this.custoTotal.value));
 
     let payload = {
       'processo_id': this.id.value,

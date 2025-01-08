@@ -11,7 +11,12 @@ bottom: 0;
 left: 0;
 right: 0;">
   <div class="container">
-
+  <div style="
+    width: 450px;
+    margin: 0 auto;
+    justify-content: center;
+    margin-top: 20%;
+  ">
     <div class="login">
       <div style="
         justify-content: center;
@@ -84,6 +89,7 @@ right: 0;">
             <p style="color: red; text-align: center">Usuário e/ou palavra-passe, incorrectos</p>
         </div>
       </form>
+    </div>
     </div>
   </div>
 </div>

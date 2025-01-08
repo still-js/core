@@ -1,219 +1,65 @@
-<section class="content">
-  <div class="container-fluid">
+<div class="containerAuth" style="background-color: #495057;    position: absolute;
+top: 0;
+bottom: 0;
+left: 0;
+right: 0;">
+  <div class="container">
 
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <div class="login">
+      <div style="
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        margin-bottom: 25px;
+        gap: 20px;
+        ">
 
-      <div class="card">
-
-        <div class="header">
-          <h2>
-            <strong>Novo</strong> Processo
-          </h2>
-        </div>
-
-        <div class="body">
-          <form id="wizard_with_validatio" (formRef)="processoForm" onsubmit="javascript: return false;">
-
-            <div class="row" style="margin-top: 10px">
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">note</i> Assunto
-                  </span>
-                  <div class="form-line">
-                    <input (required)="true" (validator)="text" type="text" class="form-control date" (value)="assunto"
-                      placeholder="assunto">
-                  </div>
-                </div>
-              </div>
-
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">group</i> Área
-                  </span>
-                  <div class="form-line">
-                    <input (required)="true" (validator)="text" type="text" class="form-control date" (value)="area"
-                      placeholder="área">
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">today</i> Contra Parte
-                  </span>
-                  <div class="form-line">
-                    <input (required)="true" (validator)="text" type="text" class="form-control date"
-                      placeholder="contra parte" (value)="contraParte">
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <div class="input-field col">
-                    <span class="input-group-addon">
-                      <i class="material-icons">person</i> Fase
-                    </span>
-                    <select (change)="updateFase($event)" (value)="fase" (required)="true">
-                      <option value="" disabled selected>Selecione a fase
-                      </option>
-                      <option value="Extrajudicial">Extrajudicial</option>
-                      <option value="Judicial">Judicial</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-field col s12">
-                  <span class="input-group-addon">
-                    <i class="material-icons">person</i> Instituição
-                  </span>
-                  <select (required)="true" (change)="updateInstituicao($event)" (value)="instituicaoId"
-                    (forEach)="listInstituicao">
-                    <option each="item" value="">Selecione uma opção</option>
-                    <option each="item" value="{item.id}">{item.descricao}</option>
-                  </select>
-                </div>
-              </div>
-
-
-              <div class="col-md-4">
-                <div class="input-field col s12">
-                  <span class="input-group-addon">
-                    <i class="material-icons">person</i> Gestor do processo
-                  </span>
-                  <select (value)="gestorId" (change)="updateGestorProcesso($event)" (forEach)="listColaboradores">
-                    <option each="item" value="">Selecione uma opção</option>
-                    <option each="item" value="{item.id}">{item.descricao}</option>
-                  </select>
-                </div>
-
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-field col s12">
-                  <span class="input-group-addon">
-                    <i class="material-icons">person</i> Cliente
-                  </span>
-                  <select (value)="clienteId" (change)="updateClientes($event)" (forEach)="listClientes">
-                    <option each="item" value="">Selecione uma opção</option>
-                    <option each="item" value="{item.id}">{item.descricao}</option>
-                  </select>
-                </div>
-
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-field col s12">
-                  <span class="input-group-addon">
-                    <i class="material-icons">person</i> Estado
-                  </span>
-                  <select (change)="updateEstado($event)" (value)="statusId" (forEach)="listEstado">
-                    <option each="item" value="">Selecione uma opção</option>
-                    <option each="item" value="{item.id}">{item.descricao}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">date_range</i> Data de registo
-                  </span>
-                  <div class="form-line">
-                    <input type="date" id="dataRegistoInput" (change)="updateDataRegisto($event)"
-                      class="form-control date" (value)="dataRegisto">
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-field col s12">
-                  <span class="input-group-addon">
-                    <i class="material-icons">person</i> Modo de Facturação
-                  </span>
-                  <select (required)="true" (change)="updateModoFacturacao($event)" (value)="modoFacturacaoId"
-                    (forEach)="listModoFacturacao">
-                    <option each="item" value="">Selecione uma opção</option>
-                    <option each="item" value="{item.id}">{item.descricao}</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">access_time</i> Horas / Mês
-                  </span>
-                  <div class="form-line">
-                    <input id="horasMesInput" disabled type="numeric" class="form-control" placeholder=" 00 H"
-                      (value)="horasMes">
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">attach_money</i> Valor Total
-                  </span>
-                  <div class="form-line">
-                    <input type="numeric" id="valorTotalInput" disabled class="form-control" placeholder=" 0,00 Kz"
-                      (value)="valorTotal">
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">date_range</i> Data de Suspensão
-                  </span>
-                  <div class="form-line">
-                    <input type="date" id="dataSuspensaoInput" (change)="updateDataSuspensao($event)"
-                      class="form-control date" (value)="dataSuspensao">
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">date_range</i> Data de Encerramento
-                  </span>
-                  <div class="form-line">
-                    <input type="date" id="dataEncerramentoInput" (change)="updateDataEncerramento($event)"
-                      class="form-control date" (value)="dataEncerramento">
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="input-group">
-                  <span class="input-group-addon">
-                    <i class="material-icons">date_range</i> Data para Emissão Factura
-                  </span>
-                  <div class="form-line">
-                    <input (required)="true" type="date" id="dataEmissaoFacturaInput"
-                      (change)="updateDataEmissaoFactura($event)" class="form-control date"
-                      (value)="dataEmissaoFactura">
-                  </div>
-                </div>
-              </div>
-
-            </div>
-            <div style="display: flex;
-                              justify-content: end;
-                              align-items: center;">
-              <button class="btn btn-primary julaw-submit-button" (click)="registerProcesso()">Salvar</button>
-            </div>
-        </div>
-        </form>
+        <img src="assets/images/julaw-logo.png" style="width: 42px;" alt="" />
+        <span style="color: #fff;  font-size: 2rem;">SOFTLAW</span>
       </div>
+      <form method="post">
+        <input style="
+                width: 100%;
+margin-bottom: 10px;
+background: rgba(0,0,0,0.3);
+border: none;
+outline: none;
+padding: 10px;
+font-size: 13px;
+color: #fff;
+text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+border: 1px solid rgba(0,0,0,0.3);
+border-radius: 4px;
+box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+-webkit-transition: box-shadow .5s ease;
+-moz-transition: box-shadow .5s ease;
+-o-transition: box-shadow .5s ease;
+-ms-transition: box-shadow .5s ease;
+transition: box-shadow .5s ease;
+}" type="text" name="u" placeholder="Username" required="required" />
+        <input style="width: 100%;
+margin-bottom: 10px;
+background: rgba(0,0,0,0.3);
+border: none;
+outline: none;
+padding: 10px;
+font-size: 13px;
+color: #fff;
+text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+border: 1px solid rgba(0,0,0,0.3);
+border-radius: 4px;
+box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+-webkit-transition: box-shadow .5s ease;
+-moz-transition: box-shadow .5s ease;
+-o-transition: box-shadow .5s ease;
+-ms-transition: box-shadow .5s ease;
+transition: box-shadow .5s ease;
+}" type="password" name="p" placeholder="Password" required="required" />
+        <button style="margin:0;" class="btn btn-primary julaw-submit-button btn-large"
+          (click)="registerProcesso()">Entrar</button>
+      </form>
     </div>
   </div>
-  </div>
-</section>
+</div>
+</div>
+</div>

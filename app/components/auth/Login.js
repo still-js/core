@@ -5,61 +5,91 @@ class Login extends ViewComponent {
     password = null;
 
     template = `
-    <div class="containerAuth">
-        <div class="container">
-          
-        <div class="container-login100">
-        <div class="">
-        <div>
-        <div class="center">
-        <img 
-        src="assets/images/julaw-logo.png" 
-        style="width: 42px;"
-        alt="" 
-    />
-    <span class="logo-name" style="color: #555">SOFTLAW</span>
+    <div class="containerAuth" style="background-color: #495057;    position: absolute;
+top: 0;
+bottom: 0;
+left: 0;
+right: 0;">
+  <div class="container">
+
+    <div class="login">
+      <div style="
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        margin-bottom: 25px;
+        gap: 20px;
+        ">
+
+        <img src="assets/images/julaw-logo.png" style="width: 42px;" alt="" />
+        <span style="color: #fff;  font-size: 2rem;">SOFTLAW</span>
+      </div>
+      <form onsubmit="javascript: return false;">
+        <input 
+            style="
+                width: 100%;
+                margin-bottom: 10px;
+                background: rgba(0,0,0,0.3);
+                border: none;
+                outline: none;
+                padding: 10px;
+                font-size: 13px;
+                color: #fff;
+                text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+                border: 1px solid rgba(0,0,0,0.3);
+                border-radius: 4px;
+                box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+                -webkit-transition: box-shadow .5s ease;
+                -moz-transition: box-shadow .5s ease;
+                -o-transition: box-shadow .5s ease;
+                -ms-transition: box-shadow .5s ease;
+                transition: box-shadow .5s ease;
+                }" 
+            type="text" 
+            name="u" 
+            (value)="username"
+            placeholder="Usuário" 
+            required="required" />
+
+        <input 
+            style="
+                width: 100%;
+                margin-bottom: 10px;
+                background: rgba(0,0,0,0.3);
+                border: none;
+                outline: none;
+                padding: 10px;
+                font-size: 13px;
+                color: #fff;
+                text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+                border: 1px solid rgba(0,0,0,0.3);
+                border-radius: 4px;
+                box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+                -webkit-transition: box-shadow .5s ease;
+                -moz-transition: box-shadow .5s ease;
+                -o-transition: box-shadow .5s ease;
+                -ms-transition: box-shadow .5s ease;
+                transition: box-shadow .5s ease;
+                }" 
+            type="password" 
+            name="p"
+            (value)="password"
+            placeholder="Palavra-passe" 
+            required="required" />
+
+            <button style="margin:0;" class="btn btn-primary julaw-submit-button btn-large"
+            (click)="logar()">Entrar</button>
+
+            <div id="erroAuth" style="display:none; margin-top: 25px">
+            <p style="color: red; text-align: center">Usuário e/ou palavra-passe, incorrectos</p>
         </div>
+      </form>
     </div>
-            <form onsubmit="javascript: return false;">
-                <div class="login100-form">
-
-                    <span class="login-text">
-                        <h2>Login</h2>
-                    </span>
-                    
-                    <div class="wrap-input100">
-                        <input 
-                        required
-                        class="input100" autofocus type="text" (value)="username" placeholder="usuario">
-                    </div>
-                    
-                    <div class="wrap-input100 validate-input" data-validate="Password is required">
-                        <input 
-                        required
-                        class="input100" type="password" (value)="password" placeholder="senha">
-                    </div>
-
-                    <div class="flex-sb-m w-full p-t-15 p-b-20">
-                            <a href="#" (click)="gotoRetrieve()" class="txt1">
-                                Esqueceu a palavra-passe?
-                            </a>
-                    </div>        
-
-                    <div class="">
-                        <button class="btn btn-default" (click)="logar()">
-                            ENTRAR
-                        </button>
-                    </div>
-                    <div id="erroAuth" style="display:none">
-                        <p style="color: red; text-align: center">Usuário e/ou senha, incorrectos</p>
-                    </div>
-                </div>
-            </form>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 </div>
+</div>
+   
     `;
     constructor() {
         super();

@@ -128,7 +128,7 @@ class ColaboradorForm extends ViewComponent {
                                             <i class="material-icons">today</i> Data de Nascimento
                                         </span>
                                         <div class="form-line">
-                                            <input type="date" class="form-control date" (value)="data_nascimento">
+                                            <input type="date" id="dataNascimento" class="form-control date" (value)="data_nascimento">
                                         </div>
                                     </div>
                                 </div>
@@ -396,7 +396,7 @@ class ColaboradorForm extends ViewComponent {
             "username": this.username.value,
             "nome_completo": this.nome_completo.value,
             "nome_profissional": this.nome_profissional.value,
-            "data_nascimento": this.data_nascimento.value,
+            "data_nascimento": document.getElementById('dataNascimento').value,
             "funcao": this.funcao.value,
             "tipo_colaborador_id": this.tipo_colaborador_id.value,
             "taxa_horaria": this.taxa_horaria.value,

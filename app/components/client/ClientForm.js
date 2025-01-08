@@ -369,8 +369,6 @@ class ClientForm extends ViewComponent {
                 contacto_cobranca, nota, status, e_mail
             } = routeData;
 
-            console.log("a nota >>> ", nota)
-
             this.nif = nif;
             this.denominacao = denominacao || '';
             this.endereco = endereco;

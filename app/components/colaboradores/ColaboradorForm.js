@@ -449,14 +449,13 @@ class ColaboradorForm extends ViewComponent {
                 return false
             }
 
-            if(!this.isEditForm && this.username.value == "") {
-                AppTemplate.toast({ status: 'Error', message: "O nome de Usuário é obrigatório."})
-                return false
-            }
-
             if(this.isEditForm) {
                 this.updateColaborador(payload)
             }else{
+                if(this.username.value == "") {
+                    AppTemplate.toast({ status: 'Error', message: "O nome de Usuário é obrigatório."})
+                    return false
+                }
                 this.saveColaborador(payload)
             }
          

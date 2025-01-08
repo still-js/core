@@ -832,7 +832,7 @@ class ProcessoDetalhes extends ViewComponent {
     <div style="display: flex; justify-content: right; margin-top: 30px;">
       <!-- <span (click)="checkHonorarios()">Validar</span> -->
       <button class="btn btn-primary julaw-submit-button" (click)="generateHonorarioModoSuccessFee()">
-        Gerar Honorário
+        Gerar Recibo
       </button>
     </div>
   </fieldset>
@@ -852,7 +852,7 @@ class ProcessoDetalhes extends ViewComponent {
     <div style="display: flex; justify-content: right; margin-top: 30px;">
       <!-- <span (click)="checkHonorarios()">Validar</span> -->
       <button class="btn btn-primary julaw-submit-button" (click)="generateHonorarioModoFixo()">
-        Gerar Honorário
+        Gerar Recibo
       </button>
     </div>
   

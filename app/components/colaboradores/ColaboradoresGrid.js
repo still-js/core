@@ -57,7 +57,7 @@ class ColaboradoresGrid extends ViewComponent {
                              tableHeight="auto"
                             (onEditColumn)="editColaborador(fieldName, data)"
                             (onDeleteRow)="deleteRow(fieldName, data)"
-                            (onCellClick)="goToClienteDetalhes(row, col, data)"
+                            (onCellClick)="goToColaboradorDetalhes(row, col, data)"
                           >
                           </st-element>
             </div>
@@ -90,6 +90,14 @@ class ColaboradoresGrid extends ViewComponent {
 
   gotoView(viewComponent) {
     Router.goto(viewComponent);
+  }
+
+  goToColaboradorDetalhes(row, col, data) {
+    console.log(data.id);
+
+    Router.goto("ColaboradorDetalhes", {
+      data: data.id
+    });
   }
 
   makeColaboradorDTO(data) {

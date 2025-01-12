@@ -11,6 +11,7 @@ class ClientForm extends ViewComponent {
     e_mail;
     clientNota;
     tipoClienteSelecionado;
+    createdAt
 
     /** @type { STForm } */
     clientForm;

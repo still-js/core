@@ -14,6 +14,7 @@ const routesMap = {
             ColaboradorForm: 'components/colaboradores',
             ColaboradoresGrid: 'components/colaboradores',
             ColaboradorDashboard: 'components/colaboradores',
+            ColaboradorDetalhes: 'components/colaboradores',
             UserProfile: 'components/colaboradores',
             UserNotification: 'components/colaboradores',
             ProcessoForm: 'components/processos',

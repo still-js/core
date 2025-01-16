@@ -25,6 +25,7 @@ const routesMap = {
             ModalListPagamentos: 'components/modal',
             ModalDetalhesFactura: 'components/modal',
             Despesas: 'components/despesas',
+            DespesasForm: 'components/despesas',
             POC: 'components/uipoc',
             CreateButton: 'generics/button',
         }

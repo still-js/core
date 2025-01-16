@@ -138,5 +138,15 @@ class ProcessoService {
         return response?.data;
     }
 
+    async getProcessosByCliente(idClient) {
+        const response = await $still.HTTPClient.get(
+            `/api/v1/cliente_processos/${idClient}`
+        );
+        return response?.data;
+    }
+
+
+    
+
 
 }

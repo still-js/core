@@ -1,4 +1,4 @@
-class Despesas extends ViewComponent {
+class DespesasForm extends ViewComponent {
 
     clientList;
     listProcesso;
@@ -55,87 +55,7 @@ class Despesas extends ViewComponent {
     <section class="content">
         <div class="body">
 
-            <form id="client_wizard_with_validation" (formRef)="filtroForm" onsubmit="javascript: return false;">
-                <!-- <h3>Da</h3> -->
-                <fieldset>
-                    <h2 class="card-inside-title">Filtrar por cliente e/ou processo</h2>
-                    <div class="row clearfix">
-
-                        <div class="col-md-3">
-
-                            <st-element
-                                label="Novo registo"
-                                iconName="add_circle"
-                                component="CreateButton"
-                                (onClick)="goToDespesasForm()"
-                            >
-
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <div class="input-field col s12">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">person</i> Cliente
-                                    </span>
-                                    <select
-                                        (required)="true"
-                                        (value)="nomeClienteFiltro"
-                                        (change)="setNomeClienteFiltro($event)" 
-                                        (forEach)="clientList"
-                                           id="clienteId"
-                                        >
-                                     
-                                        <option each="item" value="">Selecione uma opção</option>
-                                        <option each="item" value="{item.id}">{item.descricao}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="input-group">
-                                <div class="input-field col s12">
-                                    <span class="input-group-addon">
-                                        <i class="material-icons">folder</i> Processo
-                                    </span>
-                                    <select Dados Pessoais
-                                        (required)="true"
-                                        (value)="numProcessoFiltro"
-                                        (change)="setNumProcessoFiltro($event)" 
-                                        (forEach)="listProcesso"
-                                           id="processoId"
-                                        >
-                                        <option each="item" value="">Selecione uma opção</option>
-                                        <option each="item" value="{item.id}">{item.numero}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="input-group">
-                                <div class="input-field col s12">
-                                    <span class="input-group-addon">
-                                        &nbsp;
-                                    </span>
-                                    <st-element
-                                        label="Pesquisar"
-                                        iconName="search"
-                                        color="bg-blue"
-                                        component="CreateButton"
-                                        (onClick)="getDespesaFilter()"
-                                    >
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </fieldset>
-            </form>
-
             <form  
-                (showIf)="self.createFormVisible"
                 (formRef)="despesaForm" 
                 onsubmit="javascript: return false;">
                 <!-- <h3>Da</h3> -->
@@ -173,7 +93,7 @@ class Despesas extends ViewComponent {
                                         (change)="setNumeroProcesso($event)"
                                         (forEach)="listProcesso">
                                         <option each="item" value="">Selecione uma opção</option>
-                                        <option each="item" value="{item.id}">{item.numero}</option>
+                                        <option each="item" value="{item.id}">{item.ref}</option>
                                     </select>
                                 </div>
                             </div>
@@ -204,7 +124,7 @@ class Despesas extends ViewComponent {
                                     <span class="input-group-addon">
                                         <i class="material-icons">monetization_on</i> Valor
                                     </span>
-                                    <input type="text" (value)="valorDespesa">
+                                    <input  (required)="true" type="text" (value)="valorDespesa">
                                 </div>
                             </div>
                         </div>
@@ -216,6 +136,7 @@ class Despesas extends ViewComponent {
                                         <i class="material-icons">monetization_on</i> Data
                                     </span>
                                     <input 
+                                     (required)="true"
                                         type="date"
                                         id="dataDespesa"
                                         (value)="dataDespesa"
@@ -241,12 +162,6 @@ class Despesas extends ViewComponent {
 
         </div>
 
-        <st-element 
-            component="TabulatorComponent"
-            tableHeader="parent.dataTableLabels"
-            proxy="despesasTableProxy"
-        >
-
     </section>
     `;
 
@@ -257,8 +172,7 @@ class Despesas extends ViewComponent {
 
     async stAfterInit() {
         this.clientList = await this.processoService.getListClientes();
-        this.listProcesso = await this.processoService.getProcessos();
-        await this.getDespesa();
+        AppTemplate.hideLoading();
     }
 
     setDataDespesa(evt) {
@@ -275,9 +189,13 @@ class Despesas extends ViewComponent {
 
     /** @Prop */
     nomeClienteText;
-    setNomeCliente(evt) {
+    async setNomeCliente(evt) {
+        console.log("teste ", evt.target.value)
         this.nomeCliente = evt.target.value;
         this.nomeClienteText = evt.target.options[evt.target.selectedIndex].text;
+        this.listProcesso = await this.processoService.getProcessosByCliente(this.nomeCliente.value);
+        console.log(this.nomeCliente)
+        console.log(this.listProcesso)
     }
 
     showHideCreateForm() {
@@ -297,8 +215,12 @@ class Despesas extends ViewComponent {
 
     saveNewDespesa() {
 
-        const colaboradorId = JSON.parse(localStorage._user).id;
+        const isValidForm = this.despesaForm.validate();
 
+        if (isValidForm) { 
+
+
+        const colaboradorId = JSON.parse(localStorage._user).id;
 
         const payload = {
             colaboradorId,
@@ -319,17 +241,28 @@ class Despesas extends ViewComponent {
             }
         ).then((r) => {
             AppTemplate.hideLoading();
-            this.despesasTableProxy.insertRow({
-                numProcesso: this.numProcessoText,
-                nomeCliente: this.nomeClienteText,
-                valor: payload.valor,
-                tipo: this.tipoMovimentosMap[payload.tipoMovimento],
-                dataMovimento: payload.dataMovimento
-            });
+            if(r.status == 201) {
+                AppTemplate.toast({ status: 'Sucesso!', message: 'Despesa, registadas com sucesso!' })
+
+                setTimeout(() => {
+                    Router.goto("Despesas");
+                },1000)
+            }else{
+                AppTemplate.toast({ status: 'Erro!', message: r.message })
+            }
         }).catch((err) => {
             AppTemplate.hideLoading();
             console.log(`Erro ao cadastrar despesa: `, err);
         });
+
+
+
+        }else {
+                AppTemplate.toast({ status: 'Erro!', message: "Preencha os campos obrigatórios." })
+        }
+
+
+
 
     }
 
@@ -387,10 +320,6 @@ class Despesas extends ViewComponent {
             console.log(`Erro ao buscar despesas: `, err);
         });
 
-    }
-
-    goToDespesasForm() {
-        Router.goto("DespesasForm");
     }
 
 }

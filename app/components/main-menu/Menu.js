@@ -29,6 +29,11 @@ class Menu extends ViewComponent {
   /** @Prop */
   canListColaborador = false;
 
+  /** @Prop */
+  canCreateDespesasr = true;
+  /** @Prop */
+  canListDespesas = true;
+
   template = `
   <aside id="leftsidebar" class="sidebar">
     <ul class="menu-julaw">
@@ -85,7 +90,13 @@ class Menu extends ViewComponent {
             </ul>
       </li>
       <li class="menu-item-julaw">
-          <a href="#" class="item-menu"  (click)="gotoView('Despesas')"><i class="fas fa-file-invoice"></i> Despesas</a>
+            <a href="#" class="item-menu"><i class="fas fa-file-invoice"></i>  Despesas</a>
+            <ul class="submenu">
+                  <li (renderIf)="self.canCreateDespesasr"><a href="#" (click)="gotoView('DespesasForm')"> Registar </a>
+                  </li>
+                  <li (renderIf)="self.canListDespesas"><a href="#"  (click)="gotoView('Despesas')"> Listar</a>
+                  </li>
+            </ul>
       </li>
     </ul>
   </aside>

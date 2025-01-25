@@ -440,9 +440,13 @@ class ColaboradorForm extends ViewComponent {
             },
         };
 
+        console.log("Payload is: ", payload);
+
         const isValidForm = this.colaboradorForm.validate();
 
         if (isValidForm) {
+
+            console.log("isNotEmptyCedula ", this.isEditForm)
 
             if(!this.isNotEmptyCedula()) {
                 AppTemplate.toast({ status: 'Error', message: "N.º da Cédula é obrigatória."})
@@ -581,17 +585,20 @@ class ColaboradorForm extends ViewComponent {
             this.data_nascimento = routeData.data_nascimento.toString().substring(0,10);
             this.funcao = routeData.funcao;
             this.status = routeData.status;
-            this.contactos_email_pessoal = emailPessoal;
-            this.contactos_email_corporativo = emailEmpresa;
-            this.contactos_telefone_pessoal = contactoPessoal;
-            this.contactos_telefone_emergencia = contactoEmergencia;
-            this.contactos_telefone_endereco = endereco;
+            this.contactos_email_pessoal = emailPessoal ?? '';
+            this.contactos_email_corporativo = emailEmpresa ?? '';
+            this.contactos_telefone_pessoal = contactoPessoal ?? '';
+            this.contactos_telefone_emergencia = contactoEmergencia ?? '';
+            this.contactos_telefone_endereco = endereco ?? '';
 
-            this.identificacoes_bi = bi;
-            this.identificacoes_cedula = cedula;
+            this.identificacoes_bi = bi ?? '';
+            this.identificacoes_cedula = cedula ?? '';
             this.taxa_horaria = routeData.taxa_horaria;
 
             this.isEditForm = true;
+
+            console.log("routeData is: ", routeData);
+            console.log("routeData is: ", this.isEditForm);
 
         }
 

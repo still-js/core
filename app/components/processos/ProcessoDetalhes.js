@@ -1498,7 +1498,7 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.toast({ status: 'Erro', message: err })
         });
 
-    },2000)
+    }, 2000)
 
   }
 
@@ -1839,7 +1839,7 @@ class ProcessoDetalhes extends ViewComponent {
 
         if (response.status === 200) {
 
-          let pathDownload = `${baseURL}:3000/api/v1/preview_anexo`
+          let pathDownload = `${baseURL}/api/v1/preview_anexo`
 
           const link = document.createElement('a');
           link.setAttribute("target", '_blank');
@@ -1865,8 +1865,10 @@ class ProcessoDetalhes extends ViewComponent {
   visualizarAnexoProcesso(_, _col, record) {
     AppTemplate.showLoading();
 
+    let baseURL = $still.HTTPClient.getBaseURL()
+
     $still.HTTPClient.get(
-      `/api/v1/view_anexo_processo/${record.id}`,
+      `${baseURL}/api/v1/view_anexo_processo/${record.id}`,
       {
         headers: {
           "Content-Type": "application/json",

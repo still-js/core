@@ -1879,7 +1879,7 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.hideLoading();
 
         if (response.status === 200) {
-          let pathDownload = `/api/v1/preview_anexo`
+          let pathDownload = `${baseURL}/api/v1/preview_anexo`
           window.open(`${pathDownload}/${response.data.fileName}`, '_blank', 'width=800,height=600');
         }
 

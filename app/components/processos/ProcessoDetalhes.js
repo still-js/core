@@ -1498,7 +1498,7 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.toast({ status: 'Erro', message: err })
         });
 
-    },1000)
+    },2000)
 
   }
 

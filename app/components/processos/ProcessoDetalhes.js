@@ -1868,7 +1868,7 @@ class ProcessoDetalhes extends ViewComponent {
     let baseURL = $still.HTTPClient.getBaseURL()
 
     $still.HTTPClient.get(
-      `${baseURL}/api/v1/view_anexo_processo/${record.id}`,
+      `/api/v1/view_anexo_processo/${record.id}`,
       {
         headers: {
           "Content-Type": "application/json",

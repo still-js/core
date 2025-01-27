@@ -1498,7 +1498,7 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.toast({ status: 'Erro', message: err })
         });
 
-    },1000)
+    },2000)
 
   }
 
@@ -1839,7 +1839,7 @@ class ProcessoDetalhes extends ViewComponent {
 
         if (response.status === 200) {
 
-          let pathDownload = `${baseURL}/api/v1/preview_anexo`
+          let pathDownload = `${baseURL}:3000/api/v1/preview_anexo`
 
           const link = document.createElement('a');
           link.setAttribute("target", '_blank');

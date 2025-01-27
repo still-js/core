@@ -1835,10 +1835,9 @@ class ProcessoDetalhes extends ViewComponent {
 
         AppTemplate.hideLoading();
 
-        let baseURL = $still.HTTPClient.getBaseURL()
-
         if (response.status === 200) {
-
+          
+          let baseURL = $still.HTTPClient.getBaseURL()
           let pathDownload = `${baseURL}/api/v1/preview_anexo`
 
           const link = document.createElement('a');
@@ -1880,6 +1879,7 @@ class ProcessoDetalhes extends ViewComponent {
           let baseURL = $still.HTTPClient.getBaseURL()
 
           let pathDownload = `${baseURL}/api/v1/preview_anexo`
+          console.log("pathDownload", pathDownload)
           window.open(`${pathDownload}/${response.data.fileName}`, '_blank', 'width=800,height=600');
         }
 

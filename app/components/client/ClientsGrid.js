@@ -131,7 +131,7 @@ class ClientsGrid extends ViewComponent {
               pessoa_contacto: item.pessoa_contacto,
               contacto_cobranca: item.contacto_cobranca,
               tipo: item.tipo.description,
-              tipo_id: item.tipo_id,
+              tipo_id: item.tipo ? item.tipo.description : '-',
               e_mail: item.e_mail,
               nota: item.nota,
               created_at: new Date(item.created_at)
@@ -139,6 +139,7 @@ class ClientsGrid extends ViewComponent {
                 .substring(0, 10)
             };
           });
+          console.log("clieteDTO", clieteDTO);
           this.dataSource = clieteDTO;
           this.dataTable.dataSource = clieteDTO;
         }

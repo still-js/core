@@ -35,14 +35,22 @@ class Menu extends ViewComponent {
   canListDespesas = true;
 
   template = `
-  <aside id="leftsidebar" class="sidebar">
+  <aside id="leftsidebar" class="sidebar" style="padding: 0">
     <ul class="menu-julaw">
       <li>
-        <div class="sidebar-profile clearfix">
+        <div class="sidebar-profile clearfix" 
+          style="background: #6a2021; margin: 0; width: 100%; color: #fff;">
             <div class="profile-info">
-              <h3 id="userNameMenuPlaceholder"></h3>
-              Logado como:
-              <p>@userName</p>
+            <div style="display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 75px;
+                  gap: 2px;">
+                <div>
+                  <i class="material-icons">person</i>
+                </div>
+                <p style="color: #fff; font-size: 14px; margin-bottom: 0">@userName</p>
+              </div>
             </div>
         </div>
       </li>

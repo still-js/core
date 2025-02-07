@@ -6,6 +6,12 @@ class ProcessosGrid extends ViewComponent {
   /** @Prop */
   canCreateProcess = false;
 
+  /** @Prop */
+  isEmptyData = true;
+
+  /** @Prop */
+  isNotEmptyData = false;
+
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessos;
 
@@ -87,6 +93,7 @@ class ProcessosGrid extends ViewComponent {
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
        
               <div class="body">
+                <div  (showIf)="self.isNotEmptyData">
                   <div class="table-responsive">
                       <st-element component="TabulatorComponent" 
                           proxy="dataTableListProcessos"
@@ -96,6 +103,12 @@ class ProcessosGrid extends ViewComponent {
                           (onDeleteRow)="detalhesProcesso(fieldName, data)" (onCellClick)="cellClick(row, col, data)">
                       </st-element>
                   </div>
+                </div>
+                <div  (showIf)="self.isEmptyData">
+                  <div class="alert alert-warning">
+                    <p  style="color: #555"><strong>Atenção!</strong> Nenhum processo encontrado.</p>&nbsp;<a href="#" (click)="gotoView('ProcessoForm')">Crie aqui um</a>
+                  </div>
+                </div>
               </div>
           </div>
       </div>
@@ -123,22 +136,35 @@ class ProcessosGrid extends ViewComponent {
 
 
   onRender() {
+    AppTemplate.showLoading();
     this.getRolesByLoggedUser()
     this.canCreateProcess = this.roles.includes('CAN_CREATE_PROCESS')
     console.log("on render canCreateProcess here ... ", this.canCreateProcess);
   }
 
   stAfterInit(val) {
-
     this.getRolesByLoggedUser()
-
     $still.HTTPClient.get("/api/v1/processo/").then(
       (r) => {
         if (r.data) {
-          this.dataTableListProcessos.dataSource = this.transformDataTable(r.data);
+          console.log("data here ... ", r.data)
+          if (r.data.length === 0) {
+            this.isNotEmptyData = false;
+            this.isEmptyData = true;
+          }else{
+            this.isNotEmptyData = true;
+            this.isEmptyData = false;
+            this.dataTableListProcessos.dataSource = this.transformDataTable(r.data);
+          }
+          AppTemplate.hideLoading();
+        }else{
+          AppTemplate.hideLoading();
         }
       }
-    );
+    ).catch(e => {
+      AppTemplate.toast({ status: 'Erro', message: e })
+      AppTemplate.hideLoading();
+    })
   }
 
 

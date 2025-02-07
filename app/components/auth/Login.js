@@ -5,11 +5,12 @@ class Login extends ViewComponent {
     password = null;
 
     template = `
-    <div class="containerAuth" style="background-color: #495057;    position: absolute;
-top: 0;
-bottom: 0;
-left: 0;
-right: 0;">
+    <div class="containerAuth" style="background-color: #6a2021;    position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;"
+    >
   <div class="container">
   <div style="
     width: 450px;

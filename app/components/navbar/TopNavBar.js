@@ -20,7 +20,7 @@ class TopNavBar extends ViewComponent {
                         style="width: 42px;"
                         alt="" 
                     />
-                    <span class="logo-name">SOFTLAW</span>
+                    <span class="logo-name">JULAW</span>
                 </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse" style="position: fixed; width: 100%; padding-left: 235px">

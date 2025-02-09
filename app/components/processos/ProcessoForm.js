@@ -360,7 +360,6 @@ class ProcessoForm extends ViewComponent {
 
     constructor() {
         super();
-
         this.setup({
             includs: [
                 /* ClientsGrid */

@@ -1,9 +1,16 @@
 class ColaboradorDashboard extends ViewComponent {
   htmlRefId = "clientDataTable";
   dataSource;
+  dataSourceTarefas;
+
+  listTarefas;
+  listProcessos;
 
   /** @Proxy @type { TabulatorComponent } */
   dataTable;
+
+  /** @Proxy @type { TabulatorComponent } */
+  dataTableTarefas;
 
   /** @Proxy @type { TUICalendarComponent } */
   agendaColaboradorProxy;
@@ -12,7 +19,17 @@ class ColaboradorDashboard extends ViewComponent {
   processoService;
 
   /** @Prop */
-  dataTableLabels = [
+  isCreateTarefa = false;
+
+  /** @Prop */
+  isListTarefas = true;
+
+  /** @type { STForm } */
+  tarefaForm;
+
+
+  /** @Prop */
+  dataTableTarefasLabels = [
     {
       hozAlign: "center",
       editRow: true,
@@ -26,16 +43,42 @@ class ColaboradorDashboard extends ViewComponent {
       width: 20,
     },
     { title: "Estado", field: "estado", sorter: "string", width: 100 },
-    { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
     { title: "Referência", field: "ref", sorter: "string" },
     { title: "Assunto", field: "assunto", sorter: "string" },
-    { title: "Área", field: "area", sorter: "string" },
-    { title: "Instituição", field: "instituicao", sorter: "string" },
-    { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
-    { title: "Cliente", field: "cliente", sorter: "string" },
+    { title: "Tarefa", field: "descricao", sorter: "string" },
+    { title: "Data Para Realização", field: "data_para_realizacao", sorter: "string" },
+    { title: "Data Realizada", field: "data_realizada", sorter: "string" },
+    { title: "Data Aprovada", field: "data_aprovada", sorter: "string" },
     { title: "Gestor", field: "gestor", sorter: "string" },
-    { title: "Data Cadastro", field: "data_registo", sorter: "string" },
+    { title: "Data Criada", field: "data_criada", sorter: "string" },
   ];
+
+
+    /** @Prop */
+    dataTableLabels = [
+      {
+        hozAlign: "center",
+        editRow: true,
+        icon: "<i class='far fa-calendar-alt'></i>",
+        width: 20,
+      },
+      {
+        hozAlign: "center",
+        deleteRow: true,
+        icon: "<i class='fas fa-file-alt'></i>",
+        width: 20,
+      },
+      { title: "Estado", field: "estado", sorter: "string", width: 100 },
+      { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
+      { title: "Referência", field: "ref", sorter: "string" },
+      { title: "Assunto", field: "assunto", sorter: "string" },
+      { title: "Área", field: "area", sorter: "string" },
+      { title: "Instituição", field: "instituicao", sorter: "string" },
+      { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
+      { title: "Cliente", field: "cliente", sorter: "string" },
+      { title: "Gestor", field: "gestor", sorter: "string" },
+      { title: "Data Cadastro", field: "data_registo", sorter: "string" },
+    ];
 
   template = `
   <section class="content">
@@ -52,6 +95,9 @@ class ColaboradorDashboard extends ViewComponent {
               </li>
               <li role="presentation">
                   <a href="#dashoboardMinhaAgenda" data-toggle="tab">Minha Agenda</a>
+              </li>
+              <li role="presentation">
+                <a href="#dashoboardMinhasTarefas" data-toggle="tab">Minhas Tarefas</a>
               </li>
           </ul>
 
@@ -132,7 +178,7 @@ class ColaboradorDashboard extends ViewComponent {
 
             </div>
 
-            <div role="tabpanel" class="tab-pane fade in active" id="dashoboardMinhaAgenda">
+            <div role="tabpanel" class="tab-pane fade in" id="dashoboardMinhaAgenda">
 
               <div 
                    class="dashoboardMinhaAgenda"
@@ -162,6 +208,126 @@ class ColaboradorDashboard extends ViewComponent {
               </div>
 
             </div>
+
+            <div role="tabpanel" class="tab-pane fade in active" id="dashoboardMinhasTarefas">
+
+              <div 
+                  style="background: #fff;
+                  padding: 10px;">
+
+                  <div   (showIf)="self.isCreateTarefa"> 
+                  
+                      
+                    <!-- inicio form add tarefas -->
+                    <div class="form_add_resources" id="form_tab_tarefas">
+                    <form id="wizard_with_validatio" (formRef)="tarefaForm" class="" onsubmit="javascript: return false;">
+
+                      <div class="row clearfix">
+
+                          <div class="col-md-4">
+                            <div class="input-field col s12">
+                              <span class="input-group-addon">
+                                <i class="material-icons">person</i> Processos à Associar
+                              </span>
+                              <select 
+                                  (required)="true"
+                                  id="processoInput" 
+                                  (change)="updatePrecedentes($event)" 
+                                  (forEach)="listProcessos">
+                                  <option each="item" value="">Selecione uma opção</option>
+                                  <option each="item" value="{item.id}">{item.descricao}</option>
+                              </select>
+                          </div>
+                          </div>
+                          <div class="col-md-4">
+                              <div class="input-group">
+                                  <span class="input-group-addon">Descrição da Tarefa</span>
+                                  <div class="form-line">
+                                    <input 
+                                      (required)="true"
+                                      (value)="valueInputTarefa" 
+                                      placeholder="Digite uma tarefa" 
+                                      type="text" 
+                                      id="input_form_tarefa" 
+                                    />
+                                  </div>
+                              </div>
+                          </div>
+                        
+                          <div class="col-md-4">
+                          <div class="input-group">
+                              <span class="input-group-addon">Data para execução</span>
+                              <div class="form-line">
+                                  <input 
+                                    (required)="true"
+                                    type="date" 
+                                    id="valueRealizacaoTarefa" 
+                                    (change)="updateDataTarefa($event)" 
+                                    class="form-control date" 
+                                    (value)="valueRealizacaoTarefa"
+                                  >
+                              </div>
+                          </div>
+                      </div>
+
+                        </div>
+
+                      <div style="margin-top: 20px; margin-bottom: 20px;" display="flex" justify-content="space-between">
+
+                          <button 
+                            (click)="saveOrUpdateTarefas()"
+                             class="btn btn-primary m-t-15 waves-effect"
+                            >
+                            Salvar
+                          </button>
+
+                          <button 
+                            (click)="showHiddenFormTarefa()"
+                            class="btn btn-default">
+                            Cancelar
+                          </button>                        
+
+                      </div>
+                    </form>
+                  </div>
+
+                  </div>
+
+                  <div (showIf)="self.isListTarefas">
+                                    
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                  <button 
+                    (click)="showHiddenFormTarefa()"
+                     class="btn btn-primary m-t-15 waves-effect">
+                      Nova Tarefa
+                  </button>
+
+                  <div class="card">
+                    <div class="header">
+                      <h2><strong>Tuas </strong>Tarefas</h2>
+                      <p style="font-size: 12px">Encontre aqui, as tarefas que foram criadas e partilhadas consigo</p>
+                    </div>
+                    <div class="body table-responsive">
+            
+                      <st-element
+                        component="TabulatorComponent"
+                        proxy="dataTableTarefas"
+                        tableHeader="parent.dataTableTarefasLabels"
+                        (onEditColumn)="getTimeSheetProcesso(fieldName, data)"
+                        (onDeleteRow)="getDetailsProcesso(fieldName, data)"
+                        (onCellClick)="detalheProcesso(row, col, data)"
+                      >
+                      </st-element>
+                      
+                    </div>
+            
+                  </div>
+
+                  </div>
+            </div>
+
+          </div>
 
           </div>
 
@@ -196,6 +362,55 @@ class ColaboradorDashboard extends ViewComponent {
   constructor() {
     super();
     this.setup({});
+  }
+
+  showHiddenFormTarefa() {
+    this.isCreateTarefa = !this.isCreateTarefa;
+    this.isListTarefas = !this.isListTarefas;
+  }
+
+  async saveOrUpdateTarefas() {
+
+    let processoId = document.getElementById('processoInput').value;
+    let tarefas = document.getElementById('input_form_tarefa').value;
+    let dataRealizacao = document.getElementById('valueRealizacaoTarefa').value;
+
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+
+    const saveForm = 
+    {
+      "processoId": processoId,
+      "colaboradorId": userLogged.id,
+      "descricao": tarefas,
+      "dataParaRealizacao": dataRealizacao
+    }
+
+    const isValidForm = this.tarefaForm.validate();
+
+    if (isValidForm) {
+      try {
+
+        AppTemplate.showLoading();
+        
+        const response = await this.processoService.createTarefa(saveForm)
+        console.log("O response >>> ", response);
+        
+        
+        this.getAllTarefasByColaboradorId(userLogged.id)
+        this.showHiddenFormTarefa();
+        
+        AppTemplate.hideLoading();
+        AppTemplate.toast({status: 'success', message: 'Tarefa criada com sucesso'})
+      }catch (e) { 
+        AppTemplate.hideLoading();
+        console.log("Error on saveOrUpdateTarefas", e);
+        AppTemplate.toast({status: 'warning', message: e})
+      }
+       
+    }else{
+        AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+    }
+
   }
 
   gotoView(viewComponent) {
@@ -239,18 +454,40 @@ class ColaboradorDashboard extends ViewComponent {
     })
   }
 
+  makeListProcessos(data) {
+    let processoData = [];
+
+    for (let processo of data) {
+      processoData.push({
+        id: processo.id,
+        descricao: processo.ref,
+      });
+    }
+
+    this.listProcessos = processoData
+
+  }
+
+  async getAllTarefasByColaboradorId(colaboradorId) { 
+   let listTask = await this.processoService.getAllTarefasByColaboradorId(colaboradorId)
+   console.log("listTask", listTask)
+    this.transformDataTableTarefas(listTask);
+  }
+
   async stAfterInit(val) {
 
     const userLogged = JSON.parse(localStorage.getItem('_user'));
     const service = this.processoService;
 
-
     if (userLogged) {
 
       try {
-
         //AppTemplate.showLoading();
         const processosByColaborador = await service.getProcessoByColaborador(userLogged.id);
+        await this.getAllTarefasByColaboradorId(userLogged.id);
+        // let listTarefas = await service.getAllTarefasByColaboradorId(userLogged.id);
+        //this.transformDataTableTarefas(listTarefas);
+        this.makeListProcessos(processosByColaborador)
 
         this.dataTable.dataSource = this.transformDataTable(processosByColaborador);
         this.populateCards(processosByColaborador);
@@ -267,11 +504,14 @@ class ColaboradorDashboard extends ViewComponent {
     }
   }
 
-  pushDataToCalendar(tasksData) {
+  transformDataTableTarefas(data) {
 
-    //const userLogged = JSON.parse(localStorage.getItem("_user"));
-    //let userId = userLogged.id;
-    //const agendaProxy = this.agendaColaboradorProxy;
+    console.log("data >>>> " , data)
+    this.dataTableTarefas.dataSource = data;
+  
+  }
+
+  pushDataToCalendar(tasksData) {
 
     const tasks = tasksData.map((item) => {
 
@@ -358,11 +598,7 @@ class ColaboradorDashboard extends ViewComponent {
     Router.goto(viewComponent);
   }
 
-
-
   async saveEvent(data) {
-
-    console.log("data ... ", data)
 
    /* if (this.userLoggedIn.value.id === "")
       alert("Nenhum Colaborador definido.")

@@ -47,7 +47,7 @@ class Menu extends ViewComponent {
                   height: 75px;
                   gap: 2px;">
                 <div>
-                  <i class="material-icons">person</i>
+                  <i class="material-icons" style="display: flex">person</i>
                 </div>
                 <p style="color: #fff; font-size: 14px; margin-bottom: 0">@userName</p>
               </div>

@@ -238,8 +238,6 @@ class ColaboradorDetalhes extends ViewComponent {
                                <th>Horas</th>
                                <th>Referência</th>
                                <th>Assunto</th>
-                               <th>Custo</th>
-                               <th>Estado</th>
                                <th>Data de Registro</th>
                            </tr>
                        </thead>
@@ -251,8 +249,6 @@ class ColaboradorDetalhes extends ViewComponent {
                                <td class="">{item.horas}</td>
                                <td class="">{item.ref}</td>
                                <td class="">{item.assunto}</td>
-                               <td class="">{item.custo}</td>
-                               <td class="">{item.estado}</td>
                                <td class="">{item.dataRegisto}</td>
                            </tr>
                        </tbody>
@@ -374,7 +370,7 @@ class ColaboradorDetalhes extends ViewComponent {
 
   stAfterInit(val) {
     setTimeout(() => {
-      this.getTimesheetFacturaByColaborador(this.id.value)
+      this.getTimesheetByColaborador(this.id.value)
     }, 1000)  
     //  this.getFacturasCliente(this.id.value)
   }
@@ -434,13 +430,13 @@ class ColaboradorDetalhes extends ViewComponent {
 
   }
 
-  async getTimesheetFacturaByColaborador() {
+  async getTimesheetByColaborador() {
 
     this.colaboradorService.on('load', async () => {
 
       const routeData = Router.data("ColaboradorDetalhes");
 
-      let response = await this.colaboradorService.getTimesheetFacturaByColaboradorId(routeData)
+      let response = await this.colaboradorService.getTimesheetByColaboradorId(routeData)
 
       if (response) {
 

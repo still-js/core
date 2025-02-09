@@ -74,6 +74,7 @@ class ColaboradoresGrid extends ViewComponent {
   }
 
   async onRender() {
+    AppTemplate.showLoading();
     /**
      * Isso quer dizer que o import do JQuery foi feito no index principal
      * ou no ficheiro de rotas em eagerImport
@@ -183,6 +184,7 @@ class ColaboradoresGrid extends ViewComponent {
   stAfterInit(val) {
     $still.HTTPClient.get("/api/v1/colaborador/").then(
       (r) => {
+        AppTemplate.hideLoading();
         if (r.data) {
           console.log(r.data);
           //this.dataSource = r.data;

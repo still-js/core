@@ -10,6 +10,13 @@ class ClientsGrid extends ViewComponent {
   dataTable;
 
   /** @Prop */
+  isEmptyData = true;
+
+  /** @Prop */
+  isNotEmptyData = false;
+
+
+  /** @Prop */
   dataTableLabels = [
     { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
     /*{ hozAlign: "center", deleteRow: true, icon: "<i class='fa fa-trash'></i>", width: 20 },*/
@@ -57,7 +64,9 @@ class ClientsGrid extends ViewComponent {
             <div class="header">
             <h2><strong>Cliente </strong>Cadastrados</h2>
             </div>
-            <div class="body table-responsive">
+            <div class="body">
+            <div  (showIf)="self.isNotEmptyData">
+            <div class="table-responsive">
                 <st-element
                     component="TabulatorComponent"
                     proxy="dataTable"
@@ -68,6 +77,13 @@ class ClientsGrid extends ViewComponent {
                     (onCellClick)="goToClienteDetalhes(row, col, data)"
                     >
                 </st-element>
+            </div>
+            </div>
+            <div  (showIf)="self.isEmptyData">
+            <div class="alert alert-warning">
+              <p  style="color: #555"><strong>Atenção!</strong> Nenhum cliente encontrado.</p>&nbsp;<a href="#" (click)="gotoView('ClientForm')">Crie aqui um</a>
+            </div>
+          </div>
             </div>
         </div>
 
@@ -121,7 +137,9 @@ class ClientsGrid extends ViewComponent {
     $still.HTTPClient.get("/api/v1/cliente/").then((r) => {
       try {
         let dataResponse = r.data;
-        if (dataResponse) {
+        if (dataResponse.length > 0) {
+          this.isNotEmptyData = true;
+          this.isEmptyData = false;
           let clieteDTO = dataResponse.map((item) => {
             return {
               id: item.id,
@@ -139,9 +157,11 @@ class ClientsGrid extends ViewComponent {
                 .substring(0, 10)
             };
           });
-          console.log("clieteDTO", clieteDTO);
           this.dataSource = clieteDTO;
           this.dataTable.dataSource = clieteDTO;
+        }else{
+          this.isNotEmptyData = false;
+          this.isEmptyData = true;
         }
       } catch (e) {
         console.log("erro no processo DTO", e);
@@ -149,6 +169,10 @@ class ClientsGrid extends ViewComponent {
         AppTemplate.hideLoading();
       }
     });
+  }
+
+  gotoView(viewComponent) {
+    Router.goto(viewComponent);
   }
 
   /** For Test purpose only */

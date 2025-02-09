@@ -24,12 +24,12 @@ class ColaboradorService {
 
     }
 
-    getTimesheetFacturaByColaboradorId(idColaborador) {
+    getTimesheetByColaboradorId(idColaborador) {
 
         return new Promise((resolve) => {
 
             $still.HTTPClient.get(
-                `/api/v1/colaborador_timesheet_factura/${idColaborador}`
+                `/api/v1/colaborador_timesheet/${idColaborador}`
             ).then((r) => {
                 if (r.status === 200) {
                     try {

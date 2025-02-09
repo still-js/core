@@ -134,7 +134,6 @@ class ProcessoService {
         const response = await $still.HTTPClient.get(
             `/api/v1/processo/processos/list`
         );
-
         return response?.data;
     }
 
@@ -145,8 +144,24 @@ class ProcessoService {
         return response?.data;
     }
 
+    async getAllTarefasByColaboradorId(idColaborador) {
+        const response = await $still.HTTPClient.get(
+            `/api/v1/tarefas_colaborador/${idColaborador}`
+        );
+        return response?.data;
+    }
 
-    
-
-
+    createTarefa(tarefa) {
+        console.log('createTarefa', tarefa);
+        return new Promise((resolve) => {
+            $still.HTTPClient.post("/api/v1/tarefas", JSON.stringify(tarefa),
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }).then((r) => {
+                resolve(r.data);
+            });
+        });
+    }
 }

@@ -28,7 +28,7 @@ class Login extends ViewComponent {
         ">
 
         <img src="assets/images/julaw-logo.png" style="width: 42px;" alt="" />
-        <span style="color: #fff;  font-size: 2rem;">SOFTLAW</span>
+        <span style="color: #fff;  font-size: 2rem;">JULAW</span>
       </div>
       <form onsubmit="javascript: return false;">
         <input 

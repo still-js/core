@@ -88,29 +88,7 @@ class ProcessoDetalhes extends ViewComponent {
     { title: "Função", field: "funcao", sorter: "string" },
   ];
 
-  /** @Proxy @type { TabulatorComponent } */
-  dataTableListProcessosTarefas;
-
-  /** @Prop */
-  dataTableLabelsTarefas = [
-    {
-      hozAlign: "center",
-      editRow: true,
-      icon: "<i class='fa fa-pen'></i>",
-      width: 20,
-    },
-    {
-      hozAlign: "center",
-      deleteRow: true,
-      icon: "<i class='fas fa-trash-alt'></i>",
-      width: 20,
-    },
-    { title: "Descrição", field: "descricao", sorter: "string" },
-    { title: "Estado", field: "status", sorter: "string" },
-    { title: "Data Registo", field: "created_at", sorter: "string" },
-  ];
-
-  /** @Proxy @type { TabulatorComponent } */
+ /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosPrecedentes;
 
   /** @Prop */
@@ -137,13 +115,13 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosTarefas;
-
+ 
   /** @Prop */
   dataTableLabelsTarefas = [
     {
       hozAlign: "center",
       editRow: true,
-      icon: "<i class='fa fa-pen'></i>",
+      icon: "<i class='fas fa-check'></i>",
       width: 20,
     },
     {
@@ -152,11 +130,17 @@ class ProcessoDetalhes extends ViewComponent {
       icon: "<i class='fas fa-trash-alt'></i>",
       width: 20,
     },
-    { title: "Descrição", field: "descricao", sorter: "string" },
-    { title: "Estado", field: "status", sorter: "string" },
-    { title: "Data Registo", field: "created_at", sorter: "string" },
-    { title: "Data para Regalização", field: "data_para_realizacao", sorter: "string" },
+    { title: "Estado", field: "estado", sorter: "string", width: 100 },
+    { title: "Referência", field: "ref", sorter: "string" },
+    { title: "Assunto", field: "assunto", sorter: "string" },
+    { title: "Tarefa", field: "descricao", sorter: "string" },
+    { title: "Data Para Realização", field: "data_para_realizacao", sorter: "string" },
+    { title: "Data Realizada", field: "data_realizada", sorter: "string" },
+    { title: "Data Aprovada", field: "data_aprovada", sorter: "string" },
+    { title: "Gestor", field: "gestor", sorter: "string" },
+    { title: "Data Criada", field: "data_criada", sorter: "string" },
   ];
+
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosPrecedentes;
@@ -608,69 +592,14 @@ class ProcessoDetalhes extends ViewComponent {
 
                     <div class="div-title-abas display-flex">
                         <label class="title-abas">Tarefas do Processo</label>
-                        <span (click)="toggleForms('form_tab_tarefas')" class="btn-details-processo-form"
-                            title="Adicionar tarefas"><i class="fas fa-plus"></i></span>
                     </div>
-
-
-                    <!-- inicio form add tarefas -->
-                    <div class="form_add_resources hiddenForm" id="form_tab_tarefas">
-                      <form id="wizard_with_validatio" class="" onsubmit="javascript: return false;">
-
-                        <div class="row clearfix">
-
-                            <div class="col-md-12">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Descrição da Tarefa</span>
-                                    <div class="form-line">
-                                      <input 
-                                        (value)="valueInputTarefa" 
-                                        placeholder="Digite uma tarefa" 
-                                        type="text" 
-                                        id="input_form_tarefa" 
-                                      />
-                                    </div>
-                                </div>
-                            </div>
-                          
-                          </div>
-
-                          <div class="row clearfix">
-
-                            <div class="col-md-4">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Data para execução</span>
-                                    <div class="form-line">
-                                        <input 
-                                          type="date" 
-                                          id="valueRealizacaoTarefa" 
-                                          (change)="updateDataTarefa($event)" 
-                                          class="form-control date" 
-                                          (value)="valueRealizacaoTarefa"
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div>
-                            <button 
-                              (click)="addTarefaProcesso('form_tab_tarefas')"
-                              class="btn btn-default">
-                              Salvar
-                            </button>
-                        </div>
-                      </form>
-                    </div>
-                    <!-- fim form add tarefas -->
 
                     <div class="product-description">
                         <st-element component="TabulatorComponent" proxy="dataTableListProcessosTarefas"
                             tableHeader="parent.dataTableLabelsTarefas"
-                            (onEditColumn)="editTarefaProcesso(fieldName, data)"
+                            (onEditColumn)="concluirTarefaProcesso(fieldName, data)"
                             (onDeleteRow)="removerTarefaProcesso(fieldName, data)"
-                            (onCellClick)="concluirTarefaProcesso(row, col, data)"></st-element>
+                            ></st-element>
                     </div>
 
                 </div>
@@ -783,7 +712,7 @@ class ProcessoDetalhes extends ViewComponent {
     <legend> Modo de Facturação: <span style="font-weight: bold">Success Fee</span> </legend>
   
     <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
-      <div style="font-weight: bold;">Custo do Projecto</div>
+      <div style="font-weight: bold;">Custo do Processo</div>
       <div>
         <input id="idCustoProjecto" (value)="custoTotal" style="border: none; background-color: #f5f5f5;"
           readonly="true" />
@@ -843,7 +772,7 @@ class ProcessoDetalhes extends ViewComponent {
     <legend> Modo de Facturação: <span style="font-weight: bold">Fixo</span> </legend>
   
     <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
-      <div style="font-weight: bold;">Custo do Projecto</div>
+      <div style="font-weight: bold;">Custo do Processo</div>
       <div>
         <input (value)="custoTotal" style="border: none; background-color: #f5f5f5;" readonly="true" />
       </div>
@@ -863,7 +792,7 @@ class ProcessoDetalhes extends ViewComponent {
     <legend> Modo de Facturação: <span style="font-weight: bold">Avença</span> </legend>
   
     <div style="margin-bottom: 5px; margin-top: 15px; background-color: #fff;">
-      <div style="font-weight: bold;">Horas/Mês do Projecto</div>
+      <div style="font-weight: bold;">Horas/Mês do Processo</div>
       <div>
         <input id="horasMes" (value)="horasMes" style="border: none; background-color: #f5f5f5;" readonly="true" />
       </div>
@@ -982,29 +911,21 @@ class ProcessoDetalhes extends ViewComponent {
 
     this.processoService.on('load', async () => {
       AppTemplate.showLoading();
-      try {
-        
+      try {        
         const response = await this.processoService.getDetalhesProcesso(idProcesso);
-
         this.populateAttributes(response);
-
         AppTemplate.hideLoading();
-
         this.getListColaboradores();
         this.getListPrecedentes();
         this.getTimeSheet(idProcesso);
-
+        AppTemplate.hideLoading();
       } catch (e) {
         AppTemplate.hideLoading();
         AppTemplate.toast({ status: 'Erro', message: e })
       }
-
     });
-
   }
-
   /*getPaymentsProcesso(idProcesso) {
-
     this.processoService.on('load', async () => {
       this.pagamentosProcesso = await this.processoService.getPaymentsProcesso(idProcesso);
     });
@@ -1028,8 +949,6 @@ class ProcessoDetalhes extends ViewComponent {
                 }
             })
         }
-
-        console.log("have payment ", this.havePayment)
         
       } catch (e) {
         AppTemplate.toast({ status: 'Erro', message: e })
@@ -1547,15 +1466,6 @@ class ProcessoDetalhes extends ViewComponent {
             // this.dataTableListProcessosTarefas.removeRow('id', idTarefa)
 
             AppTemplate.hideLoading();
-
-            console.log( { 
-              'id': idTarefa, 
-              'descricao': tarefa, 
-              'status': status, 
-              'created_at': createdAt,
-              'data_para_realizacao': dataRealizacao
-            })
-
             setTimeout(() => {            
               this.dataTableListProcessosTarefas.updateRow(
                 { 
@@ -1730,16 +1640,19 @@ class ProcessoDetalhes extends ViewComponent {
 
   }
 
-  concluirTarefaProcesso(_, _col, record) {
+  concluirTarefaProcesso(_, record) {
+
+     const userLogged = JSON.parse(localStorage.getItem("_user"));
 
     AppTemplate.showLoading();
 
     let payload = {
-      "status": 1
+      "status": 2,
+      "gestorId": userLogged.id
     }
 
     $still.HTTPClient.put(
-      `/api/v1/tarefas_processo/${record.id}`,
+      `/api/v1/tarefas_processo/gestor/${record.id}`,
       JSON.stringify(payload),
       {
         headers: {
@@ -1748,32 +1661,29 @@ class ProcessoDetalhes extends ViewComponent {
       }
     )
       .then((response) => {
+
+        console.log("response do update da tarefa ... ", response)
         
         if (response.status !== 200) {
           AppTemplate.hideLoading();
-          AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+          AppTemplate.toast({ status: 'Erro', message: response.message })
 
         } else {
           
-          AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa concluída com sucesso' })
+          AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa aprovada com sucesso' })
           // this.getDetalhesProcesso(this.id.value)
-          // this.toggleForms(idForm)
 
-          const {id, descricao,created_at, data_para_realizacao} = record
-
-          this.dataTableListProcessosTarefas.removeRow('id', id)
           AppTemplate.hideLoading();
           setTimeout(() => {            
-            this.dataTableListProcessosTarefas.insertRow(
+            this.dataTableListProcessosTarefas.updateRow(
               { 
-                'id': id, 
-                'descricao': descricao, 
-                'status': 1, 
-                'created_at': created_at, 
-                'data_para_realizacao': data_para_realizacao
-              }
+                ...response.data[0]
+              },
+              'id',
+              record.id
             );
-          }, 300)
+          }, 500)
+
         }
       })
       .catch((err) => {

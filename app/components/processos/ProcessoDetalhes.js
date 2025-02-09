@@ -137,6 +137,7 @@ class ProcessoDetalhes extends ViewComponent {
     { title: "Data Para Realização", field: "data_para_realizacao", sorter: "string" },
     { title: "Data Realizada", field: "data_realizada", sorter: "string" },
     { title: "Data Aprovada", field: "data_aprovada", sorter: "string" },
+    { title: "Realizador", field: "nome_completo", sorter: "string" },
     { title: "Gestor", field: "gestor", sorter: "string" },
     { title: "Data Criada", field: "data_criada", sorter: "string" },
   ];
@@ -1662,8 +1663,6 @@ class ProcessoDetalhes extends ViewComponent {
     )
       .then((response) => {
 
-        console.log("response do update da tarefa ... ", response)
-        
         if (response.status !== 200) {
           AppTemplate.hideLoading();
           AppTemplate.toast({ status: 'Erro', message: response.message })

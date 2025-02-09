@@ -164,4 +164,19 @@ class ProcessoService {
             });
         });
     }
+
+    updateTarefa(id, tarefa) {
+        console.log('Update Tarefa', tarefa);
+        return new Promise((resolve) => {
+            $still.HTTPClient.put(`/api/v1/tarefas_processo/${id}`, JSON.stringify(tarefa),
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }).then((r) => {
+                resolve(r.data);
+            });
+        });
+    }
+    
 }

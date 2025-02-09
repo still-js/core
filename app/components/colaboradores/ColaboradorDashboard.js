@@ -3,6 +3,7 @@ class ColaboradorDashboard extends ViewComponent {
   dataSource;
   dataSourceTarefas;
 
+  idTarefa;
   listTarefas;
   listProcessos;
 
@@ -33,13 +34,13 @@ class ColaboradorDashboard extends ViewComponent {
     {
       hozAlign: "center",
       editRow: true,
-      icon: "<i class='far fa-calendar-alt'></i>",
+      icon: "<i class='fas fa-check'></i>",
       width: 20,
     },
     {
       hozAlign: "center",
       deleteRow: true,
-      icon: "<i class='fas fa-file-alt'></i>",
+      icon: "<i class='fas fa-pencil-alt'></i>",
       width: 20,
     },
     { title: "Estado", field: "estado", sorter: "string", width: 100 },
@@ -49,6 +50,7 @@ class ColaboradorDashboard extends ViewComponent {
     { title: "Data Para Realização", field: "data_para_realizacao", sorter: "string" },
     { title: "Data Realizada", field: "data_realizada", sorter: "string" },
     { title: "Data Aprovada", field: "data_aprovada", sorter: "string" },
+    { title: "Realizador", field: "nome_completo", sorter: "string" },
     { title: "Gestor", field: "gestor", sorter: "string" },
     { title: "Data Criada", field: "data_criada", sorter: "string" },
   ];
@@ -314,8 +316,8 @@ class ColaboradorDashboard extends ViewComponent {
                         component="TabulatorComponent"
                         proxy="dataTableTarefas"
                         tableHeader="parent.dataTableTarefasLabels"
-                        (onEditColumn)="getTimeSheetProcesso(fieldName, data)"
-                        (onDeleteRow)="getDetailsProcesso(fieldName, data)"
+                        (onEditColumn)="aprovarTarefa(fieldName, data)"
+                        (onDeleteRow)="editarTarefa(fieldName, data)"
                         (onCellClick)="detalheProcesso(row, col, data)"
                       >
                       </st-element>
@@ -365,6 +367,7 @@ class ColaboradorDashboard extends ViewComponent {
   }
 
   showHiddenFormTarefa() {
+    this.idTarefa = ''
     this.isCreateTarefa = !this.isCreateTarefa;
     this.isListTarefas = !this.isListTarefas;
   }
@@ -388,19 +391,27 @@ class ColaboradorDashboard extends ViewComponent {
     const isValidForm = this.tarefaForm.validate();
 
     if (isValidForm) {
+
       try {
 
+        let response; 
         AppTemplate.showLoading();
-        
-        const response = await this.processoService.createTarefa(saveForm)
-        console.log("O response >>> ", response);
-        
+
+        if(this.idTarefa.value == '') {
+          response = await this.processoService.createTarefa(saveForm)
+          console.log("save tarefea response ", response);
+          
+        }else {
+          response = await this.processoService.updateTarefa(this.idTarefa.value, saveForm)
+          console.log("update tarefea response", response);
+          this.idTarefa = ''
+        }              
         
         this.getAllTarefasByColaboradorId(userLogged.id)
         this.showHiddenFormTarefa();
         
         AppTemplate.hideLoading();
-        AppTemplate.toast({status: 'success', message: 'Tarefa criada com sucesso'})
+        AppTemplate.toast({status: 'success', message: 'Sucesso'})
       }catch (e) { 
         AppTemplate.hideLoading();
         console.log("Error on saveOrUpdateTarefas", e);
@@ -597,6 +608,83 @@ class ColaboradorDashboard extends ViewComponent {
   gotoView(viewComponent) {
     Router.goto(viewComponent);
   }
+
+
+  editarTarefa(_, data) {
+
+    console.log("editar tarefa ", data)
+
+      if(data.status == 3) {
+        AppTemplate.toast({ status: 'Error', message: 'Não pode alterar tarefa já realizada' })
+        this.idTarefa = ''
+      }else{
+        
+      const [dia, mes, ano] = data.data_para_realizacao.split('/')
+      this.showHiddenFormTarefa()
+
+      document.getElementById('processoInput').value = data.processo_id;
+      document.getElementById('input_form_tarefa').value = data.descricao;
+      document.getElementById('valueRealizacaoTarefa').value = `${ano}-${mes}-${dia}`
+      this.idTarefa = data.id
+      }
+
+      console.log("this.idTarefa = " + this.idTarefa)
+
+  }
+
+  aprovarTarefa(fieldName, record) {
+
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+    AppTemplate.showLoading();
+
+    let payload = {
+      "status": 1,
+      "colaboradorId": userLogged.id
+    }
+
+    $still.HTTPClient.put(
+      `/api/v1/tarefas_processo/colaborador/${record.id}`,
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+
+        if (response.status !== 200) {
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'Erro', message: response.message })
+
+        } else {
+          
+          AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa aprovada com sucesso' })
+          // this.getDetalhesProcesso(this.id.value)
+
+          AppTemplate.hideLoading();
+          setTimeout(() => {            
+            this.dataTableListProcessosTarefas.updateRow(
+              { 
+                ...response.data[0]
+              },
+              'id',
+              record.id
+            );
+          }, 500)
+
+        }
+      })
+      .catch((err) => {
+        AppTemplate.hideLoading();
+        AppTemplate.toast({ status: 'Erro', message: err })
+      });
+
+
+
+  }
+
+
 
   async saveEvent(data) {
 

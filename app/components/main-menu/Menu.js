@@ -114,14 +114,10 @@ class Menu extends ViewComponent {
     try {
       const userLogged = JSON.parse(localStorage.getItem("_user"));
 
-      console.log(userLogged.id)
-
       this.userId = userLogged.id
       this.userFuncao = userLogged.funcao
       this.userName = userLogged.nome_completo;
       this.roles = userLogged.auth.roles;
-
-      console.log("roles by user logged ... ", this.roles)
 
     } catch (e) {
       console.log(e)

@@ -659,7 +659,7 @@ class ColaboradorDashboard extends ViewComponent {
 
         } else {
           
-          AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa aprovada com sucesso' })
+          AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa realizada com sucesso' })
           // this.getDetalhesProcesso(this.id.value)
 
           AppTemplate.hideLoading();

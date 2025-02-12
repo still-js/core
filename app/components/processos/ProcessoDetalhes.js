@@ -66,6 +66,8 @@ class ProcessoDetalhes extends ViewComponent {
 
   userLogged;
 
+   /** @Prop */
+   canManagerHonorario = false;
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosEquipas;
@@ -240,6 +242,9 @@ class ProcessoDetalhes extends ViewComponent {
   /** @Inject @type { ProcessoService } */
   processoService;
 
+  /** @Inject @type { UserService } */
+  userService;
+
   template = `
   <section class="content">
     <div class="block-header">
@@ -364,7 +369,7 @@ class ProcessoDetalhes extends ViewComponent {
                 <li role="presentation">
                     <a href="#anexos" data-toggle="tab">Anexos</a>
                 </li>
-                <li role="presentation">
+                <li role="presentation" (renderIf)="self.canManagerHonorario">
                     <a href="#honorarios" data-toggle="tab">Honorário</a>
                 </li>
             </ul>
@@ -897,6 +902,7 @@ class ProcessoDetalhes extends ViewComponent {
   constructor() {
     super();
     this.setup({});
+    this.verifyPermissionHonorario()
   }
 
   gotoView(viewComponent) {
@@ -1369,6 +1375,15 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.toast({ status: 'Erro', message: err })
       });
 
+  }
+
+  verifyPermissionHonorario() {
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
+
+    console.log(" >>>>>>>>>>>>>>>>>> ", userLogged);
+
+    this.canManagerHonorario = userLogged.auth.roles.includes("CAN_GENERATE_HONORARIO");
+    console.log("user >>>>  ", this.canManagerHonorario )
   }
 
 

@@ -400,9 +400,6 @@ class ProcessoForm extends ViewComponent {
         };
 
 
-        console.log("payload save processo... ", payload)
-        // return 0
-
         const isValidForm = this.processoForm.validate();
 
         if (isValidForm) {

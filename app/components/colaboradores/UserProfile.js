@@ -1,6 +1,13 @@
 class UserProfile extends ViewComponent {
   userName;
 
+  currentPassword;
+  newPassword;
+  repetePassword;
+
+    /** @type { STForm } */
+    updatePasswordForm;
+
   template = `
     <section class="content">    
     <div class="container-fluid">
@@ -89,19 +96,20 @@ class UserProfile extends ViewComponent {
                                         <strong>Definições</strong> de Segurança</h2>
                                 </div>
                                 <div class="body">
+                                <form id="col_wizard_with_validation" (formRef)="updatePasswordForm" onsubmit="javascript: return false;">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" placeholder="Current Password">
+                                        <input (required)="true"  (value)="currentPassword" type="password" class="form-control" placeholder="Current Password">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control" placeholder="New Password">
+                                        <input  (required)="true"  (value)="newPassword" type="password" class="form-control" placeholder="New Password">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control" placeholder="Repite New Password">
+                                        <input (required)="true"  (value)="repetePassword" type="password" class="form-control" placeholder="Repite New Password">
                                     </div>
-                                    <button class="btn btn-info btn-round">Gravar</button>
+                                        <button class="btn btn-primary julaw-submit-button" (click)="updatePassword()">Salvar</button>
+                                    </form>
                                 </div>
-                            </div>
-                           
+                            </div>                           
                         </div>
                     </div>
                 </div>
@@ -121,6 +129,66 @@ class UserProfile extends ViewComponent {
     });
   }
 
+  updatePassword() {
+
+    const isValidForm = this.updatePasswordForm.validate();
+
+    if (isValidForm) {
+
+        if(this.newPassword.value != this.repetePassword.value) {
+            AppTemplate.toast({status: 'warning', message: 'As password não coincidem'})
+            return;
+        }        
+
+        const userLogged = JSON.parse(localStorage.getItem("_user"));       
+        
+        let payload = {
+            "userId": userLogged.id,
+            "password": this.newPassword.value,
+        }
+        
+        AppTemplate.showLoading();
+
+        $still.HTTPClient.post(
+            "/api/v1/update_password",
+            JSON.stringify(payload),
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        )
+            .then((response) => {
+                if (response.status != 200) {
+                    AppTemplate.hideLoading();
+                    if (response.message) {
+                        AppTemplate.toast({ status: 'Erro', message: response.message })
+                    } else {
+                        AppTemplate.toast({ status: 'Erro', message: JSON.stringify(response.errors) })
+                    }
+                } else {
+                    AppTemplate.hideLoading();
+                    AppTemplate.toast({ status: 'Sucesso', message: 'Sucesso!, Deve iniciar a Sessão novamente' })
+                    setTimeout(() => {
+                        localStorage.clear()
+                        Router.goto("Login", {
+                            data: response.data.id,
+                        });
+                    },2000)
+                }
+            })
+            .catch((err) => {
+                AppTemplate.hideLoading();
+                AppTemplate.toast({ status: 'Erro', message: err })
+            });
+
+
+      
+    }else{
+        AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+    }
+
+  }
   onRender() {
     loadWizard();
     const userLogged = JSON.parse(localStorage.getItem("_user"));

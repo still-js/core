@@ -599,8 +599,8 @@ class ColaboradorDashboard extends ViewComponent {
 
     console.log("editar tarefa ", data)
 
-      if(data.status == 3) {
-        AppTemplate.toast({ status: 'Error', message: 'Não pode alterar tarefa já realizada' })
+      if(data.estado == "Aprovada") {
+        AppTemplate.toast({ status: 'Error', message: 'Não pode alterar tarefa já Aprovada' })
         this.idTarefa = ''
       }else{
         
@@ -620,13 +620,19 @@ class ColaboradorDashboard extends ViewComponent {
   aprovarTarefa(fieldName, record) {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
-    AppTemplate.showLoading();
+  
+
+    if (record.estado == "Aprovada") {
+      return AppTemplate.toast({ status: 'Alerta', message: 'Esta tarefa já foi aprovada' })
+    }
 
     let payload = {
       "status": 1,
       "colaboradorId": userLogged.id
     }
 
+    AppTemplate.showLoading();
+    
     $still.HTTPClient.put(
       `/api/v1/tarefas_processo/colaborador/${record.id}`,
       JSON.stringify(payload),

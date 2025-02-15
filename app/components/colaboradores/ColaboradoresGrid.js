@@ -21,17 +21,7 @@ class ColaboradoresGrid extends ViewComponent {
 
   template = `
     <section class="content">
-        <div class="block-header">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="title-grid-component">
-                    <span class="fas fa-user-friends title-grid-component-icon"></span>    
-                        <h3>Lista dos Colaboradores</h3>
-                    <span class="title-grid-component-description">Navega pela lista ou cria um novo</span>
-                </div>
-            </div>
-        </div>
-        <div class="row clearfix">
+          <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div>
                     <button (click)="gotoView('ColaboradorForm')" type="button" class="btn btn-primary m-t-15 waves-effect">Novo</button>
@@ -45,7 +35,7 @@ class ColaboradoresGrid extends ViewComponent {
                             <strong>Colaboradores</strong> registados
                         </h2>
                         <div style="cursor: pointer">
-                            <span class="far fa-file-pdf"></span>                        
+                            <!-- <span class="far fa-file-pdf"></span> -->                    
                         </div>
                     </div>
                     <div class="body">

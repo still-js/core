@@ -10,7 +10,21 @@ class ClienteDetalhes extends ViewComponent {
   endereco;
   createdAt;
 
-  /** @Proxy @type { TabulatorComponent } */
+    /** @Prop */
+    isEmptyDataProcesso = true;
+
+    /** @Prop */
+    isNotEmptyDataProcesso = false;
+
+    /** @Prop */
+    isNotEmptyDataFactura = false;
+  
+    /** @Prop */
+    isEmptyDataFactura = true;
+
+
+
+    /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessos = Proxy;
 
   /** @Prop */
@@ -169,17 +183,24 @@ class ClienteDetalhes extends ViewComponent {
                             </div>
                           
                             <div class="body">
-                                <div class="table-responsive">
-                                    <st-element component="TabulatorComponent" 
-                                        proxy="dataTableListProcessos"
-                                        tableHeader="parent.dataTableProcessosLabels" 
-                                        tableHeight="auto"
-                                        (onEditColumn)="editProcesso(fieldName, data)"
-                                        (onDeleteRow)="deleteProcesso(fieldName, data)" 
-                                        (onCellClick)="detalhesProcesso(row, col, data)">
-                                    </st-element>
+
+                            <div  (showIf)="self.isNotEmptyDataProcesso">
+                            <div class="table-responsive">
+                                <st-element component="TabulatorComponent" 
+                                  proxy="dataTableListProcessos"
+                                  tableHeader="parent.dataTableProcessosLabels" 
+                                  tableHeight="auto"
+                                  (onEditColumn)="editProcesso(fieldName, data)"
+                                  (onDeleteRow)="deleteProcesso(fieldName, data)" 
+                                  (onCellClick)="detalhesProcesso(row, col, data)">
+                                </st-element>
                             </div>
-                                   
+                          </div>
+                          <div  (showIf)="self.isEmptyDataProcesso">
+                            <div class="alert alert-warning">
+                              <p  style="color: #555"><strong>Atenção!</strong> Nenhum processo encontrado.</p>&nbsp;
+                            </div>
+                          </div>      
                         </div>
                     </div>
                 </div>
@@ -194,25 +215,24 @@ class ClienteDetalhes extends ViewComponent {
                     </div>
                   
                     <div class="body">
-                    <div class="table-responsive">
-                        <st-element component="TabulatorComponent" 
-                            proxy="dataTableListFacturas"
-                            tableHeader="parent.dataTableFacturasLabels" 
-                            tableHeight="auto"
-                            (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
-                            (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
-                            >
-                        </st-element>
-                        <!--
-                           <st-element component="TabulatorComponent" 
-                            proxy="dataTableListFacturas"
-                            tableHeader="parent.dataTableFacturasLabels" 
-                            tableHeight="auto"
-                            (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
-                            (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
-                            (onCellClick)="callModalPagamento(row, col, data)">
-                        </st-element>
-                        -->
+                      <div  (showIf)="self.isNotEmptyDataFactura">
+                        <div class="table-responsive">
+                            <st-element component="TabulatorComponent" 
+                              proxy="dataTableListFacturas"
+                              tableHeader="parent.dataTableFacturasLabels" 
+                              tableHeight="auto"
+                              (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
+                              (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
+                              (onCellClick)="callModalPagamento(row, col, data)"
+                              >
+                            </st-element>
+                        </div>
+                      </div>
+                      <div  (showIf)="self.isEmptyDataFactura">
+                        <div class="alert alert-warning">
+                          <p  style="color: #555"><strong>Atenção!</strong> Nenhuma factura encontrado.</p>&nbsp;
+                        </div>
+                      </div>
                 </div>
                    
                            
@@ -381,7 +401,8 @@ class ClienteDetalhes extends ViewComponent {
     ).then((r) => {
       let dataResponse = r.data;
       if (dataResponse) {
-        console.log("processos do cliente >>>>>>>>>>>   ", dataResponse);
+        this.isEmptyDataProcesso = false
+        this.isNotEmptyDataProcesso = true
         this.dataTableListProcessos.dataSource = dataResponse
       }
     });
@@ -393,7 +414,10 @@ class ClienteDetalhes extends ViewComponent {
     ).then((r) => {
       let dataResponse = r.data;
       if (dataResponse) {
-        this.dataTableListFacturas.dataSource = dataResponse;
+          console.log("As facturas do cliente", dataResponse)
+          this.isNotEmptyDataFactura = true;
+          this.isEmptyDataFactura = false;
+          this.dataTableListFacturas.dataSource = dataResponse;
       }
     });
   }

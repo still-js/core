@@ -1963,8 +1963,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     if(data.length) {
 
-    AppTemplate.showLoading();
-
+  
 
     const totalFactura = data
       .map(
@@ -1991,8 +1990,9 @@ class ProcessoDetalhes extends ViewComponent {
         "custo": parseFloat(cleanMoedaValue(item.custo)),
         "dados_adicionais": JSON.stringify(item)
       }))
-
     }
+
+    AppTemplate.showLoading();
 
     $still.HTTPClient.post(
       "/api/v1/processo_factura",
@@ -2243,10 +2243,11 @@ function cleanCurrencyValue(val) {
 }
 
 function cleanMoedaValue(val) {
-  return val
-    .replace('AKZ', '')
-    .replace(',', '')
-    .trim()
+    return val
+      .replace("AKZ","")
+      .replace(",",".")
+      .replace(/\s/g,"")
+      .trim()
 }
 
 function cleanHorasValue(val) {

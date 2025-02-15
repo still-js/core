@@ -399,18 +399,17 @@ class ProcessoForm extends ViewComponent {
             "dataEmissaoFactura":  document.getElementById('dataEmissaoFacturaInput').value
         };
 
-
         const isValidForm = this.processoForm.validate();
 
         if (isValidForm) {
-            AppTemplate.showLoading();
-            if (this.id.value !== "") {
+            const idP = Router.data("ProcessoForm");
+
+            if (idP !== "") {
                 this.updateProcesso(payload)
             } else {
                 this.saveProcesso(payload)
             }
         }else{
-
             AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
         }
     }
@@ -474,6 +473,8 @@ class ProcessoForm extends ViewComponent {
 
 
     updateProcesso(payload) {
+
+        console.log("estamos a editar o processo", payload)
 
         if (this.isValidInputForm()) {
             $still.HTTPClient.put(

@@ -37,13 +37,13 @@ class ClienteDetalhes extends ViewComponent {
   dataTableFacturasLabels = [
     {
       hozAlign: "center",
-      editRow: true,
+      editRow: false,
       icon: "<i class='fas fa-list-alt'></i>",
       width: 20,
     },
     {
       hozAlign: "center",
-      deleteRow: true,
+      deleteRow: false,
       icon: "<i class='fas fa-money-check-alt'></i>",
       width: 20,
     },
@@ -201,8 +201,18 @@ class ClienteDetalhes extends ViewComponent {
                             tableHeight="auto"
                             (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
                             (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
+                            >
+                        </st-element>
+                        <!--
+                           <st-element component="TabulatorComponent" 
+                            proxy="dataTableListFacturas"
+                            tableHeader="parent.dataTableFacturasLabels" 
+                            tableHeight="auto"
+                            (onEditColumn)="detalhessFacturaCliente(fieldName, data)"
+                            (onDeleteRow)="detalhessPagamentosFacturaCliente(fieldName, data)" 
                             (onCellClick)="callModalPagamento(row, col, data)">
                         </st-element>
+                        -->
                 </div>
                    
                            

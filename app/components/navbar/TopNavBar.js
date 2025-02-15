@@ -59,7 +59,7 @@ class TopNavBar extends ViewComponent {
                             <li class="body" style="width: 100%;" id="toMenuBarListaNotification">
                             </li>
                             <li class="footer">
-                                <a href="#" (click)="gotoView('UserNotification')">Ver todas as Notificações</a>
+                                <!-- <a href="#" (click)="gotoView('UserNotification')">Ver todas as Notificações</a> -->
                             </li>
                         </ul>
                     </li>

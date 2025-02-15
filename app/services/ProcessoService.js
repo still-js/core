@@ -3,6 +3,11 @@ class ProcessoService {
     getTarefaByColaboradorId() {
 
         const userLogged = JSON.parse(localStorage.getItem("_user"));
+
+        // cliente não recebe as notificacoes, por enquanto
+        if(userLogged.funcao == "cliente")
+            return []        
+
         let userId = userLogged.id;
 
         return new Promise((resolve) => {

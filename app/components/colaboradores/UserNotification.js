@@ -1,32 +1,18 @@
 class UserNotification extends ViewComponent {
   template = `
-    <section class="content">    
-    <div class="container-fluid">
-    <br/>
-    <div class="block-header">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <ul class="breadcrumb breadcrumb-style ">
-                    <li class="breadcrumb-item">
-                        <h4 class="page-title">Profile</h4>
-                    </li>
-                    <li class="breadcrumb-item bcrumb-1">
-                        <a href="../../index.html">
-                            <i class="fas fa-home"></i> Home</a>
-                    </li>
-                    <li class="breadcrumb-item bcrumb-2">
-                        <a href="#" onClick="return false;">Extra</a>
-                    </li>
-                    <li class="breadcrumb-item active">Profile</li>
-                </ul>
+    <section class="content">
+      <br />
+  
+        <div class="col-xs-12">
+          <div class="card">
+            <div class="header">
+                Suas Notifications
             </div>
-        </div>
-    </div>
-       
+            <div class="body">
                 <!-- Your content goes here  -->
-                <div class="row clearfix">
-                    <p> Notificações </p>
-                </div>
+               
+            </div>
+          </div>
         </div>
     </section>
     `;
@@ -59,5 +45,13 @@ class UserNotification extends ViewComponent {
 
   stAfterInit() {
     console.log(`Cliend Form foi initializado`);
+    this.processoService.on('load', async () => {
+      const notifications = await this.processoService.getTarefaByColaboradorId();
+      this.parseAndDisplayNotifications(notifications);
+  });
+  }
+
+  parseAndDisplayNotifications(notifications) {
+    
   }
 }

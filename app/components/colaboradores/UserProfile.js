@@ -143,7 +143,7 @@ class UserProfile extends ViewComponent {
         const userLogged = JSON.parse(localStorage.getItem("_user"));       
         
         let payload = {
-            "userId": userLogged.id,
+            "userId": userLogged.uuid,
             "password": this.newPassword.value,
         }
         

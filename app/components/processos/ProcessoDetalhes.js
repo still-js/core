@@ -612,7 +612,6 @@ class ProcessoDetalhes extends ViewComponent {
     <!-- Fim TAB Equipas -->
 
 
-
        <!-- Inicio TAB Precedentes -->
         <div role="tabpanel" class="tab-pane fade" id="precedentes">
 
@@ -684,7 +683,7 @@ class ProcessoDetalhes extends ViewComponent {
                         <label>Descrição</label>
                         <input type="text" class="form-control" (value)="inputAnexoDescricao" />
                         <br />
-                        <input id="inputUploadAnexo" class="form-control" accept="image/*" type="file" />
+                        <input id="inputUploadAnexo" class="form-control" accept="image/*, .pdf" type="file" />
                         <img style="display: none" id="inputUploadAnexoHidden" src="" />
                     </div>
                 </div>
@@ -1426,6 +1425,8 @@ class ProcessoDetalhes extends ViewComponent {
             this.toggleForms(idForm)
             this.dataTableListProcessosAnexos.dataSource = response.data
             document.getElementById('inputUploadAnexoHidden').src = ""
+            document.getElementById('inputUploadAnexo').value = ""
+            this.inputAnexoDescricao = ""
           }
         })
         .catch((err) => {
@@ -1657,6 +1658,14 @@ class ProcessoDetalhes extends ViewComponent {
   }
 
   concluirTarefaProcesso(_, record) {
+
+    if (record.estado == "Criada") {
+      return AppTemplate.toast({ status: 'Alerta', message: 'Esta tarefa precisa ser realizada' })
+    }
+
+    if (record.estado == "Aprovada") {
+      return AppTemplate.toast({ status: 'Alerta', message: 'Esta tarefa já foi aprovada' })
+    }
 
      const userLogged = JSON.parse(localStorage.getItem("_user"));
 

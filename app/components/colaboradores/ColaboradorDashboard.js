@@ -318,7 +318,6 @@ class ColaboradorDashboard extends ViewComponent {
                         tableHeader="parent.dataTableTarefasLabels"
                         (onEditColumn)="aprovarTarefa(fieldName, data)"
                         (onDeleteRow)="editarTarefa(fieldName, data)"
-                        (onCellClick)="detalheProcesso(row, col, data)"
                       >
                       </st-element>
                       
@@ -577,20 +576,6 @@ class ColaboradorDashboard extends ViewComponent {
     }
 
   }
-
-  detalheProcesso(_, _col, record) {
-    const userLogged = JSON.parse(localStorage.getItem("_user"));
-
-    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
-        Router.goto("ProcessoDetalhes", {
-          data: record.id,
-        });
-    }else{
-      console.log("sem permissao para ver detalhes do Processo ")
-    }
-
-  }
-
   getTimeSheetProcesso(_, record) {
     Router.goto("ProcessoTimeSheet", {
       data: record.id,
@@ -671,7 +656,7 @@ class ColaboradorDashboard extends ViewComponent {
               'id',
               record.id
             );
-          }, 500)
+          }, 1000)
 
         }
       })

@@ -1,4 +1,6 @@
-class Menu extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class Menu extends ViewComponent {
   htmlRefId = "leftsidebar";
 
   userId;
@@ -144,10 +146,10 @@ class Menu extends ViewComponent {
     this.canCreateColaborador = this.roles.includes('CAN_CREATE_COLABORADOR');
     this.canListColaborador = this.roles.includes('CAN_SEE_COLABORADOR_LIST');
 
-    if(this.userFuncao !== "cliente") {
+    if (this.userFuncao !== "cliente") {
       this.canSeeHomePage = true;
       this.canListMineProcess = true;
-    }else{
+    } else {
       this.isClient = true
     }
 
@@ -158,7 +160,7 @@ class Menu extends ViewComponent {
   }
 
   gotoViewClient(viewComponent) {
-    Router.goto(viewComponent, {data: this.userId.value});
+    Router.goto(viewComponent, { data: this.userId.value });
   }
 
   static propagateEventsIntoAllItemMenu() {

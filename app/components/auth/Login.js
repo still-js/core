@@ -1,4 +1,7 @@
-class Login extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { Router } from "../../@still/routing/router.js";
+
+export class Login extends ViewComponent {
     isPublic = true;
 
     username = null;

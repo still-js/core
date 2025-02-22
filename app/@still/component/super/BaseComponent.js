@@ -1,3 +1,6 @@
+import { Components } from "../../setup/components.js";
+import { BehaviorComponent } from "./BehaviorComponent.js";
+
 class SettingType {
     componentName = undefined;
     path = undefined;
@@ -47,7 +50,7 @@ class ComponentPart {
 
 }
 
-class BaseComponent extends BehaviorComponent {
+export class BaseComponent extends BehaviorComponent {
 
 
     /**
@@ -75,6 +78,11 @@ class BaseComponent extends BehaviorComponent {
     versionId = null;
     #annotations = new Map();
     wasAnnotParsed = false;
+    baseUrl = window.location.href;
+    routesMap = {
+        ...routesMap.viewRoutes.lazyInitial,
+        ...routesMap.viewRoutes.regular
+    };
 
 
     /**
@@ -844,32 +852,26 @@ class BaseComponent extends BehaviorComponent {
         template = template.replace(re, (mt) => {
 
             const propMapper = {};
-            mt.split(' ').forEach(r => {
+
+            for (const r of mt.split(' ')) {
                 if (r != '' && r.indexOf('="') > 0) {
                     let [f, v] = r.split('=');
                     const [field, value] = [f, parseValue(r, v, f, mt)];
                     propMapper[field] = value;
                 }
-            });
+            }
 
             const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
             parentCmp[proxy] = { on: () => { } };
 
             const props = {};
-            Object.entries(propMapper).forEach(([prop, val]) => {
-                props[prop] = val;
-            });
 
-            const [cmpId, cmp] = [`st_${UUIDUtil.numberId()}`, eval(`new ${cmpName}()`)];
-            cmp.onRender();
-            cmp.dynCmpGeneratedId = cmpId;
-            cmp.cmpInternalId = `dynamic-${cmp.getUUID()}${cmpName}`;
-            cmp.stillElement = true;
-            cmp.proxyName = proxy;
-            ComponentRegistror.register(
-                cmp.cmpInternalId,
-                cmp
-            );
+            for (const [prop, val] of Object.entries(propMapper)) {
+                props[prop] = val;
+            }
+
+            const cmp = cmpName;
+
 
             if (!(this.cmpInternalId in Components.componentPartsMap)) {
                 Components.componentPartsMap[this.cmpInternalId] = [];

@@ -1,4 +1,6 @@
-class Home extends BaseComponent {
+import { BaseComponent } from "../../@still/component/super/BaseComponent.js";
+
+export class Home extends BaseComponent {
 
   template = `
     <section class="content">
@@ -38,7 +40,7 @@ class Home extends BaseComponent {
     }
     */
     //AppTemplate.showLoading();
-    this.setup({
+    /* this.setup({
       includs: [
         LineChart,
         Calendar,
@@ -54,7 +56,7 @@ class Home extends BaseComponent {
         "assets/js/bundles/amcharts4/animated.js",
         "assets/js/pages/index.js",
       ],
-    });
+    }); */
 
     /* CardDisplay.cardDataSource.onChange((value) => {
             console.log(`Home component detected changes: `,value);

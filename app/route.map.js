@@ -28,6 +28,8 @@ const routesMap = {
             DespesasForm: 'components/despesas',
             POC: 'components/uipoc',
             CreateButton: 'generics/button',
+            TopNavBar: 'components/navbar',
+            Menu: 'components/main-menu',
         }
     },
 }

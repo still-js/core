@@ -16,7 +16,7 @@ const validationTriggers = {
 
 const validatorMinMaxTypes = ['number', 'date'];
 
-class BehaviorComponent {
+export class BehaviorComponent {
 
     $stillClassLvlSubscribers = [];
     static currentFormsValidators = {};

@@ -1,8 +1,10 @@
+import { BaseComponent } from "./BaseComponent.js";
+
 class HTMLRefId {
 
 }
 
-class ViewComponent extends BaseComponent {
+export class ViewComponent extends BaseComponent {
 
     /**
      * @type {HTMLRefId}

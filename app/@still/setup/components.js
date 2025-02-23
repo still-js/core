@@ -212,18 +212,31 @@ export class Components {
                 const cmpCls = await import(`${Components.baseUrl}${cmpRoute}/${this.entryComponentName}.js`);
 
                 $still.context.currentView = eval(`new ${cmpCls[this.entryComponentName]}()`);
-                this.template = this.getCurrentCmpTemplate($still.context.currentView);
+                this.template = this.getCurrentCmpTemplate($still.context.currentView, true);
+
+                ComponentRegistror.register(
+                    $still.context.currentView.cmpInternalId,
+                    $still.context.currentView
+                );
+
                 this.template = currentView.template.replace(
                     this.stillCmpConst, `<div id="${this.stillAppConst}">${this.template}</div>`
                 );
 
                 this.template = (new BaseComponent).parseStSideComponent(
-                    this.template, 'fixed-part', $still.context.currentView.getUUID()
+                    this.template, 'fixed-part', $stillconst.TOP_LEVEL_CMP
                 );
 
+                const isHome = (new ComponentSetup).entryComponentName == this.entryComponentName;
+                if (isHome) {
+                    this.template = (new BaseComponent).parseStSideComponent(
+                        this.template, $still.context.currentView.cmpInternalId, $still.context.currentView.cmpInternalId
+                    );
+                }
+
                 this.renderOnViewFor('stillUiPlaceholder');
-                setTimeout(() => Components.handleInPlaceParts($still.context.currentView, 'fixed-part'));
-                setTimeout(() => Components.handleInPlaceParts($still.context.currentView));
+                setTimeout(() => Components.handleInPlacePartsInit($still.context.currentView, 'fixed-part'));
+                //setTimeout(() => Components.handleInPlaceParts($still.context.currentView, isHome));
                 setTimeout(async () => {
                     await $still.context.currentView.stAfterInit();
                     AppTemplate.injectToastContent();
@@ -274,9 +287,9 @@ export class Components {
 
     }
 
-    getCurrentCmpTemplate(cmp) {
+    getCurrentCmpTemplate(cmp, regularId = false) {
         const init = cmp;
-        init.setUUID(this.getTopLevelCmpId());
+        init.setUUID(regularId ? cmp.getUUID() : this.getTopLevelCmpId());
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
         return (init.template)
             .replace('class="', `class="${init.getUUID()} ${loadCmpClass} `);
@@ -699,7 +712,39 @@ export class Components {
     static handleInPlaceParts(parentCmp, cmpInternalId = null) {
 
         /** @type { Array<ComponentPart> } */
-        const cmpParts = Components.componentPartsMap[cmpInternalId || parentCmp.cmpInternalId];
+        let cmpParts = Components.componentPartsMap[cmpInternalId || parentCmp.cmpInternalId];
+        if (cmpInternalId == true)
+            cmpParts = Object.values(Components.componentPartsMap)[1];
+
+        Components.handleInPartsImpl(parentCmp, cmpInternalId, cmpParts);
+
+    }
+
+    /**
+     * 
+     * @param { ViewComponent } parentCmp 
+     */
+    static handleInPlacePartsInit(parentCmp, cmpInternalId = null) {
+
+        ///** @type { Array<ComponentPart> } */
+        const allParts = Object.entries(Components.componentPartsMap);
+        for (const [parentId, cmpParts] of allParts) {
+            //ComponentRegistror.register(cmpInternalId, instance);
+            const parentCmp = $still.context.componentRegistror.componentList[parentId]
+            //let cmpParts = Components.componentPartsMap[cmpInternalId];
+            Components.handleInPartsImpl(parentCmp?.instance, parentId, cmpParts);
+        }
+
+    }
+
+    /**
+     * 
+     * @param {BaseComponent} parentCmp 
+     * @param {*} cmpInternalId 
+     * @param {*} cmpParts 
+     * @returns 
+     */
+    static handleInPartsImpl(parentCmp, cmpInternalId, cmpParts) {
 
         if (!cmpParts) return;
 
@@ -711,7 +756,8 @@ export class Components {
          * Get all <st-element> component to replace with the
          * actual component template
          */
-        parentCmp.versionId = UUIDUtil.newId();
+        if (cmpInternalId != 'fixed-part') parentCmp.versionId = UUIDUtil.newId();
+
         const cmpVersionId = cmpInternalId == 'fixed-part' ? null : parentCmp.versionId;
         for (let idx = 0; idx < cmpParts.length; idx++) {
             const parentClss = placeHolders[idx]?.parentNode?.classList;
@@ -748,64 +794,72 @@ export class Components {
                      */
                     const cmp = (new Components).getNewParsedComponent(instance, cmpName);
                     cmp.parentVersionId = cmpVersionId;
-                    Components.parseProxy(proxy, cmp, parentCmp, annotations);
 
-                    cmp.setParentComponent(parentCmp);
-                    const allProps = Object.entries(props);
-                    for (const [prop, value] of allProps) {
+                    if (cmpInternalId != 'fixed-part') {
+                        Components.parseProxy(proxy, cmp, parentCmp, annotations);
+                        cmp.setParentComponent(parentCmp);
 
-                        //Proxy gets ignored becuase it was assigned above and it should be the child class
-                        if (prop != 'proxy' && prop != 'component') {
-                            if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
-                                const method = prop.replace('(', '').replace(')', '');
-                                cmp[method] = function (...param) {
-                                    return parentCmp[value.split('(')[0]](...param);
+                        const allProps = Object.entries(props);
+                        for (const [prop, value] of allProps) {
+
+                            //Proxy gets ignored becuase it was assigned above and it should be the child class
+                            if (prop != 'proxy' && prop != 'component') {
+                                if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
+                                    const method = prop.replace('(', '').replace(')', '');
+                                    cmp[method] = function (...param) {
+                                        return parentCmp[value.split('(')[0]](...param);
+                                    }
+                                    continue;
                                 }
-                                continue;
+
+                                if (String(value).toLowerCase().indexOf('parent.') == 0) {
+
+                                    const parentProp = parentCmp[value.replace('parent.', '')];
+                                    if (parentProp?.onlyPropSignature) cmp[prop] = parentProp.value;
+                                    else cmp[prop] = parentProp?.value || parentProp;
+
+                                } else
+                                    cmp[prop] = value;
                             }
-
-                            if (String(value).toLowerCase().indexOf('parent.') == 0) {
-                                const parentProp = parentCmp[value.replace('parent.', '')];
-                                if (parentProp?.onlyPropSignature) {
-                                    cmp[prop] = parentProp.value;
-                                } else {
-                                    cmp[prop] = parentProp?.value || parentProp;
-                                }
-                            } else
-                                cmp[prop] = value;
+                            /**
+                             * Replace the parent component on the registror So that it get's 
+                             * updated with the new and fresh data, properties and proxies
+                             */
+                            ComponentRegistror.register(
+                                parentCmp.constructor.name,
+                                parentCmp
+                            );
                         }
-                        /**
-                         * Replace the parent component on the registror
-                         * So that it get's updated with the new and fresh
-                         * data, properties and proxies
-                         */
-                        ComponentRegistror.register(
-                            parentCmp.constructor.name,
-                            parentCmp
-                        );
                     }
+
                     /**
-                     * replaces the actual template in the 
-                     * <st-element> component placeholder
+                     * replaces the actual template in the <st-element> component placeholder
                      */
                     placeHolders[idx]
                         .insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
                     setTimeout(async () => {
                         /**
-                         * Runs the load method which is supposed
-                         * to implement what should be run for the
-                         * component to be displayed accordingly in
-                         * the User interface
+                         * Runs the load method which is supposed to implement what should be run
+                         * for the component to be displayed accordingly in the User interface
                          */
                         await cmp.load();
                         setTimeout(async () => await cmp.stAfterInit(), 100);
+                        if ((idx + 1) == cmpParts.length && cmpInternalId != 'fixed-part')
+                            setTimeout(() => Components.emitAction('runImport'), 120);
+
                         Components.handleMarkedToRemoveParts();
                     });
                 })
-
-
-
         }
+
+        if (cmpInternalId != 'fixed-part') {
+            Components.subscribeAction('runImport', () => {
+                const imports = parentCmp.importScripts();
+                if ((imports?.scripts || []).length)
+                    imports.scripts.forEach(BaseComponent.importScript);
+            })
+        }
+
     }
 
     static handleMarkedToRemoveParts() {

@@ -1,56 +1,57 @@
-const cardDataSource = [
-    {
-        state: {
-            mainLabel: `Total de Processos`,
-            statusValue: `Total de processos até o momento`,
-            score: `358`
-        },
-        props: {
-            className: 'l-bg-green',
-            iconClass: 'fas fa-archive'
-        }
-    },
-    {
-        state: {
-            mainLabel: `Total de Clientes`,
-            statusValue: `Clientes registados até ao momento`,
-            score: `856`
-        },
-        props: {
-            className: 'l-bg-purple',
-            iconClass: 'fas fa-users'
-        }
-    },
-    {
-        state: {
-            mainLabel: `Horas Lançadas`,
-            statusValue: `Lançamentos a nível do Timesheet`,
-            score: `128`
-        },
-        props: {
-            className: 'l-bg-orange',
-            iconClass: 'far fa-calendar-alt'
-        }
-    },
-    {
-        state: {
-            mainLabel: `Horas Cobradas`,
-            statusValue: `Cobranças com base nos Timesheets`,
-            score: `25698`
-        },
-        props: {
-            className: 'l-bg-cyan',
-            iconClass: 'fas fa-file-invoice-dollar'
-        }
-    },
-]
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { DashboardCard } from "./DashboardCard.js";
 
 
-class CCardDisplay extends ViewComponent {
+export class CardDisplay extends ViewComponent {
 
     htmlRefId = 'dashBoardCards';
     /** @type { StEvent } */
-    cardDataSource = cardDataSource;
+    cardDataSource = [
+        {
+            state: {
+                mainLabel: `Total de Processos`,
+                statusValue: `Total de processos até o momento`,
+                score: `358`
+            },
+            props: {
+                className: 'l-bg-green',
+                iconClass: 'fas fa-archive'
+            }
+        },
+        {
+            state: {
+                mainLabel: `Total de Clientes`,
+                statusValue: `Clientes registados até ao momento`,
+                score: `856`
+            },
+            props: {
+                className: 'l-bg-purple',
+                iconClass: 'fas fa-users'
+            }
+        },
+        {
+            state: {
+                mainLabel: `Horas Lançadas`,
+                statusValue: `Lançamentos a nível do Timesheet`,
+                score: `128`
+            },
+            props: {
+                className: 'l-bg-orange',
+                iconClass: 'far fa-calendar-alt'
+            }
+        },
+        {
+            state: {
+                mainLabel: `Horas Cobradas`,
+                statusValue: `Cobranças com base nos Timesheets`,
+                score: `25698`
+            },
+            props: {
+                className: 'l-bg-cyan',
+                iconClass: 'fas fa-file-invoice-dollar'
+            }
+        },
+    ];
 
     updateComponent() {
         this.template = this.cardDataSource.value.map(
@@ -85,4 +86,4 @@ class CCardDisplay extends ViewComponent {
 }
 
 /** @type {CCardDisplay} */
-const CardDisplay = $still.component.expose(new CCardDisplay());
+//const CardDisplay = $still.component.expose(new CCardDisplay());

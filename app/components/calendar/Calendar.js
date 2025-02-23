@@ -1,4 +1,6 @@
-class CCalendar extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class Calendar extends ViewComponent {
 
     htmlRefId = 'dashboardCalendar';
     template = `
@@ -41,13 +43,13 @@ class CCalendar extends ViewComponent {
     constructor() {
         super();
 
-        BarChart.onChange((newState) => {
+        /* BarChart.onChange((newState) => {
             console.log(`New state do Bar chart: `, newState.qualquerProp?.value);
-        });
+        }); */
 
     }
 
 }
 
 /** @type { CCalendar } */
-const Calendar = $still.component.expose(new CCalendar());
+//const Calendar = $still.component.expose(new CCalendar());

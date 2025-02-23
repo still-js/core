@@ -1,9 +1,11 @@
-class CBarChart extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class BarChart extends ViewComponent {
 
     htmlRefId = 'barCharPlaceholder';
     novoField = '';
     template = `
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" (click)="parsingForBar()">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" fitWidth (click)="parsingForBar()">
         <div class="card">
             <div class="header">
                 <h2>
@@ -58,12 +60,12 @@ class CBarChart extends ViewComponent {
     </div>
     `;
 
-    parsingForBar(){
+    parsingForBar() {
         alert('First content');
         this.novoField = 'Novo valor';
     }
 
 }
 
-/** @type {CBarChart} */
-const BarChart = $still.component.expose(new CBarChart());
+///** @type {CBarChart} */
+//const BarChart = $still.component.expose(new CBarChart());

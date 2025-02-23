@@ -1,4 +1,6 @@
-class CProjectGrid extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ProjectGrid extends ViewComponent {
 
     htmlRefId = 'projectGrid';
     template = `
@@ -122,5 +124,5 @@ class CProjectGrid extends ViewComponent {
 
 }
 
-/** @type {CProjectGrid} */
-const ProjectGrid = $still.component.expose(new CProjectGrid());
+///** @type {CProjectGrid} */
+//const ProjectGrid = $still.component.expose(new CProjectGrid());

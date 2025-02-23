@@ -9,7 +9,13 @@ const routesMap = {
             ClientsGrid: 'components/client',
         },
         lazyInitial: {
+            BarChart: 'components/charts',
+            LineChart: 'components/charts',
+            CircularAnimatedChart: 'components/charts',
+            ProjectGrid: 'components/project-list',
             ClientForm: 'components/client',
+            Calendar: 'components/calendar',
+            CardDisplay: 'components/dashboard-card',
             ClienteDetalhes: 'components/client',
             ColaboradorForm: 'components/colaboradores',
             ColaboradoresGrid: 'components/colaboradores',

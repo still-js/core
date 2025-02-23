@@ -1,3 +1,4 @@
+import { ComponentSetup } from "../../../components-setup.js";
 import { Components } from "../../setup/components.js";
 import { BehaviorComponent } from "./BehaviorComponent.js";
 
@@ -101,6 +102,8 @@ export class BaseComponent extends BehaviorComponent {
     stAfterInit() { }
 
     reRender() { }
+
+    importScripts() { }
 
     props(props = {}) {
         this.cmpProps = props;
@@ -234,7 +237,6 @@ export class BaseComponent extends BehaviorComponent {
 
         if (this.template instanceof Array)
             this.template = this.template.join('');
-
 
         let tamplateWithState = this.template;
 
@@ -648,20 +650,22 @@ export class BaseComponent extends BehaviorComponent {
         this.componentName = this.constructor.name;
         this.settings = settings;
 
+        if (settings.scripts) settings.scripts.forEach(BaseComponent.importScript);
+
         new Promise((resolve) => {
 
-            setTimeout(() => {
-                if (settings.includs) {
-                    settings.includs.forEach((/** @type {ViewComponent} */cmp) => cmp.render());
-                    resolve(null);
-                } else {
-                    resolve(null);
-                }
-            });
+            //setTimeout(() => {
+            //    if (settings.includs) {
+            //        settings.includs.forEach((/** @type {ViewComponent} */cmp) => cmp.render());
+            //        resolve(null);
+            //    } else {
+            //        resolve(null);
+            //    }
+            //});
 
         }).then(() => {
 
-            if (settings.scripts) settings.scripts.forEach(this.importScript);
+            //if (settings.scripts) settings.scripts.forEach(this.importScript);
 
         });
 
@@ -682,7 +686,7 @@ export class BaseComponent extends BehaviorComponent {
         $still.context.componentRegistror.export(settings);
     }
 
-    importScript(scriptPath) {
+    static importScript(scriptPath) {
         const script = document.createElement('script');
         script.async = true;
         script.src = scriptPath;
@@ -753,7 +757,7 @@ export class BaseComponent extends BehaviorComponent {
             });
 
         }).then(() => {
-            if (settings.scripts) settings.scripts.forEach(this.importScript);
+            if (settings.scripts) settings.scripts.forEach(BaseComponent.importScript);
         });
     }
 
@@ -839,7 +843,8 @@ export class BaseComponent extends BehaviorComponent {
                 .replace(">", "");
         }
 
-        let re = /\<st-element[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
+        let styleRe = /(style\=\"(.*)\")/;
+        let re = /<st-element\s+component="([^"]+)"(?:\s+style="(.*){0,}")?\s*>/g;
         if (cmpInternalId == 'fixed-part')
             re = /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
 
@@ -851,7 +856,7 @@ export class BaseComponent extends BehaviorComponent {
         const parentCmp = this;
         template = template.replace(re, (mt) => {
 
-            const propMapper = {};
+            const [propMapper, props] = [{}, {}];
 
             for (const r of mt.split(' ')) {
                 if (r != '' && r.indexOf('="') > 0) {
@@ -861,32 +866,31 @@ export class BaseComponent extends BehaviorComponent {
                 }
             }
 
+            let checkStyle = mt.match(styleRe), foundStyle = false;
+            if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
+            console.log(`FOUND STYLE IS: `, foundStyle);
+
             const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
             parentCmp[proxy] = { on: () => { } };
 
-            const props = {};
-
-            for (const [prop, val] of Object.entries(propMapper)) {
+            for (const [prop, val] of Object.entries(propMapper))
                 props[prop] = val;
-            }
 
-            const cmp = cmpName;
-
-
-            if (!(this.cmpInternalId in Components.componentPartsMap)) {
+            if (!(this.cmpInternalId in Components.componentPartsMap))
                 Components.componentPartsMap[this.cmpInternalId] = [];
-            }
 
             Components.componentPartsMap[this.cmpInternalId].push(
                 new ComponentPart({
-                    template: null, component: cmp,
+                    template: null, component: cmpName,
                     proxy, props,
                     annotations: this.#annotations
                 })
             );
 
-            return `<still-placeholder style="display:content;" class="still-placeholder${uuid}"></still-placeholder>`;
-
+            return `<still-placeholder 
+                        style="display:contents; ${foundStyle != false ? foundStyle : ''}" 
+                        class="still-placeholder${uuid}">
+                    </still-placeholder>`;
         });
 
         return template;

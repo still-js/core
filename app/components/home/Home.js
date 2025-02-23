@@ -10,17 +10,17 @@ export class Home extends BaseComponent {
                 <div id="dashBoardCards" class="row"></div>
 
                 <div class="row">
-                    <div id="barCharPlaceholder" style="display: contents;"></div>
-                    <div id="lineCharPlaceholder" style="display: contents;"></div>
+                  <st-element component="BarChart"></st-element>
+                  <st-element component="LineChart"></st-element>
                 </div>
 
                 <div class="row clearfix">
-                    <div id="animateCharts" style="display: none;"></div>
+                  <st-element component="CircularAnimatedChart"></st-element>
                 </div>
                 
                 <div class="row clearfix">
-                    <div id="projectGrid" style="display: contents;"></div>
-                    <div id="dashboardCalendar" style="display: contents;"></div>
+                  <st-element component="ProjectGrid"></st-element>
+                  <st-element component="Calendar"></st-element>
                 </div>
                 
             </div>
@@ -28,7 +28,7 @@ export class Home extends BaseComponent {
     </section>
     `;
 
-  cardDisplayDS;
+
 
   constructor() {
     super();
@@ -42,12 +42,12 @@ export class Home extends BaseComponent {
     //AppTemplate.showLoading();
     /* this.setup({
       includs: [
-        LineChart,
-        Calendar,
+        //LineChart,
+        //Calendar,
         CardDisplay,
-        BarChart,
-        CircularAnimatedChart,
-        ProjectGrid,
+        //BarChart,
+        //CircularAnimatedChart,
+        //ProjectGrid,
       ],
       scripts: [
         "assets/js/chart.min.js",
@@ -61,6 +61,20 @@ export class Home extends BaseComponent {
     /* CardDisplay.cardDataSource.onChange((value) => {
             console.log(`Home component detected changes: `,value);
         }); */
+  }
+
+  importScripts() {
+
+    return {
+      scripts: [
+        "assets/js/chart.min.js",
+        "assets/js/bundles/amcharts4/core.js",
+        "assets/js/bundles/amcharts4/charts.js",
+        "assets/js/bundles/amcharts4/animated.js",
+        "assets/js/pages/index.js",
+      ],
+    };
+
   }
 
   async stAfterInit() {

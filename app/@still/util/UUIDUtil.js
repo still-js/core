@@ -1,4 +1,4 @@
-class UUIDUtil {
+export class UUIDUtil {
 
     static newId() {
         const obj = UUIDUtil;
@@ -14,3 +14,5 @@ class UUIDUtil {
     }
 
 }
+
+window.UUIDUtil = UUIDUtil;

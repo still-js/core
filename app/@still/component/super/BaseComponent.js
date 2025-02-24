@@ -1,5 +1,10 @@
 import { ComponentSetup } from "../../../components-setup.js";
 import { Components } from "../../setup/components.js";
+import { $stillconst } from "../../setup/constants.js";
+import { UUIDUtil } from "../../util/UUIDUtil.js";
+import { $still, ComponentRegistror } from "../manager/registror.js";
+import { sleepForSec } from "../manager/timer.js";
+import { STForm } from "../type/STForm.js";
 import { BehaviorComponent } from "./BehaviorComponent.js";
 
 class SettingType {
@@ -868,7 +873,6 @@ export class BaseComponent extends BehaviorComponent {
 
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
-            console.log(`FOUND STYLE IS: `, foundStyle);
 
             const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
             parentCmp[proxy] = { on: () => { } };

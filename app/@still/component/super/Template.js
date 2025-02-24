@@ -1,4 +1,6 @@
-class Template {
+import { UUIDUtil } from "../../util/UUIDUtil.js";
+
+export class Template {
 
     static instance = {};
     static toastId = null;
@@ -213,3 +215,5 @@ class Template {
 
 
 }
+
+window.Template = Template;

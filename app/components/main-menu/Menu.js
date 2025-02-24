@@ -1,4 +1,5 @@
 import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { Router } from "../../@still/routing/router.js";
 
 export class Menu extends ViewComponent {
   htmlRefId = "leftsidebar";

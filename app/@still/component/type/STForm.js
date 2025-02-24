@@ -1,4 +1,4 @@
-class STForm {
+export class STForm {
     onlyPropSignature = true;
     sTForm = true;
 
@@ -7,3 +7,5 @@ class STForm {
      */
     validate() { }
 }
+
+window.STForm = STForm;

@@ -1,5 +1,7 @@
-class ProcessoForm extends ViewComponent {
-    
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ProcessoForm extends ViewComponent {
+
     id;
     assunto;
     area;
@@ -396,7 +398,7 @@ class ProcessoForm extends ViewComponent {
             "tarefas": this.tarefas.value,
             "horasMes": this.horasMes.value == "" ? null : this.horasMes.value,
             "valorTotal": this.valorTotal.value == "" ? null : this.valorTotal.value,
-            "dataEmissaoFactura":  document.getElementById('dataEmissaoFacturaInput').value
+            "dataEmissaoFactura": document.getElementById('dataEmissaoFacturaInput').value
         };
 
         const isValidForm = this.processoForm.validate();
@@ -409,8 +411,8 @@ class ProcessoForm extends ViewComponent {
             } else {
                 this.saveProcesso(payload)
             }
-        }else{
-            AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+        } else {
+            AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
         }
     }
 
@@ -600,7 +602,7 @@ class ProcessoForm extends ViewComponent {
         this.horasMes = data.horas_mes;
         this.valorTotal = data.valor_total;
         this.dataEmissaoFactura = data.data_emissao_factura;
-      
+
 
         setTimeout(() => {
 
@@ -622,7 +624,7 @@ class ProcessoForm extends ViewComponent {
             if (this.valorTotal.value)
                 document.getElementById('valorTotalInput').value = this.valorTotal.value
 
-            document.getElementById('dataEmissaoFacturaInput').value = data.data_emissao_factura.toString().substr(0,10)
+            document.getElementById('dataEmissaoFacturaInput').value = data.data_emissao_factura.toString().substr(0, 10)
 
 
             this.modoFacturacaoId = data.modo_facturacao_id;

@@ -1,4 +1,6 @@
-class ProcessosGrid extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ProcessosGrid extends ViewComponent {
 
   /** @Prop */
   roles;
@@ -151,13 +153,13 @@ class ProcessosGrid extends ViewComponent {
           if (r.data.length === 0) {
             this.isNotEmptyData = false;
             this.isEmptyData = true;
-          }else{
+          } else {
             this.isNotEmptyData = true;
             this.isEmptyData = false;
             this.dataTableListProcessos.dataSource = this.transformDataTable(r.data);
           }
           AppTemplate.hideLoading();
-        }else{
+        } else {
           AppTemplate.hideLoading();
         }
       }
@@ -208,11 +210,11 @@ class ProcessosGrid extends ViewComponent {
   detalhesProcesso(_, record) {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
-    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
-        Router.goto("ProcessoDetalhes", {
-          data: record.id,
-        });
-    }else{
+    if (userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')) {
+      Router.goto("ProcessoDetalhes", {
+        data: record.id,
+      });
+    } else {
       console.log("sem permissao para ver detalhes do Processo ")
     }
   }

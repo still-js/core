@@ -1,3 +1,5 @@
+import { routesMap } from "../../../route.map.js";
+
 class ComponentNotFoundException extends Error {
     name = 'ComponentNotFoundException';
     constructor(cmpName) {
@@ -11,7 +13,7 @@ class ComponentNotFoundException extends Error {
 
 
 
-class ComponentRegistror {
+export class ComponentRegistror {
 
     componentList = {};
     static registror = null;
@@ -73,7 +75,7 @@ class ComponentRegistror {
     }
 }
 
-const $still = {
+export const $still = {
     context: {
         componentRegistror: ComponentRegistror.get(),
         componentMap: routesMap.viewRoutes,
@@ -96,3 +98,6 @@ const $still = {
     HTTPClient: new StillHTTPClient(),
 
 }
+
+window.$still = $still;
+window.ComponentRegistror = ComponentRegistror;

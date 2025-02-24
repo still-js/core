@@ -1,3 +1,5 @@
+import { $stillconst } from "../../setup/constants.js";
+
 const validationPatterns = {
     'number': /^\d{0,}$/,
     'alhpanumeric': /^[a-zA-Z0-9]{0,}$/,

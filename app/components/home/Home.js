@@ -75,7 +75,7 @@ export class Home extends BaseComponent {
       ],
     };
 
-  }
+  } Listar
 
   async stAfterInit() {
 

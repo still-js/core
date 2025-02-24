@@ -1,4 +1,5 @@
 import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { BarChart } from "./BarChart.js";
 
 export class LineChart extends ViewComponent {
 
@@ -63,7 +64,15 @@ export class LineChart extends ViewComponent {
     lineChartEvt() {
         //alert('*** Method from LIne chart');
         console.log(`Calleed this method`);
-        CardDisplay.cardDataSource = ['New', 'Anotehr'];
+        //CardDisplay.cardDataSource = ['New', 'Anotehr'];
+        /** @type { BarChart } */
+        const barChart = BarChart;
+
+        barChart.anotherMethod();
+    }
+
+    printFromAnother() {
+        alert('Comming from another');
     }
 
 }

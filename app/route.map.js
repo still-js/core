@@ -1,7 +1,8 @@
 /**
  * Don't change the constante name as it'll impact on the component routing
  */
-const routesMap = {
+export const routesMap = {
+
     viewRoutes: {
         regular: {
             Login: 'components/auth',
@@ -44,7 +45,7 @@ const routesMap = {
 
 
 let routeMapInverse = [];
-function $stillGetRouteMap() {
+export function $stillGetRouteMap() {
 
     /* if (!routeMapInverse.length) {
 
@@ -64,3 +65,5 @@ function $stillGetRouteMap() {
         //inverse: routeMapInverse
     }
 }
+
+window.routesMap = routesMap;

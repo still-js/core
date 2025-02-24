@@ -1,9 +1,16 @@
 import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { ComponentSetup } from "../../components-setup.js";
+import { TestService } from "../../services/TestService.js";
+import { LineChart } from "./LineChart.js";
 
 export class BarChart extends ViewComponent {
 
     htmlRefId = 'barCharPlaceholder';
     novoField = '';
+    /** @Prop @type { LineChart } */
+    line;
+
+
     template = `
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" fitWidth (click)="parsingForBar()">
         <div class="card">
@@ -60,9 +67,23 @@ export class BarChart extends ViewComponent {
     </div>
     `;
 
+
+    constructor() {
+        super();
+        this.stLazyExecution(() => {
+            this.line = ComponentSetup.inject(LineChart);
+        });
+    }
+
     parsingForBar() {
         alert('First content');
         this.novoField = 'Novo valor';
+        (new TestService()).print()
+        this.line.printFromAnother();
+    }
+
+    anotherMethod() {
+        alert('Another called method');
     }
 
 }

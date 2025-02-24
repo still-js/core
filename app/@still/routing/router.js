@@ -1,4 +1,16 @@
+import { ComponentSetup } from "../../components-setup.js";
+import { $stillGetRouteMap, routesMap } from "../../route.map.js";
+import { Components, loadComponentFromPath } from "../setup/components.js";
+import { $stillconst } from "../setup/constants.js";
+
 export class Router {
+
+    static routeMap = {
+        ...routesMap.viewRoutes.lazyInitial,
+        ...routesMap.viewRoutes.regular
+    };
+
+    static baseUrl = window.location.href.replace('#', '');
 
     #data = {};
     static instance = null;
@@ -105,7 +117,7 @@ export class Router {
         } else {
 
             loadComponentFromPath(route, cmp)
-                .then(({ imported, isRoutable }) => {
+                .then(async ({ imported, isRoutable }) => {
                     if (!imported) {
                         if (cmp == 'init') return;
 
@@ -113,7 +125,12 @@ export class Router {
                          * the bellow line clears previous component from memory
                          * @type { ViewComponent }
                          */
-                        const newInstance = eval(`new ${cmp}()`);
+                        const cmpRoute = Router.routeMap[cmp];
+                        const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
+
+                        //$still.context.currentView = eval(`new ${cmpCls[this.entryComponentName]}()`);
+
+                        const newInstance = eval(`new ${cmpCls[cmp]}()`);
 
                         if (newInstance.isPublic && !AppTemplate.get().isAuthN()) {
                             (new Components()).renderPublicComponent(newInstance);
@@ -269,3 +286,4 @@ export class Router {
 
     }
 }
+window.Router = Router;

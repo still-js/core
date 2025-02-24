@@ -1,3 +1,4 @@
+import { $stillconst } from "../../setup/constants.js";
 import { BaseComponent } from "./BaseComponent.js";
 
 class HTMLRefId {
@@ -100,3 +101,5 @@ export class ViewComponent extends BaseComponent {
     }
 
 }
+
+window.ViewComponent = ViewComponent;

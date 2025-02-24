@@ -1,4 +1,4 @@
-const $stillconst = {
+export const $stillconst = {
     //This is a main/principal/first component CSS class only
     TOP_LEVEL_CMP: 'still-toplevel-and-root-app',
     /**

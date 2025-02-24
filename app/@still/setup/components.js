@@ -1,7 +1,11 @@
 import { ComponentSetup } from "../../components-setup.js";
+import { ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
 import { ViewComponent } from "../component/super/ViewComponent.js";
+import { Router } from "../routing/router.js";
+import { UUIDUtil } from "../util/UUIDUtil.js";
+import { $stillconst } from "./constants.js";
 
 const $stillLoadScript = (path, className, base = null) => {
 
@@ -16,7 +20,7 @@ const $stillLoadScript = (path, className, base = null) => {
 
 }
 
-const loadComponentFromPath = (path, className, callback = () => { }) => {
+export const loadComponentFromPath = (path, className, callback = () => { }) => {
 
     return new Promise((resolve, reject) => {
 
@@ -108,6 +112,7 @@ export class Components {
      * @returns {{template, }}
      */
     init() { }
+    static inject(cls) { return cls; }
     template;
     entryComponentPath;
     entryComponentName;
@@ -124,11 +129,8 @@ export class Components {
     services = new Map();
     static subscriptions = {};
     static stAppInitStatus = true;
-    static routesMap = {
-        ...routesMap.viewRoutes.lazyInitial,
-        ...routesMap.viewRoutes.regular
-    };
-    static baseUrl = window.location.href;
+    static routesMap = Router.routeMap;
+    static baseUrl = Router.baseUrl;
 
     /**
      * @returns { ComponentSetup }
@@ -798,6 +800,7 @@ export class Components {
                     if (cmpInternalId != 'fixed-part') {
                         Components.parseProxy(proxy, cmp, parentCmp, annotations);
                         cmp.setParentComponent(parentCmp);
+                        window[cmpName] = cmp;
 
                         const allProps = Object.entries(props);
                         for (const [prop, value] of allProps) {

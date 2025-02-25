@@ -1,15 +1,35 @@
-class TBDragableGrid extends ViewComponent {
+import { ViewComponent } from "../../component/super/ViewComponent.js";
+import { Prop } from "../../component/type/Prop.js";
+
+export class TBDragableGrid extends ViewComponent {
 
     senederID = Prop(`sender_${Math.random().toString().slice(2)}`);
+
     receiverID = Prop(`receiver_${Math.random().toString().slice(2)}`);
-    tableData = Prop;
-    tableRecords = Prop([]);
-    tableFields = Prop([]);
-    destFields = Prop(null);
-    sourceTable = Prop;
-    destTable = Prop;
-    sourcePlaceholder = Prop('Itens por pagar');
-    destPlaceholder = Prop('Drag Rows Here');
+
+    /**  @Prop */
+    tableData;
+
+    /**  @Prop */
+    tableRecords = [];
+
+    /**  @Prop */
+    tableFields = [];
+
+    /**  @Prop */
+    destFields = null;
+
+    /**  @Prop */
+    sourceTable;
+
+    /**  @Prop */
+    destTable;
+
+    /**  @Prop */
+    sourcePlaceholder = 'Itens por pagar';
+
+    /**  @Prop */
+    destPlaceholder = 'Drag Rows Here';
 
     template = `
         <div class="dragableContainer">

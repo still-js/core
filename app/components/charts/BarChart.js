@@ -1,5 +1,5 @@
 import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
-import { ComponentSetup } from "../../components-setup.js";
+import { StillAppSetup } from "../../app-setup.js";
 import { TestService } from "../../services/TestService.js";
 import { LineChart } from "./LineChart.js";
 
@@ -71,7 +71,7 @@ export class BarChart extends ViewComponent {
     constructor() {
         super();
         this.stLazyExecution(() => {
-            this.line = ComponentSetup.inject(LineChart);
+            this.line = StillAppSetup.inject(LineChart);
         });
     }
 

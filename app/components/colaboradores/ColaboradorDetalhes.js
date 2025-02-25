@@ -1,3 +1,5 @@
+import { convertToAkzCurrency } from "../utils/currency.js";
+
 class ColaboradorDetalhes extends ViewComponent {
 
   id;
@@ -8,8 +10,8 @@ class ColaboradorDetalhes extends ViewComponent {
   tipoColaboradorId;
   dataNascimento;
   taxaHoraria;
-  status; 
-  tipo; 
+  status;
+  tipo;
   identificacoes;
   contactos;
   custoFinanceiro;
@@ -73,14 +75,14 @@ class ColaboradorDetalhes extends ViewComponent {
   /** @Proxy @type { ModalListPagamentos } */
   modalListPagamentosProxy;
 
-    /** @Prop */
-    showModalDetalhesFactura = false;
-    /** @Prop */
-    showModalPagamento = false;
-    /** @Prop */
-    showModalListPagamentos = false;
-    /** @Prop */
-    showModal = false ;
+  /** @Prop */
+  showModalDetalhesFactura = false;
+  /** @Prop */
+  showModalPagamento = false;
+  /** @Prop */
+  showModalListPagamentos = false;
+  /** @Prop */
+  showModal = false;
 
   /**
   * @Inject
@@ -355,11 +357,11 @@ class ColaboradorDetalhes extends ViewComponent {
     const userLogged = JSON.parse(localStorage.getItem("_user"));
     // se for cliente não veja os detalhes do Processo!
     // if(userLogged.funcao != "cliente") {
-    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
+    if (userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')) {
       Router.goto("ProcessoDetalhes", {
         data: record.id,
       });
-    }else{
+    } else {
       console.log("sem permissao para ver detalhes do Processo ")
     }
   }
@@ -371,7 +373,7 @@ class ColaboradorDetalhes extends ViewComponent {
   stAfterInit(val) {
     setTimeout(() => {
       this.getTimesheetByColaborador(this.id.value)
-    }, 1000)  
+    }, 1000)
     //  this.getFacturasCliente(this.id.value)
   }
 
@@ -382,7 +384,7 @@ class ColaboradorDetalhes extends ViewComponent {
       if (routeData) {
         this.getDetalhesColaborador(routeData)
         this.id = routeData
-      }else{
+      } else {
         AppTemplate.toast({ status: 'Erro', message: 'Colaborador ID não encontrado!' })
       }
     } catch (e) {
@@ -440,19 +442,19 @@ class ColaboradorDetalhes extends ViewComponent {
 
       if (response) {
 
-          this.listTimesheetFacturas = response.map((item, index) => (
-            {
-              id : index + 1 ,
-              dataInicio: `${new Date(item.data_inicio).toLocaleDateString("PT")} ${new Date(item.data_inicio).toLocaleTimeString("PT")}`,
-              dataFim: `${new Date(item.data_fim).toLocaleDateString("PT")} ${new Date(item.data_fim).toLocaleTimeString("PT")}`,
-               horas: item.horas,
-              ref: item.ref,
-              assunto: item.assunto,
-              custo: item.custo ? convertToAkzCurrency(item.custo) : ' - ',
-              estado: item.estado ?? 'Não facturado',
-              dataRegisto: new Date(item.dataRegistoTimesheet).toLocaleDateString("PT")
-            }
-          ))
+        this.listTimesheetFacturas = response.map((item, index) => (
+          {
+            id: index + 1,
+            dataInicio: `${new Date(item.data_inicio).toLocaleDateString("PT")} ${new Date(item.data_inicio).toLocaleTimeString("PT")}`,
+            dataFim: `${new Date(item.data_fim).toLocaleDateString("PT")} ${new Date(item.data_fim).toLocaleTimeString("PT")}`,
+            horas: item.horas,
+            ref: item.ref,
+            assunto: item.assunto,
+            custo: item.custo ? convertToAkzCurrency(item.custo) : ' - ',
+            estado: item.estado ?? 'Não facturado',
+            dataRegisto: new Date(item.dataRegistoTimesheet).toLocaleDateString("PT")
+          }
+        ))
 
       }
 
@@ -463,10 +465,10 @@ class ColaboradorDetalhes extends ViewComponent {
 
   makeTipoIdentificacao(identificacoes) {
 
-      return identificacoes.map(item => ({
-              type: item.tipo.description,
-              description: item.valor
-      }))
+    return identificacoes.map(item => ({
+      type: item.tipo.description,
+      description: item.valor
+    }))
 
   }
 
@@ -550,18 +552,4 @@ class ColaboradorDetalhes extends ViewComponent {
     document.getElementById('idShowModalPagamentosFactura').style.display = "none"
   }
 
-}
-
-
-
-
-function convertToAkzCurrency(value) {
-  const formatter = new Intl.NumberFormat('ao-AO',
-    {
-      style: 'currency', currency: 'AKZ',
-      maximumFractionDigits: 2, minimumFractionDigits: 2
-    }
-  );
-
-  return formatter.format(value);
 }

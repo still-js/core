@@ -1,4 +1,6 @@
-class Factura extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class Factura extends ViewComponent {
 
     itensFactura;
     template = `

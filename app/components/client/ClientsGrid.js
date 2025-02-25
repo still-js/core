@@ -1,8 +1,10 @@
-class ClientsGrid extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ClientsGrid extends ViewComponent {
 
   htmlRefId = "clientDataTable";
   dataSource;
-  
+
   /** 
    * @Proxy
    * @type { TabulatorComponent } 
@@ -28,7 +30,7 @@ class ClientsGrid extends ViewComponent {
     { title: "Telefone Cobrança", field: "contacto_cobranca", sorter: "string" }
   ];
 
-  
+
   template = `
     <section class="content">
         <br>
@@ -68,7 +70,7 @@ class ClientsGrid extends ViewComponent {
             <div  (showIf)="self.isNotEmptyData">
             <div class="table-responsive">
                 <st-element
-                    component="TabulatorComponent"
+                    component="@tabulator/TabulatorComponent"
                     proxy="dataTable"
                     tableHeader="parent.dataTableLabels"
                      tableHeight="auto"
@@ -159,7 +161,7 @@ class ClientsGrid extends ViewComponent {
           });
           this.dataSource = clieteDTO;
           this.dataTable.dataSource = clieteDTO;
-        }else{
+        } else {
           this.isNotEmptyData = false;
           this.isEmptyData = true;
         }

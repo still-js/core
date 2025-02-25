@@ -12,7 +12,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', event => {
     //console.log('Intercepted request:', event.request.url);
     //console.log(window.location);
-    //let filePath = event.request.url.toString().split('/'), file;
+    let filePath = event.request.url.toString().split('/'), file;
     //console.log(`REGISTERED EVENT:`, event);
     //console.log(`REGISTERED EVENT1:`, event.request);
     //console.log(`REGISTERED EVENT2:`, event.request.url);

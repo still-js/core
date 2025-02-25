@@ -1,8 +1,8 @@
-import { ComponentSetup } from "../../../components-setup.js";
+import { StillAppSetup } from "../../../app-setup.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
-import { $still, ComponentRegistror } from "../manager/registror.js";
+import { $still, ComponentNotFoundException, ComponentRegistror } from "../manager/registror.js";
 import { sleepForSec } from "../manager/timer.js";
 import { STForm } from "../type/STForm.js";
 import { BehaviorComponent } from "./BehaviorComponent.js";
@@ -849,7 +849,7 @@ export class BaseComponent extends BehaviorComponent {
         }
 
         let styleRe = /(style\=\"(.*)\")/;
-        let re = /<st-element\s+component="([^"]+)"(?:\s+style="(.*){0,}")?\s*>/g;
+        let re = /\<st-element[\> \@ \/ \. \" \, \w \s \= \- \ \( \)]{0,}/g;
         if (cmpInternalId == 'fixed-part')
             re = /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
 
@@ -982,7 +982,7 @@ export class BaseComponent extends BehaviorComponent {
             for (const [propertyName, annotation] of annotations) {
                 if (annotation?.propParsing) {
                     if (annotation?.inject) {
-                        let service = ComponentSetup.get()?.services?.get(annotation?.type);
+                        let service = StillAppSetup.get()?.services?.get(annotation?.type);
                         cmp.#handleServiceInjection(cmp, propertyName, annotation?.type, service);
                     }
                     cmp.#annotations.set(propertyName, annotation);
@@ -1015,7 +1015,7 @@ export class BaseComponent extends BehaviorComponent {
                         propParsing = result.propParsing;
 
                         if (inject) {
-                            let service = ComponentSetup.get()?.services?.get(type);
+                            let service = StillAppSetup.get()?.services?.get(type);
                             cmp.#handleServiceInjection(cmp, propertyName, type, service);
                         }
                     }
@@ -1084,7 +1084,7 @@ export class BaseComponent extends BehaviorComponent {
             return;
         }
 
-        const servicePath = ComponentSetup.get().servicePath + '/' + type + '.js';
+        const servicePath = StillAppSetup.get().servicePath + '/' + type + '.js';
 
         if (!document.getElementById(servicePath)) {
 
@@ -1093,7 +1093,7 @@ export class BaseComponent extends BehaviorComponent {
             script.onload = async function () {
 
                 const service = eval(`new ${type}()`);
-                ComponentSetup.get()?.services?.set(type, service);
+                StillAppSetup.get()?.services?.set(type, service);
                 handleServiceAssignement(service);
                 Components.emitAction(type);
             }
@@ -1103,7 +1103,7 @@ export class BaseComponent extends BehaviorComponent {
             Components.subscribeAction(
                 type,
                 () => {
-                    const service = ComponentSetup.get()?.services?.get(type);
+                    const service = StillAppSetup.get()?.services?.get(type);
                     handleServiceAssignement(service);
                 }
             );

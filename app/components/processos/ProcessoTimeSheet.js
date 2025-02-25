@@ -1,4 +1,6 @@
-class ProcessoTimeSheet extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ProcessoTimeSheet extends ViewComponent {
 
   id;
   referencia;
@@ -11,7 +13,7 @@ class ProcessoTimeSheet extends ViewComponent {
   processoId;
   userLoggedIn;
 
-  
+
   /** @Proxy @type { TUICalendarComponent } */
   calendarProxy;
 
@@ -121,7 +123,7 @@ class ProcessoTimeSheet extends ViewComponent {
             ">
             <div style="positon: relative">
             <st-element
-              component="TUICalendarComponent"
+              component="@toast-ui/calendar/TUICalendarComponent"
               (onEventCreate)="saveEvent()"
               editLabel="Editar"
               milestoneTitle="Objectivo"

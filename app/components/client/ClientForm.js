@@ -1,4 +1,7 @@
-class ClientForm extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { loadWizard } from "../utils/wizard.js";
+
+export class ClientForm extends ViewComponent {
 
     tipoClienteId;
     nome;
@@ -279,7 +282,7 @@ class ClientForm extends ViewComponent {
             "endereco": this.endereco.value ?? routingData.endereco,
             "pessoa_contacto": this.pessoaContacto.value ?? routingData.pessoa_contacto,
             "contacto_cobranca": this.contactoCobranca.value ?? routingData.contacto_cobranca,
-            "e_mail": this.e_mail.value  ?? routingData.e_mail,
+            "e_mail": this.e_mail.value ?? routingData.e_mail,
             "nota": document.getElementById('clientNotaID').value,
             "status": "pending"
         }
@@ -377,7 +380,7 @@ class ClientForm extends ViewComponent {
             this.contactoCobranca = contacto_cobranca;
             this.e_mail = e_mail;
             document.getElementById('clientNotaID').value = nota
-            
+
             setTimeout(() => {
                 this.tipoClienteSelecionado = tipo_id;
             }, 500)
@@ -388,57 +391,4 @@ class ClientForm extends ViewComponent {
 
     }
 
-}
-
-/**
- * 
- * Function to load JQuery Step/Wizard which is 
- * called in the calss component 
- */
-function loadWizard({ enableAllSteps = false } = {}) {
-
-    var form = $('#client_wizard_with_validation').show();
-    const [finish, next, previous] = ["Submeter", "Próximo", "Voltar"]
-    form.steps({
-        showFinishButtonAlways: false,
-        enableFinishButton: false,
-        enableAllSteps,
-        labels: { finish, next, previous },
-        headerTag: 'h3',
-        bodyTag: 'fieldset',
-        transitionEffect: 'slideLeft',
-        onInit: function (event, currentIndex) {
-
-            //Set tab width
-            var $tab = $(event.currentTarget).find('ul[role="tablist"] li');
-            var tabCount = $tab.length;
-            $tab.css('width', (100 / tabCount) + '%');
-
-            //set button waves effect
-            setButtonWavesEffect(event);
-        },
-        onStepChanging: function (event, currentIndex, newIndex) {
-            if (currentIndex > newIndex) { return true; }
-
-            if (currentIndex < newIndex) {
-                form.find('.body:eq(' + newIndex + ') label.error').remove();
-                form.find('.body:eq(' + newIndex + ') .error').removeClass('error');
-            }
-            return form//.valid();
-        },
-        onStepChanged: function (event, currentIndex, priorIndex) {
-            setButtonWavesEffect(event);
-        },
-        onFinishing: function (event, currentIndex) {
-            return form//.valid();
-        },
-        onFinished: function (event, currentIndex) {
-            swal("Good job!", "Submitted!", "success");
-        }
-    });
-}
-
-function setButtonWavesEffect(event) {
-    $(event.currentTarget).find('[role="menu"] li a').removeClass('waves-effect');
-    $(event.currentTarget).find('[role="menu"] li:not(.disabled) a').addClass('waves-effect');
 }

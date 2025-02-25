@@ -1,4 +1,6 @@
-class CreateButton extends ViewComponent {
+import { ViewComponent } from "../../../@still/component/super/ViewComponent.js";
+
+export class CreateButton extends ViewComponent {
 
     iconName = `create_new_folder`;
     label = `Novo`;

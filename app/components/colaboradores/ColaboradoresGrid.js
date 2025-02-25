@@ -1,23 +1,25 @@
-class ColaboradoresGrid extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ColaboradoresGrid extends ViewComponent {
   htmlRefId = "idDataTable";
   dataSource;
 
-      /** 
-     * @Proxy
-     * @type { TabulatorComponent } 
-     */
-      dataTable;
+  /** 
+ * @Proxy
+ * @type { TabulatorComponent } 
+ */
+  dataTable;
 
-      /** @Prop */
-      dataTableLabels = [
-          { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
-          { hozAlign: "center", deleteRow: false, icon: "<i class='fa fa-trash'></i>", width: 20 },
-          { title: "Estado", field: "status", sorter: "string", width: 200 },
-          { title: "Tipo Colaborador", field: "description", sorter: "string", width: 200 },
-          { title: "Nome Completo", field: "nome_completo", sorter: "string" },
-          { title: "Nome Profissional", field: "nome_profissional", sorter: "string" },
-          { title: "Contacto", field: "contact_value", sorter: "string" },
-      ];
+  /** @Prop */
+  dataTableLabels = [
+    { hozAlign: "center", editRow: true, icon: "<i class='fa fa-pen'></i>", width: 20 },
+    { hozAlign: "center", deleteRow: false, icon: "<i class='fa fa-trash'></i>", width: 20 },
+    { title: "Estado", field: "status", sorter: "string", width: 200 },
+    { title: "Tipo Colaborador", field: "description", sorter: "string", width: 200 },
+    { title: "Nome Completo", field: "nome_completo", sorter: "string" },
+    { title: "Nome Profissional", field: "nome_profissional", sorter: "string" },
+    { title: "Contacto", field: "contact_value", sorter: "string" },
+  ];
 
   template = `
     <section class="content">
@@ -41,7 +43,7 @@ class ColaboradoresGrid extends ViewComponent {
                     <div class="body">
                         <div class="body table-responsive">
                           <st-element
-                            component="TabulatorComponent"
+                            component="@tabulator/TabulatorComponent"
                             proxy="dataTable"
                             tableHeader="parent.dataTableLabels"
                              tableHeight="auto"

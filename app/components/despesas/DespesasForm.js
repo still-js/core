@@ -1,4 +1,6 @@
-class DespesasForm extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class DespesasForm extends ViewComponent {
 
     clientList;
     listProcesso;
@@ -217,48 +219,48 @@ class DespesasForm extends ViewComponent {
 
         const isValidForm = this.despesaForm.validate();
 
-        if (isValidForm) { 
+        if (isValidForm) {
 
 
-        const colaboradorId = JSON.parse(localStorage._user).id;
+            const colaboradorId = JSON.parse(localStorage._user).id;
 
-        const payload = {
-            colaboradorId,
-            dataMovimento: document.getElementById('dataDespesa').value,
-            idProcesso: this.numeroProcesso.value,
-            tipoMovimento: this.tipoMovimento.value,
-            valor: this.valorDespesa.value
-        }
+            const payload = {
+                colaboradorId,
+                dataMovimento: document.getElementById('dataDespesa').value,
+                idProcesso: this.numeroProcesso.value,
+                tipoMovimento: this.tipoMovimento.value,
+                valor: this.valorDespesa.value
+            }
 
-        AppTemplate.showLoading();
-        $still.HTTPClient.post(
-            '/api/v1/processo/despesa',
-            JSON.stringify(payload),
-            {
-                headers: {
-                    'Content-Type': 'application/json'
+            AppTemplate.showLoading();
+            $still.HTTPClient.post(
+                '/api/v1/processo/despesa',
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-            }
-        ).then((r) => {
-            AppTemplate.hideLoading();
-            if(r.status == 201) {
-                AppTemplate.toast({ status: 'Sucesso!', message: 'Despesa, registadas com sucesso!' })
+            ).then((r) => {
+                AppTemplate.hideLoading();
+                if (r.status == 201) {
+                    AppTemplate.toast({ status: 'Sucesso!', message: 'Despesa, registadas com sucesso!' })
 
-                setTimeout(() => {
-                    Router.goto("Despesas");
-                },1000)
-            }else{
-                AppTemplate.toast({ status: 'Erro!', message: r.message })
-            }
-        }).catch((err) => {
-            AppTemplate.hideLoading();
-            console.log(`Erro ao cadastrar despesa: `, err);
-        });
-
+                    setTimeout(() => {
+                        Router.goto("Despesas");
+                    }, 1000)
+                } else {
+                    AppTemplate.toast({ status: 'Erro!', message: r.message })
+                }
+            }).catch((err) => {
+                AppTemplate.hideLoading();
+                console.log(`Erro ao cadastrar despesa: `, err);
+            });
 
 
-        }else {
-                AppTemplate.toast({ status: 'Erro!', message: "Preencha os campos obrigatórios." })
+
+        } else {
+            AppTemplate.toast({ status: 'Erro!', message: "Preencha os campos obrigatórios." })
         }
 
 
@@ -295,7 +297,7 @@ class DespesasForm extends ViewComponent {
         let payload =
         {
             "cliente_id": document.getElementById('clienteId').value == "" ? 0 : document.getElementById('clienteId').value,
-            "processo_id": document.getElementById('processoId').value == "" ? 0 : document.getElementById('processoId').value 
+            "processo_id": document.getElementById('processoId').value == "" ? 0 : document.getElementById('processoId').value
         }
 
         console.log("Payload das despeas ", payload)

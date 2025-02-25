@@ -1,6 +1,6 @@
 import { routesMap } from "../../../route.map.js";
 
-class ComponentNotFoundException extends Error {
+export class ComponentNotFoundException extends Error {
     name = 'ComponentNotFoundException';
     constructor(cmpName) {
         super();

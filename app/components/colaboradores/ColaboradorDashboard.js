@@ -1,4 +1,6 @@
-class ColaboradorDashboard extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class ColaboradorDashboard extends ViewComponent {
   htmlRefId = "clientDataTable";
   dataSource;
   dataSourceTarefas;
@@ -56,31 +58,31 @@ class ColaboradorDashboard extends ViewComponent {
   ];
 
 
-    /** @Prop */
-    dataTableLabels = [
-      {
-        hozAlign: "center",
-        editRow: true,
-        icon: "<i class='far fa-calendar-alt'></i>",
-        width: 20,
-      },
-      {
-        hozAlign: "center",
-        deleteRow: true,
-        icon: "<i class='fas fa-file-alt'></i>",
-        width: 20,
-      },
-      { title: "Estado", field: "estado", sorter: "string", width: 100 },
-      { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
-      { title: "Referência", field: "ref", sorter: "string" },
-      { title: "Assunto", field: "assunto", sorter: "string" },
-      { title: "Área", field: "area", sorter: "string" },
-      { title: "Instituição", field: "instituicao", sorter: "string" },
-      { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
-      { title: "Cliente", field: "cliente", sorter: "string" },
-      { title: "Gestor", field: "gestor", sorter: "string" },
-      { title: "Data Cadastro", field: "data_registo", sorter: "string" },
-    ];
+  /** @Prop */
+  dataTableLabels = [
+    {
+      hozAlign: "center",
+      editRow: true,
+      icon: "<i class='far fa-calendar-alt'></i>",
+      width: 20,
+    },
+    {
+      hozAlign: "center",
+      deleteRow: true,
+      icon: "<i class='fas fa-file-alt'></i>",
+      width: 20,
+    },
+    { title: "Estado", field: "estado", sorter: "string", width: 100 },
+    { title: "Progresso", field: "progress", sorter: "30", hozAlign: "left", formatter: "progress" },
+    { title: "Referência", field: "ref", sorter: "string" },
+    { title: "Assunto", field: "assunto", sorter: "string" },
+    { title: "Área", field: "area", sorter: "string" },
+    { title: "Instituição", field: "instituicao", sorter: "string" },
+    { title: "Modo Facturação", field: "modo_facturacao", sorter: "string" },
+    { title: "Cliente", field: "cliente", sorter: "string" },
+    { title: "Gestor", field: "gestor", sorter: "string" },
+    { title: "Data Cadastro", field: "data_registo", sorter: "string" },
+  ];
 
   template = `
   <section class="content">
@@ -163,7 +165,7 @@ class ColaboradorDashboard extends ViewComponent {
                     <div class="body table-responsive">
             
                       <st-element
-                        component="TabulatorComponent"
+                        component="@tabulator/TabulatorComponent"
                         proxy="dataTable"
                         tableHeader="parent.dataTableLabels"
                         (onEditColumn)="getTimeSheetProcesso(fieldName, data)"
@@ -196,7 +198,7 @@ class ColaboradorDashboard extends ViewComponent {
                           border: 1px solid #e1e0e0;
               ">  
                 <st-element
-                  component="TUICalendarComponent"
+                  component="@toast-ui/calendar/TUICalendarComponent"
                   milestoneTitle="Objectivo"
                   proxy="agendaColaboradorProxy"
 
@@ -313,7 +315,7 @@ class ColaboradorDashboard extends ViewComponent {
                     <div class="body table-responsive">
             
                       <st-element
-                        component="TabulatorComponent"
+                        component="@tabulator/TabulatorComponent"
                         proxy="dataTableTarefas"
                         tableHeader="parent.dataTableTarefasLabels"
                         (onEditColumn)="aprovarTarefa(fieldName, data)"
@@ -379,7 +381,7 @@ class ColaboradorDashboard extends ViewComponent {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
 
-    const saveForm = 
+    const saveForm =
     {
       "processoId": processoId,
       "colaboradorId": userLogged.id,
@@ -393,32 +395,32 @@ class ColaboradorDashboard extends ViewComponent {
 
       try {
 
-        let response; 
+        let response;
         AppTemplate.showLoading();
 
-        if(this.idTarefa.value == '') {
+        if (this.idTarefa.value == '') {
           response = await this.processoService.createTarefa(saveForm)
           console.log("save tarefea response ", response);
-          
-        }else {
+
+        } else {
           response = await this.processoService.updateTarefa(this.idTarefa.value, saveForm)
           console.log("update tarefea response", response);
           this.idTarefa = ''
-        }              
-        
+        }
+
         this.getAllTarefasByColaboradorId(userLogged.id)
         this.showHiddenFormTarefa();
-        
+
         AppTemplate.hideLoading();
-        AppTemplate.toast({status: 'success', message: 'Sucesso'})
-      }catch (e) { 
+        AppTemplate.toast({ status: 'success', message: 'Sucesso' })
+      } catch (e) {
         AppTemplate.hideLoading();
         console.log("Error on saveOrUpdateTarefas", e);
-        AppTemplate.toast({status: 'warning', message: e})
+        AppTemplate.toast({ status: 'warning', message: e })
       }
-       
-    }else{
-        AppTemplate.toast({status: 'warning', message: 'Por favor, preencha os campos obrigatórios'})
+
+    } else {
+      AppTemplate.toast({ status: 'warning', message: 'Por favor, preencha os campos obrigatórios' })
     }
 
   }
@@ -478,9 +480,9 @@ class ColaboradorDashboard extends ViewComponent {
 
   }
 
-  async getAllTarefasByColaboradorId(colaboradorId) { 
-   let listTask = await this.processoService.getAllTarefasByColaboradorId(colaboradorId)
-   console.log("listTask", listTask)
+  async getAllTarefasByColaboradorId(colaboradorId) {
+    let listTask = await this.processoService.getAllTarefasByColaboradorId(colaboradorId)
+    console.log("listTask", listTask)
     this.transformDataTableTarefas(listTask);
   }
 
@@ -501,7 +503,7 @@ class ColaboradorDashboard extends ViewComponent {
 
         this.dataTable.dataSource = this.transformDataTable(processosByColaborador);
         this.populateCards(processosByColaborador);
-        
+
         const tasksData = await service.getTarefaByColaboradorId();
 
         AppTemplate.hideLoading();
@@ -516,9 +518,9 @@ class ColaboradorDashboard extends ViewComponent {
 
   transformDataTableTarefas(data) {
 
-    console.log("data >>>> " , data)
+    console.log("data >>>> ", data)
     this.dataTableTarefas.dataSource = data;
-  
+
   }
 
   pushDataToCalendar(tasksData) {
@@ -564,14 +566,14 @@ class ColaboradorDashboard extends ViewComponent {
   }
 
   getDetailsProcesso(_, record) {
-     
+
     const userLogged = JSON.parse(localStorage.getItem("_user"));
 
-    if(userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')){
-        Router.goto("ProcessoDetalhes", {
-          data: record.id,
-        });
-    }else{
+    if (userLogged.auth.roles.includes('CAN_SEE_PROCESS_DETAILS')) {
+      Router.goto("ProcessoDetalhes", {
+        data: record.id,
+      });
+    } else {
       console.log("sem permissao para ver detalhes do Processo ")
     }
 
@@ -599,11 +601,11 @@ class ColaboradorDashboard extends ViewComponent {
 
     console.log("editar tarefa ", data)
 
-      if(data.estado == "Aprovada") {
-        AppTemplate.toast({ status: 'Error', message: 'Não pode alterar tarefa já Aprovada' })
-        this.idTarefa = ''
-      }else{
-        
+    if (data.estado == "Aprovada") {
+      AppTemplate.toast({ status: 'Error', message: 'Não pode alterar tarefa já Aprovada' })
+      this.idTarefa = ''
+    } else {
+
       const [dia, mes, ano] = data.data_para_realizacao.split('/')
       this.showHiddenFormTarefa()
 
@@ -611,16 +613,16 @@ class ColaboradorDashboard extends ViewComponent {
       document.getElementById('input_form_tarefa').value = data.descricao;
       document.getElementById('valueRealizacaoTarefa').value = `${ano}-${mes}-${dia}`
       this.idTarefa = data.id
-      }
+    }
 
-      console.log("this.idTarefa = " + this.idTarefa)
+    console.log("this.idTarefa = " + this.idTarefa)
 
   }
 
   aprovarTarefa(fieldName, record) {
 
     const userLogged = JSON.parse(localStorage.getItem("_user"));
-  
+
 
     if (record.estado == "Aprovada") {
       return AppTemplate.toast({ status: 'Alerta', message: 'Esta tarefa já foi aprovada' })
@@ -632,7 +634,7 @@ class ColaboradorDashboard extends ViewComponent {
     }
 
     AppTemplate.showLoading();
-    
+
     $still.HTTPClient.put(
       `/api/v1/tarefas_processo/colaborador/${record.id}`,
       JSON.stringify(payload),
@@ -649,14 +651,14 @@ class ColaboradorDashboard extends ViewComponent {
           AppTemplate.toast({ status: 'Erro', message: response.message })
 
         } else {
-          
+
           AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa realizada com sucesso' })
           // this.getDetalhesProcesso(this.id.value)
 
           AppTemplate.hideLoading();
-          setTimeout(() => {            
+          setTimeout(() => {
             this.dataTableListProcessosTarefas.updateRow(
-              { 
+              {
                 ...response.data[0]
               },
               'id',
@@ -679,55 +681,55 @@ class ColaboradorDashboard extends ViewComponent {
 
   async saveEvent(data) {
 
-   /* if (this.userLoggedIn.value.id === "")
-      alert("Nenhum Colaborador definido.")
-
-    let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
-
-    let payload = {
-      tipoEventoId: data.calendarId = 'entrevista' ? 1 : 2,
-      processoId: parseInt(this.processoId.value),
-      descricao: data.title,
-      dadosImportantes: JSON.stringify(data),
-      dataInicio: data.start.d.d,
-      dataFim: data.end.d.d,
-      horas: horasCalculadas.toFixed(2),
-      colaboradorId: this.userLoggedIn.value.id
-    };
-
-    let response = await $still.HTTPClient.post(
-      "http://localhost:3000/api/v1/processo_time_sheets",
-      JSON.stringify(payload),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (response.status !== 201) {
-      return false
-    } else {
-
-      // const eventData = {
-      //   ...data,
-      //   start: data.start.d.d,
-      //   end: data.end.d.d,
-      // };
-
-      // console.log(">>>> ", this.calendarProxy)
-
-      // this.calendarProxy.on('load', () => {
-      //   this.calendarProxy.addNewEvents(eventData);
-      // });
-
-      //this.calendarProxy.addNewEvents(eventData);
-      //this.init()
-      this.updateHorasColaborador(true, horasCalculadas)
-      return true
-    }
-
-    */
+    /* if (this.userLoggedIn.value.id === "")
+       alert("Nenhum Colaborador definido.")
+ 
+     let horasCalculadas = (data.end.d.d - data.start.d.d) / 3600000
+ 
+     let payload = {
+       tipoEventoId: data.calendarId = 'entrevista' ? 1 : 2,
+       processoId: parseInt(this.processoId.value),
+       descricao: data.title,
+       dadosImportantes: JSON.stringify(data),
+       dataInicio: data.start.d.d,
+       dataFim: data.end.d.d,
+       horas: horasCalculadas.toFixed(2),
+       colaboradorId: this.userLoggedIn.value.id
+     };
+ 
+     let response = await $still.HTTPClient.post(
+       "http://localhost:3000/api/v1/processo_time_sheets",
+       JSON.stringify(payload),
+       {
+         headers: {
+           "Content-Type": "application/json",
+         },
+       }
+     );
+ 
+     if (response.status !== 201) {
+       return false
+     } else {
+ 
+       // const eventData = {
+       //   ...data,
+       //   start: data.start.d.d,
+       //   end: data.end.d.d,
+       // };
+ 
+       // console.log(">>>> ", this.calendarProxy)
+ 
+       // this.calendarProxy.on('load', () => {
+       //   this.calendarProxy.addNewEvents(eventData);
+       // });
+ 
+       //this.calendarProxy.addNewEvents(eventData);
+       //this.init()
+       this.updateHorasColaborador(true, horasCalculadas)
+       return true
+     }
+ 
+     */
 
   }
 

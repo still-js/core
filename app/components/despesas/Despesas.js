@@ -1,4 +1,6 @@
-class Despesas extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+
+export class Despesas extends ViewComponent {
 
     clientList;
     listProcesso;
@@ -242,7 +244,7 @@ class Despesas extends ViewComponent {
         </div>
 
         <st-element 
-            component="TabulatorComponent"
+            component="@tabulator/TabulatorComponent"
             tableHeader="parent.dataTableLabels"
             proxy="despesasTableProxy"
         >
@@ -362,7 +364,7 @@ class Despesas extends ViewComponent {
         let payload =
         {
             "cliente_id": document.getElementById('clienteId').value == "" ? 0 : document.getElementById('clienteId').value,
-            "processo_id": document.getElementById('processoId').value == "" ? 0 : document.getElementById('processoId').value 
+            "processo_id": document.getElementById('processoId').value == "" ? 0 : document.getElementById('processoId').value
         }
 
         console.log("Payload das despeas ", payload)

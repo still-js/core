@@ -1,4 +1,7 @@
-class ProcessoDetalhes extends ViewComponent {
+import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
+import { cleanHorasValue, cleanMoedaValue, convertToAkzCurrency } from "../utils/currency.js";
+
+export class ProcessoDetalhes extends ViewComponent {
 
   id;
   estado;
@@ -66,8 +69,8 @@ class ProcessoDetalhes extends ViewComponent {
 
   userLogged;
 
-   /** @Prop */
-   canManagerHonorario = false;
+  /** @Prop */
+  canManagerHonorario = false;
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosEquipas;
@@ -90,7 +93,7 @@ class ProcessoDetalhes extends ViewComponent {
     { title: "Função", field: "funcao", sorter: "string" },
   ];
 
- /** @Proxy @type { TabulatorComponent } */
+  /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosPrecedentes;
 
   /** @Prop */
@@ -117,7 +120,7 @@ class ProcessoDetalhes extends ViewComponent {
 
   /** @Proxy @type { TabulatorComponent } */
   dataTableListProcessosTarefas;
- 
+
   /** @Prop */
   dataTableLabelsTarefas = [
     {
@@ -232,11 +235,11 @@ class ProcessoDetalhes extends ViewComponent {
   /** @Prop */
   showModoProbono = false
 
-   /** @Prop */
-   isPayed = false
+  /** @Prop */
+  isPayed = false
 
-   /** @Prop */
-   havePayment = false
+  /** @Prop */
+  havePayment = false
 
 
   /** @Inject @type { ProcessoService } */
@@ -585,10 +588,14 @@ class ProcessoDetalhes extends ViewComponent {
                     </div>
                     <!-- fim form add tarefas -->
 
-                    <st-element component="TabulatorComponent" proxy="dataTableListProcessosEquipas"
-                        tableHeader="parent.dataTableLabelsEquipas" (onEditColumn)="editProcessoEquipa(fieldName, data)"
+                    <st-element 
+                        component="@tabulator/TabulatorComponent" 
+                        proxy="dataTableListProcessosEquipas"
+                        tableHeader="parent.dataTableLabelsEquipas" 
+                        (onEditColumn)="editProcessoEquipa(fieldName, data)"
                         (onDeleteRow)="removerColaboradorProcesso(fieldName, data)"
-                        (onCellClick)="cellClickProcessoEquipa(row, col, data)"></st-element>
+                        (onCellClick)="cellClickProcessoEquipa(row, col, data)">
+                    </st-element>
 
                 </div>
    <!-- Fim TAB Equipas -->
@@ -601,7 +608,7 @@ class ProcessoDetalhes extends ViewComponent {
                     </div>
 
                     <div class="product-description">
-                        <st-element component="TabulatorComponent" proxy="dataTableListProcessosTarefas"
+                        <st-element component="@tabulator/TabulatorComponent" proxy="dataTableListProcessosTarefas"
                             tableHeader="parent.dataTableLabelsTarefas"
                             (onEditColumn)="concluirTarefaProcesso(fieldName, data)"
                             (onDeleteRow)="removerTarefaProcesso(fieldName, data)"
@@ -649,7 +656,7 @@ class ProcessoDetalhes extends ViewComponent {
 
             <div class="product-description">
                 <st-element 
-                    component="TabulatorComponent" 
+                    component="@tabulator/TabulatorComponent" 
                     proxy="dataTableListProcessosPrecedentes"
                     tableHeader="parent.dataTableLabelsPrecedentes"
                     (onEditColumn)="editProcessoPrecedente(fieldName, data)"
@@ -696,7 +703,7 @@ class ProcessoDetalhes extends ViewComponent {
 
         <div class="product-description">
             <st-element 
-                component="TabulatorComponent" 
+                component="@tabulator/TabulatorComponent" 
                 proxy="dataTableListProcessosAnexos"
                 tableHeader="parent.dataTableLabelsAnexos" 
                 (onEditColumn)="downalodAnexoProcesso(fieldName, data)"
@@ -821,7 +828,7 @@ class ProcessoDetalhes extends ViewComponent {
   
     </div>
   
-    <st-element component="TBDragableGrid" proxy="honorarioProxy" tableData="parent.dadosTimeSheet"
+    <st-element component="@tabulator/TBDragableGrid" proxy="honorarioProxy" tableData="parent.dadosTimeSheet"
       tableFields="parent.horarioCabecalho" destFields="parent.horarioDestCabecalho"
       destPlaceholder="Arraste aqui o item a pagar">
     </st-element>
@@ -917,7 +924,7 @@ class ProcessoDetalhes extends ViewComponent {
 
     this.processoService.on('load', async () => {
       AppTemplate.showLoading();
-      try {        
+      try {
         const response = await this.processoService.getDetalhesProcesso(idProcesso);
         this.populateAttributes(response);
         AppTemplate.hideLoading();
@@ -942,20 +949,20 @@ class ProcessoDetalhes extends ViewComponent {
 
     this.processoService.on('load', async () => {
       try {
-        
+
         const response = await this.processoService.getFacturasByProcesso(idProcesso);
 
-        if(response.length) {
-            this.havePayment = true
-            this.pagamentosProcesso = response.map((item, index) => {
-                return {
-                    "id": index+1,
-                    "valor_pago": item.custo ? convertToAkzCurrency(item.custo) : 0,
-                    "created_at": new Date(item.created_at).toLocaleString("PT")
-                }
-            })
+        if (response.length) {
+          this.havePayment = true
+          this.pagamentosProcesso = response.map((item, index) => {
+            return {
+              "id": index + 1,
+              "valor_pago": item.custo ? convertToAkzCurrency(item.custo) : 0,
+              "created_at": new Date(item.created_at).toLocaleString("PT")
+            }
+          })
         }
-        
+
       } catch (e) {
         AppTemplate.toast({ status: 'Erro', message: e })
       }
@@ -971,13 +978,13 @@ class ProcessoDetalhes extends ViewComponent {
 
     const routeData = Router.data("ProcessoDetalhes");
 
-    if(routeData) { 
+    if (routeData) {
       this.getDetalhesProcesso(routeData)
       //this.getPaymentsProcesso(routeData)
-      setTimeout(()=> {
+      setTimeout(() => {
         this.getFacturasByProcesso(routeData)
       }, 1000)
-    }else{
+    } else {
       AppTemplate.toast({ status: 'Erro', message: 'Identificador do Processo não encontrado!' })
     }
 
@@ -1120,11 +1127,11 @@ class ProcessoDetalhes extends ViewComponent {
     if (data.anexos)
       this.dataTableListProcessosAnexos.dataSource = data.anexos;
 
-    setTimeout(()=> {
-        this.verifyModoFacturamento(data)
+    setTimeout(() => {
+      this.verifyModoFacturamento(data)
     }, 1000)
 
-  
+
   }
 
   editResourcesProcesso(inputId) {
@@ -1382,7 +1389,7 @@ class ProcessoDetalhes extends ViewComponent {
     console.log(" >>>>>>>>>>>>>>>>>> ", userLogged);
 
     this.canManagerHonorario = userLogged.auth.roles.includes("CAN_GENERATE_HONORARIO");
-    console.log("user >>>>  ", this.canManagerHonorario )
+    console.log("user >>>>  ", this.canManagerHonorario)
   }
 
 
@@ -1405,7 +1412,7 @@ class ProcessoDetalhes extends ViewComponent {
     }
 
     setTimeout(() => {
-      
+
       $still.HTTPClient.post(
         "/api/v1/anexos_processo",
         JSON.stringify(payload),
@@ -1478,17 +1485,17 @@ class ProcessoDetalhes extends ViewComponent {
           } else {
 
             AppTemplate.toast({ status: 'Sucesso', message: 'Salvo com sucesso' })
-            this.toggleForms(idForm)     
+            this.toggleForms(idForm)
 
             // this.dataTableListProcessosTarefas.removeRow('id', idTarefa)
 
             AppTemplate.hideLoading();
-            setTimeout(() => {            
+            setTimeout(() => {
               this.dataTableListProcessosTarefas.updateRow(
-                { 
-                  'id': idTarefa, 
-                  'descricao': tarefa, 
-                  'status': status, 
+                {
+                  'id': idTarefa,
+                  'descricao': tarefa,
+                  'status': status,
                   'created_at': createdAt,
                   'data_para_realizacao': dataRealizacao
                 },
@@ -1511,7 +1518,7 @@ class ProcessoDetalhes extends ViewComponent {
       AppTemplate.showLoading();
 
       let idTarefa = inputTarefa.dataset.id
-      let dataRealizacao = document.getElementById('valueRealizacaoTarefa').value 
+      let dataRealizacao = document.getElementById('valueRealizacaoTarefa').value
 
       const payload = {
         "processoId": this.id.value,
@@ -1540,13 +1547,13 @@ class ProcessoDetalhes extends ViewComponent {
             this.toggleForms(idForm)
 
             this.dataTableListProcessosTarefas.insertRow(
-                { 
-                  'id': idTarefa, 
-                  'descricao': tarefa, 
-                  'status': 0, 
-                  'created_at': new Date().toLocaleString("PT"),
-                  'data_para_realizacao': dataRealizacao
-               },
+              {
+                'id': idTarefa,
+                'descricao': tarefa,
+                'status': 0,
+                'created_at': new Date().toLocaleString("PT"),
+                'data_para_realizacao': dataRealizacao
+              },
             );
 
             this.clearFormTarefa()
@@ -1618,7 +1625,7 @@ class ProcessoDetalhes extends ViewComponent {
     document.getElementById('input_form_tarefa').setAttribute("data-status", record.status)
     document.getElementById('input_form_tarefa').setAttribute("data-create", record.created_at)
     document.getElementById('form_tab_tarefas').classList.toggle("showForm")
-    document.getElementById('valueRealizacaoTarefa').value = record.data_para_realizacao.toString().substring(0,10)
+    document.getElementById('valueRealizacaoTarefa').value = record.data_para_realizacao.toString().substring(0, 10)
 
   }
 
@@ -1667,7 +1674,7 @@ class ProcessoDetalhes extends ViewComponent {
       return AppTemplate.toast({ status: 'Alerta', message: 'Esta tarefa já foi aprovada' })
     }
 
-     const userLogged = JSON.parse(localStorage.getItem("_user"));
+    const userLogged = JSON.parse(localStorage.getItem("_user"));
 
     AppTemplate.showLoading();
 
@@ -1692,14 +1699,14 @@ class ProcessoDetalhes extends ViewComponent {
           AppTemplate.toast({ status: 'Erro', message: response.message })
 
         } else {
-          
+
           AppTemplate.toast({ status: 'Sucesso', message: 'Tarefa aprovada com sucesso' })
           // this.getDetalhesProcesso(this.id.value)
 
           AppTemplate.hideLoading();
-          setTimeout(() => {            
+          setTimeout(() => {
             this.dataTableListProcessosTarefas.updateRow(
-              { 
+              {
                 ...response.data[0]
               },
               'id',
@@ -1769,7 +1776,7 @@ class ProcessoDetalhes extends ViewComponent {
         AppTemplate.hideLoading();
 
         if (response.status === 200) {
-          
+
           let baseURL = $still.HTTPClient.getBaseURL()
           let pathDownload = `${baseURL}/api/v1/preview_anexo`
 
@@ -1956,87 +1963,87 @@ class ProcessoDetalhes extends ViewComponent {
 
 
     this.userLogged = JSON.parse(localStorage.getItem("_user"));
-    
+
     const data = this.honorarioProxy.getDestData();
 
     console.log("data de destino da table ", data)
 
-    if(data.length) {
+    if (data.length) {
 
-  
 
-    const totalFactura = data
-      .map(
-        r => parseFloat(cleanMoedaValue(r.total))
-      )
-      .reduce((accum, val) => accum + val);
 
-    const totalHoras = data
-      .map(
-        r => parseFloat(cleanHorasValue(r.qtd))
-      )
-      .reduce((accum, val) => accum + val);
+      const totalFactura = data
+        .map(
+          r => parseFloat(cleanMoedaValue(r.total))
+        )
+        .reduce((accum, val) => accum + val);
 
-    let payload = {
-      'processo_id': this.id.value,
-      'cliente_id': this.clienteId.value,
-      'colaborador_id': this.userLogged.value.id,
-      'horas': totalHoras,
-      'custo': totalFactura,
-      'status': 'pendente',
-      'items': data.map((item) => ({
-        "processos_timesheet_id": item.id,
-        "horas": parseFloat(cleanHorasValue(item.qtd)),
-        "custo": parseFloat(cleanMoedaValue(item.custo)),
-        "dados_adicionais": JSON.stringify(item)
-      }))
-    }
+      const totalHoras = data
+        .map(
+          r => parseFloat(cleanHorasValue(r.qtd))
+        )
+        .reduce((accum, val) => accum + val);
 
-    AppTemplate.showLoading();
-
-    $still.HTTPClient.post(
-      "/api/v1/processo_factura",
-      JSON.stringify(payload),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      let payload = {
+        'processo_id': this.id.value,
+        'cliente_id': this.clienteId.value,
+        'colaborador_id': this.userLogged.value.id,
+        'horas': totalHoras,
+        'custo': totalFactura,
+        'status': 'pendente',
+        'items': data.map((item) => ({
+          "processos_timesheet_id": item.id,
+          "horas": parseFloat(cleanHorasValue(item.qtd)),
+          "custo": parseFloat(cleanMoedaValue(item.custo)),
+          "dados_adicionais": JSON.stringify(item)
+        }))
       }
-    )
-      .then((response) => {
-        AppTemplate.hideLoading();
-        if (response.status !== 201) {
-          if (response.message) {
-            AppTemplate.toast({ status: 'error', message: response.message })
-          } else {
-            AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
-          }
-        } else {
 
-          AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+      AppTemplate.showLoading();
 
-          this.honorarioProxy.clearDestData()
-          console.log("clear data ....")
-
-          let dataResponse = response.data
-          this.showFactura = true;
-
-          const invoiceNum = Math.random().toString().split('.')[1];
-          this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
-          this.facturaProxy.setNomeDocliente(this.cliente.value);
-          this.facturaProxy.setTotalFactura(totalFactura);
-          this.facturaProxy.itensFactura = data;
-
-        
+      $still.HTTPClient.post(
+        "/api/v1/processo_factura",
+        JSON.stringify(payload),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      })
-      .catch((err) => {
-        AppTemplate.hideLoading();
-        AppTemplate.toast({ status: 'error', message: err.message })
-      });
+      )
+        .then((response) => {
+          AppTemplate.hideLoading();
+          if (response.status !== 201) {
+            if (response.message) {
+              AppTemplate.toast({ status: 'error', message: response.message })
+            } else {
+              AppTemplate.toast({ status: 'error', message: JSON.stringify(response.errors) })
+            }
+          } else {
 
-    }else{
-        AppTemplate.toast({ status: 'Erro', message: 'Arraste item a pagar â Direita!' })
+            AppTemplate.toast({ status: 'success', message: 'Honorário registado com sucesso!' })
+
+            this.honorarioProxy.clearDestData()
+            console.log("clear data ....")
+
+            let dataResponse = response.data
+            this.showFactura = true;
+
+            const invoiceNum = Math.random().toString().split('.')[1];
+            this.facturaProxy.setNumeroFactura(invoiceNum.substring(0, 5).concat(dataResponse.id));
+            this.facturaProxy.setNomeDocliente(this.cliente.value);
+            this.facturaProxy.setTotalFactura(totalFactura);
+            this.facturaProxy.itensFactura = data;
+
+
+          }
+        })
+        .catch((err) => {
+          AppTemplate.hideLoading();
+          AppTemplate.toast({ status: 'error', message: err.message })
+        });
+
+    } else {
+      AppTemplate.toast({ status: 'Erro', message: 'Arraste item a pagar â Direita!' })
     }
 
 
@@ -2200,7 +2207,7 @@ class ProcessoDetalhes extends ViewComponent {
 
 
   /** CLEAR FORMS */
-  clearFormTarefa(){
+  clearFormTarefa() {
     document.getElementById('valueRealizacaoTarefa').value = ''
     document.getElementById('input_form_tarefa').value = ''
     document.getElementById('input_form_tarefa').removeAttribute("data-id")
@@ -2210,51 +2217,6 @@ class ProcessoDetalhes extends ViewComponent {
 
 }
 
-
-
-/**
- * Move this to Utility class of function
- */
-
-function convertToAkzCurrency(value) {
-  const formatter = new Intl.NumberFormat('ao-AO',
-    {
-      style: 'currency', currency: 'AKZ',
-      maximumFractionDigits: 2, minimumFractionDigits: 2
-    }
-  );
-
-  return formatter.format(value);
-}
-
-/**
- * @param { Date } date
- */
-function convertDateToEuStr(date) {
-  return date.toLocaleString();
-}
-
-function cleanCurrencyValue(val) {
-  return val
-    .replace('AKZ', '')
-    .replace('.', '')
-    .replace(',', '.')
-    .trim()
-}
-
-function cleanMoedaValue(val) {
-    return val
-      .replace("AKZ","")
-      .replace(",",".")
-      .replace(/\s/g,"")
-      .trim()
-}
-
-function cleanHorasValue(val) {
-  return val
-    .replace('Hrs', '')
-    .trim()
-}
 
 /**
  * 

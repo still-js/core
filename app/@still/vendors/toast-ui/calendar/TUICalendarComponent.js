@@ -1,4 +1,6 @@
-class TUICalendarComponent extends ViewComponent {
+import { ViewComponent } from "../../../component/super/ViewComponent.js";
+
+export class TUICalendarComponent extends ViewComponent {
 
 
     /** @Prop */

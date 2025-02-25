@@ -2,7 +2,7 @@ import { Components } from "./@still/setup/components.js";
 import { AppTemplate } from "./app-template.js";
 import { Login } from "./components/auth/Login.js";
 
-export class ComponentSetup extends Components {
+export class StillAppSetup extends Components {
 
     entryComponentPath = routesMap.viewRoutes.regular.Home;
     entryComponentName = 'Home';

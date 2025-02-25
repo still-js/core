@@ -1,3 +1,4 @@
+
 /**
  * Don't change the constante name as it'll impact on the component routing
  */
@@ -34,9 +35,10 @@ export const routesMap = {
             Despesas: 'components/despesas',
             DespesasForm: 'components/despesas',
             POC: 'components/uipoc',
-            CreateButton: 'generics/button',
+            CreateButton: 'components/generics/button',
             TopNavBar: 'components/navbar',
             Menu: 'components/main-menu',
+            ProcessoTimeSheet: 'components/processos'
         }
     },
 }

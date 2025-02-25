@@ -97,7 +97,7 @@ export class ProcessosGrid extends ViewComponent {
               <div class="body">
                 <div  (showIf)="self.isNotEmptyData">
                   <div class="table-responsive">
-                      <st-element component="TabulatorComponent" 
+                      <st-element component="@tabulator/TabulatorComponent" 
                           proxy="dataTableListProcessos"
                           tableHeader="parent.dataTableLabels" 
                           tableHeight="auto"

@@ -1,3 +1,4 @@
+import { $stillGetRouteMap } from "../../../route.map.js";
 import { ComponentType } from "../type/ComponentType.js";
 
 addEventListener('message', (event) => {
@@ -8,13 +9,20 @@ addEventListener('message', (event) => {
 
     components.forEach(cmp => {
 
-        const cmpPath = cmp.component.slice(1);
-        let cmpFolder = cmpPath.split('/');
-        const cls = cmpFolder.at(-1);
-        cmpFolder.pop()
-        cmpFolder = cmpFolder.join('/');
+        let cmpPath, cmpFolder, prePath = vendorPath;
+        if (String(cmp.component).startsWith('@')) {
+            cmpPath = cmp.component.slice(1);
+            cmpFolder = cmpPath.split('/');
+            const cls = cmpFolder.at(-1);
+            cmpFolder.pop()
+            cmpFolder = cmpFolder.join('/');
+        } else {
+            cmpPath = `${$stillGetRouteMap().route[cmp.component]}/${cmp.component}`;
+            prePath = vendorPath.replace('/@still/vendors', '')
+        }
 
-        fetch(`${vendorPath}/${cmpPath}.js`)
+
+        fetch(`${prePath}/${cmpPath}.js`)
             .then(() => {
 
                 if (cmp.assets?.length) {

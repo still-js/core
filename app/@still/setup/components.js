@@ -1,4 +1,5 @@
 import { StillAppSetup } from "../../app-setup.js";
+import { stillRoutesMap } from "../../route.map.js";
 import { ComponentNotFoundException, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
@@ -1121,8 +1122,8 @@ export class Components {
 
         setTimeout(() => {
 
-            const routes = routesMap.viewRoutes.lazyInitial;
-            const cmps = Object.keys(routesMap.viewRoutes.lazyInitial);
+            const routes = stillRoutesMap.viewRoutes.lazyInitial;
+            const cmps = Object.keys(stillRoutesMap.viewRoutes.lazyInitial);
 
             for (const cmp of cmps) {
 
@@ -1180,7 +1181,7 @@ export class Components {
 
     setHomeComponent(cmp) {
         this.entryComponentName = cmp.name;
-        this.entryComponentPath = routesMap.viewRoutes.regular[cmp.name];
+        this.entryComponentPath = stillRoutesMap.viewRoutes.regular[cmp.name];
     }
 
     setServicePath(path) {

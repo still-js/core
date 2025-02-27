@@ -1,4 +1,5 @@
 import { StillAppSetup } from "../../../app-setup.js";
+import { stillRoutesMap } from "../../../route.map.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
@@ -86,8 +87,8 @@ export class BaseComponent extends BehaviorComponent {
     wasAnnotParsed = false;
     baseUrl = window.location.href;
     routesMap = {
-        ...routesMap.viewRoutes.lazyInitial,
-        ...routesMap.viewRoutes.regular
+        ...stillRoutesMap.viewRoutes.lazyInitial,
+        ...stillRoutesMap.viewRoutes.regular
     };
 
 

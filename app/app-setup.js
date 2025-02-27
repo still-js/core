@@ -3,6 +3,7 @@ import { Components } from "./@still/setup/components.js";
 import { AppTemplate } from "./app-template.js";
 import { Login } from "./components/auth/Login.js";
 import { Home } from "./components/home/Home.js";
+import { ProcessoForm } from "./components/processos/ProcessoForm.js";
 
 export class StillAppSetup extends StillAppMixin(Components) {
 
@@ -45,6 +46,9 @@ export class StillAppSetup extends StillAppMixin(Components) {
                     '../timepicker/time-picker.js',
                     '../datepicker/date-picker.js',
                 ]
+            })
+            .addPrefetch({
+                component: ProcessoForm.name
             });
 
         return this;

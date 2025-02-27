@@ -1,4 +1,4 @@
-import { routesMap } from "../../../route.map.js";
+import { stillRoutesMap } from "../../../route.map.js";
 
 export class ComponentNotFoundException extends Error {
     name = 'ComponentNotFoundException';
@@ -78,7 +78,7 @@ export class ComponentRegistror {
 export const $still = {
     context: {
         componentRegistror: ComponentRegistror.get(),
-        componentMap: routesMap.viewRoutes,
+        componentMap: stillRoutesMap.viewRoutes,
         currentView: null,
     },
     component: {

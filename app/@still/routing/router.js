@@ -1,13 +1,13 @@
 import { StillAppSetup } from "../../app-setup.js";
-import { $stillGetRouteMap, routesMap } from "../../route.map.js";
+import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
 import { $stillconst } from "../setup/constants.js";
 
 export class Router {
 
     static routeMap = {
-        ...routesMap.viewRoutes.lazyInitial,
-        ...routesMap.viewRoutes.regular
+        ...stillRoutesMap.viewRoutes.lazyInitial,
+        ...stillRoutesMap.viewRoutes.regular
     };
 
     static baseUrl = window.location.href.replace('#', '');

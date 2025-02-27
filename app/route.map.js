@@ -2,7 +2,7 @@
 /**
  * Don't change the constante name as it'll impact on the component routing
  */
-export const routesMap = {
+export const stillRoutesMap = {
 
     viewRoutes: {
         regular: {
@@ -52,7 +52,7 @@ export function $stillGetRouteMap() {
     /* if (!routeMapInverse.length) {
 
         routeMapInverse = Object
-            .entries(routesMap.viewRoutes)
+            .entries(stillRoutesMap.viewRoutes)
             .reduce((accum, [cmp, path]) => {
                 accum[path] = cmp;
                 return accum;
@@ -61,11 +61,9 @@ export function $stillGetRouteMap() {
 
     return {
         route: {
-            ...routesMap.viewRoutes.regular,
-            ...routesMap.viewRoutes.lazyInitial
+            ...stillRoutesMap.viewRoutes.regular,
+            ...stillRoutesMap.viewRoutes.lazyInitial
         },
         //inverse: routeMapInverse
     }
 }
-
-window.routesMap = routesMap;

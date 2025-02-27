@@ -7,7 +7,7 @@
 
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service.js')
+            navigator.serviceWorker.register('./service.js', { type: 'module' })
                 .then(() => console.log('Service Worker Registered'))
                 .catch(err => console.log('SW Registration Failed:', err));
         }
@@ -43,8 +43,7 @@
 
 <body class="light">
 
-    <div id="stillUiPlaceholder">
-    </div>
+    <div id="stillUiPlaceholder"></div>
     <!-- Plugins Js -->
     <script defer src="assets/js/app.min.js"></script>
     <script defer src="assets/js/chart.min.js"></script>
@@ -65,24 +64,6 @@
     <link rel="stylesheet" href="assets/css/julaw-main.css">
     <link rel="stylesheet" href="@still/ui/css/still.css">
     <link href="assets/css/side-menu.css" rel="stylesheet" />
-
-
-    <!-- Tabulator Component -->
-    <!-- Bello CSS needs to move to Component class -->
-    <link href="@still/vendors/tabulator/tabulator.min.css" rel="stylesheet" />
-    <!-- Bellow JS needs to move to Component class -->
-    <script src="@still/vendors/tabulator/tabulator6.2.25.js"></script> <!-- End Tabulator Component -->
-
-
-    <!-- TUICalendar Component -->
-    <link href="@still/vendors/toast-ui/timepicker/time-picker.min.css" rel="stylesheet" />
-    <link href="@still/vendors/toast-ui/datepicker/date-picker.min.css" rel="stylesheet" />
-    <link href="@still/vendors/toast-ui/calendar/toastui-calendar.min.css" rel="stylesheet" />
-    <!-- Bellow JS needs to move to Component class -->
-    <script src="@still/vendors/toast-ui/timepicker/time-picker.js"></script>
-    <script src="@still/vendors/toast-ui/datepicker/date-picker.js"></script>
-    <script src="@still/vendors/toast-ui/calendar/toastui-calendar.min.js"></script>
-    <!-- End TUICalendar Component -->
 
     <!-- <script src="components/Modal/ModalDetalhesFactura.js"></script>
     <script src="components/Modal/ModalListPagamentos.js"></script>

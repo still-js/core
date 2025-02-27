@@ -10,25 +10,29 @@ self.addEventListener('activate', (event) => {
 
 
 self.addEventListener('fetch', event => {
-    //console.log('Intercepted request:', event.request.url);
-    //console.log(window.location);
-    let filePath = event.request.url.toString().split('/'), file;
-    //console.log(`REGISTERED EVENT:`, event);
-    //console.log(`REGISTERED EVENT1:`, event.request);
-    //console.log(`REGISTERED EVENT2:`, event.request.url);
-    //console.log(`REGISTERED EVENT3:`, event.request.headers);
-    if (filePath.length > 0) {
-        if (file = filePath[filePath.length - 1].slice(-3)) {
 
-        }
-    }
-    if (event.request.url.includes('example.txt')) {
-        /* event.respondWith(new Response('Intercepted file content', { 
-          headers: { 'Content-Type': 'text/plain' } 
-        })); */
-        return;
+    const valid_sources = ['app-setup.js', 'import_worker.js'];
+    const source = event.request.referrer;
+    const appSetup = source.includes(valid_sources[0]),
+        prefetch = source.includes(valid_sources[1]);
+
+    if (event.request.referrer.includes('import_worker.js')) {
+
+        event.respondWith(
+            caches.open(`V1`)
+                .then(async cache => {
+
+                    let response = await cache.match(event.request);
+                    if (response) console.log(`Picking `, event.request.url, ` from cache`);
+                    if (!response) {
+                        response = await fetch(event.request);
+                        cache.put(event.request, response.clone());
+                    }
+
+                    return response;
+
+                })
+        );
     }
 
-    // Default: continue request as normal
-    event.respondWith(fetch(event.request));
 });

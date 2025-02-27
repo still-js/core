@@ -15,4 +15,4 @@ export class UUIDUtil {
 
 }
 
-window.UUIDUtil = UUIDUtil;
+//window.UUIDUtil = UUIDUtil;

@@ -108,7 +108,9 @@ export class BaseComponent extends BehaviorComponent {
 
     reRender() { }
 
-    importScripts() { }
+    static importScripts() { }
+
+    static importAssets() { }
 
     props(props = {}) {
         this.cmpProps = props;
@@ -130,6 +132,8 @@ export class BaseComponent extends BehaviorComponent {
     getInstanceName() {
         return this.constructor.name.replace('C', '');
     }
+
+
 
     getProperties() {
 
@@ -691,11 +695,36 @@ export class BaseComponent extends BehaviorComponent {
         $still.context.componentRegistror.export(settings);
     }
 
-    static importScript(scriptPath) {
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = scriptPath;
-        document.head.appendChild(script);
+    static importScript(scriptPath, module = false, cls = null) {
+
+        const ext = scriptPath.slice(-3);
+        const type = {
+            '.js': document.createElement('script'),
+            'css': document.createElement('link'),
+        }
+
+        const script = type[ext];
+
+        if (ext == '.js') {
+            script.async = true;
+            script.src = scriptPath;
+            if (module) script.type = 'module';
+        }
+
+        if (ext == 'css') {
+            script.href = scriptPath;
+            script.rel = 'stylesheet';
+        }
+
+        try {
+
+            document.head.appendChild(script);
+            if (module)
+                script.onload(() => window[cls] = cls);
+
+        } catch (error) { }
+
+
     }
 
     updateState(object = {}) {

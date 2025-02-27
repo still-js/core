@@ -1,4 +1,5 @@
 import { ViewComponent } from "../../component/super/ViewComponent.js";
+import './tabulator6.2.25.js';
 
 export class TabulatorComponent extends ViewComponent {
 
@@ -183,5 +184,14 @@ export class TabulatorComponent extends ViewComponent {
      * @returns { boolean } 
      * */
     onCellClick(col, row, data) { }
+
+    static importAssets() {
+
+        return {
+            scripts: ["tabulator6.2.25.js"],
+            styles: ["tabulator.min.css"],
+        };
+
+    }
 
 }

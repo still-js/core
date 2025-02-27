@@ -131,6 +131,7 @@ export class Components {
     static stAppInitStatus = true;
     static routesMap = Router.routeMap;
     static baseUrl = Router.baseUrl;
+    static vendorPath = `${Router.baseUrl}@still/vendors`;
 
     /**
      * @returns { StillAppSetup }
@@ -775,16 +776,29 @@ export class Components {
 
             const { proxy, component, props, annotations } = cmpParts[idx];
 
-            let importFile, realClsName = component, isVendorCmp = component.at(0) == '@';
+            let importFile, realClsName = component,
+                isVendorCmp = component.at(0) == '@', cmpPath;
             if (isVendorCmp) {
-                realClsName = component.split('/').at(-1);
+                const clsPath = component.split('/');
+                realClsName = clsPath.at(-1);
+                clsPath.pop();
+                cmpPath = `${Components.baseUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
                 importFile = import(`${Components.baseUrl}@still/vendors/${component.slice(1)}.js`);
             } else {
                 const cmpRoute = Components.routesMap[component];
-                importFile = import(`${Components.baseUrl}${cmpRoute}/${component}.js`)
+                cmpPath = `${Components.baseUrl}${cmpRoute}`;
+                importFile = import(`${cmpPath}/${component}.js`)
             }
 
-            importFile.then(cmpCls => {
+            importFile.then(async cmpCls => {
+
+                /** TODO: Dynamic import of assets of a vendor component  */
+                /* if (isVendorCmp) {
+                    const imports = await cmpCls[realClsName]?.importAssets();
+                    imports?.scripts?.forEach(r => {
+                        BaseComponent.importScript(`${cmpPath}/${r}`);
+                    });
+                } */
 
                 const instance = eval(`new ${cmpCls[realClsName]}()`);
                 //StillAppSetup.register(cmpCls[realClsName]);
@@ -856,7 +870,7 @@ export class Components {
                      * for the component to be displayed accordingly in the User interface
                      */
                     await cmp.load();
-                    setTimeout(async () => await cmp.stAfterInit(), 100);
+                    setTimeout(async () => await cmp.stAfterInit(), 120);
                     if ((idx + 1) == cmpParts.length && cmpInternalId != 'fixed-part')
                         setTimeout(() => Components.emitAction('runImport'), 120);
 
@@ -867,9 +881,13 @@ export class Components {
 
         if (cmpInternalId != 'fixed-part') {
             Components.subscribeAction('runImport', () => {
-                const imports = parentCmp.importScripts();
-                if ((imports?.scripts || []).length)
-                    imports.scripts.forEach(BaseComponent.importScript);
+                if ('importAssets' in parentCmp) {
+                    const imports = parentCmp?.importAssets(), assets = [];
+                    if (imports?.scripts) assets.push(...imports?.scripts)
+                    if (imports?.styles) assets.push(...imports?.styles)
+                    if ((assets || []).length)
+                        assets.forEach(BaseComponent.importScript);
+                }
             })
         }
 
@@ -1157,6 +1175,40 @@ export class Components {
 
         else if (typeof cmp == 'function')
             window[cmp.name] = cmp;
+
+    }
+
+    setHomeComponent(cmp) {
+        this.entryComponentName = cmp.name;
+        this.entryComponentPath = routesMap.viewRoutes.regular[cmp.name];
+    }
+
+    setServicePath(path) {
+        this.servicePath = path;
+    }
+
+
+    static importedMap = new Set();
+    setupImportWorker() {
+        const worker = new Worker(
+            `${Router.baseUrl}@still/component/manager/import_worker.js`,
+            { type: 'module' }
+        );
+
+        worker.postMessage({
+            components: this['getPrefetchList'](),
+            vendorPath: Components.vendorPath
+        });
+
+        worker.onmessage = function (r) {
+
+            const { path, module, cls } = r.data;
+            if (!Components.importedMap.has(path)) {
+                Components.importedMap.add(path);
+                BaseComponent.importScript(path, module, cls);
+            }
+
+        }
 
     }
 

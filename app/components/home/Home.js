@@ -32,38 +32,15 @@ export class Home extends BaseComponent {
 
   constructor() {
     super();
-    /*
-    if(AppTemplate.get().getStorageValue('logged')){
-        console.log(`Used was logged: `, AppTemplate.get().getStorageValue('logged'));
-    }else{
-        Router.goto('init');
-    }
-    */
     //AppTemplate.showLoading();
-    /* this.setup({
-      includs: [
-        //LineChart,
-        //Calendar,
-        CardDisplay,
-        //BarChart,
-        //CircularAnimatedChart,
-        //ProjectGrid,
-      ],
-      scripts: [
-        "assets/js/chart.min.js",
-        "assets/js/bundles/amcharts4/core.js",
-        "assets/js/bundles/amcharts4/charts.js",
-        "assets/js/bundles/amcharts4/animated.js",
-        "assets/js/pages/index.js",
-      ],
-    }); */
-
-    /* CardDisplay.cardDataSource.onChange((value) => {
-            console.log(`Home component detected changes: `,value);
-        }); */
+    /* 
+      CardDisplay.cardDataSource.onChange((value) => {
+              console.log(`Home component detected changes: `,value);
+      }); 
+    */
   }
 
-  importScripts() {
+  importAssets() {
 
     return {
       scripts: [
@@ -75,11 +52,10 @@ export class Home extends BaseComponent {
       ],
     };
 
-  } Listar
+  }
+
 
   async stAfterInit() {
-
     AppTemplate.hideLoading();
-
   }
 }

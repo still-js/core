@@ -11,9 +11,9 @@ export const $stillconst = {
     STILL_PREFIX: '$still',
     SUBSCRIBE_LOADED: 'still-subscription-dynamic-loaded',
 
-    TAGS: {
+    /* TAGS: {
         TBODY: () => document.createElement('tbody')
-    },
+    }, */
     STILL_COMPONENT: `<still-component/>`,
     APP_PLACEHOLDER: 'stillAppPlaceholder',
     PART_HIDE_CSS: 'still-hide-view-part',
@@ -38,5 +38,6 @@ export const $stillconst = {
                         <b>Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
                            <br>in case you need to access it without making log-in please make isPublic flag true
                      </h3>`,
-    }
+    },
+    importedCmpMap: {}
 }

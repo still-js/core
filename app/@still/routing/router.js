@@ -1,5 +1,6 @@
 import { StillAppSetup } from "../../app-setup.js";
 import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
+import { ViewComponent } from "../component/super/ViewComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
 import { $stillconst } from "../setup/constants.js";
 
@@ -263,7 +264,6 @@ export class Router {
                 if (!Components.checkStInit(cmp.constructor.name))
                     setTimeout(async () => await cmp.stAfterInit(), 200);
 
-                console.log(`FOUTING FLAG: `, Router.initRouting);
                 /**
                  * Load component parts or sub-components inside the main loaded component
                  * if(!Components.stAppInitStatus) is to prevent compoenent parts Parsing
@@ -275,9 +275,14 @@ export class Router {
                     (!Components.stAppInitStatus
                         || AppTemplate.get().storageGet('stAppInitStatus'))
                     && !Router.initRouting
-                )
+                ) {
                     Components.handleInPlaceParts(cmp);
-                else {
+                } else if (
+                    (Components.stAppInitStatus)
+                    && StillAppSetup.get().entryComponentName != cmp?.getName()
+                ) {
+                    Components.handleInPlaceParts(cmp);
+                } else {
                     Components.stAppInitStatus = false;
                 }
                 //clearTimeout(loadTImer);

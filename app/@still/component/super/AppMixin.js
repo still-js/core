@@ -66,4 +66,7 @@ export const StillAppMixin = (Component) =>
 
         configurePrefetch() { }
 
+        /** @returns { ViewComponent } */
+        static getComponentFromRef = (name) => super.getComponentFromRef(name);
+
     }

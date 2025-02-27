@@ -11,7 +11,10 @@ export class Home extends BaseComponent {
 
                 <div class="row">
                   <st-element component="BarChart"></st-element>
-                  <st-element component="LineChart"></st-element>
+                  <st-element 
+                    component="LineChart"
+                    ref="HomeLineChart"
+                  ></st-element>
                 </div>
 
                 <div class="row clearfix">

@@ -73,6 +73,12 @@ export class ComponentRegistror {
     static register(name, instance) {
         $still.context.componentRegistror.componentList[name] = { instance }
     }
+
+    static getFromRef(name) {
+        const source = $still.context.componentRegistror.componentList;
+        if (name in source) return source[name].instance;
+        else return null
+    }
 }
 
 export const $still = {

@@ -241,7 +241,6 @@ export class Components {
 
                 this.renderOnViewFor('stillUiPlaceholder');
                 setTimeout(() => Components.handleInPlacePartsInit($still.context.currentView, 'fixed-part'));
-                //setTimeout(() => Components.handleInPlaceParts($still.context.currentView, isHome));
                 setTimeout(async () => {
                     await $still.context.currentView.stAfterInit();
                     AppTemplate.injectToastContent();
@@ -775,7 +774,7 @@ export class Components {
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
                 continue;
 
-            const { proxy, component, props, annotations } = cmpParts[idx];
+            const { proxy, component, props, annotations, ref } = cmpParts[idx];
 
             let importFile, realClsName = component,
                 isVendorCmp = component.at(0) == '@', cmpPath;
@@ -829,6 +828,9 @@ export class Components {
 
                     const allProps = Object.entries(props);
                     for (const [prop, value] of allProps) {
+
+                        if (prop == 'ref')
+                            ComponentRegistror.register(value, cmp);
 
                         //Proxy gets ignored becuase it was assigned above and it should be the child class
                         if (prop != 'proxy' && prop != 'component') {
@@ -1211,6 +1213,11 @@ export class Components {
 
         }
 
+    }
+
+    /** @returns { ViewComponent } */
+    static getComponentFromRef(name) {
+        return ComponentRegistror.getFromRef(name);
     }
 
 }

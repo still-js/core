@@ -60,6 +60,15 @@ export class LineChart extends ViewComponent {
         </div>    
     `;
 
+    constructor() {
+        super();
+        this.stLazyExecution(() => {
+            this.anyField.onChange((value) => {
+                console.log(`This is a new value for me: `, value);
+            });
+        });
+    }
+
     anyField = '';
     lineChartEvt() {
         //alert('*** Method from LIne chart');
@@ -76,6 +85,3 @@ export class LineChart extends ViewComponent {
     }
 
 }
-
-///** @type {CLineChart} */
-//const LineChart = $still.component.expose(new CLineChart());

@@ -1192,23 +1192,30 @@ export class Components {
 
 
     static importedMap = new Set();
+    static setupImportWorkerState = false;
     setupImportWorker() {
-        const worker = new Worker(
-            `${Router.baseUrl}@still/component/manager/import_worker.js`,
-            { type: 'module' }
-        );
 
-        worker.postMessage({
-            components: this['getPrefetchList'](),
-            vendorPath: Components.vendorPath
-        });
+        if (!Components.setupImportWorkerState) {
 
-        worker.onmessage = function (r) {
+            Components.setupImportWorkerState = true;
+            const worker = new Worker(
+                `${Router.baseUrl}@still/component/manager/import_worker.js`,
+                { type: 'module' }
+            );
 
-            const { path, module, cls } = r.data;
-            if (!Components.importedMap.has(path)) {
-                Components.importedMap.add(path);
-                BaseComponent.importScript(path, module, cls);
+            worker.postMessage({
+                components: this['getPrefetchList'](),
+                vendorPath: Components.vendorPath
+            });
+
+            worker.onmessage = function (r) {
+
+                const { path, module, cls } = r.data;
+                if (!Components.importedMap.has(path)) {
+                    Components.importedMap.add(path);
+                    BaseComponent.importScript(path, module, cls);
+                }
+
             }
 
         }

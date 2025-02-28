@@ -1227,4 +1227,14 @@ export class Components {
         return ComponentRegistror.getFromRef(name);
     }
 
+    static loadInterceptWorker() {
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register(`${Router.baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+                .then(() => console.log('Service Worker Registered'))
+                .catch(err => console.log('SW Registration Failed:', err));
+        }
+
+    }
+
 }

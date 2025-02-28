@@ -1,4 +1,5 @@
 import { StillAppSetup } from "../../app-setup.js";
+import { AppTemplate } from "../../app-template.js";
 import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
 import { ViewComponent } from "../component/super/ViewComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";

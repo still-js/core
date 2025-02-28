@@ -1,6 +1,0 @@
-.env
-node_modules
-dist/*
-
-eslint.html
-NOTES_STILL_JS.md

@@ -2,17 +2,6 @@
 <html lang="en">
 
 <head>
-
-    <script>
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service.js', { type: 'module' })
-                .then(() => console.log('Service Worker Registered'))
-                .catch(err => console.log('SW Registration Failed:', err));
-        }
-
-    </script>
-
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta content="width=device-width, initial-scale=1" name="viewport" />

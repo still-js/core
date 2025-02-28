@@ -15,10 +15,6 @@ export class AppTemplate extends Template {
      * e.g. <st-fixed component="AppHeader">
      */
     template = `
-        <st-fixed component="TopNavBar" />
-        <div>
-            <st-fixed component="Menu" />
-        </div>
         <still-component/>
     `;
 

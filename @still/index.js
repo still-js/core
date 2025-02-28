@@ -7,6 +7,8 @@ import { Components } from "./setup/components.js";
 import { UUIDUtil } from "./util/UUIDUtil.js";
 
 
+StillAppSetup.loadInterceptWorker();
+
 StillAppSetup.register(stillRoutesMap);
 StillAppSetup.register(UUIDUtil);
 StillAppSetup.register(Components);

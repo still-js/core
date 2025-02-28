@@ -1,16 +1,13 @@
 {
-  "name": "julaw_ui",
+  "name": "stilljs",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "npx live-server ./app --port 8181",
-    "build": "vite build"
+    "dev": "npx live-server ./ --port 8181",
+    "start": "npx live-server ./ --port 8181"
   },
   "devDependencies": {
-    "vite": "^5.4.2"
-  },
-  "dependencies": {
     "http-server": "^14.1.1"
   }
 }

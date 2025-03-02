@@ -310,12 +310,12 @@ export class Router {
 
     static handleViewType(cmp) {
 
-        if ('prototype' in cmp) {
-            if (
-                (cmp.prototype instanceof ViewComponent)
-                || (cmp.prototype instanceof BaseComponent)
-            ) cmp = cmp.name;
-        }
+
+        if (
+            (cmp.prototype instanceof ViewComponent)
+            || (cmp.prototype instanceof BaseComponent)
+        ) cmp = cmp.name;
+
         return cmp;
 
     }

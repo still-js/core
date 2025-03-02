@@ -1,6 +1,7 @@
 import { StillAppSetup } from "../../app-setup.js";
 import { AppTemplate } from "../../app-template.js";
 import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
+import { BaseComponent } from "../component/super/BaseComponent.js";
 import { ViewComponent } from "../component/super/ViewComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
 import { $stillconst } from "../setup/constants.js";
@@ -49,6 +50,9 @@ export class Router {
      * @param {{data, path}} param1 
      */
     static goto(cmp, { data = {} } = { data: {} }) {
+
+        cmp = Router.handleViewType(cmp);
+
         Router.initRouting = false;
         Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
         /**
@@ -302,6 +306,18 @@ export class Router {
 
     static cmpTemplateNotDefinedCheck(cmpName) {
         document.write($stillconst.NO_TEMPLATE.replace('{{}}', cmpName));
+    }
+
+    static handleViewType(cmp) {
+
+        if ('prototype' in cmp) {
+            if (
+                (cmp.prototype instanceof ViewComponent)
+                || (cmp.prototype instanceof BaseComponent)
+            ) cmp = cmp.name;
+        }
+        return cmp;
+
     }
 
 }

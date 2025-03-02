@@ -1,7 +1,7 @@
 {
   "name": "stilljs",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.01",
   "type": "module",
   "scripts": {
     "dev": "npx live-server ./ --port 8181",

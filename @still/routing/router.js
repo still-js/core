@@ -108,6 +108,9 @@ export class Router {
                 const appTemplate = AppTemplate.get().template;
                 $still.context.currentView = eval(`new ${cmp}()`);
 
+                if ($still.context.currentView.template == undefined)
+                    return Router.cmpTemplateNotDefinedCheck(cmp);
+
                 let template = (new Components()).getCurrentCmpTemplate($still.context.currentView);
                 template = appTemplate.replace(
                     $stillconst.STILL_COMPONENT, `<div id="${Router.appPlaceholder}">${template}</div>`
@@ -123,15 +126,18 @@ export class Router {
                     if (!imported) {
                         if (cmp == 'init') return;
 
-                        /**
-                         * the bellow line clears previous component from memory
-                         * @type { ViewComponent }
-                         */
                         const cmpRoute = Router.routeMap[cmp];
                         const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
                         AppTemplate.get().storageSet('stAppInitStatus', true);
+
+                        /** the bellow line clears previous component from memory
+                         * @type { ViewComponent }
+                         */
                         const newInstance = eval(`new ${cmpCls[cmp]}()`);
-                        //StillAppSetup.register(cmpCls[cmp]);
+
+                        if (newInstance.template == undefined)
+                            return Router.cmpTemplateNotDefinedCheck(cmp);
+
 
                         if (newInstance.isPublic && !AppTemplate.get().isAuthN()) {
                             (new Components()).renderPublicComponent(newInstance);
@@ -293,5 +299,10 @@ export class Router {
         Components.removeOldParts();
 
     }
+
+    static cmpTemplateNotDefinedCheck(cmpName) {
+        document.write($stillconst.NO_TEMPLATE.replace('{{}}', cmpName));
+    }
+
 }
 window.Router = Router;

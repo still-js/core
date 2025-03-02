@@ -39,5 +39,14 @@ export const $stillconst = {
                            <br>in case you need to access it without making log-in please make isPublic flag true
                      </h3>`,
     },
+    NO_TEMPLATE: `<div style="
+                        margin: 0 auto; 
+                        color: red; 
+                        width:100%; 
+                        margin-top: 10%;
+                        font-size: 2em;
+                        text-align: center">
+                    There is no template defined for the specified component "<b style="text-decoration: underline;">{{}}</b>"
+                </div>`,
     importedCmpMap: {}
 }

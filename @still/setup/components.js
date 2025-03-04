@@ -463,6 +463,14 @@ export class Components {
         const subscribers = document.querySelectorAll(cssRef);
         const cssRefCombo = `.listenChangeOn-${cpName}-${field}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
+        const stateChange = `.state-change-${cpName}-${field}`;
+        const stateChangeSubsribers = document.querySelectorAll(stateChange);
+
+        if (stateChangeSubsribers) {
+            stateChangeSubsribers.forEach(subcriber => {
+                subcriber.innerHTML = cmp['$still_' + field];
+            });
+        }
 
         if (subscribers) {
             subscribers.forEach(/** @type {HTMLElement} */elm => {

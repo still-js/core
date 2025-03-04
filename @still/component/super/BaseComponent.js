@@ -86,6 +86,7 @@ export class BaseComponent extends BehaviorComponent {
     #annotations = new Map();
     wasAnnotParsed = false;
     baseUrl = window.location.href;
+    #stateChangeSubsribers = [];
     routesMap = {
         ...stillRoutesMap.viewRoutes.lazyInitial,
         ...stillRoutesMap.viewRoutes.regular
@@ -131,10 +132,12 @@ export class BaseComponent extends BehaviorComponent {
     }
 
     getInstanceName() {
-        return this.constructor.name.replace('C', '');
+        return this.constructor.name;
     }
 
-
+    getStateSubriber() {
+        return this.#stateChangeSubsribers;
+    }
 
     getProperties() {
 
@@ -149,7 +152,7 @@ export class BaseComponent extends BehaviorComponent {
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
             'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
-            'wasAnnotParsed'
+            'wasAnnotParsed', 'stateChangeSubsribers'
         ];
         return fields.filter(
             field => {
@@ -244,6 +247,7 @@ export class BaseComponent extends BehaviorComponent {
 
         const fields = this.getProperties();
         const currentClass = this;
+        const clsName = currentClass.constructor.name;
 
         if (this.template instanceof Array)
             this.template = this.template.join('');
@@ -290,7 +294,9 @@ export class BaseComponent extends BehaviorComponent {
 
                         const data = `${currentClass[field]?.value || currentClass[field]}`;
                         if (this.#annotations.has(field)) return data
-                        return `<state>${data}</state>`;
+
+                        //this.#stateChangeSubsribers.push(`subrcibe-${clsName}-${field}`);
+                        return `<state class="state-change-${clsName}-${field}">${data}</state>`;
 
                     } else {
                         return `@${field}`;
@@ -867,7 +873,7 @@ export class BaseComponent extends BehaviorComponent {
 
     }
 
-    stAfterAppInit(cb = () => { }) {
+    stWhenReady(cb = () => { }) {
         const timer = setTimeout(() => {
 
             try {

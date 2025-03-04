@@ -272,7 +272,33 @@ export class BaseComponent extends BehaviorComponent {
          * referenced place
          */
         fields.forEach(field => {
-            tamplateWithState = tamplateWithState.replace(`@${field}`, currentClass[field]?.value || currentClass[field]);
+
+            const fieldRE = new RegExp(`@${field}`);
+            const finalRE = /\^/.source + fieldRE.source + /\$/;
+
+            tamplateWithState = tamplateWithState.replaceAll(
+                `@${field}`,
+                (mt, pos) => {
+
+                    /** Extract next 40 chars to handle conflict */
+                    const nextChar = tamplateWithState.slice(pos, pos + field.length + 41);
+
+                    /** Check if the match isn't only coencidence 
+                     * (e.g. number and number1 are similir in the begining) 
+                     * */
+                    if (!nextChar.replace(`@${field}`, '')[0].match(/[A-Za-z0-9]/)) {
+
+                        const data = `${currentClass[field]?.value || currentClass[field]}`;
+                        if (this.#annotations.has(field)) return data
+                        return `<state>${data}</state>`;
+
+                    } else {
+                        return `@${field}`;
+                    }
+
+
+                }
+            );
             tamplateWithState = this.getBoundInputForm(tamplateWithState, formsRef);
         });
 

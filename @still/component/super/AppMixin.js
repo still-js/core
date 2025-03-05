@@ -56,6 +56,8 @@ export const StillAppMixin = (Component) =>
 
         static register = (piece) => cmp.register(piece);
 
+        register = (piece) => cmp.register(piece);
+
         setHomeComponent = (cmp) => super.setHomeComponent(cmp);
 
         setServicePath = (path) => super.setServicePath(path);
@@ -68,5 +70,9 @@ export const StillAppMixin = (Component) =>
 
         /** @returns { ViewComponent } */
         static getComponentFromRef = (name) => super.getComponentFromRef(name);
+
+        static setAuthN = (val) => AppTemplate.get().setAuthN(val);
+
+        setAuthN = (val) => AppTemplate.get().setAuthN(val);
 
     }

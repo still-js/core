@@ -268,15 +268,17 @@ export class Components {
     renderPublicComponent(cmp) {
 
         if (cmp.isPublic) {
-            window['Public_' + cmp.constructor.name] = cmp;
+            Components.registerPublicCmp(cmp);
             this.template = this.getNewParsedComponent(cmp).getTemplate();
             this.renderOnViewFor('stillUiPlaceholder');
         } else {
-            // here...
-            //document.write($stillconst.MSG.PRIVATE_CMP);
-            //cmp.hideLoading();
+            document.body.innerHTML = ($stillconst.MSG.PRIVATE_CMP);
         }
 
+    }
+
+    static registerPublicCmp(cmp) {
+        window['Public_' + cmp.constructor.name] = cmp;
     }
 
     getInitialPrivateTemplate(cmpName) {

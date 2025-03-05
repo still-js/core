@@ -146,9 +146,12 @@ export class Router {
                             return Router.cmpTemplateNotDefinedCheck(cmp);
 
 
-                        if (newInstance.isPublic && !AppTemplate.get().isAuthN()) {
-                            (new Components()).renderPublicComponent(newInstance);
-                            return;
+                        if (newInstance.isPublic) {
+                            Components.registerPublicCmp(newInstance);
+                            if (!AppTemplate.get().isAuthN()) {
+                                (new Components()).renderPublicComponent(newInstance);
+                                return;
+                            }
                         }
 
                         if (!document.getElementById($stillconst.APP_PLACEHOLDER)) {

@@ -105,21 +105,24 @@ export class Router {
 
             } else {
 
-                /**
-                 * TO DO: Repeating code from both Router class and Components Class, 
-                 * should be modularized from
-                 */
-                const appTemplate = AppTemplate.get().template;
-                $still.context.currentView = eval(`new ${cmp}()`);
+                (async () => {
 
-                if ($still.context.currentView.template == undefined)
-                    return Router.cmpTemplateNotDefinedCheck(cmp);
+                    const appTemplate = AppTemplate.get().template;
+                    const cmpRoute = Router.routeMap[cmp];
+                    const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
 
-                let template = (new Components()).getCurrentCmpTemplate($still.context.currentView);
-                template = appTemplate.replace(
-                    $stillconst.STILL_COMPONENT, `<div id="${Router.appPlaceholder}">${template}</div>`
-                );
-                document.getElementById('stillUiPlaceholder').innerHTML = template;
+                    $still.context.currentView = eval(`new ${cmpCls[cmp]}()`);
+
+                    if ($still.context.currentView.template == undefined)
+                        return Router.cmpTemplateNotDefinedCheck(cmp);
+
+                    let template = (new Components()).getCurrentCmpTemplate($still.context.currentView);
+                    template = appTemplate.replace(
+                        $stillconst.STILL_COMPONENT, `<div id="${Router.appPlaceholder}">${template}</div>`
+                    );
+                    document.getElementById('stillUiPlaceholder').innerHTML = template;
+
+                })();
 
             }
 

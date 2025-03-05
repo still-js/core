@@ -14,7 +14,7 @@ export class Template {
 
     /**
      * 
-     * @returns { AppTemplate }
+     * @returns { Template }
      */
     static get() {
         const clsName = 'AppTemplate';

@@ -310,7 +310,10 @@ export class Components {
         cmp.setUUID(cmp.getUUID());
         cmp = (new Components()).getParsedComponent(cmp);
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
-        return (cmp.getBoundTemplate())
+        const template = cmp.getBoundTemplate();
+        Components.registerPublicCmp(cmp);
+
+        return (template)
             .replace('class="', `class="${cmp.getUUID()} ${loadCmpClass} `);
     }
 

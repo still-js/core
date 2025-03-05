@@ -308,6 +308,7 @@ export class Components {
     getHomeCmpTemplate(cmp) {
 
         cmp.setUUID(cmp.getUUID());
+        cmp = (new Components()).getParsedComponent(cmp);
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
         return (cmp.getBoundTemplate())
             .replace('class="', `class="${cmp.getUUID()} ${loadCmpClass} `);
@@ -650,7 +651,7 @@ export class Components {
     /**  @param {ViewComponent} cmp */
     getParsedComponent(cmp) {
 
-        const componentName = cmp.getName().replace('C', '');
+        const componentName = cmp.getName();
         window[componentName] = cmp;
         const parsing = this
             .setComponentAndName(window[componentName], cmp.getName())

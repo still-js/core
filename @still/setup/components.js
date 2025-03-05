@@ -217,7 +217,7 @@ export class Components {
 
                 $still.context.currentView = eval(`new ${cmpCls[this.entryComponentName]}()`);
                 StillAppSetup.register(cmpCls[this.entryComponentName]);
-                this.template = this.getCurrentCmpTemplate($still.context.currentView, true);
+                this.template = this.getHomeCmpTemplate($still.context.currentView);
 
                 ComponentRegistror.register(
                     $still.context.currentView.cmpInternalId,
@@ -291,12 +291,24 @@ export class Components {
 
     }
 
+    /**
+     * 
+     * @param {ViewComponent} cmp  
+     */
     getCurrentCmpTemplate(cmp, regularId = false) {
         const init = cmp;
         init.setUUID(regularId ? cmp.getUUID() : this.getTopLevelCmpId());
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
         return (init.template)
             .replace('class="', `class="${init.getUUID()} ${loadCmpClass} `);
+    }
+
+    getHomeCmpTemplate(cmp) {
+
+        cmp.setUUID(cmp.getUUID());
+        const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
+        return (cmp.getBoundTemplate())
+            .replace('class="', `class="${cmp.getUUID()} ${loadCmpClass} `);
     }
 
     setComponentAndName(cmp, cmpName) {

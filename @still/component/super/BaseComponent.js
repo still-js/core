@@ -87,6 +87,7 @@ export class BaseComponent extends BehaviorComponent {
     wasAnnotParsed = false;
     baseUrl = window.location.href;
     #stateChangeSubsribers = [];
+    bindStatus;
     routesMap = {
         ...stillRoutesMap.viewRoutes.lazyInitial,
         ...stillRoutesMap.viewRoutes.regular
@@ -152,7 +153,7 @@ export class BaseComponent extends BehaviorComponent {
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
             'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
-            'wasAnnotParsed', 'stateChangeSubsribers'
+            'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus'
         ];
         return fields.filter(
             field => {
@@ -655,6 +656,8 @@ export class BaseComponent extends BehaviorComponent {
         template = this.getBoundOnChange(template);
 
         console.timeEnd('tamplateBindFor' + this.getName());
+
+        this.bindStatus = true;
 
         return template;
     }

@@ -1,7 +1,7 @@
 import { StillAppSetup } from "../../../app-setup.js";
 import { stillRoutesMap } from "../../../route.map.js";
 import { Components } from "../../setup/components.js";
-import { $stillconst } from "../../setup/constants.js";
+import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
 import { $still, ComponentNotFoundException, ComponentRegistror } from "../manager/registror.js";
 import { sleepForSec } from "../manager/timer.js";
@@ -893,48 +893,22 @@ export class BaseComponent extends BehaviorComponent {
 
     parseStSideComponent(template, cmpInternalId = null, cmpUUID = null) {
 
-        const uuid = cmpUUID || this.getUUID();
+        const uuid = cmpUUID || this.getUUID(), parentCmp = this;
         if (cmpInternalId) this.cmpInternalId = cmpInternalId;
 
-        const parseValue = (r, v, f, mt) => {
-
-            v = v.trim();
-            const lastChar = r.trim().at(-1);
-            if (lastChar != '"' && lastChar != ">") {
-                const strtPos = mt.indexOf(`${f}="`);
-                v = mt.substring(
-                    (strtPos + f.length + 2),
-                    mt.indexOf('"', (strtPos + f.length + 2))
-                );
-            };
-
-            return v.replace(/\"/g, '')
-                .replace("\n", "")
-                .replace(">", "");
-        }
-
-        let styleRe = /(style\=\"(.*)\")/;
-        let re = /\<st-element[\> \@ \/ \. \" \, \w \s \= \- \ \( \)]{0,}/g;
-        if (cmpInternalId == 'fixed-part')
-            re = /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g;
-
-        if (this.cmpInternalId in Components.componentPartsMap) {
-            delete Components.componentPartsMap[this.cmpInternalId];
-        }
+        let styleRe = RE.bind_css, re = RE.st_element, matchCounter = 0;
+        if (cmpInternalId == 'fixed-part') re = RE.st_fixed;
 
         this.versionId = UUIDUtil.newId();
-        const parentCmp = this;
         template = template.replace(re, (mt) => {
 
-            const [propMapper, props] = [{}, {}];
-
-            for (const r of mt.split(' ')) {
-                if (r != '' && r.indexOf('="') > 0) {
-                    let [f, v] = r.split('=');
-                    const [field, value] = [f, parseValue(r, v, f, mt)];
-                    propMapper[field] = value;
-                }
+            if (matchCounter == 0) {
+                if (this.cmpInternalId in Components.componentPartsMap)
+                    delete Components.componentPartsMap[this.cmpInternalId];
+                matchCounter++;
             }
+
+            const [propMapper, props] = [this.parseStTag(mt), {}];
 
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
@@ -951,8 +925,7 @@ export class BaseComponent extends BehaviorComponent {
             Components.componentPartsMap[this.cmpInternalId].push(
                 new ComponentPart({
                     template: null, component: cmpName,
-                    proxy, props,
-                    annotations: this.#annotations
+                    proxy, props, annotations: this.#annotations
                 })
             );
 
@@ -965,6 +938,47 @@ export class BaseComponent extends BehaviorComponent {
         return template;
 
     }
+
+    parseStTag(mt) {
+
+        const props = mt.replace('<st-element', '')
+            .replaceAll('\t', '')
+            .replaceAll('\n', '')
+            .replaceAll(' ', '')
+            .replaceAll('=', '')
+            .replace('>', '').split('"');
+
+        const result = {};
+        if (props.length >= 3) props.pop();
+
+        let idx = 0
+        while (idx < props.length) {
+            result[props[idx]] = props[++idx];
+            ++idx;
+        }
+
+        return result;
+    }
+
+
+    /** @deprecated */
+    parseTemplatePropAndValue(r, v, f, mt) {
+
+        v = v.trim();
+        const lastChar = r.trim().at(-1);
+        if (lastChar != '"' && lastChar != ">") {
+            const strtPos = mt.indexOf(`${f}="`);
+            v = mt.substring(
+                (strtPos + f.length + 2),
+                mt.indexOf('"', (strtPos + f.length + 2))
+            );
+        };
+
+        return v.replace(/\"/g, '')
+            .replace("\n", "")
+            .replace(">", "");
+    }
+
 
     #handleErrorMessage(classFlag, matchInstance) {
         if (classFlag.at(-1) == ')') {

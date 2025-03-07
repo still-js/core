@@ -232,6 +232,7 @@ export class Components {
                     this.template, 'fixed-part', $stillconst.TOP_LEVEL_CMP
                 );
 
+                /** Very edge case */
                 const isHome = (new StillAppSetup).entryComponentName == this.entryComponentName;
                 if (isHome) {
                     this.template = (new BaseComponent).parseStSideComponent(
@@ -241,6 +242,7 @@ export class Components {
 
                 this.renderOnViewFor('stillUiPlaceholder');
                 setTimeout(() => Components.handleInPlacePartsInit($still.context.currentView, 'fixed-part'));
+                //setTimeout(() => Components.handleInPlacePartsInit($still.context.currentView));
                 setTimeout(async () => {
                     await $still.context.currentView.stAfterInit();
                     AppTemplate.injectToastContent();
@@ -305,6 +307,10 @@ export class Components {
             .replace('class="', `class="${init.getUUID()} ${loadCmpClass} `);
     }
 
+    /**
+     * 
+     * @param {ViewComponent} cmp 
+     */
     getHomeCmpTemplate(cmp) {
 
         cmp.setUUID(cmp.getUUID());
@@ -313,8 +319,7 @@ export class Components {
         const template = cmp.getBoundTemplate();
         Components.registerPublicCmp(cmp);
 
-        return (template)
-            .replace('class="', `class="${cmp.getUUID()} ${loadCmpClass} `);
+        return `<st-wramp class="${loadCmpClass}">${template}</wp-wrap>`;
     }
 
     setComponentAndName(cmp, cmpName) {
@@ -801,9 +806,10 @@ export class Components {
                 continue;
 
             const { proxy, component, props, annotations, ref } = cmpParts[idx];
+            if (component == undefined) continue;
 
             let importFile, realClsName = component,
-                isVendorCmp = component.at(0) == '@', cmpPath;
+                isVendorCmp = (component || []).at(0) == '@', cmpPath;
             if (isVendorCmp) {
                 const clsPath = component.split('/');
                 realClsName = clsPath.at(-1);
@@ -813,6 +819,7 @@ export class Components {
             } else {
                 const cmpRoute = Components.routesMap[component];
                 cmpPath = `${Components.baseUrl}${cmpRoute}`;
+                if (cmpPath.at(-1) == '/') cmpPath = cmpPath.slice(0, -1);
                 importFile = import(`${cmpPath}/${component}.js`)
             }
 

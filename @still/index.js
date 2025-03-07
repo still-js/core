@@ -22,3 +22,6 @@ StillAppSetup.register(BehaviorComponent);
 StillAppSetup.get().loadComponent();
 
 StillAppSetup.register(ComponentNotFoundException);
+
+/** Only for dev mode */
+StillAppSetup.setDevErrorTracing();

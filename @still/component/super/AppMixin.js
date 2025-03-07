@@ -1,5 +1,6 @@
 import { StillAppSetup } from "../../../app-setup.js";
 import { Components } from "../../setup/components.js";
+import { StillError } from "../../setup/error.js";
 import { ComponentType } from "../type/ComponentType.js";
 import { ViewComponent } from "./ViewComponent.js";
 
@@ -74,5 +75,7 @@ export const StillAppMixin = (Component) =>
         static setAuthN = (val) => AppTemplate.get().setAuthN(val);
 
         setAuthN = (val) => AppTemplate.get().setAuthN(val);
+
+        static setDevErrorTracing = () => StillError.setDevErrorContainer();
 
     }

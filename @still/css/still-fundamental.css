@@ -11,3 +11,34 @@
     font-size: 10px;
     color: red;
 }
+
+
+#stillRunTimeErrDiv {
+    /* border: 1px solid red; */
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0px 0px;
+    background: rgba(0, 0, 0, .9);
+    color: white;
+    text-shadow: 0 0 black;
+    padding-top: 10px;
+    padding-left: 10px;
+    font-size: 1em;
+}
+
+.nonExistingComponentSt {
+    color: red;
+    font-weight: bold;
+    background-color: white;
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
+.errorCmdSugestion {
+    color: rgb(14, 162, 21);
+}
+
+.sttypeErrorMessage {
+    text-decoration: underline;
+}

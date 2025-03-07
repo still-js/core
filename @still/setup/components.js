@@ -319,7 +319,9 @@ export class Components {
         const template = cmp.getBoundTemplate();
         Components.registerPublicCmp(cmp);
 
-        return `<st-wramp class="${loadCmpClass} ${$stillconst.TOP_LEVEL_CMP}">
+        return `<st-wramp 
+                    id="${$stillconst.TOP_LEVEL_CMP}"
+                    class="${loadCmpClass} ${$stillconst.TOP_LEVEL_CMP}">
                     ${template}
                 </wp-wrap>`;
     }

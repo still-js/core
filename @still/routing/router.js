@@ -238,7 +238,7 @@ export class Router {
                     } else {
                         await Components.reloadedComponent(componentInstance, isHome);
                     }
-                    setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));
+                    setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`, isHome));
                 });
 
         } else {
@@ -265,7 +265,7 @@ export class Router {
 
     }
 
-    static callCmpAfterInit(cmpId) {
+    static callCmpAfterInit(cmpId, isHome) {
 
         /**
          * Timer for keep calling the function wrapped code
@@ -273,12 +273,13 @@ export class Router {
          * and proceeding computations (e.g. load subcomponent) 
          * can happen
          */
+        const cmpRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmpId;
         const loadTImer = setTimeout(async () => {
             /**
              * Check if the main component was 
              * loaded/rendered
              */
-            if (document.getElementById(cmpId)) {
+            if (document.getElementById(cmpRef)) {
                 clearTimeout(loadTImer);
                 /** @type { ViewComponent } */
                 const cmp = $still.context.currentView;

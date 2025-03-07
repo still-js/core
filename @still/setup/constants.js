@@ -48,5 +48,11 @@ export const $stillconst = {
                         text-align: center">
                     There is no template defined for the specified component "<b style="text-decoration: underline;">{{}}</b>"
                 </div>`,
-    importedCmpMap: {}
+    importedCmpMap: {},
+}
+
+export const ST_RE = {
+    st_element: /\<st-element[\> \@ \/ \. \" \, \w \s \= \- \ \( \)]{0,}/g,
+    st_fixed: /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}/g,
+    bind_css: /(style\=\"(.*)\")/
 }

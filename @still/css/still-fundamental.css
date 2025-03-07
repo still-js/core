@@ -27,7 +27,8 @@
     font-size: 1em;
 }
 
-.nonExistingComponentSt {
+.nonExistingComponentSt,
+.nonExistingFieldSt {
     color: red;
     font-weight: bold;
     background-color: white;

@@ -372,8 +372,7 @@ export class BaseComponent extends BehaviorComponent {
                     let params = methodName.split("'"), data;
                     if (params.length > 2) {
 
-                        if (params[3])
-                            data = params[3].trim();
+                        if (params[3]) data = params[3].trim();
                         else {
 
                             const stateParam = params[2]

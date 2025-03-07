@@ -21,7 +21,6 @@ export class Template {
         if (!(clsName in Template.instance)) {
             Template.instance[clsName] = new AppTemplate();
         }
-        console.log(clsName);
         return Template.instance[clsName];
     }
 

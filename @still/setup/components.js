@@ -319,7 +319,9 @@ export class Components {
         const template = cmp.getBoundTemplate();
         Components.registerPublicCmp(cmp);
 
-        return `<st-wramp class="${loadCmpClass}">${template}</wp-wrap>`;
+        return `<st-wramp class="${loadCmpClass} ${$stillconst.TOP_LEVEL_CMP}">
+                    ${template}
+                </wp-wrap>`;
     }
 
     setComponentAndName(cmp, cmpName) {
@@ -708,8 +710,13 @@ export class Components {
     /** @param {ViewComponent} cmp */
     static async reloadedComponent(cmp, isHome) {
 
+        const cmpName = cmp.constructor.name;
+
         /** @type { ViewComponent } */
-        let newInstance = eval(`new ${cmp.constructor.name}()`);
+        const cmpRoute = Components.routesMap[cmpName];
+        const cmpCls = await import(`${Components.baseUrl}${cmpRoute}/${cmpName}.js`);
+
+        let newInstance = eval(`new ${cmpCls[cmpName]}()`);
         newInstance = (new Components()).getParsedComponent(newInstance);
         newInstance.setUUID(cmp.getUUID());
         newInstance.setRoutableCmp(true);

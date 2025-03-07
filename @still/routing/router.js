@@ -3,9 +3,9 @@ import { AppTemplate } from "../../app-template.js";
 import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
 import { ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
-import { ViewComponent } from "../component/super/ViewComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
 import { $stillconst } from "../setup/constants.js";
+import { UUIDUtil } from "../util/UUIDUtil.js";
 
 export class Router {
 
@@ -20,6 +20,7 @@ export class Router {
     static instance = null;
     static appPlaceholder = $stillconst.APP_PLACEHOLDER;
     static initRouting = false;
+    static importedMap = {};
 
     /** @returns { Router } */
     static getInstance() {
@@ -39,10 +40,24 @@ export class Router {
 
     static data(cmpName) {
 
-        console.log("log do data router.js", cmpName);
         const data = Router.getInstance().#data[cmpName];
         //delete Router.getInstance().#data[cmpName];
         return data;
+    }
+
+    /**
+     * 
+
+     * @param {String} data 
+     */
+    static aliasGoto(cmp, data) {
+
+        if (data.startsWith($stillconst.RT_DT_PREFIX)) {
+            data = Router.getInstance().#data[data];
+            delete Router.getInstance().#data[data];
+        }
+
+        Router.goto(cmp, { data });
     }
 
     /**
@@ -336,7 +351,15 @@ export class Router {
 
     }
 
-    static importedMap = {};
+    static routingDataParse(data) {
+        if (data instanceof Array || data instanceof Object) {
+            const hash = `${$stillconst.RT_DT_PREFIX}${UUIDUtil.newId()}`;
+            Router.getInstance().#data[hash] = data;
+            return hash;
+        }
+        return data;
+    }
+
 
 }
 window.Router = Router;

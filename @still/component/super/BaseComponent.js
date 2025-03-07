@@ -1,5 +1,6 @@
 import { StillAppSetup } from "../../../app-setup.js";
 import { stillRoutesMap } from "../../../route.map.js";
+import { Router } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
@@ -363,8 +364,37 @@ export class BaseComponent extends BehaviorComponent {
          */
         let cmd = this.getClassPath();
         template = template.replaceAll(
-            /\(click\)\=\"/gi,
-            `onclick="${cmd}.`
+            /\(click\)\=\"[a-zA-Z \(\)'\,\.]{0,}/gi,
+            (mt) => {
+
+                const methodName = mt.split('="')[1];
+                if (methodName.indexOf('goto(\'') == 0) {
+                    let params = methodName.split("'"), data;
+                    if (params.length > 2) {
+
+                        if (params[3])
+                            data = params[3].trim();
+                        else {
+
+                            const stateParam = params[2]
+                                .replace(' ', '')
+                                .replace(',', '')
+                                .replace(')', '');
+
+                            if (stateParam.startsWith('self.'))
+                                data = this[stateParam.replace('self.', '')];
+                        }
+
+                    }
+
+                    if (!data) {
+                        return `onclick="Router.goto('${params[1].trim()}')`
+                    }
+                    data = Router.routingDataParse(data);
+                    return `onclick="Router.aliasGoto('${params[1].trim()}','${data}')`;
+                }
+                return mt.replace('(click)="', `onclick="${cmd}.`);;
+            }
         );
 
         return template;
@@ -493,8 +523,6 @@ export class BaseComponent extends BehaviorComponent {
         const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
         const reRIf = new RegExp(extremRe + matchRenderIfRE.source + extremRe, 'gi');
         const handleError = this.#handleErrorMessage;
-
-        console.log(template.match(matchRenderIfRE));
 
         template = this.parseRenderIf(template, reRIf, matchRenderIfRE, matchShowIfRE, handleError);
         template = this.parseShowIf(template, reSIf, matchShowIfRE, handleError);

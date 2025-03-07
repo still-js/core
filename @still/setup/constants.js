@@ -49,6 +49,7 @@ export const $stillconst = {
                     There is no template defined for the specified component "<b style="text-decoration: underline;">{{}}</b>"
                 </div>`,
     importedCmpMap: {},
+    RT_DT_PREFIX: `$@data$`,
 }
 
 export const ST_RE = {

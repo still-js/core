@@ -924,27 +924,7 @@ export class Components {
                 });
             })
                 .catch(err => {
-                    if (err.toString().includes('TypeError')) {
-
-                        const errCntr = StillError.getDevErrorTraceContainer();
-                        const errorFrag = document.createElement('div');
-
-                        errorFrag.innerHTML = `
-                        <p>
-                        <br>
-                        <span class="sttypeErrorMessage">TypeError: ${err.message}</span> <br>
-                        &nbsp;&nbsp;&nbsp;Error while loading <span class="nonExistingComponentSt">${realClsName}</span> st-element reference in 
-                            <b><u>${parentCmp.constructor.name}.js</u></b>
-                            <st-element component="${realClsName}"></st-element>
-                            <br>&nbsp; &#x2192; check if the component and/or the route exists and was spelled correctly
-                            <br>&nbsp; &#x2192; In the terminal type <span class="errorCmdSugestion">still route list</span>
-                        </p>
-                        `;
-                        errorFrag.style.lineHeight = 1.5;
-                        errCntr.insertAdjacentElement('beforeend', errorFrag);
-
-                    }
-                    //console.log(`Error on loading sub component: `, err);
+                    StillError.handleStComponentNotFound(err, parentCmp, realClsName);
                 });
         }
 

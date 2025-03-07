@@ -1,6 +1,7 @@
 import { StillAppSetup } from "../../app-setup.js";
 import { AppTemplate } from "../../app-template.js";
 import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
+import { ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { ViewComponent } from "../component/super/ViewComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
@@ -101,7 +102,11 @@ export class Router {
             if (cmp in cmpRegistror) {
 
                 $still.context.currentView = cmpRegistror[cmp].instance;
+                if (!AppTemplate.get().isAuthN() && !cmpRegistror[cmp].instance.isPublic)
+                    document.write($stillconst.MSG.PRIVATE_CMP);
+
                 Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
+
 
             } else {
 
@@ -112,6 +117,9 @@ export class Router {
                     const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
 
                     $still.context.currentView = eval(`new ${cmpCls[cmp]}()`);
+
+                    if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
+                        document.write($stillconst.MSG.PRIVATE_CMP);
 
                     if ($still.context.currentView.template == undefined)
                         return Router.cmpTemplateNotDefinedCheck(cmp);
@@ -130,7 +138,7 @@ export class Router {
 
             loadComponentFromPath(route, cmp)
                 .then(async ({ imported, isRoutable }) => {
-                    if (!imported) {
+                    if (!Router.importedMap[cmp]) {
                         if (cmp == 'init') return;
 
                         const cmpRoute = Router.routeMap[cmp];
@@ -138,13 +146,11 @@ export class Router {
                         AppTemplate.get().storageSet('stAppInitStatus', true);
 
                         /** the bellow line clears previous component from memory
-                         * @type { ViewComponent }
-                         */
+                         * @type { ViewComponent } */
                         const newInstance = eval(`new ${cmpCls[cmp]}()`);
 
                         if (newInstance.template == undefined)
                             return Router.cmpTemplateNotDefinedCheck(cmp);
-
 
                         if (newInstance.isPublic) {
                             Components.registerPublicCmp(newInstance);
@@ -154,6 +160,7 @@ export class Router {
                             }
                         }
 
+                        ComponentRegistror.register(cmp, newInstance);
                         if (!document.getElementById($stillconst.APP_PLACEHOLDER)) {
                             document.write($stillconst.MSG.PRIVATE_CMP);
                             return;
@@ -168,11 +175,11 @@ export class Router {
                         $still.context.currentView = newInstance;
 
                     } else {
-                        if (!isRoutable) {
-                            $still.context.currentView = $still.component.list[cmp];
-                        } else {
-                            $still.context.currentView = cmpRegistror[cmp].instance;
-                        }
+                        //if (!isRoutable) {
+                        //    $still.context.currentView = $still.component.list[cmp];
+                        //} else {
+                        $still.context.currentView = cmpRegistror[cmp].instance;
+                        //}
 
                         $still.context.currentView.isRoutable = true;
                         if (!$still.context.currentView.stillParsedState) {
@@ -181,7 +188,7 @@ export class Router {
                             );
                         }
                     }
-                    Router.getAndDisplayPage($still.context.currentView, imported);
+                    Router.getAndDisplayPage($still.context.currentView, Router.importedMap[cmp]);
                 });
         }
 
@@ -207,6 +214,7 @@ export class Router {
         const appCntrId = Router.appPlaceholder;
         const appPlaceholder = document.getElementById(appCntrId);
         const cmpId = componentInstance.getUUID();
+        const cmpName = componentInstance.constructor.name;
 
         if (isReRender) {
             Components
@@ -250,6 +258,7 @@ export class Router {
                         componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;
                     }, 100);
                     setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));
+                    Router.importedMap[cmpName] = true;
 
                 });
         }
@@ -325,6 +334,8 @@ export class Router {
         return cmp;
 
     }
+
+    static importedMap = {};
 
 }
 window.Router = Router;

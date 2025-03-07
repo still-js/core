@@ -230,7 +230,7 @@ export class Router {
                     } else {
                         await Components.reloadedComponent(componentInstance, isHome);
                     }
-                    setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`), 500);
+                    setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));
                 });
 
         } else {
@@ -249,7 +249,7 @@ export class Router {
                     setTimeout(() => {
                         componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;
                     }, 100);
-                    setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`), 500);
+                    setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));
 
                 });
         }

@@ -713,6 +713,16 @@ export class Components {
     /** @param {ViewComponent} cmp */
     static async reloadedComponent(cmp, isHome) {
 
+        if (!cmp.isPublic && AppTemplate.get().isAuthN()) {
+
+            if (document.querySelector(`.${$stillconst.ST_FIXE_CLS}`)) {
+
+                return document.getElementById($stillconst.UI_PLACEHOLDER)
+                    .insertAdjacentHTML('afterbegin', $stillconst.MSG.PRIVATE_CMP);
+
+            } else return document.write($stillconst.MSG.PRIVATE_CMP);
+        }
+
         const cmpName = cmp.constructor.name;
 
         /** @type { ViewComponent } */

@@ -4,7 +4,7 @@ import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
 import { ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
-import { $stillconst } from "../setup/constants.js";
+import { $stillconst, ST_UNAUTHOR_ID } from "../setup/constants.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 
 export class Router {
@@ -35,7 +35,6 @@ export class Router {
         StillAppSetup.get().loadComponent();
         AppTemplate.get().storageSet('stAppInitStatus', true);
         Router.initRouting = true;
-        //localStorage.setItem('stAppInitStatus', true);
     }
 
     static data(cmpName) {
@@ -68,16 +67,14 @@ export class Router {
     static goto(cmp, { data = {} } = { data: {} }) {
 
         cmp = Router.handleViewType(cmp);
-
         Router.initRouting = false;
         Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
+
         /**
-         * The or (||) conditions serves to mount the application 
-         * so the user can be redirected straight to a specific 
-         * page/page-component instead of being forced to go to 
-         * the main/home UI after the login,  as the page is not 
-         * rendered in case the app was not  
-         * loaded through StillAppSetup.get().loadComponent() 
+         * The or (||) conditions serves to mount the application so the user can 
+         * be redirected straight to a specific page/page-component instead of being 
+         * forced to go to the main/home UI after the login,  as the page is not rendered 
+         * in case the app was not loaded through StillAppSetup.get().loadComponent() 
          */
         if (
             cmp === 'init'
@@ -87,7 +84,6 @@ export class Router {
             StillAppSetup.get().loadComponent();
             AppTemplate.get().storageSet('stAppInitStatus', true);
             Router.initRouting = true;
-            //localStorage.setItem('stAppInitStatus', true);
         }
 
         if (cmp === 'exit') {
@@ -170,17 +166,14 @@ export class Router {
 
                         if (newInstance.isPublic) {
                             Components.registerPublicCmp(newInstance);
-                            if (!AppTemplate.get().isAuthN()) {
-                                (new Components()).renderPublicComponent(newInstance);
-                                return;
-                            }
+                            if (!AppTemplate.get().isAuthN())
+                                return (new Components()).renderPublicComponent(newInstance);
+
                         }
 
                         ComponentRegistror.register(cmp, newInstance);
-                        if (!document.getElementById($stillconst.APP_PLACEHOLDER) && !newInstance.isPublic) {
-                            document.write($stillconst.MSG.PRIVATE_CMP);
-                            return;
-                        }
+                        if (!document.getElementById($stillconst.APP_PLACEHOLDER) && !newInstance.isPublic)
+                            return document.write($stillconst.MSG.PRIVATE_CMP);
 
                         newInstance.isRoutable = true;
                         Router.parseComponent(newInstance);
@@ -191,12 +184,7 @@ export class Router {
                         $still.context.currentView = newInstance;
 
                     } else {
-                        //if (!isRoutable) {
-                        //    $still.context.currentView = $still.component.list[cmp];
-                        //} else {
                         $still.context.currentView = cmpRegistror[cmp].instance;
-                        //}
-
                         $still.context.currentView.isRoutable = true;
                         if (!$still.context.currentView.stillParsedState) {
                             $still.context.currentView = (new Components).getNewParsedComponent(
@@ -223,36 +211,35 @@ export class Router {
 
     /**
      * the bellow line clears previous component from memory
-     * @param { ViewComponent } componentInstance
+     * @param { ViewComponent } cmp
      */
-    static getAndDisplayPage(componentInstance, isReRender = false, isHome = false) {
-        const ACTION = 'componentRoutedRender';
-        const appCntrId = Router.appPlaceholder;
-        let appPlaceholder = document.getElementById(appCntrId);
-        const cmpId = componentInstance.getUUID();
-        const cmpName = componentInstance.constructor.name;
+    static getAndDisplayPage(cmp, isReRender = false, isHome = false) {
+
+        const appCntrId = Router.appPlaceholder, isPrivate = !cmp.isPublic;
+        let appPlaceholder = document.getElementById(appCntrId), pageContent;
+        const cmpId = cmp.getUUID(), cmpName = cmp.constructor.name;
 
         if (isReRender) {
             Components
                 .unloadLoadedComponent()
                 .then(async () => {
-
-                    if (componentInstance.subImported) {
+                    Router.handleUnauthorizeIfPresent();
+                    if (cmp.subImported) {
 
                         const pageContent = `
                         <output id="${cmpId}-check" style="display:contents;">
-                            ${componentInstance.getTemplate()}
+                            ${cmp.getTemplate()}
                         </output>`;
                         appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
-                        componentInstance.subImported = false;
+                        cmp.subImported = false;
                         setTimeout(() => {
-                            componentInstance.parseOnChange();
+                            cmp.parseOnChange();
                         }, 500);
-                        await componentInstance.onRender();
+                        await cmp.onRender();
                         //await componentInstance.stAfterInit();
 
                     } else {
-                        await Components.reloadedComponent(componentInstance, isHome);
+                        await Components.reloadedComponent(cmp, isHome);
                     }
                     setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`, isHome));
                 });
@@ -262,22 +249,26 @@ export class Router {
                 .unloadLoadedComponent()
                 .then(async () => {
 
-                    if (!appPlaceholder && componentInstance?.isPublic) {
+                    if (!appPlaceholder && cmp?.isPublic) {
                         appPlaceholder = document.getElementById($stillconst.UI_PLACEHOLDER);
                     }
 
-                    const pageContent = `
-                    <output id="${cmpId}-check" style="display:contents;">
-                        ${componentInstance.getTemplate()}
-                    </output>`;
+                    const isUnauthorized = isPrivate && AppTemplate.get().isAuthN();
+                    if (isUnauthorized) pageContent = $stillconst.MSG.PRIVATE_CMP;
+                    else {
+                        Router.handleUnauthorizeIfPresent();
+                        pageContent = `
+                        <output id="${cmpId}-check" style="display:contents;">
+                            ${cmp.getTemplate()}
+                        </output>`;
+                    }
+
                     appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
-                    setTimeout(() => {
-                        componentInstance.parseOnChange();
-                    }, 500);
-                    await componentInstance.onRender();
-                    setTimeout(() => {
-                        componentInstance.$stillLoadCounter = componentInstance.$stillLoadCounter + 1;
-                    }, 100);
+                    if (isUnauthorized) return;
+
+                    setTimeout(() => cmp.parseOnChange(), 500);
+                    await cmp.onRender();
+                    setTimeout(() => cmp.$stillLoadCounter = cmp.$stillLoadCounter + 1, 100);
                     setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));
                     Router.importedMap[cmpName] = true;
 
@@ -289,17 +280,14 @@ export class Router {
     static callCmpAfterInit(cmpId, isHome, appPlaceholder = null) {
 
         /**
-         * Timer for keep calling the function wrapped code
-         * until it finds that the main component was loaded
-         * and proceeding computations (e.g. load subcomponent) 
-         * can happen
+         * Timer for keep calling the function wrapped code until it finds that the main 
+         * component was loaded and proceeding compute (e.g. load subcomponent) can happen
          */
         let cmpRef = appPlaceholder;
         if (cmpRef == null) cmpRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmpId;
         const loadTImer = setTimeout(async () => {
             /**
-             * Check if the main component was 
-             * loaded/rendered
+             * Check if the main component was loaded/rendered
              */
             if (document.getElementById(cmpRef)) {
                 clearTimeout(loadTImer);
@@ -307,8 +295,7 @@ export class Router {
                 const cmp = $still.context.currentView;
 
                 /**
-                 * Runs stAfterInit special method 
-                 * in case it exists
+                 * Runs stAfterInit special method in case it exists
                  */
                 if (!Components.checkStInit(cmp.constructor.name))
                     setTimeout(async () => await cmp.stAfterInit(), 200);
@@ -336,7 +323,7 @@ export class Router {
                 } else {
                     Components.stAppInitStatus = false;
                 }
-                //clearTimeout(loadTImer);
+
             }
 
         }, 200);
@@ -367,6 +354,18 @@ export class Router {
             return hash;
         }
         return data;
+    }
+
+    static handleUnauthorizeIfPresent() {
+
+        //setTimeout(() => {
+        const unauthorizeContent = document.getElementById(ST_UNAUTHOR_ID);
+        if (unauthorizeContent) {
+            const parent = unauthorizeContent.parentElement;
+            parent.removeChild(unauthorizeContent);
+        }
+        //}, 100);
+
     }
 
 

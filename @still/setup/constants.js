@@ -1,3 +1,4 @@
+export const ST_UNAUTHOR_ID = `stillAppUnauthorizedPage`;
 export const $stillconst = {
     //This is a main/principal/first component CSS class only
     TOP_LEVEL_CMP: 'still-toplevel-and-root-app',
@@ -35,7 +36,7 @@ export const $stillconst = {
      * Bellow constants for error messages are assigned
      */
     MSG: {
-        PRIVATE_CMP: `<h3 style='color:red;'>
+        PRIVATE_CMP: `<h3 style='color:red;' id="${ST_UNAUTHOR_ID}">
                         <b>Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
                            <br>in case you need to access it without making log-in please make isPublic flag true
                      </h3>`,
@@ -50,7 +51,9 @@ export const $stillconst = {
                     There is no template defined for the specified component "<b style="text-decoration: underline;">{{}}</b>"
                 </div>`,
     importedCmpMap: {},
+    /** Routing Data Prefix */
     RT_DT_PREFIX: `$@data$`,
+    ST_FIXE_CLS: 'st-fixed-part'
 }
 
 export const ST_RE = {

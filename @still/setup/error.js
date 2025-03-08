@@ -29,7 +29,7 @@ export class StillError {
 
         if (err.toString().includes('TypeError')) {
 
-            const errorFrag = this.handleCntrVisibility();
+            const { errorFrag, errCntr } = this.handleCntrVisibility();
 
             errorFrag.innerHTML = `
             <p>
@@ -51,7 +51,7 @@ export class StillError {
 
     static addNotExistingBindingField(fieldName, parentCmp) {
 
-        const errorFrag = this.handleCntrVisibility();
+        const { errorFrag, errCntr } = this.handleCntrVisibility();
         const cmpName = parentCmp.constructor.name;
 
         errorFrag.innerHTML = `
@@ -74,7 +74,7 @@ export class StillError {
 
         if (errVisibility == 'none') errCntr.style.display = '';
 
-        return errorFrag;
+        return { errorFrag, errCntr };
 
     }
 }

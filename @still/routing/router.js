@@ -139,11 +139,12 @@ export class Router {
                     if ($still.context.currentView.template == undefined)
                         return Router.cmpTemplateNotDefinedCheck(cmp);
 
-                    let template = (new Components()).getCurrentCmpTemplate($still.context.currentView);
+                    let template = (new Components()).getHomeCmpTemplate($still.context.currentView);
                     template = appTemplate.replace(
                         $stillconst.STILL_COMPONENT, `<div id="${Router.appPlaceholder}">${template}</div>`
                     );
                     document.getElementById('stillUiPlaceholder').innerHTML = template;
+                    setTimeout(() => Router.callCmpAfterInit(null, isHomeCmp, Router.appPlaceholder));
 
                 })();
 
@@ -176,7 +177,7 @@ export class Router {
                         }
 
                         ComponentRegistror.register(cmp, newInstance);
-                        if (!document.getElementById($stillconst.APP_PLACEHOLDER)) {
+                        if (!document.getElementById($stillconst.APP_PLACEHOLDER) && !newInstance.isPublic) {
                             document.write($stillconst.MSG.PRIVATE_CMP);
                             return;
                         }
@@ -227,7 +228,7 @@ export class Router {
     static getAndDisplayPage(componentInstance, isReRender = false, isHome = false) {
         const ACTION = 'componentRoutedRender';
         const appCntrId = Router.appPlaceholder;
-        const appPlaceholder = document.getElementById(appCntrId);
+        let appPlaceholder = document.getElementById(appCntrId);
         const cmpId = componentInstance.getUUID();
         const cmpName = componentInstance.constructor.name;
 
@@ -260,6 +261,11 @@ export class Router {
             Components
                 .unloadLoadedComponent()
                 .then(async () => {
+
+                    if (!appPlaceholder && componentInstance?.isPublic) {
+                        appPlaceholder = document.getElementById($stillconst.UI_PLACEHOLDER);
+                    }
+
                     const pageContent = `
                     <output id="${cmpId}-check" style="display:contents;">
                         ${componentInstance.getTemplate()}
@@ -280,7 +286,7 @@ export class Router {
 
     }
 
-    static callCmpAfterInit(cmpId, isHome) {
+    static callCmpAfterInit(cmpId, isHome, appPlaceholder = null) {
 
         /**
          * Timer for keep calling the function wrapped code
@@ -288,7 +294,8 @@ export class Router {
          * and proceeding computations (e.g. load subcomponent) 
          * can happen
          */
-        const cmpRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmpId;
+        let cmpRef = appPlaceholder;
+        if (cmpRef == null) cmpRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmpId;
         const loadTImer = setTimeout(async () => {
             /**
              * Check if the main component was 
@@ -320,8 +327,10 @@ export class Router {
                 ) {
                     Components.handleInPlaceParts(cmp);
                 } else if (
-                    (Components.stAppInitStatus)
-                    && StillAppSetup.get().entryComponentName != cmp?.getName()
+                    (
+                        (Components.stAppInitStatus)
+                        && StillAppSetup.get().entryComponentName != cmp?.getName()
+                    ) || appPlaceholder != null
                 ) {
                     Components.handleInPlaceParts(cmp);
                 } else {

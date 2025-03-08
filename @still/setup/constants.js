@@ -16,6 +16,7 @@ export const $stillconst = {
     }, */
     STILL_COMPONENT: `<still-component/>`,
     APP_PLACEHOLDER: 'stillAppPlaceholder',
+    UI_PLACEHOLDER: 'stillUiPlaceholder',
     PART_HIDE_CSS: 'still-hide-view-part',
     PART_REMOVE_CSS: 'still-del-view-part',
     SUBSEQUENT_NO_PARSE: 'please-do-not-parse-me-still',

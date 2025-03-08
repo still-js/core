@@ -935,7 +935,7 @@ export class BaseComponent extends BehaviorComponent {
                 matchCounter++;
             }
 
-            const [propMapper, props] = [this.parseStTag(mt), {}];
+            const [propMapper, props] = [this.parseStTag(mt, cmpInternalId), {}];
 
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
@@ -966,9 +966,10 @@ export class BaseComponent extends BehaviorComponent {
 
     }
 
-    parseStTag(mt) {
+    parseStTag(mt, type) {
 
-        const props = mt.replace('<st-element', '')
+        const props = mt
+            .replace(type == 'fixed-part' ? '<st-fixed' : '<st-element', '')
             .replaceAll('\t', '')
             .replaceAll('\n', '')
             .replaceAll(' ', '')

@@ -2,5 +2,6 @@
     "compilerOptions": {
       "module": "ES6"
     },
-    "exclude": ["node_modules", "**/node_modules/*"]
+    "exclude": ["node_modules", "**/node_modules/*"],
+    "include": ["app/*"]
 }

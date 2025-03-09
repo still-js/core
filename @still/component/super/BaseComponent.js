@@ -956,9 +956,10 @@ export class BaseComponent extends BehaviorComponent {
                 })
             );
 
+            const addCls = `${cmpInternalId == 'fixed-part' ? $stillconst.ST_FIXE_CLS : ''}`;
             return `<still-placeholder 
                         style="display:contents; ${foundStyle != false ? foundStyle : ''}" 
-                        class="still-placeholder${uuid}">
+                        class="still-placeholder${uuid} ${addCls}">
                     </still-placeholder>`;
         });
 

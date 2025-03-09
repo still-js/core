@@ -6,11 +6,17 @@ export class Template {
     static instance = {};
     static toastId = null;
 
-    constructor() {
+    /** @param { ViewComponent } cmp */
+    constructor(cmp = null) {
+
+        if (cmp?.prototype instanceof ViewComponent)
+            Components.get().setHomeComponent(cmp);
+
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance))
             Template.instance[clsName] = this;
     }
+
 
     /**
      * 

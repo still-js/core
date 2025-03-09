@@ -153,9 +153,12 @@ export class Components {
         if (this.template instanceof Array)
             this.template = this.template.join('');
 
-        document
-            .getElementById(placeHolder)
-            .innerHTML = this.template;
+        let cntr = document.getElementById(placeHolder);
+        if (document.getElementById($stillconst.APP_PLACEHOLDER)) {
+            cntr = document.getElementById($stillconst.APP_PLACEHOLDER);
+        }
+
+        cntr.innerHTML = this.template;
     }
 
     renderOUtsideOnViewFor(placeHolder, template) {
@@ -220,13 +223,17 @@ export class Components {
                 StillAppSetup.register(cmpCls[this.entryComponentName]);
                 this.template = this.getHomeCmpTemplate($still.context.currentView);
 
-                ComponentRegistror.register(
+                ComponentRegistror.add(
                     $still.context.currentView.cmpInternalId,
                     $still.context.currentView
                 );
 
+                const { TOP_LEVEL_CMP, ST_HOME_CMP } = $stillconst;
                 this.template = currentView.template.replace(
-                    this.stillCmpConst, `<div id="${this.stillAppConst}">${this.template}</div>`
+                    this.stillCmpConst,
+                    `<div id="${this.stillAppConst}" class="${TOP_LEVEL_CMP} ${ST_HOME_CMP}">
+                        ${this.template}
+                    </div>`
                 );
 
                 this.template = (new BaseComponent).parseStSideComponent(
@@ -289,7 +296,8 @@ export class Components {
         $still.context.currentView = eval(`new ${cmpName}()`);
         let template = this.getCurrentCmpTemplate($still.context.currentView);
         template = currentView.template.replace(
-            this.stillCmpConst, `<div id="${this.stillAppConst}">${template}</div>`
+            this.stillCmpConst,
+            `<div id="${this.stillAppConst}" class="${$stillconst.TOP_LEVEL_CMP}">${template}</div>`
         );
 
         return template;
@@ -320,11 +328,13 @@ export class Components {
         const template = cmp.getBoundTemplate();
         Components.registerPublicCmp(cmp);
 
+        const { TOP_LEVEL_CMP, ST_HOME_CMP1 } = $stillconst
+
         return `<st-wramp 
-                    id="${$stillconst.TOP_LEVEL_CMP}"
-                    class="${loadCmpClass} ${$stillconst.TOP_LEVEL_CMP}">
+                    id="${TOP_LEVEL_CMP}"
+                    class="${loadCmpClass} ${TOP_LEVEL_CMP} ${ST_HOME_CMP1}">
                     ${template}
-                </wp-wrap>`;
+                </st-wrap>`;
     }
 
     setComponentAndName(cmp, cmpName) {
@@ -641,7 +651,7 @@ export class Components {
 
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${cmpName}`;
                 /** TODO: Replace the bellow with the export under componentRegistror */
-                ComponentRegistror.register(
+                ComponentRegistror.add(
                     instance.cmpInternalId,
                     instance
                 );
@@ -712,8 +722,8 @@ export class Components {
 
     /** @param {ViewComponent} cmp */
     static async reloadedComponent(cmp, isHome) {
-
-        if (!cmp.isPublic && AppTemplate.get().isAuthN()) {
+        const isUnAuthn = !AppTemplate.get().isAuthN();
+        if (!cmp.isPublic && isUnAuthn) {
 
             if (document.querySelector(`.${$stillconst.ST_FIXE_CLS}`)) {
 
@@ -734,17 +744,31 @@ export class Components {
         newInstance.setUUID(cmp.getUUID());
         newInstance.setRoutableCmp(true);
 
-        const elmRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmp.getUUID();
+        let elmRef = cmp.getUUID();
+        if (isHome) {
+            elmRef = isUnAuthn ? $stillconst.ST_HOME_CMP : $stillconst.ST_HOME_CMP1;
+        }
+
         const container = document.querySelector(`.${elmRef}`);
         container.innerHTML = newInstance.getTemplate();
 
         container.style.display = 'contents';
+        const isTHereFixedPart = document.querySelector(`.${$stillconst.ST_FIXE_CLS}`);
 
-        setTimeout(async () => {
-            newInstance.parseOnChange();
-        }, 200);
+        if (
+            !isTHereFixedPart && isUnAuthn
+            || (isTHereFixedPart && isUnAuthn)
+        ) {
+            Router.callCmpAfterInit(
+                null, isHome, isHome ? Router.appPlaceholder : null
+            );
+        }
+
+        setTimeout(async () => newInstance.parseOnChange(), 200);
         //await newInstance.stAfterInit();
         await newInstance.onRender();
+        if (cmp.isPublic) this.registerPublicCmp(newInstance);
+        else ComponentRegistror.add(cmpName, newInstance);
 
     }
 
@@ -784,7 +808,7 @@ export class Components {
         ///** @type { Array<ComponentPart> } */
         const allParts = Object.entries(Components.componentPartsMap);
         for (const [parentId, cmpParts] of allParts) {
-            //ComponentRegistror.register(cmpInternalId, instance);
+            //ComponentRegistror.add(cmpInternalId, instance);
             const parentCmp = $still.context.componentRegistror.componentList[parentId]
             //let cmpParts = Components.componentPartsMap[cmpInternalId];
             Components.handleInPartsImpl(parentCmp?.instance, parentId, cmpParts);
@@ -860,7 +884,7 @@ export class Components {
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;
                 instance.stillElement = true;
                 instance.proxyName = proxy;
-                ComponentRegistror.register(instance.cmpInternalId, instance);
+                ComponentRegistror.add(instance.cmpInternalId, instance);
 
                 let cmpName;
                 if (instance) {
@@ -883,7 +907,7 @@ export class Components {
                     for (const [prop, value] of allProps) {
 
                         if (prop == 'ref')
-                            ComponentRegistror.register(value, cmp);
+                            ComponentRegistror.add(value, cmp);
 
                         //Proxy gets ignored becuase it was assigned above and it should be the child class
                         if (prop != 'proxy' && prop != 'component') {
@@ -908,7 +932,7 @@ export class Components {
                          * Replace the parent component on the registror So that it get's 
                          * updated with the new and fresh data, properties and proxies
                          */
-                        ComponentRegistror.register(
+                        ComponentRegistror.add(
                             parentCmp.constructor.name,
                             parentCmp
                         );

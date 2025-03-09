@@ -2,6 +2,8 @@ export const ST_UNAUTHOR_ID = `stillAppUnauthorizedPage`;
 export const $stillconst = {
     //This is a main/principal/first component CSS class only
     TOP_LEVEL_CMP: 'still-toplevel-and-root-app',
+    ST_HOME_CMP: 'still-toplevel-and-home-app',
+    ST_HOME_CMP1: 'still-toplevel-and-home-app1',
     /**
      * This is a CSS class for any component used to handle which component 
      * to load/hide and unload/show through the router

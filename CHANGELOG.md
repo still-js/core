@@ -3,7 +3,7 @@
 This log contains all the changes which takes place for StillJS Framework.
  
  
-## [Released] - 2025-03-07
+## [Released] - 2025-03-08
 ## [Version] - 0.0.3
 Some improvements and new features implementation are taking place in this version.
  

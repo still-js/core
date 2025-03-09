@@ -21,6 +21,7 @@ export class Router {
     static appPlaceholder = $stillconst.APP_PLACEHOLDER;
     static initRouting = false;
     static importedMap = {};
+    static navigatingView = null;
 
     /** @returns { Router } */
     static getInstance() {
@@ -137,7 +138,9 @@ export class Router {
 
                     let template = (new Components()).getHomeCmpTemplate($still.context.currentView);
                     template = appTemplate.replace(
-                        $stillconst.STILL_COMPONENT, `<div id="${Router.appPlaceholder}">${template}</div>`
+                        $stillconst.STILL_COMPONENT, `
+                            <div id="${Router.appPlaceholder}" class="${$stillconst.TOP_LEVEL_CMP}">${template}</div>
+                        `
                     );
                     document.getElementById('stillUiPlaceholder').innerHTML = template;
                     setTimeout(() => Router.callCmpAfterInit(null, isHomeCmp, Router.appPlaceholder));
@@ -168,10 +171,9 @@ export class Router {
                             Components.registerPublicCmp(newInstance);
                             if (!AppTemplate.get().isAuthN())
                                 return (new Components()).renderPublicComponent(newInstance);
-
                         }
 
-                        ComponentRegistror.register(cmp, newInstance);
+                        ComponentRegistror.add(cmp, newInstance);
                         if (!document.getElementById($stillconst.APP_PLACEHOLDER) && !newInstance.isPublic)
                             return document.write($stillconst.MSG.PRIVATE_CMP);
 
@@ -224,8 +226,8 @@ export class Router {
                 .unloadLoadedComponent()
                 .then(async () => {
                     Router.handleUnauthorizeIfPresent();
+                    if (Router.noPermAccessProcess(isPrivate, appPlaceholder)) return;
                     if (cmp.subImported) {
-
                         const pageContent = `
                         <output id="${cmpId}-check" style="display:contents;">
                             ${cmp.getTemplate()}
@@ -248,23 +250,18 @@ export class Router {
             Components
                 .unloadLoadedComponent()
                 .then(async () => {
-
+                    Router.handleUnauthorizeIfPresent();
+                    if (Router.noPermAccessProcess(isPrivate, appPlaceholder)) return;
                     if (!appPlaceholder && cmp?.isPublic) {
                         appPlaceholder = document.getElementById($stillconst.UI_PLACEHOLDER);
                     }
 
-                    const isUnauthorized = isPrivate && AppTemplate.get().isAuthN();
-                    if (isUnauthorized) pageContent = $stillconst.MSG.PRIVATE_CMP;
-                    else {
-                        Router.handleUnauthorizeIfPresent();
-                        pageContent = `
+                    const pageContent = `
                         <output id="${cmpId}-check" style="display:contents;">
                             ${cmp.getTemplate()}
                         </output>`;
-                    }
 
                     appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
-                    if (isUnauthorized) return;
 
                     setTimeout(() => cmp.parseOnChange(), 500);
                     await cmp.onRender();
@@ -276,6 +273,7 @@ export class Router {
         }
 
     }
+
 
     static callCmpAfterInit(cmpId, isHome, appPlaceholder = null) {
 
@@ -343,6 +341,7 @@ export class Router {
             || (cmp.prototype instanceof BaseComponent)
         ) cmp = cmp.name;
 
+        Router.navigatingView = cmp;
         return cmp;
 
     }
@@ -369,5 +368,16 @@ export class Router {
     }
 
 
+    static noPermAccessProcess(isPrivate, appPlaceholder) {
+
+        const isUnauthorized = isPrivate && !AppTemplate.get().isAuthN();
+        Router.handleUnauthorizeIfPresent();
+        if (isUnauthorized) {
+            appPlaceholder.insertAdjacentHTML('afterbegin', $stillconst.MSG.PRIVATE_CMP);
+            return true;
+        }
+        return false;
+
+    }
 }
 window.Router = Router;

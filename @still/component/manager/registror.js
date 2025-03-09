@@ -70,7 +70,7 @@ export class ComponentRegistror {
         $still.context.componentRegistror.componentList = {};
     }
 
-    static register(name, instance) {
+    static add(name, instance) {
         $still.context.componentRegistror.componentList[name] = { instance }
     }
 

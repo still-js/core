@@ -294,7 +294,11 @@ export class BaseComponent extends BehaviorComponent {
                      * */
                     if (!nextChar.replace(`@${field}`, '')[0].match(/[A-Za-z0-9]/)) {
 
-                        const data = `${currentClass[field]?.value || currentClass[field]}`;
+                        let data = currentClass[field];
+                        if (data instanceof Object) {
+                            if ('value' in data) data = currentClass[field]?.value
+                        }
+
                         if (this.#annotations.has(field)) return data
 
                         //this.#stateChangeSubsribers.push(`subrcibe-${clsName}-${field}`);
@@ -1070,6 +1074,9 @@ export class BaseComponent extends BehaviorComponent {
         let val = ''
         if (!(this[field] instanceof Object) && !!(this[field]))
             val = this[field];
+        else if (this[field] instanceof Object) {
+            if ('value' in this[field]) val = this[field].value;
+        }
 
         const validatorClass = BehaviorComponent.setOnValueInput(mt, this, field, (formRef?.formRef || null));
         const classList = `${validatorClass} listenChangeOn-${this.getProperInstanceName()}-${field}`;

@@ -281,6 +281,7 @@ export class Components {
 
         if (cmp.isPublic) {
             Components.registerPublicCmp(cmp);
+            setTimeout(() => cmp.parseOnChange(), 500);
             this.template = this.getNewParsedComponent(cmp).getTemplate();
             this.renderOnViewFor('stillUiPlaceholder');
         } else {
@@ -457,7 +458,10 @@ export class Components {
                 }
             } else {
 
-                Object.assign(cmp, { ['$still_' + field]: cmp[field] || '' });
+                let value = cmp[field];
+                if (!cmp[field] && cmp[field] != 0) value = '';
+
+                Object.assign(cmp, { ['$still_' + field]: value });
                 Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
                 this.defineSetter(cmp, field);
 

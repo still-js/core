@@ -125,7 +125,8 @@ export class Router {
                 (async () => {
 
                     const appTemplate = AppTemplate.get().template;
-                    const cmpRoute = Router.routeMap[cmp];
+                    let cmpRoute = Router.routeMap[cmp];
+                    if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
                     const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
 
                     $still.context.currentView = eval(`new ${cmpCls[cmp]}()`);
@@ -156,7 +157,8 @@ export class Router {
                     if (!Router.importedMap[cmp]) {
                         if (cmp == 'init') return;
 
-                        const cmpRoute = Router.routeMap[cmp];
+                        let cmpRoute = Router.routeMap[cmp];
+                        if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
                         const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
                         AppTemplate.get().storageSet('stAppInitStatus', true);
 

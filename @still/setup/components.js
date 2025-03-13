@@ -208,7 +208,6 @@ export class Components {
         ).then(async () => {
 
             //Components.preProcessAnnotations();
-
             $still.context.currentView = StillAppSetup.instance.init();
 
             /**  @type { ViewComponent } */
@@ -220,6 +219,7 @@ export class Components {
                 const cmpCls = await import(`${Components.baseUrl}${cmpRoute}/${this.entryComponentName}.js`);
 
                 $still.context.currentView = eval(`new ${cmpCls[this.entryComponentName]}()`);
+                setTimeout(() => $still.context.currentView.parseOnChange(), 500);
                 StillAppSetup.register(cmpCls[this.entryComponentName]);
                 this.template = this.getHomeCmpTemplate($still.context.currentView);
 
@@ -600,13 +600,12 @@ export class Components {
         if (elm.tagName == 'SELECT') {
             const childs = elm.querySelectorAll('option');
 
-            if (childs[0].outerHTML.toString().indexOf('value="{item.') > 0) {
+            const placeholder = elm.getAttribute('placeholder') || 'Select an option';
+            if (childs[0].outerHTML.toString().indexOf('value="{item.') > 0)
                 tmpltContent = childs[0].outerHTML.toString();
-            } else if (childs[1].outerHTML.toString().indexOf('value="{item.') > 0) {
-                tmpltContent = childs[1].outerHTML.toString();
-            }
 
-            container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field);
+            let result = `<option value='' selected>${placeholder}</option>`;
+            container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field, result);
             return container;
 
         } else {
@@ -620,15 +619,14 @@ export class Components {
         if (oldContainer) elm?.parentNode?.removeChild(oldContainer);
         container.classList.add(hash);
 
-        container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field);
+        container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field, '');
         return container;
 
     }
 
-    parseForEachTemplate(tmpltContent, cmp, field) {
+    parseForEachTemplate(tmpltContent, cmp, field, result) {
 
         let template = tmpltContent.replace('display:none;', '');
-        let result = '';
 
         if (cmp['$still_' + field] instanceof Array) {
             cmp['$still_' + field].forEach((rec) => {

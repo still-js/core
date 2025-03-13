@@ -538,8 +538,7 @@ export class Components {
         if (elm.tagName == 'INPUT')
             return this.propageteToInput(elm, field, cmp);
 
-        //if (elm.tagName == 'TBODY')
-        return this.propagetToTable(elm, field, cmp);
+        return this.propagetToHTMLContainer(elm, field, cmp);
 
     }
 
@@ -567,13 +566,27 @@ export class Components {
      * @param { HTMLElement } elm
      * @param { ViewComponent } cmp
      */
-    propagetToTable(elm, field, cmp) {
+    propagetToHTMLContainer(elm, field, cmp) {
 
         let container = document.createElement(elm.tagName);
+        let prevClass = elm.getAttribute('newCls');
+        prevClass = elm.getAttribute('class').replace(prevClass, '');
+        container.className = `${prevClass}`;
+
         container = this.parseAndAssigneValue(elm, field, cmp, container);
-        elm.parentNode.insertAdjacentElement('beforeend', container);
+        if (elm.tagName == 'TBODY')
+            elm.parentNode.insertAdjacentElement('beforeend', container);
+
+        else {
+
+            const finalCtnr = document.createElement('output');
+            finalCtnr.innerHTML = container.innerHTML;
+            finalCtnr.style.display = 'contents';
+            elm.insertAdjacentElement('beforeend', finalCtnr);
+        }
 
     }
+
     /**
      * @param { HTMLElement } elm
      * @param { ViewComponent } cmp
@@ -581,7 +594,7 @@ export class Components {
     parseAndAssigneValue(elm, field, cmp, container) {
 
         const hash = elm.getAttribute('hash');
-        container.className = `${$stillconst.SUBSCRIBE_LOADED}`;
+        container.classList.add($stillconst.SUBSCRIBE_LOADED);
 
         let tmpltContent;
         if (elm.tagName == 'SELECT') {
@@ -605,7 +618,7 @@ export class Components {
         const oldContainer = elm.parentNode.querySelector(`.${hash}`);
         /** Check if it exists previous table body and remove it */
         if (oldContainer) elm?.parentNode?.removeChild(oldContainer);
-        else container.classList.add(hash);
+        container.classList.add(hash);
 
         container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field);
         return container;

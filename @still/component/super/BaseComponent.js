@@ -330,15 +330,21 @@ export class BaseComponent extends BehaviorComponent {
             if (loopPos >= 0) ds = mt.substr(loopPos).split('"')[1].trim();
 
             let subscriptionCls = '';
-            const subscribeCls = `listenChangeOn-${this.getProperInstanceName()}-${ds}`;
+
+            const subsCls = `listenChangeOn-${this.getProperInstanceName()}-${ds}`;
+            const hashValue = `hash_${UUIDUtil.newId()}`;
+            const hash = `hash="${hashValue}"`;
+            const newClassName = `newCls="${subsCls}"`;
+            const finalAttrs = `${newClassName} ${hash} class="${subsCls}`;
+
             if (mt.indexOf(`class="`) >= 0)
-                mt = mt.replace(`class="`, `hash="hash_${UUIDUtil.newId()}" class="${subscribeCls} `);
+                mt = mt.replace(`class="`, `${finalAttrs} `);
             else
-                subscriptionCls = `hash="hash_${UUIDUtil.newId()}" class="${subscribeCls}" `;
+                subscriptionCls = `${finalAttrs}" `;
 
             mt = mt.replace(`(forEach)="${ds}"`, subscriptionCls);
 
-            return mt;
+            return `<output class="${hashValue}"></output>${mt}`;
 
         }).replaceAll('each="item"', 'style="display:none;"');
 

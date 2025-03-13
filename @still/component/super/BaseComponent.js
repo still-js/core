@@ -327,15 +327,14 @@ export class BaseComponent extends BehaviorComponent {
         template = template.replace(re, (mt) => {
             let ds = '';
             const loopPos = mt.indexOf(forEach);
-            if (loopPos >= 0) {
-                ds = mt.substr(loopPos).split('"')[1].trim();
-            }
+            if (loopPos >= 0) ds = mt.substr(loopPos).split('"')[1].trim();
 
             let subscriptionCls = '';
+            const subscribeCls = `listenChangeOn-${this.getProperInstanceName()}-${ds}`;
             if (mt.indexOf(`class="`) >= 0)
-                mt = mt.replace(`class="`, `class="listenChangeOn-${this.getProperInstanceName()}-${ds} `);
+                mt = mt.replace(`class="`, `hash="hash_${UUIDUtil.newId()}" class="${subscribeCls} `);
             else
-                subscriptionCls = `class="listenChangeOn-${this.getProperInstanceName()}-${ds}" `;
+                subscriptionCls = `hash="hash_${UUIDUtil.newId()}" class="${subscribeCls}" `;
 
             mt = mt.replace(`(forEach)="${ds}"`, subscriptionCls);
 
@@ -935,7 +934,7 @@ export class BaseComponent extends BehaviorComponent {
                 matchCounter++;
             }
 
-            const [propMapper, props] = [this.parseStTag(mt, cmpInternalId), {}];
+            const propMapper = this.parseStTag(mt, cmpInternalId);
 
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
@@ -943,16 +942,13 @@ export class BaseComponent extends BehaviorComponent {
             const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
             parentCmp[proxy] = { on: () => { } };
 
-            for (const [prop, val] of Object.entries(propMapper))
-                props[prop] = val;
-
             if (!(this.cmpInternalId in Components.componentPartsMap))
                 Components.componentPartsMap[this.cmpInternalId] = [];
 
             Components.componentPartsMap[this.cmpInternalId].push(
                 new ComponentPart({
                     template: null, component: cmpName,
-                    proxy, props, annotations: this.#annotations
+                    proxy, props: propMapper, annotations: this.#annotations
                 })
             );
 

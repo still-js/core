@@ -538,8 +538,8 @@ export class Components {
         if (elm.tagName == 'INPUT')
             return this.propageteToInput(elm, field, cmp);
 
-        if (elm.tagName == 'TBODY')
-            return this.propagetToTable(elm, field, cmp);
+        //if (elm.tagName == 'TBODY')
+        return this.propagetToTable(elm, field, cmp);
 
     }
 
@@ -580,9 +580,10 @@ export class Components {
      */
     parseAndAssigneValue(elm, field, cmp, container) {
 
-        let tmpltContent;
-        container.className = $stillconst.SUBSCRIBE_LOADED;
+        const hash = elm.getAttribute('hash');
+        container.className = `${$stillconst.SUBSCRIBE_LOADED}`;
 
+        let tmpltContent;
         if (elm.tagName == 'SELECT') {
             const childs = elm.querySelectorAll('option');
 
@@ -601,9 +602,10 @@ export class Components {
 
 
         /** Get the previous table body */
-        const oldContainer = elm.parentNode.querySelector(`.${$stillconst.SUBSCRIBE_LOADED}`);
+        const oldContainer = elm.parentNode.querySelector(`.${hash}`);
         /** Check if it exists previous table body and remove it */
-        if (oldContainer) elm.parentNode.removeChild(oldContainer);
+        if (oldContainer) elm?.parentNode?.removeChild(oldContainer);
+        else container.classList.add(hash);
 
         container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field);
         return container;

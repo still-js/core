@@ -135,6 +135,8 @@ export class Components {
     static baseUrl = Router.baseUrl;
     static vendorPath = `${Router.baseUrl}@still/vendors`;
 
+    void() { }
+
     /**
      * @returns { StillAppSetup }
      */

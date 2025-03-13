@@ -431,16 +431,20 @@ export class BaseComponent extends BehaviorComponent {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
                     const instance = eval(this.getClassPath());
 
-                    if (!(field in instance)) {
-                        throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
+                    if (field != undefined) {
+                        if (!(field in instance)) {
+                            throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
+                        }
+                        instance[field] = value;
                     }
 
-                    if (!(evt in instance)) {
-                        throw new Error(`Method with name ${field}() is not define in ${this.getName()}`);
+                    if (evt != 'Components.void') {
+                        if (!(evt in instance)) {
+                            throw new Error(`Method with name ${evt}() is not define in ${this.getName()}`);
+                        }
+                        instance[evt](param);
                     }
 
-                    instance[field] = value;
-                    instance[evt](param);
                 })
             }
         });
@@ -448,7 +452,7 @@ export class BaseComponent extends BehaviorComponent {
 
     getBoundOnChange(template) {
 
-        const extremRe = /[\n \r \( \) A-Za-z0-9 \- \s \. \_ \" \=]{0,}/.source;
+        const extremRe = /[\n \r \( \) A-Za-z0-9 \- \s \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \. \_ \" \=]{0,}/.source;
         const mathIfChangeEvt = /\(change\)\=\"(\w*)\([\_\$A-Za-z0-9]{0,}\)\"/;
         const matchChange = '(change)="';
 
@@ -461,15 +465,16 @@ export class BaseComponent extends BehaviorComponent {
 
             if (mtch.length > 0) {
 
-                const _className = ` onChange_${Math.random().toString().substring(2)}`;
-                this.onChangeEventsList.push({ evt: `(change)="${changeEvt}"`, _className: _className.trim() });
+                const _className = ` onChange_${Math.random().toString().substring(2)}`.trim();
+                this.onChangeEventsList.push({ evt: `(change)="${changeEvt}"`, _className });
                 if (mtch.indexOf('class="') >= 0) {
                     mtch = mtch
                         .replace(`class="`, `class="${_className} `);
                 } else {
-                    mtch += `class="${_className.trim()} " `;
+                    mtch += `class="${_className} " `;
                 }
             }
+
             mtch = mtch.replace(mathIfChangeEvt, '');
             return mtch;
         });
@@ -486,12 +491,28 @@ export class BaseComponent extends BehaviorComponent {
             const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z0-9 \{ \} \[ \] \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"\w*\"\s?/.source;
             const matchForEachRE = '(forEach)=\"';
+            const matchValue = '(value)="';
+            const matchChange = '(change)="';
 
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe, "gi");
 
             template = template.replace(valueBindRE, (mt, matchPos) => {
 
-                const isThereComboBox = mt.indexOf('select') >= 0;
+                const isThereComboBox = mt.indexOf('<select') >= 0;
+                const value = mt.indexOf(matchValue);
+                const changeEvt = mt.indexOf(matchChange);
+
+                if ((isThereComboBox && value >= 0) && changeEvt < 0) {
+                    const _className = ` onChange_${Math.random().toString().substring(2)}`.trim();
+                    this.onChangeEventsList.push({ evt: '`(change)="Components.void()"`', _className });
+
+                    if (mt.indexOf('class="') >= 0) {
+                        mt = mt
+                            .replace(`class="`, `class="${_className} `);
+                    } else
+                        mt += `class="${_className} " `;
+                }
+
                 const matchForEach = mt.indexOf(matchForEachRE);
                 let forEachValue = '';
                 if (matchForEach >= 0)
@@ -499,13 +520,14 @@ export class BaseComponent extends BehaviorComponent {
 
                 if (mt.length > 0) {
 
-                    const checkPos = mt.indexOf(`(value)="`) + 9;
+                    const checkPos = value + 9;
                     const field = mt.slice(checkPos, mt.indexOf('"', checkPos));
                     const formRef = formsRef?.find(r => matchPos > r.pos) || '';
 
                     const { replacer, mt: updatedMt } = this.#getFormInputReplacer(
                         mt, field, isThereComboBox, forEachValue, formRef
                     );
+
                     mt = updatedMt.replace(`(value)="${field}"`, replacer);
                 }
                 return mt;

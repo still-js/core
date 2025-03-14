@@ -125,11 +125,7 @@ export class Router {
                 (async () => {
 
                     const appTemplate = AppTemplate.get().template;
-                    let cmpRoute = Router.routeMap[cmp];
-                    if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
-                    const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
-
-                    $still.context.currentView = eval(`new ${cmpCls[cmp]}()`);
+                    $still.context.currentView = await Components.produceComponent({ cmp });
 
                     if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
                         document.write($stillconst.MSG.PRIVATE_CMP);
@@ -157,15 +153,11 @@ export class Router {
                     if (!Router.importedMap[cmp]) {
                         if (cmp == 'init') return;
 
-                        let cmpRoute = Router.routeMap[cmp];
-                        if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
-                        const cmpCls = await import(`${Router.baseUrl}${cmpRoute}/${cmp}.js`);
-                        AppTemplate.get().storageSet('stAppInitStatus', true);
-
                         /** the bellow line clears previous component from memory
                          * @type { ViewComponent } */
-                        const newInstance = eval(`new ${cmpCls[cmp]}()`);
+                        const newInstance = await Components.produceComponent({ cmp });
 
+                        AppTemplate.get().storageSet('stAppInitStatus', true);
                         if (newInstance.template == undefined)
                             return Router.cmpTemplateNotDefinedCheck(cmp);
 

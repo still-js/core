@@ -203,6 +203,46 @@ export class Components {
         }
     }
 
+    static async produceComponent({ cmp, parentCmp } = { parentCmp: '' }) {
+
+        let clsName = cmp, cmpPath, template,
+            isVendorCmp = (cmp || []).at(0) == '@';
+
+        if (isVendorCmp) {
+            const clsPath = cmp.split('/');
+            clsName = clsPath.at(-1);
+            clsPath.pop();
+            cmpPath = `${Components.baseUrl}@still/vendors/${clsPath.join('/').slice(1)}/${clsName}`;
+        } else {
+
+            let cmpRoute = Router.routeMap[clsName];
+            if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
+            cmpPath = `${Router.baseUrl}${cmpRoute}/${clsName}`;
+
+        }
+
+        const result = await fetch(cmpPath + '.html');
+        if (result.status == 404) template = undefined;
+        else template = await result.text();
+
+        try {
+
+            const cmpCls = await import(`${cmpPath}.js`);
+
+            /** the bellow line clears previous component from memory
+             * @type { ViewComponent } */
+            const newInstance = eval(`new ${cmpCls[clsName]}()`);
+            if (template) newInstance.template = template;
+
+            return newInstance;
+
+        } catch (error) {
+            StillError.handleStComponentNotFound(error, parentCmp, clsName);
+            return false;
+        }
+
+    }
+
     async loadComponent() {
         loadComponentFromPath(
             this.entryComponentPath,
@@ -217,12 +257,9 @@ export class Components {
 
             if (currentView.template.indexOf(this.stillCmpConst) >= 0) {
 
-                const cmpRoute = Components.routesMap[this.entryComponentName];
-                const cmpCls = await import(`${Components.baseUrl}${cmpRoute}/${this.entryComponentName}.js`);
-
-                $still.context.currentView = eval(`new ${cmpCls[this.entryComponentName]}()`);
+                $still.context.currentView = await Components.produceComponent({ cmp: this.entryComponentName });
                 setTimeout(() => $still.context.currentView.parseOnChange(), 500);
-                StillAppSetup.register(cmpCls[this.entryComponentName]);
+                StillAppSetup.register($still.context.currentView.constructor);
                 this.template = this.getHomeCmpTemplate($still.context.currentView);
 
                 ComponentRegistror.add(
@@ -755,10 +792,7 @@ export class Components {
         const cmpName = cmp.constructor.name;
 
         /** @type { ViewComponent } */
-        const cmpRoute = Components.routesMap[cmpName];
-        const cmpCls = await import(`${Components.baseUrl}${cmpRoute}/${cmpName}.js`);
-
-        let newInstance = eval(`new ${cmpCls[cmpName]}()`);
+        let newInstance = await Components.produceComponent({ cmp: cmpName });
         newInstance = (new Components()).getParsedComponent(newInstance);
         newInstance.setUUID(cmp.getUUID());
         newInstance.setRoutableCmp(true);
@@ -871,22 +905,7 @@ export class Components {
             const { proxy, component, props, annotations, ref } = cmpParts[idx];
             if (component == undefined) continue;
 
-            let importFile, realClsName = component,
-                isVendorCmp = (component || []).at(0) == '@', cmpPath;
-            if (isVendorCmp) {
-                const clsPath = component.split('/');
-                realClsName = clsPath.at(-1);
-                clsPath.pop();
-                cmpPath = `${Components.baseUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
-                importFile = import(`${Components.baseUrl}@still/vendors/${component.slice(1)}.js`);
-            } else {
-                const cmpRoute = Components.routesMap[component];
-                cmpPath = `${Components.baseUrl}${cmpRoute}`;
-                if (cmpPath.at(-1) == '/') cmpPath = cmpPath.slice(0, -1);
-                importFile = import(`${cmpPath}/${component}.js`)
-            }
-
-            importFile.then(async cmpCls => {
+            (async () => {
 
                 /** TODO: Dynamic import of assets of a vendor component  */
                 /* if (isVendorCmp) {
@@ -896,8 +915,7 @@ export class Components {
                     });
                 } */
 
-                const instance = eval(`new ${cmpCls[realClsName]}()`);
-                //StillAppSetup.register(cmpCls[realClsName]);
+                const instance = await Components.produceComponent({ cmp: component, parentCmp });
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
                 instance.onRender();
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;
@@ -910,9 +928,7 @@ export class Components {
                     cmpName = 'constructor' in instance ? instance.constructor.name : null;
                 }
 
-                /**
-                 * TOUCH TO REINSTANTIATE
-                 */
+                /** TOUCH TO REINSTANTIATE */
                 const cmp = (new Components).getNewParsedComponent(instance, cmpName);
                 cmp.parentVersionId = cmpVersionId;
 
@@ -925,8 +941,7 @@ export class Components {
                     const allProps = Object.entries(props);
                     for (const [prop, value] of allProps) {
 
-                        if (prop == 'ref')
-                            ComponentRegistror.add(value, cmp);
+                        if (prop == 'ref') ComponentRegistror.add(value, cmp);
 
                         //Proxy gets ignored becuase it was assigned above and it should be the child class
                         if (prop != 'proxy' && prop != 'component') {
@@ -948,7 +963,7 @@ export class Components {
                                 cmp[prop] = value;
                         }
                         /**
-                         * Replace the parent component on the registror So that it get's 
+                         * Replace the parent component on the registror So that it get's
                          * updated with the new and fresh data, properties and proxies
                          */
                         ComponentRegistror.add(
@@ -975,10 +990,7 @@ export class Components {
 
                     Components.handleMarkedToRemoveParts();
                 });
-            })
-                .catch(err => {
-                    StillError.handleStComponentNotFound(err, parentCmp, realClsName);
-                });
+            })();
         }
 
         if (cmpInternalId != 'fixed-part') {

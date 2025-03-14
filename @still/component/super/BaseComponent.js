@@ -141,7 +141,7 @@ export class BaseComponent extends BehaviorComponent {
         return this.#stateChangeSubsribers;
     }
 
-    getProperties() {
+    getProperties(allowfProp = false) {
 
         if (!this.wasAnnotParsed) this.#parseAnnotations();
 
@@ -181,9 +181,14 @@ export class BaseComponent extends BehaviorComponent {
                         return false;
                 }
 
+                if (!allowfProp) {
+                    return !excludingFields.includes(field)
+                        && !field.startsWith(this.$stillpfx)
+                        && !(this.#annotations.get(field)?.propParsing)
+                }
+
                 return !excludingFields.includes(field)
                     && !field.startsWith(this.$stillpfx)
-                    && !(this.#annotations.get(field)?.propParsing)
             }
         );
 
@@ -247,7 +252,8 @@ export class BaseComponent extends BehaviorComponent {
 
     getBoundState() {
 
-        const fields = this.getProperties();
+        const allowfProp = true;
+        const fields = this.getProperties(allowfProp);
         const currentClass = this;
         const clsName = currentClass.constructor.name;
 

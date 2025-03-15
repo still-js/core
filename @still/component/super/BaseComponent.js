@@ -90,6 +90,7 @@ export class BaseComponent extends BehaviorComponent {
     baseUrl = window.location.href;
     #stateChangeSubsribers = [];
     bindStatus;
+    $parent;
     routesMap = {
         ...stillRoutesMap.viewRoutes.lazyInitial,
         ...stillRoutesMap.viewRoutes.regular
@@ -153,9 +154,10 @@ export class BaseComponent extends BehaviorComponent {
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm', '$stillpfx', 'subImported',
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
+            'dynCmpGeneratedId', 'stillElement', 'proxyName',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
-            'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus', 'templateUrl'
+            'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus',
+            'templateUrl', '$parent'
         ];
         return fields.filter(
             field => {

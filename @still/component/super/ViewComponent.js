@@ -13,7 +13,7 @@ export class ViewComponent extends BaseComponent {
     htmlRefId;
     #stMyParent;
 
-    constructor() {
+    constructor({ parent } = { parent: null }) {
         super();
     }
 

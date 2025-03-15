@@ -232,10 +232,12 @@ export class Components {
         try {
 
             const cmpCls = await import(`${cmpPath}.js`);
+            const parent = parentCmp ? { parent: parentCmp } : '';
 
             /** the bellow line clears previous component from memory
              * @type { ViewComponent } */
-            newInstance = eval(`new ${cmpCls[clsName]}()`);
+            newInstance = new cmpCls[clsName](parent);
+            newInstance.$parent = parentCmp;
 
             if (!newInstance.template) {
                 let tmplFileUrl = cmpPath + '.html';

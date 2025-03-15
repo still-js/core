@@ -205,25 +205,29 @@ export class Components {
 
     static async produceComponent({ cmp, parentCmp } = { parentCmp: '' }) {
 
-        let clsName = cmp, cmpPath, template,
-            isVendorCmp = (cmp || []).at(0) == '@';
+        let clsName = cmp, cmpPath, template, folderPah, exception,
+            isVendorCmp = (cmp || []).at(0) == '@', newInstance;
 
         if (isVendorCmp) {
             const clsPath = cmp.split('/');
             clsName = clsPath.at(-1);
             clsPath.pop();
-            cmpPath = `${Components.baseUrl}@still/vendors/${clsPath.join('/').slice(1)}/${clsName}`;
+            folderPah = `${Components.baseUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
+            cmpPath = `${folderPah}/${clsName}`;
         } else {
-
             let cmpRoute = Router.routeMap[clsName];
-            if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
-            cmpPath = `${Router.baseUrl}${cmpRoute}/${clsName}`;
+            if (!cmpRoute) {
+                StillError.handleStComponentNotFound(
+                    'TypeError', parentCmp, clsName
+                );
+                return;
+            }
 
+            if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
+            folderPah = `${Router.baseUrl}${cmpRoute}`;
+            cmpPath = `${folderPah}/${clsName}`;
         }
 
-        const result = await fetch(cmpPath + '.html');
-        if (result.status == 404) template = undefined;
-        else template = await result.text();
 
         try {
 
@@ -231,17 +235,43 @@ export class Components {
 
             /** the bellow line clears previous component from memory
              * @type { ViewComponent } */
-            const newInstance = eval(`new ${cmpCls[clsName]}()`);
-            if (template) newInstance.template = template;
+            newInstance = eval(`new ${cmpCls[clsName]}()`);
+
+            if (!newInstance.template) {
+                let tmplFileUrl = cmpPath + '.html';
+                const { templateUrl } = newInstance;
+                if (templateUrl) tmplFileUrl = `${folderPah}/${templateUrl}`;
+
+                const result = await fetch(tmplFileUrl);
+                if (result.status == 404) {
+                    StillError.handleInvalidTmplUrl('TypeError', newInstance, templateUrl);
+                    exception = true;
+                    return newInstance;
+
+                } else template = await result.text();
+
+                if (template) newInstance.template = template;
+            }
 
             return newInstance;
 
         } catch (error) {
-            StillError.handleStComponentNotFound(error, parentCmp, clsName);
+            if (!exception)
+                StillError.handleStComponentNotFound(error, parentCmp, clsName);
             return false;
         }
 
     }
+
+    /* static async fetchTemplate(tmplFileUrl, filePath) {
+        const result = await fetch(tmplFileUrl);
+        if (result.status == 404) {
+            StillError.handleInvalidTmplUrl('TypeError', parentCmp, filePath);
+            return
+        }
+        return result;
+
+    } */
 
     async loadComponent() {
         loadComponentFromPath(

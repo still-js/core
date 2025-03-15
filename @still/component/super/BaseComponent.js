@@ -68,6 +68,7 @@ export class BaseComponent extends BehaviorComponent {
     componentName;
     componentId;
     template;
+    templateUrl;
     cmpProps = [];
     cmpInternalId = null;
     routableCmp = null;
@@ -154,7 +155,7 @@ export class BaseComponent extends BehaviorComponent {
             'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
             'dynCmpGeneratedId', 'stillElement', 'stMyParent', 'proxyName',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
-            'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus'
+            'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus', 'templateUrl'
         ];
         return fields.filter(
             field => {

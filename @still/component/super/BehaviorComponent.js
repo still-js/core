@@ -58,7 +58,7 @@ export class BehaviorComponent {
 
         const pattern = inpt.getAttribute('(validator)');
         let required = inpt.getAttribute('(required)');
-        let validationTrigger = inpt.getAttribute('(validation-trigger)');
+        let validationTrigger = inpt.getAttribute('(validator-trigger)');
         required = required == 'false' ? false : required;
 
         let isTriggerSet = inpt.getAttribute(this.#triggetSet);
@@ -180,7 +180,7 @@ export class BehaviorComponent {
 
             if (max) {
                 if (isValidNum > max) {
-                    msg = inpt.getAttribute('(validator-min-warn)');
+                    msg = inpt.getAttribute('(validator-man-warn)');
                     msg = msg || this._const.value['MAX_VALID_MSG_' + this.lang.value].replace('{{}}', max);
                 }
             }

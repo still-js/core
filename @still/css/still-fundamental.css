@@ -28,12 +28,27 @@
 }
 
 .nonExistingComponentSt,
-.nonExistingFieldSt {
+.nonExistingFieldSt,
+.nonExistingTemplate,
+.existingTemplate {
     color: red;
     font-weight: bold;
     background-color: white;
     border-radius: 3px;
     padding: 1px 3px;
+}
+
+.nonExistingComponentSt {
+    font-weight: normal;
+    color: black;
+}
+
+.nonExistingComponentSt>b {
+    color: red;
+}
+
+.existingTemplate {
+    color: rgb(0, 81, 0);
 }
 
 .errorCmdSugestion {

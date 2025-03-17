@@ -95,6 +95,7 @@ export class BaseComponent extends BehaviorComponent {
         ...stillRoutesMap.viewRoutes.lazyInitial,
         ...stillRoutesMap.viewRoutes.regular
     };
+    dynLoopObject = false;
 
 
     /**
@@ -157,7 +158,7 @@ export class BaseComponent extends BehaviorComponent {
             'dynCmpGeneratedId', 'stillElement', 'proxyName',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
             'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus',
-            'templateUrl', '$parent'
+            'templateUrl', '$parent', 'dynLoopObject'
         ];
         return fields.filter(
             field => {
@@ -258,7 +259,9 @@ export class BaseComponent extends BehaviorComponent {
         const allowfProp = true;
         const fields = this.getProperties(allowfProp);
         const currentClass = this;
-        const clsName = currentClass.constructor.name;
+        const clsName = this.dynLoopObject
+            ? this.cmpInternalId
+            : currentClass.constructor.name;
 
         if (this.template instanceof Array)
             this.template = this.template.join('');
@@ -316,7 +319,6 @@ export class BaseComponent extends BehaviorComponent {
                     } else {
                         return `@${field}`;
                     }
-
 
                 }
             );
@@ -515,8 +517,11 @@ export class BaseComponent extends BehaviorComponent {
                 const value = mt.indexOf(matchValue);
                 const changeEvt = mt.indexOf(matchChange);
 
+                const onChangeId = this.dynLoopObject
+                    ? this.cmpInternalId
+                    : Math.random().toString().substring(2);
                 if ((isThereComboBox && value >= 0) && changeEvt < 0) {
-                    const _className = ` onChange_${Math.random().toString().substring(2)}`.trim();
+                    const _className = ` onChange_${onChangeId}`.trim();
                     this.onChangeEventsList.push({ evt: '`(change)="Components.void()"`', _className });
 
                     if (mt.indexOf('class="') >= 0) {
@@ -708,7 +713,6 @@ export class BaseComponent extends BehaviorComponent {
          * NOTE: Needs to be always the first to be called
          */
         let template = this.getBoundState();
-
         template = this.getBoundRender(template);
 
         /** Parse still tags */
@@ -975,28 +979,45 @@ export class BaseComponent extends BehaviorComponent {
                 matchCounter++;
             }
 
-            const propMapper = this.parseStTag(mt, cmpInternalId);
-
+            const propMap = this.parseStTag(mt, cmpInternalId);
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
 
-            const [cmpName, proxy] = [propMapper['component'], propMapper['proxy']];
-            parentCmp[proxy] = { on: () => { } };
+            parentCmp[propMap['proxy']] = { on: () => { } };
+            const { component, ref, proxy: p, each, ...tagProps } = propMap;
+            const isThereProp = Object.keys(tagProps).length > 0;
 
             if (!(this.cmpInternalId in Components.componentPartsMap))
                 Components.componentPartsMap[this.cmpInternalId] = [];
 
-            Components.componentPartsMap[this.cmpInternalId].push(
-                new ComponentPart({
-                    template: null, component: cmpName,
-                    proxy, props: propMapper, annotations: this.#annotations
-                })
-            );
+            /** 
+             * Only parse and <st-element> individually in case it's not inside a container
+             * with (forEach) notation
+             * */
+            if (!isThereProp) {
+                Components.componentPartsMap[this.cmpInternalId].push(
+                    new ComponentPart({
+                        template: null, component: propMap['component'], props: propMap,
+                        proxy: propMap['proxy'], annotations: this.#annotations
+                    })
+                );
+            }
 
             const addCls = `${cmpInternalId == 'fixed-part' ? $stillconst.ST_FIXE_CLS : ''}`;
+            const display = propMap?.each == 'item' ? 'none' : 'contents';
+            /**
+             * The attributes componentRef, prop and loopDSource (data source of the forEach)
+             * all of them serve as a Metadata for in case the <st-element> is wrapped by a
+             * container with (forEach) notation/directive, hence being passed as loopAttrs
+             */
+            const loopAttrs = !isThereProp ? '' : `
+                componentRef="${propMap['component']}" loopDSource="${propMap?.each == 'item'}"
+                props=${isThereProp ? JSON.stringify(tagProps) : '{}'}
+            `;
             return `<still-placeholder 
-                        style="display:contents; ${foundStyle != false ? foundStyle : ''}" 
-                        class="still-placeholder${uuid} ${addCls}">
+                        class="still-placeholder${uuid} ${addCls}" ${loopAttrs}
+                        style="display:${display}; ${foundStyle != false ? foundStyle : ''}" 
+                    >
                     </still-placeholder>`;
         });
 
@@ -1087,8 +1108,11 @@ export class BaseComponent extends BehaviorComponent {
             if ('value' in this[field]) val = this[field].value;
         }
 
+        const onChangeId = this.dynLoopObject
+            ? this.cmpInternalId
+            : this.getProperInstanceName();
         const validatorClass = BehaviorComponent.setOnValueInput(mt, this, field, (formRef?.formRef || null));
-        const classList = `${validatorClass} listenChangeOn-${this.getProperInstanceName()}-${field}`;
+        const classList = `${validatorClass} listenChangeOn-${onChangeId}-${field}`;
 
         const clsPath = this.getClassPath();
 

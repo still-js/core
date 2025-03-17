@@ -22,6 +22,8 @@ const $stillLoadScript = (path, className, base = null) => {
 
 }
 
+const ProduceComponentType = { parentCmp: '', registerCls: false };
+
 export const loadComponentFromPath = (path, className, callback = () => { }) => {
 
     return new Promise((resolve, reject) => {
@@ -203,10 +205,16 @@ export class Components {
         }
     }
 
-    static async produceComponent({ cmp, parentCmp } = { parentCmp: '' }) {
+    static async produceComponent(params = ProduceComponentType) {
+
+        const { cmp, parentCmp, registerCls } = params;
 
         let clsName = cmp, cmpPath, template, folderPah, exception,
-            isVendorCmp = (cmp || []).at(0) == '@', newInstance;
+            isVendorCmp = (cmp || []).at(0) == '@';
+
+        /** the bellow line clears previous component from memory
+         * @type { ViewComponent } */
+        let newInstance;
 
         if (isVendorCmp) {
             const clsPath = cmp.split('/');
@@ -232,10 +240,9 @@ export class Components {
         try {
 
             const cmpCls = await import(`${cmpPath}.js`);
+            //if (registerCls) ComponentRegistror.addClass(cmpCls[clsName]);
             const parent = parentCmp ? { parent: parentCmp } : '';
 
-            /** the bellow line clears previous component from memory
-             * @type { ViewComponent } */
             newInstance = new cmpCls[clsName](parent);
             newInstance.$parent = parentCmp;
 
@@ -255,13 +262,44 @@ export class Components {
                 if (template) newInstance.template = template;
             }
 
-            return newInstance;
+            //newInstance.template = Components.parseTemlpateCssToScope(newInstance.template);
+            return {
+                newInstance, template: newInstance.template,
+                _class: !registerCls ? null : cmpCls[clsName]
+            };
 
         } catch (error) {
             if (!exception)
                 StillError.handleStComponentNotFound(error, parentCmp, clsName);
             return false;
         }
+
+    }
+
+    static parseTemlpateCssToScope(template) {
+
+        const cssRE = /<style>[\s\S]*?<\/style>/gi;
+        let styles = '';
+        const scope = `scope_${UUIDUtil.newId()}`;
+
+        template = template.toString().replace(cssRE, (mt) => {
+
+            styles = styles + '\n' + mt
+                .replace('<style>', '<style> @scope(.' + scope + ') {\n')
+                .replace('</style>', '} </style>');
+
+            return '';
+        }, 'gi');
+
+        const styleRE = /[a-z0-9 \. \$\#\&\*\-\_\~\>\<\:\;\,\.\|\=\'\%\@\!\(\)\[\]\{\} ]*?{/ig
+        styles = styles.toString().replace(styleRE, (mtch) => {
+            return mtch.trim();
+        });
+
+        return `<output class="${scope}" style="display: contents;">
+                    ${template}
+                <output>
+                \n${styles}`;
 
     }
 
@@ -289,7 +327,9 @@ export class Components {
 
             if (currentView.template.indexOf(this.stillCmpConst) >= 0) {
 
-                $still.context.currentView = await Components.produceComponent({ cmp: this.entryComponentName });
+                $still.context.currentView = await (
+                    await Components.produceComponent({ cmp: this.entryComponentName })
+                ).newInstance;
                 setTimeout(() => $still.context.currentView.parseOnChange(), 500);
                 StillAppSetup.register($still.context.currentView.constructor);
                 this.template = this.getHomeCmpTemplate($still.context.currentView);
@@ -488,11 +528,11 @@ export class Components {
     }
 
     /** 
-     * @param {ViewComponent} cmp 
+     * @param {ViewComponent} instance 
      */
-    parseGetsAndSets() {
+    parseGetsAndSets(instance = null) {
         /** @type { ViewComponent } */
-        const cmp = this.component;
+        const cmp = instance || this.component;
         const cmpName = this.componentName;
 
         cmp.getProperties().forEach(field => {
@@ -546,11 +586,10 @@ export class Components {
                         ));
                     }
 
-                    if (cmp.$stillClassLvlSubscribers.length > 0) {
+                    if (cmp.$stillClassLvlSubscribers.length > 0)
                         setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
-                    }
 
-                    if (cmp[field]?.defined) this.propageteChanges(cmp, field);
+                    if (cmp[field]?.defined || cmp.dynLoopObject) this.propageteChanges(cmp, field);
                 });
 
                 const firstPropagateTimer = setInterval(() => {
@@ -569,9 +608,12 @@ export class Components {
         return this;
     }
 
+    /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field) {
 
-        const cpName = cmp.getProperInstanceName();
+        const cpName = cmp.dynLoopObject
+            ? cmp.cmpInternalId
+            : cmp.getProperInstanceName();
         const cssRef = `.listenChangeOn-${cpName}-${field}`;
         const subscribers = document.querySelectorAll(cssRef);
         const cssRefCombo = `.listenChangeOn-${cpName}-${field}-combobox`;
@@ -631,9 +673,13 @@ export class Components {
      */
     propageteToSelect(elm, field, cmp) {
 
-        const container = document.createElement('optgroup');
-        this.parseAndAssigneValue(elm, field, cmp, container);
-        elm.insertAdjacentElement('beforeend', container);
+        (async () => {
+
+            const container = document.createElement('optgroup');
+            await this.parseAndAssigneValue(elm, field, cmp, container);
+            elm.insertAdjacentElement('beforeend', container);
+
+        })();
 
     }
 
@@ -643,22 +689,26 @@ export class Components {
      */
     propagetToHTMLContainer(elm, field, cmp) {
 
-        let container = document.createElement(elm.tagName);
-        let prevClass = elm.getAttribute('newCls');
-        prevClass = elm.getAttribute('class').replace(prevClass, '');
-        container.className = `${prevClass}`;
+        (async () => {
 
-        container = this.parseAndAssigneValue(elm, field, cmp, container);
-        if (elm.tagName == 'TBODY')
-            elm.parentNode.insertAdjacentElement('beforeend', container);
+            let container = document.createElement(elm.tagName);
+            let prevClass = elm.getAttribute('newCls');
+            prevClass = elm.getAttribute('class').replace(prevClass, '');
+            container.className = `${prevClass}`;
 
-        else {
+            container = await this.parseAndAssigneValue(elm, field, cmp, container);
+            if (elm.tagName == 'TBODY')
+                elm.parentNode.insertAdjacentElement('beforeend', container);
 
-            const finalCtnr = document.createElement('output');
-            finalCtnr.innerHTML = container.innerHTML;
-            finalCtnr.style.display = 'contents';
-            elm.insertAdjacentElement('beforeend', finalCtnr);
-        }
+            else {
+
+                const finalCtnr = document.createElement('output');
+                finalCtnr.innerHTML = container.innerHTML;
+                finalCtnr.style.display = 'contents';
+                elm.insertAdjacentElement('beforeend', finalCtnr);
+            }
+
+        })();
 
     }
 
@@ -666,12 +716,12 @@ export class Components {
      * @param { HTMLElement } elm
      * @param { ViewComponent } cmp
      */
-    parseAndAssigneValue(elm, field, cmp, container) {
+    async parseAndAssigneValue(elm, field, cmp, container) {
 
         const hash = elm.getAttribute('hash');
         container.classList.add($stillconst.SUBSCRIBE_LOADED);
 
-        let tmpltContent;
+        let tmpltContent, childCmp;
         if (elm.tagName == 'SELECT') {
             const childs = elm.querySelectorAll('option');
 
@@ -680,13 +730,19 @@ export class Components {
                 tmpltContent = childs[0].outerHTML.toString();
 
             let result = `<option value='' selected>${placeholder}</option>`;
-            container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field, result);
+            container.innerHTML = await this.parseForEachTemplate(tmpltContent, cmp, field, result);
             return container;
 
         } else {
             tmpltContent = elm.firstElementChild.outerHTML.toString();
-        }
+            const stDSource = elm.firstElementChild.getAttribute('loopDSource');
 
+            childCmp = {
+                stElement: elm.firstElementChild.getAttribute('componentRef'),
+                props: JSON.parse(elm.firstElementChild.getAttribute('props')),
+                stDSource: ![false, 'false'].includes(stDSource)
+            }
+        }
 
         /** Get the previous table body */
         const oldContainer = elm.parentNode.querySelector(`.${hash}`);
@@ -694,23 +750,63 @@ export class Components {
         if (oldContainer) elm?.parentNode?.removeChild(oldContainer);
         container.classList.add(hash);
 
-        container.innerHTML = this.parseForEachTemplate(tmpltContent, cmp, field, '');
+        container.innerHTML = await this.parseForEachTemplate(
+            tmpltContent, cmp, field, '', childCmp
+        );
         return container;
 
     }
 
-    parseForEachTemplate(tmpltContent, cmp, field, result) {
+    async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null) {
 
-        let template = tmpltContent.replace('display:none;', '');
+        let template = tmpltContent.replace('display:none;', ''), childTmpl,
+            childResult = '';
+
 
         if (cmp['$still_' + field] instanceof Array) {
-            cmp['$still_' + field].forEach((rec) => {
-                let parsingTemplate = template;
-                let fields = Object.entries(rec);
-                result += this.replaceBoundField(parsingTemplate, fields);
-            });
+
+            if (childCmp.stElement) {
+
+                const childInstance = await (await Components.produceComponent({
+                    cmp: childCmp.stElement,
+                    parentCmp: cmp, registerCls: true
+                }));
+
+                childTmpl = childInstance.template;
+
+                for (const rec of cmp['$still_' + field]) {
+                    /** @type { ViewComponent } */
+                    const inCmp = new childInstance._class();
+                    inCmp.cmpInternalId = 'dynamic-' + inCmp.getUUID();
+                    inCmp.template = childTmpl;
+                    inCmp.dynLoopObject = true;
+                    const fields = Object.entries(childCmp.props);
+                    inCmp.stillElement = true;
+                    childResult += await this
+                        .replaceBoundFieldStElement(inCmp, fields, rec)
+                        .getBoundTemplate();
+                    //setTimeout(() => inCmp)
+                    ComponentRegistror.add(inCmp.cmpInternalId, inCmp);
+                    setTimeout(() => {
+                        (new Components)
+                            .parseGetsAndSets(
+                                ComponentRegistror.component(inCmp.cmpInternalId))
+                        //.markParsed();
+                    }, 10);
+                };
+
+            } else {
+
+                cmp['$still_' + field].forEach((rec) => {
+                    let parsingTemplate = template;
+                    let fields = Object.entries(rec);
+                    result += this.replaceBoundField(parsingTemplate, fields);
+                });
+
+            }
+
         }
-        return result;
+        return childCmp.stElement ? childResult : result;
     }
 
     replaceBoundField(parsingTemplate, fields) {
@@ -718,6 +814,18 @@ export class Components {
             parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, v);
         }
         return parsingTemplate;
+    }
+
+    /** 
+     * @param { ViewComponent } obj
+     * @returns { ViewComponent }
+     * */
+    replaceBoundFieldStElement(obj, fields, rec) {
+        for (const [f, v] of fields) {
+            obj[f] = rec[v.replace('item.', '').trim()];
+        }
+
+        return obj;
     }
 
 
@@ -824,7 +932,9 @@ export class Components {
         const cmpName = cmp.constructor.name;
 
         /** @type { ViewComponent } */
-        let newInstance = await Components.produceComponent({ cmp: cmpName });
+        let newInstance = await (
+            await Components.produceComponent({ cmp: cmpName })
+        ).newInstance;
         newInstance = (new Components()).getParsedComponent(newInstance);
         newInstance.setUUID(cmp.getUUID());
         newInstance.setRoutableCmp(true);
@@ -947,7 +1057,9 @@ export class Components {
                     });
                 } */
 
-                const instance = await Components.produceComponent({ cmp: component, parentCmp });
+                const instance = await (
+                    await Components.produceComponent({ cmp: component, parentCmp })
+                ).newInstance;
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
                 instance.onRender();
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;

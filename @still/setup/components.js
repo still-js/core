@@ -762,10 +762,9 @@ export class Components {
         let template = tmpltContent.replace('display:none;', ''), childTmpl,
             childResult = '';
 
-
         if (cmp['$still_' + field] instanceof Array) {
 
-            if (childCmp.stElement) {
+            if (childCmp?.stElement) {
 
                 const childInstance = await (await Components.produceComponent({
                     cmp: childCmp.stElement,
@@ -785,13 +784,14 @@ export class Components {
                     childResult += await this
                         .replaceBoundFieldStElement(inCmp, fields, rec)
                         .getBoundTemplate();
-                    //setTimeout(() => inCmp)
+
+                    setTimeout(() => inCmp.parseOnChange(), 500);
                     ComponentRegistror.add(inCmp.cmpInternalId, inCmp);
                     setTimeout(() => {
                         (new Components)
                             .parseGetsAndSets(
-                                ComponentRegistror.component(inCmp.cmpInternalId))
-                        //.markParsed();
+                                ComponentRegistror.component(inCmp.cmpInternalId)
+                            )
                     }, 10);
                 };
 
@@ -806,7 +806,7 @@ export class Components {
             }
 
         }
-        return childCmp.stElement ? childResult : result;
+        return childCmp?.stElement ? childResult : result;
     }
 
     replaceBoundField(parsingTemplate, fields) {

@@ -125,7 +125,7 @@ export class Router {
                 (async () => {
 
                     const appTemplate = AppTemplate.get().template;
-                    $still.context.currentView = await Components.produceComponent({ cmp });
+                    $still.context.currentView = await (await Components.produceComponent({ cmp })).newInstance;
 
                     if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
                         document.write($stillconst.MSG.PRIVATE_CMP);
@@ -155,7 +155,7 @@ export class Router {
 
                         /** the bellow line clears previous component from memory
                          * @type { ViewComponent } */
-                        const newInstance = await Components.produceComponent({ cmp });
+                        const newInstance = await (await Components.produceComponent({ cmp })).newInstance;
 
                         AppTemplate.get().storageSet('stAppInitStatus', true);
                         if (newInstance.template == undefined)

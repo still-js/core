@@ -1,4 +1,5 @@
 import { stillRoutesMap } from "../../../route.map.js";
+import { ViewComponent } from "../super/ViewComponent.js";
 
 export class ComponentNotFoundException extends Error {
     name = 'ComponentNotFoundException';
@@ -17,7 +18,10 @@ export class ComponentRegistror {
 
     componentList = {};
     static registror = null;
+    static forEachByCmpCount = {};
+    static _classeList = {};
 
+    /** @returns { ComponentRegistror } */
     static get() {
 
         if (ComponentRegistror.registror == null) {
@@ -52,6 +56,10 @@ export class ComponentRegistror {
         return this.componentList[name].instance;
     }
 
+    /** @returns { ViewComponent } */
+    static component(name) {
+        return ComponentRegistror.get().getComponent(name);
+    }
 
     /**
      * @param { ViewComponent } cmp
@@ -78,6 +86,17 @@ export class ComponentRegistror {
         const source = $still.context.componentRegistror.componentList;
         if (name in source) return source[name].instance;
         else return null
+    }
+
+    /** @param { ViewComponent } cls */
+    static addClass(cls) {
+        let clsName = cls;
+        if (cls instanceof ViewComponent) clsName = cls.name;
+        ComponentRegistror._classeList[clsName] = cls;
+    }
+
+    static getClass(clsName) {
+        return ComponentRegistror._classeList[clsName];
     }
 }
 

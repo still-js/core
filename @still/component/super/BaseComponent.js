@@ -332,6 +332,9 @@ export class BaseComponent extends BehaviorComponent {
         /**
          * Bind (for loop)
          */
+        const cmpName = this.dynLoopObject
+            ? this.cmpInternalId
+            : this.getProperInstanceName()
         const extremRe = /[\n \r \< \$ \( \) \. \- \s A-Za-z \= \"]{0,}/.source;
         const matchForEach = /(\(forEach\))\=\"(\w*){0,}\"/.source;
         const forEach = '(forEach)="';
@@ -346,7 +349,7 @@ export class BaseComponent extends BehaviorComponent {
 
             let subscriptionCls = '';
 
-            const subsCls = `listenChangeOn-${this.getProperInstanceName()}-${ds}`;
+            const subsCls = `listenChangeOn-${cmpName}-${ds}`;
             const hashValue = `hash_${UUIDUtil.newId()}`;
             const hash = `hash="${hashValue}"`;
             const newClassName = `newCls="${subsCls}"`;

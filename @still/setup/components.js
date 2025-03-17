@@ -676,7 +676,9 @@ export class Components {
         (async () => {
 
             const container = document.createElement('optgroup');
+            const old = elm?.getElementsByTagName('optgroup')[0];
             await this.parseAndAssigneValue(elm, field, cmp, container);
+            if (old) elm.removeChild(old);
             elm.insertAdjacentElement('beforeend', container);
 
         })();

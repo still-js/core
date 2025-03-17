@@ -1013,10 +1013,11 @@ export class BaseComponent extends BehaviorComponent {
              * all of them serve as a Metadata for in case the <st-element> is wrapped by a
              * container with (forEach) notation/directive, hence being passed as loopAttrs
              */
-            const loopAttrs = !isThereProp ? '' : `
-                componentRef="${propMap['component']}" loopDSource="${propMap?.each == 'item'}"
-                props=${isThereProp ? JSON.stringify(tagProps) : '{}'}
-            `;
+            const loopAttrs = (!isThereProp && propMap?.each != 'item')
+                ? ''
+                : ` componentRef="${propMap['component']}" loopDSource="${propMap?.each == 'item'}"
+                    props=${isThereProp ? JSON.stringify(tagProps) : '{}'}`;
+
             return `<still-placeholder 
                         class="still-placeholder${uuid} ${addCls}" ${loopAttrs}
                         style="display:${display}; ${foundStyle != false ? foundStyle : ''}" 

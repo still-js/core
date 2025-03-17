@@ -774,6 +774,9 @@ export class Components {
                 }));
 
                 childTmpl = childInstance.template;
+                let fields = Object.entries(childCmp.props), noFieldsMap;
+                if (fields.length == 0) noFieldsMap = true;
+
 
                 for (const rec of cmp['$still_' + field]) {
                     /** @type { ViewComponent } */
@@ -781,10 +784,13 @@ export class Components {
                     inCmp.cmpInternalId = 'dynamic-' + inCmp.getUUID();
                     inCmp.template = childTmpl;
                     inCmp.dynLoopObject = true;
-                    const fields = Object.entries(childCmp.props);
                     inCmp.stillElement = true;
+
+                    if (noFieldsMap && childCmp.stDSource)
+                        fields = Object.entries(cmp['$still_' + field][0]);
+
                     childResult += await this
-                        .replaceBoundFieldStElement(inCmp, fields, rec)
+                        .replaceBoundFieldStElement(inCmp, fields, rec, noFieldsMap)
                         .getBoundTemplate();
 
                     setTimeout(() => inCmp.parseOnChange(), 500);
@@ -822,9 +828,17 @@ export class Components {
      * @param { ViewComponent } obj
      * @returns { ViewComponent }
      * */
-    replaceBoundFieldStElement(obj, fields, rec) {
-        for (const [f, v] of fields) {
-            obj[f] = rec[v.replace('item.', '').trim()];
+    replaceBoundFieldStElement(obj, fields, rec, noFieldsMap) {
+
+        if (noFieldsMap) {
+            for (const [f, v] of fields) {
+                if (f in obj)
+                    obj[f] = v.replace('item.', '').trim();
+            }
+        } else {
+            for (const [f, v] of fields) {
+                obj[f] = rec[v.replace('item.', '').trim()];
+            }
         }
 
         return obj;

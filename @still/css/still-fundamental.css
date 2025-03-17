@@ -58,3 +58,26 @@
 .sttypeErrorMessage {
     text-decoration: underline;
 }
+
+.still-worked-home-container {
+    background-color: rgb(229, 222, 222);
+    height: 100%;
+    padding: 25% 0% 50% 0%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.still-worked-home-container .still-fw-logo {
+    width: 200px;
+}
+
+.still-worked-home-container .still-home-orientation-text {
+    margin-top: 30px;
+}
+
+.still-fw-before-logo {
+    padding-bottom: 50px;
+    color: cadetblue;
+}

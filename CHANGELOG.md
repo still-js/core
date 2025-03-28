@@ -1,8 +1,59 @@
 
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
+
+## [Released] - 2025-03-28
+## [Version] - 0.0.6
+Major features implementation and Bug fixes.
  
+### Added
+- <b>MAJOR</b> - Lone component to allow using Still in an existing web site as well as Microfrontend implementation.
+        
+
+- <b>MINOR</b> - Moving HTTP Util to ESModule.
+<br>  
  
+### Changed
+- Merging of all CSS files to a single one (still.css).
+<br>
+
+- Moved Routes handling from StillApp to AppTemplate.
+<br>
+
+- Changed the was AppTemplate + Component is declared in the StillApp init() method.
+<br>
+
+- Pointing public component class path to the ```ComponentRegistror```.
+<br>
+
+- Made all special methods/Hooks to support async call.
+<br>
+
+- Click event parsing to allow proper navigation for Lone Component.
+<br>
+
+
+### Fixed
+- Component lifecycle calls.
+<br>
+
+
+### Removed
+- still-fundamental.css
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-03-08
 ## [Version] - 0.0.3
 Some improvements and new features implementation are taking place in this version.

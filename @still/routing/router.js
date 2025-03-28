@@ -1,20 +1,25 @@
 import { StillAppSetup } from "../../app-setup.js";
 import { AppTemplate } from "../../app-template.js";
 import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
-import { ComponentRegistror } from "../component/manager/registror.js";
+import { $still, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
 import { $stillconst, ST_UNAUTHOR_ID } from "../setup/constants.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 
+const GotoParams = {
+    data: {},
+    url: true,
+    evt: {
+        containerId: null
+    }
+}
+
 export class Router {
 
-    static routeMap = {
-        ...stillRoutesMap.viewRoutes.lazyInitial,
-        ...stillRoutesMap.viewRoutes.regular
-    };
-
+    static routeMap;
     static baseUrl = window.location.href.replace('#', '');
+    //static baseUrl = window.location.origin.toString().concat('/');
 
     #data = {};
     static instance = null;
@@ -22,6 +27,16 @@ export class Router {
     static initRouting = false;
     static importedMap = {};
     static navigatingView = null;
+    static navigatingUrl = null;
+    static urlParams = {};
+    /** 
+     * clickEvetCntrId only takes place when it comes to lone component so that
+     *  it can identify the context which an event (e.g. Navigation) occurred
+     * */
+    static clickEvetCntrId = null;
+    static preView = null;
+    static navCounter = 0;
+    static serviceId = null;
 
     /** @returns { Router } */
     static getInstance() {
@@ -38,11 +53,22 @@ export class Router {
         Router.initRouting = true;
     }
 
-    static data(cmpName) {
+    static data = (cmpName) => Router.getInstance().#data[cmpName];
 
-        const data = Router.getInstance().#data[cmpName];
-        //delete Router.getInstance().#data[cmpName];
-        return data;
+    /**
+     * 
+
+     * @param {String} data 
+     */
+    static aliasGoto(cmp, data, url = false, containerId = null) {
+
+        if (!url) Router.clearUrlPath();
+        if (data.startsWith($stillconst.RT_DT_PREFIX)) {
+            data = Router.getInstance().#data[data];
+            delete Router.getInstance().#data[data];
+        }
+
+        Router.goto(cmp, { data, url, evt: { containerId } });
     }
 
     /**
@@ -50,27 +76,33 @@ export class Router {
 
      * @param {String} data 
      */
-    static aliasGoto(cmp, data) {
+    static aliasGoto1(cmp, url = false, containerId = null) {
+        if (!url) Router.clearUrlPath();
+        Router.goto(cmp, { data: {}, url, evt: { containerId } });
+    }
 
-        if (data.startsWith($stillconst.RT_DT_PREFIX)) {
-            data = Router.getInstance().#data[data];
-            delete Router.getInstance().#data[data];
-        }
+    static initNavigation(cmp) {
 
-        Router.goto(cmp, { data });
+        Router.clickEvetCntrId = null;
+        Router.initRouting = false;
+        Router.preView = $still.context.currentView;
+        Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
+        Router.navCounter = Router.navCounter + 1;
+
+        return Router.handleViewType(cmp);
     }
 
     /**
      *
      * @param {*} cmp 
-     * @param {{data, path}} param1 
+     * @param {{data, path}} param1
      */
-    static goto(cmp, { data = {} } = { data: {} }) {
+    static goto(cmp, params = GotoParams) {
 
-        cmp = Router.handleViewType(cmp);
-        Router.initRouting = false;
-        Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
+        const { data, evt, url } = params;
 
+        cmp = Router.initNavigation(cmp);
+        if (evt.containerId) Router.clickEvetCntrId = evt.containerId;
         /**
          * The or (||) conditions serves to mount the application so the user can 
          * be redirected straight to a specific page/page-component instead of being 
@@ -105,11 +137,12 @@ export class Router {
 
 
         const routeInstance = $stillGetRouteMap()
-        const route = routeInstance.route[cmp];
+        const route = routeInstance.route[cmp]?.path;
 
         const cmpRegistror = $still.context.componentRegistror.componentList;
         const isHomeCmp = StillAppSetup.get().entryComponentName == cmp;
-        if (isHomeCmp) {
+        const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
+        if (isHomeCmp && isLoneCmp) {
 
             if (cmp in cmpRegistror) {
 
@@ -125,7 +158,10 @@ export class Router {
                 (async () => {
 
                     const appTemplate = AppTemplate.get().template;
-                    $still.context.currentView = await (await Components.produceComponent({ cmp })).newInstance;
+                    const { newInstance } = await (
+                        await Components.produceComponent({ cmp, loneCntrId: Router.clickEvetCntrId })
+                    );
+                    $still.context.currentView = newInstance;
 
                     if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
                         document.write($stillconst.MSG.PRIVATE_CMP);
@@ -153,18 +189,27 @@ export class Router {
                     if (!Router.importedMap[cmp]) {
                         if (cmp == 'init') return;
 
+                        if (cmp instanceof Object)
+                            if ('address' in cmp) cmp = cmp.address;
+
+                        const wasPrevLoaded = Components.prevLoadingTracking.has(cmp);
                         /** the bellow line clears previous component from memory
                          * @type { ViewComponent } */
-                        const newInstance = await (await Components.produceComponent({ cmp })).newInstance;
+                        const { newInstance } = await (
+                            await Components.produceComponent({ cmp, loneCntrId: Router.clickEvetCntrId })
+                        );
 
                         AppTemplate.get().storageSet('stAppInitStatus', true);
                         if (newInstance.template == undefined)
                             return Router.cmpTemplateNotDefinedCheck(cmp);
 
                         if (newInstance.isPublic) {
-                            Components.registerPublicCmp(newInstance);
-                            if (!AppTemplate.get().isAuthN())
+                            //Components.registerPublicCmp(newInstance);
+                            if (!AppTemplate.get().isAuthN()) {
+                                if (url) Router.updateUrlPath(cmp);
+                                //ComponentRegistror.add(cmp.cmpInternalId, cmp);
                                 return (new Components()).renderPublicComponent(newInstance);
+                            }
                         }
 
                         ComponentRegistror.add(cmp, newInstance);
@@ -172,7 +217,7 @@ export class Router {
                             return document.write($stillconst.MSG.PRIVATE_CMP);
 
                         newInstance.isRoutable = true;
-                        Router.parseComponent(newInstance);
+                        if (!wasPrevLoaded && !newInstance.lone) Router.parseComponent(newInstance);
                         newInstance.setRoutableCmp(true);
                         if (isHomeCmp)
                             newInstance.setUUID($stillconst.TOP_LEVEL_CMP);
@@ -180,7 +225,13 @@ export class Router {
                         $still.context.currentView = newInstance;
 
                     } else {
-                        $still.context.currentView = cmpRegistror[cmp].instance;
+                        $still.context.currentView = cmpRegistror[cmp]?.instance
+                        if (!$still.context.currentView) {
+                            $still.context.currentView = await (
+                                await Components.produceComponent({ cmp })
+                            ).newInstance
+                        }
+
                         $still.context.currentView.isRoutable = true;
                         if (!$still.context.currentView.stillParsedState) {
                             $still.context.currentView = (new Components).getNewParsedComponent(
@@ -191,9 +242,29 @@ export class Router {
                     Router.getAndDisplayPage($still.context.currentView, Router.importedMap[cmp]);
                 });
         }
+        if (url) Router.updateUrlPath(cmp);
 
     }
 
+    static updateUrlPath(cmp) {
+
+        let routeName = cmp;
+        if (cmp instanceof Object) routeName = cmp.address;
+
+        const newPath = Router.routeMap[routeName].url;
+        window.history.pushState(null, null, '#/');
+        window.history.pushState(null, null, '#' + newPath);
+    }
+
+    static clearUrlPath() {
+        window.history.pushState(null, null, '#/');
+    }
+
+    static replaceUrlPath(path) {
+        window.history.pushState(null, null, '#/');
+        window.history.pushState(null, null, '#' + path);
+        Router.navigatingUrl = path;
+    }
     /**
      * 1. Add new method for dynamic instantiation
      * 2. Add getter and setters for the components fields
@@ -212,18 +283,23 @@ export class Router {
     static getAndDisplayPage(cmp, isReRender = false, isHome = false) {
 
         const appCntrId = Router.appPlaceholder, isPrivate = !cmp.isPublic;
-        let appPlaceholder = document.getElementById(appCntrId), pageContent;
-        const cmpId = cmp.getUUID(), cmpName = cmp.constructor.name;
+        let appPlaceholder = document.getElementById(appCntrId), soleRouting;
+        const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
 
-        if (isReRender) {
+        if (isLoneCmp) {
+            appPlaceholder = document.getElementById(Router.clickEvetCntrId);
+            soleRouting = true;
+        }
+        const cmpId = cmp.getUUID(), cmpName = cmp.constructor.name;
+        if (isReRender || isLoneCmp) {
             Components
-                .unloadLoadedComponent()
+                .unloadLoadedComponent(soleRouting && appPlaceholder)
                 .then(async () => {
                     Router.handleUnauthorizeIfPresent();
                     if (Router.noPermAccessProcess(isPrivate, appPlaceholder)) return;
                     if (cmp.subImported) {
                         const pageContent = `
-                        <output id="${cmpId}-check" style="display:contents;">
+                        <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName}" style="display:contents;">
                             ${cmp.getTemplate()}
                         </output>`;
                         appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
@@ -242,7 +318,7 @@ export class Router {
 
         } else {
             Components
-                .unloadLoadedComponent()
+                .unloadLoadedComponent(soleRouting && appPlaceholder)
                 .then(async () => {
                     Router.handleUnauthorizeIfPresent();
                     if (Router.noPermAccessProcess(isPrivate, appPlaceholder)) return;
@@ -251,7 +327,7 @@ export class Router {
                     }
 
                     const pageContent = `
-                        <output id="${cmpId}-check" style="display:contents;">
+                        <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName}" style="display:contents;">
                             ${cmp.getTemplate()}
                         </output>`;
 
@@ -263,6 +339,7 @@ export class Router {
                     setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));
                     Router.importedMap[cmpName] = true;
 
+                    ComponentRegistror.add(cmp.getUUID(), cmp);
                 });
         }
 
@@ -329,7 +406,6 @@ export class Router {
 
     static handleViewType(cmp) {
 
-
         if (
             (cmp.prototype instanceof ViewComponent)
             || (cmp.prototype instanceof BaseComponent)
@@ -361,7 +437,6 @@ export class Router {
 
     }
 
-
     static noPermAccessProcess(isPrivate, appPlaceholder) {
 
         const isUnauthorized = isPrivate && !AppTemplate.get().isAuthN();
@@ -373,5 +448,167 @@ export class Router {
         return false;
 
     }
+
+    static getUrlPath() {
+
+        let path = window.location.hash.replace('#', ''), address;
+        let urlAndParams = path.split('?');
+        const isThereParams = urlAndParams.length > 1;
+        if (isThereParams) path = urlAndParams[0];
+
+        let route = Router.routeMap[path];
+        if (path.split('/').length > 2 || route?.isUrl) {
+
+            route = route.path.split('/');
+            address = `${route.pop()}`;
+            path = `#/${address}`;
+            route = route.join('/');
+
+        } else {
+
+            address = path.split('/')[1]?.trim();
+            route = Router.routeMap[address]?.path;
+
+        }
+
+        if (isThereParams) {
+            Router.navigatingView = address;
+            Router.urlParams[address] = urlAndParams[1];
+        }
+        return route ? { address, route, path } : { state: false, path };
+    }
+
+    static getUrlParams() {
+
+        let routeName = Router.navigatingView;
+        if (Router.navigatingView instanceof Object)
+            routeName = Router.navigatingView.address;
+
+        const params = Router.urlParams[routeName];
+        const result = params?.split('&')?.reduce((accum, param) => {
+            const [key, value] = param.split('=');
+            accum[key] = value;
+            return accum;
+        }, {});
+
+        setTimeout(() => {
+            Object.entries(Router.urlParams).forEach(([key, _]) => {
+                if (Router.navigatingView != key) delete Router.urlParams[key];
+            });
+        }, 1000);
+
+        return result;
+
+    }
+
+    static listenUrlChange() {
+
+        const { address, path } = Router.getUrlPath();
+        if (!address)
+            window.location.assign('#');
+
+        window.addEventListener('popstate', () => {
+
+            let url = location.href.toString();
+            if (
+                url.slice(0, -3) == Router.baseUrl
+                || url.slice(0, -2) == Router.baseUrl) {
+                const homeComponent = (new StillAppSetup()).entryComponentName;
+                return Router.goto(homeComponent);
+            }
+
+            url = url.toString().split("#");
+            if (url == Router.navigatingUrl) return false;
+            if (url[0]?.endsWith('?'))
+                return Router.replaceUrlPath(url[1]);
+
+            const route = Router.getUrlPath();
+
+            if (route.path != '' && route.path != '#/') {
+                if (route.address)
+                    Router.goto(route);
+                else {
+                    const pathValue = route.path.replace('#/', '/');
+                    const err = $stillconst.MSG.UNKNOWN_ROUTE.replace('{{}}', pathValue)
+                    document.write(err);
+                }
+            }
+
+        });
+    }
+
+    static unknownRouteError() {
+        const pathValue = route.path.replace('#/', '/');
+        const err = $stillconst.MSG.UNKNOWN_ROUTE.replace('{{}}', pathValue)
+        document.write(err);
+    }
+
+    static async getComponentFromPath() {
+        const route = Router.getUrlPath();
+        let cmpCls;
+        if (route.address) {
+            cmpCls = await (
+                await Components.produceComponent(
+                    { cmp: route.address, urlRequest: true, loneCntrId: Router.clickEvetCntrId }
+                )
+            );
+        }
+        return cmpCls?._class;
+    }
+
+    static getCleanUrl(url, clsName) {
+
+        let baseUrl = Router.baseUrl;
+
+        const currentUrl = baseUrl.split('//');
+        if (currentUrl.length > 2)
+            baseUrl = currentUrl.slice(0, 2).join('//') + '/';
+
+        /** Edge case where the path is valid and component exists */
+        if (baseUrl.indexOf(`//${clsName}`) > 0)
+            baseUrl = Router.baseUrl.replace(`//${clsName}`, '/');
+
+        if (url)
+            baseUrl = baseUrl.replace(`/${clsName}`, '');
+
+        /** Case where # or #/ was entered as the path */
+        baseUrl = baseUrl.slice(-2) == '//' ? baseUrl.slice(0, -1) : baseUrl;
+
+        return baseUrl;
+
+    }
+
+    static parsedRouteMap = {};
+    static async parseRouteMap() {
+
+        return new Promise((resolve) => {
+
+            if (Object.keys(Router.parsedRouteMap).length == 0) {
+                Object.entries(stillRoutesMap.viewRoutes.regular).map(([name, address]) => {
+
+                    const path = address.url;
+
+                    Router.parsedRouteMap[path] = {
+                        path: address.path + '/' + name,
+                        isUrl: true
+                    };
+                });
+                const { regular } = stillRoutesMap.viewRoutes;
+                stillRoutesMap.viewRoutes.regular = { ...regular, ...Router.parsedRouteMap };
+                Router.routeMap = {
+                    ...stillRoutesMap.viewRoutes.lazyInitial,
+                    ...stillRoutesMap.viewRoutes.regular
+                };
+
+            };
+            resolve('');
+
+        })
+
+    }
+
+    static setStillHomeUrl() {
+        Router.baseUrl = `${location.origin}/${STILL_HOME}`;
+    }
+
 }
-window.Router = Router;

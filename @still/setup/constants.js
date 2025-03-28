@@ -42,6 +42,11 @@ export const $stillconst = {
                         <b>Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
                            <br>in case you need to access it without making log-in please make isPublic flag true
                      </h3>`,
+
+        UNKNOWN_ROUTE: `<h3 style='color:red;' id="${ST_UNAUTHOR_ID}">
+                        <b>Invalid Route:</b> You're trying to access a non existing route {{}}.
+                           <br>Make sure you're spelling it correctly
+                     </h3>`,
     },
     NO_TEMPLATE: `<div style="
                         margin: 0 auto; 
@@ -55,7 +60,10 @@ export const $stillconst = {
     importedCmpMap: {},
     /** Routing Data Prefix */
     RT_DT_PREFIX: `$@data$`,
-    ST_FIXE_CLS: 'st-fixed-part'
+    ST_FIXE_CLS: 'st-fixed-part',
+    EVT: {
+        LONE_LOADED: 'LONE_LOADED'
+    }
 }
 
 export const ST_RE = {

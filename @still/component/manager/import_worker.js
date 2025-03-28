@@ -17,7 +17,7 @@ addEventListener('message', (event) => {
             cmpFolder.pop()
             cmpFolder = cmpFolder.join('/');
         } else {
-            cmpPath = `${$stillGetRouteMap().route[cmp.component]}/${cmp.component}`;
+            cmpPath = `${$stillGetRouteMap().route[cmp.component]?.path}/${cmp.component}`;
             prePath = vendorPath.replace('/@still/vendors', '')
         }
 

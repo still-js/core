@@ -1,5 +1,8 @@
+import { AppTemplate } from "../../../app-template.js";
+import { Router } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
+import { ViewComponent } from "./ViewComponent.js";
 
 export class Template {
 
@@ -15,9 +18,17 @@ export class Template {
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance))
             Template.instance[clsName] = this;
+
     }
 
+    /** @param { ViewComponent } cmp */
+    static async newApp(cmp = null) {
 
+        const pathAddress = await Router.getComponentFromPath();
+        if (pathAddress) return new AppTemplate(pathAddress);
+        else return new AppTemplate(cmp);
+
+    }
     /**
      * 
      * @returns { Template }

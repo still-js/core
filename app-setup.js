@@ -5,14 +5,13 @@ import { HomeComponent } from "./app/home/HomeComponent.js";
 
 export class StillAppSetup extends StillAppMixin(Components) {
 
-
     constructor() {
         super();
         this.setHomeComponent(HomeComponent);
     }
 
-    init() {
-        return new AppTemplate();
+    async init() {
+        return await AppTemplate.newApp();
     }
 
 }

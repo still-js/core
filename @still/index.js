@@ -1,27 +1,43 @@
 import { StillAppSetup } from "../app-setup.js";
 import { stillRoutesMap } from "../route.map.js";
 import { ComponentNotFoundException } from "./component/manager/registror.js";
-import { BaseComponent } from "./component/super/BaseComponent.js";
 import { BehaviorComponent } from "./component/super/BehaviorComponent.js";
+import { Router } from "./routing/router.js";
 import { Components } from "./setup/components.js";
 import { UUIDUtil } from "./util/UUIDUtil.js";
 
 
-StillAppSetup.loadInterceptWorker();
+(() => {
 
-StillAppSetup.register(stillRoutesMap);
-StillAppSetup.register(UUIDUtil);
-StillAppSetup.register(Components);
-StillAppSetup.register(StillAppSetup);
-StillAppSetup.register(BaseComponent);
-StillAppSetup.register(BehaviorComponent);
+    Router.parseRouteMap()
+        .then(async () => {
 
-/**
- * Run Application UI component Loading
- */
-StillAppSetup.get().loadComponent();
+            StillAppSetup.loadInterceptWorker();
 
-StillAppSetup.register(ComponentNotFoundException);
+            StillAppSetup.register(Router);
+            StillAppSetup.register(stillRoutesMap);
+            StillAppSetup.register(UUIDUtil);
+            StillAppSetup.register(Components);
+            //StillAppSetup.register(StillAppSetup);
+            //StillAppSetup.register(BaseComponent);
+            StillAppSetup.register(BehaviorComponent);
 
-/** Only for dev mode */
-StillAppSetup.setDevErrorTracing();
+            /**
+             * Run Application UI component Loading
+             */
+            await StillAppSetup.get().loadComponent();
+
+            StillAppSetup.register(ComponentNotFoundException);
+
+            /** Only for dev mode */
+            StillAppSetup.setDevErrorTracing();
+
+            /** 
+             * Detect when a path was entered in the URL after 
+             * hash (#) and route it to the respective component
+             * */
+            Router.listenUrlChange();
+
+        });
+
+})()

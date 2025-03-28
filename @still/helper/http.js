@@ -5,7 +5,7 @@ class HttpRequestOptions {
 }
 
 
-class StillHTTPClient {
+export class StillHTTPClient {
 
     static #baseUrl = '';
 
@@ -13,7 +13,7 @@ class StillHTTPClient {
         StillHTTPClient.#baseUrl = baseUrl;
     }
 
-    getBaseURL(){
+    getBaseURL() {
         const url = `${StillHTTPClient.#baseUrl}`;
         return url
     }

@@ -247,3 +247,100 @@ END LOADING STYLE
 /*
 * END OF TOAST STYLING BELLOG
 */
+
+
+
+
+
+
+/*
+* STILL FUNDAMENTALS
+*/
+
+.still-hide-view-part {
+    display: none !important;
+}
+
+.still-validation-failed-style {
+    background: #ff000024 !important;
+    border: 1px solid #ff000052 !important;
+}
+
+.still-validation-warning {
+    font-size: 10px;
+    color: red;
+}
+
+
+#stillRunTimeErrDiv {
+    /* border: 1px solid red; */
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0px 0px;
+    background: rgba(0, 0, 0, .9);
+    color: white;
+    text-shadow: 0 0 black;
+    padding-top: 10px;
+    padding-left: 10px;
+    font-size: 1em;
+}
+
+.nonExistingComponentSt,
+.nonExistingFieldSt,
+.nonExistingTemplate,
+.existingTemplate {
+    color: red;
+    font-weight: bold;
+    background-color: white;
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
+.nonExistingComponentSt {
+    font-weight: normal;
+    color: black;
+}
+
+.nonExistingComponentSt>b {
+    color: red;
+}
+
+.existingTemplate {
+    color: rgb(0, 81, 0);
+}
+
+.errorCmdSugestion {
+    color: rgb(14, 162, 21);
+}
+
+.sttypeErrorMessage {
+    text-decoration: underline;
+}
+
+.still-worked-home-container {
+    background-color: rgb(229, 222, 222);
+    height: 100%;
+    padding: 25% 0% 50% 0%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.still-worked-home-container .still-fw-logo {
+    width: 200px;
+}
+
+.still-worked-home-container .still-home-orientation-text {
+    margin-top: 30px;
+}
+
+.still-fw-before-logo {
+    padding-bottom: 50px;
+    color: cadetblue;
+}
+
+/*
+* END OF STILL FUNDAMENTALS
+*/

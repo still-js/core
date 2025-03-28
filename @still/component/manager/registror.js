@@ -1,4 +1,5 @@
 import { stillRoutesMap } from "../../../route.map.js";
+import { StillHTTPClient } from '../../helper/http.js';
 import { ViewComponent } from "../super/ViewComponent.js";
 
 export class ComponentNotFoundException extends Error {
@@ -124,5 +125,5 @@ export const $still = {
 
 }
 
-window.$still = $still;
+//window.$still = $still;
 window.ComponentRegistror = ComponentRegistror;

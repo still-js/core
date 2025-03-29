@@ -2,16 +2,19 @@ import { AppTemplate } from "../../../app-template.js";
 import { Router } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
-import { ViewComponent } from "./ViewComponent.js";
+import { getViewComponent } from "../../util/route.js";
+import { ViewComponent as DefaultViewComponent } from "./ViewComponent.js";
+
 
 export class Template {
 
     static instance = {};
     static toastId = null;
 
-    /** @param { ViewComponent } cmp */
+    /** @param { DefaultViewComponent } cmp */
     constructor(cmp = null) {
 
+        const ViewComponent = getViewComponent(DefaultViewComponent);
         if (cmp?.prototype instanceof ViewComponent)
             Components.get().setHomeComponent(cmp);
 
@@ -21,7 +24,7 @@ export class Template {
 
     }
 
-    /** @param { ViewComponent } cmp */
+    /** @param { DefaultViewComponent } cmp */
     static async newApp(cmp = null) {
 
         const pathAddress = await Router.getComponentFromPath();

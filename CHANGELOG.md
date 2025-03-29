@@ -2,8 +2,36 @@
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
-## [Released] - 2025-03-28
+## [Released] - 2025-03-29
 ## [Version] - 0.0.7
+Adjustments on the Lone Component implementation.
+ 
+### Added
+- <b>MINOR</b> - Routing (route.map.js) file definition according to STILL_HOME env variable.
+
+- <b>MINOR</b> - Router (router.js) file definition according to STILL_HOME env variable.
+
+### Changed
+- Page readiness checking for parsing Lone Component.
+<br>
+
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-03-28
+## [Version] - 0.0.6
 Major features implementation and Bug fixes.
  
 ### Added

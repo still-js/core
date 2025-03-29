@@ -3,6 +3,34 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 ## [Released] - 2025-03-29
+## [Version] - 0.0.8
+Fixed issued with component rendering and registraction.
+ 
+
+### Fixed
+- ViewComponent reference for Template.
+<br>
+
+- Public component registraction
+<br>
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
+## [Released] - 2025-03-29
 ## [Version] - 0.0.7
 Adjustments on the Lone Component implementation.
  

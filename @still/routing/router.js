@@ -1,11 +1,14 @@
 import { StillAppSetup } from "../../app-setup.js";
 import { AppTemplate } from "../../app-template.js";
-import { $stillGetRouteMap, stillRoutesMap } from "../../route.map.js";
+import { $stillGetRouteMap, stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
 import { $still, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
 import { $stillconst, ST_UNAUTHOR_ID } from "../setup/constants.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
+import { getRoutesFile } from "../util/route.js";
+
+const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
 
 const GotoParams = {
     data: {},

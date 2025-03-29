@@ -2,5 +2,5 @@
     "compilerOptions": {
       "module": "ES6"
     },
-    "include": ["app/","@still/*"]
+    "include": ["app","@still/*"]
 }

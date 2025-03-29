@@ -26,7 +26,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
             StillAppSetup.register(ComponentNotFoundException);
             /** Only for dev mode */ StillAppSetup.setDevErrorTracing();
 
-            document.addEventListener('DOMContentLoaded', () => {
+            if (document.readyState != 'loading') {
 
                 const stillDeclarations = document.getElementsByTagName('st-element');
 
@@ -43,7 +43,6 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                     setTimeout(() => (new Components).parseGetsAndSets(cmp), 10);
                     document.getElementById(elm.id).innerHTML = template;
 
-
                     const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];
                     setTimeout(() =>
                         Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts)
@@ -51,7 +50,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
                 });
 
-            });
+            };
 
         });
 

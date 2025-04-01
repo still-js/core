@@ -3,7 +3,7 @@ import { stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
 import { $still, ComponentNotFoundException, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
-import { ViewComponent as defaultViewComponent } from "../component/super/ViewComponent.js";
+import { ViewComponent as DefaultViewComponent } from "../component/super/ViewComponent.js";
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
@@ -12,7 +12,7 @@ import { StillError } from "./error.js";
 
 const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
 const Router = getRouter(DefaultRouter);
-const ViewComponent = getViewComponent(defaultViewComponent);
+const ViewComponent = getViewComponent(DefaultViewComponent);
 
 const $stillLoadScript = (path, className, base = null) => {
 
@@ -33,6 +33,13 @@ const ProduceComponentType = {
     lone: false,
     loneCntrId: null
 };
+
+class ProducedCmpResultType {
+    /** @type { DefaultViewComponent } */
+    newInstance;
+    /** @type { string } */ template;
+    /** @type { class | any } */ _class;
+}
 
 export const loadComponentFromPath = (path, className, callback = () => { }) => {
     return new Promise(resolve => resolve(''));
@@ -161,6 +168,9 @@ export class Components {
         }
     }
 
+    /**
+     *  @returns { ProducedCmpResultType | boolean } 
+    */
     static async produceComponent(params = ProduceComponentType) {
         if (!params.cmp) return;
         const { cmp, parentCmp, registerCls, urlRequest: url } = params;
@@ -1314,19 +1324,11 @@ export class Components {
 
         const cmpName = parentCmp.constructor.name;
         if (proxy) {
+            const subscribers = parentCmp[proxy].subscribers;
             parentCmp[proxy] = cmp;
-            /* if (!(proxy in parentCmp)) {
-                AppTemplate.hideLoading();
-                throw new Error(`${cmpName}.${proxy} proxy property is not define`);
-            }
-            if (annotations?.get(proxy)?.proxy) {
 
-                parentCmp[proxy] = cmp;
-            } else {
-                AppTemplate.hideLoading();
-                throw new Error(`The ${cmpName}.${proxy} proxy is not properly annotated with @Proxy`);
-            } */
-
+            if (subscribers && subscribers.length)
+                subscribers.forEach(async cb => await cb());
         }
 
     }
@@ -1424,13 +1426,12 @@ export class Components {
     }
 
     static parseAnnottationRE() {
-
         const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop){0,1}[\n \s \*]{0,}/;
+        const servicePathRE = /(\@ServicePath){0,1}[\s\\/'A-Z-a-z0-9]{0,}[\n \s \*]{0,}/;
         const commentRE = /(\@type){0,1}[\s \@ \{ \} \: \| \< \> \, A-Za-z0-9]{1,}[\* \s]{1,}\//;
         const newLineRE = /[\n]{0,}/;
         const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
-        return injectOrProxyRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
-
+        return injectOrProxyRE.source + servicePathRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
     }
 
     static processAnnotation(mt, propertyName = null) {
@@ -1440,12 +1441,13 @@ export class Components {
             propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
         }
 
-        let inject, proxy, prop, propParsing, type;
+        let inject, proxy, prop, propParsing, type, servicePath, svcPath;
         if (propertyName != '') {
 
-            inject = mt.includes('@Inject');
-            proxy = mt.includes('@Proxy');
-            prop = mt.includes('@Prop');
+            inject = mt.includes('@Inject'), servicePath = mt.includes('@ServicePath');
+            proxy = mt.includes('@Proxy'), prop = mt.includes('@Prop');
+            svcPath = !servicePath
+                ? '' : mt.split('@ServicePath')[1].split(' ')[1].replace('\n', '');
 
             if (mt.includes("@type")) {
                 type = mt.split('{')[1].split('}')[0].trim();
@@ -1453,9 +1455,9 @@ export class Components {
             }
         }
 
-        propParsing = inject || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
+        propParsing = inject || servicePath || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
 
-        return { type, inject, proxy, prop, propParsing, propertyName };
+        return { type, inject, servicePath, proxy, prop, propParsing, svcPath };
 
     }
 
@@ -1567,20 +1569,11 @@ export class Components {
                 }
 
             }
-
         }
-
     }
 
     /** @returns { ViewComponent } */
-    static getComponentFromRef(name) {
-        return ComponentRegistror.getFromRef(name);
-    }
-
-    /** @returns { ViewComponent } */
-    static getFromRef(name) {
-        return ComponentRegistror.getFromRef(name);
-    }
+    static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
 

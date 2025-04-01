@@ -34,3 +34,10 @@ export function getViewComponent(defaultViewComponent) {
         return defaultViewComponent;
     }
 }
+
+export function getBasePath(type = null, servicePath = null) {
+    const basePath = `${location.origin}/${STILL_HOME}`;
+    if (STILL_HOME)
+        return `${basePath}${type == 'service' ? `app/${servicePath ? servicePath + '' : ''}` : ''}`;
+    return '';
+}

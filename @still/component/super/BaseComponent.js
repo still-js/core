@@ -4,12 +4,13 @@ import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
-import { getRouter, getRoutesFile } from "../../util/route.js";
+import { getBasePath, getRouter, getRoutesFile } from "../../util/route.js";
 import { $still, ComponentNotFoundException, ComponentRegistror } from "../manager/registror.js";
 import { sleepForSec } from "../manager/timer.js";
 import { STForm } from "../type/STForm.js";
 import { BehaviorComponent } from "./BehaviorComponent.js";
 import { ViewComponent } from "./ViewComponent.js";
+import { BaseService } from "./service/BaseService.js";
 
 const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
 const Router = getRouter(DefaultRouter);
@@ -990,7 +991,9 @@ export class BaseComponent extends BehaviorComponent {
             try {
                 await cb();
                 clearTimeout(timer);
-            } catch (error) { }
+            } catch (error) {
+                console.log(`Error on when ready: `, error);
+            }
 
         }, 1000);
     }
@@ -1020,7 +1023,8 @@ export class BaseComponent extends BehaviorComponent {
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
 
-            parentCmp[propMap['proxy']] = { on: () => { } };
+            this.setTempProxy(parentCmp, propMap);
+
             const { component, ref, proxy: p, each, ...tagProps } = propMap;
             const foundProps = Object.values(tagProps);
             const isThereProp = foundProps.some(r => !r.startsWith('item.'))
@@ -1062,7 +1066,24 @@ export class BaseComponent extends BehaviorComponent {
         });
 
         return template;
+    }
 
+    setTempProxy(parentCmp, propMap) {
+
+        if (propMap['proxy'] in parentCmp) {
+            parentCmp[propMap['proxy']] = { on: (_1, _2) => { }, subscribers: [] };
+            parentCmp[propMap['proxy']].on = function (evt, cb = () => { }) {
+                if (evt == 'load')
+                    parentCmp[propMap['proxy']]?.subscribers?.push(cb);
+            }
+        } else {
+            if (propMap['proxy'] != undefined) {
+                const prtName = parentCmp.constructor.name;
+                const error = 'Your referencing a proxy ' + propMap['proxy']
+                    + ' which is not declare in ' + prtName + ' component';
+                throw new ReferenceError(error);
+            }
+        }
     }
 
     /** @param { ViewComponent } assigneToCmp */
@@ -1228,7 +1249,7 @@ export class BaseComponent extends BehaviorComponent {
                     const commentEndPos = mt.indexOf('*/') + 2;
                     const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
 
-                    let inject, proxy, prop, propParsing, type;
+                    let inject, proxy, prop, propParsing, type, svcPath;
                     if (propertyName != '') {
 
                         const result = Components.processAnnotation(mt, propertyName);
@@ -1237,13 +1258,16 @@ export class BaseComponent extends BehaviorComponent {
                         proxy = result.proxy;
                         type = result.type;
                         propParsing = result.propParsing;
+                        svcPath = result.svcPath.replace(/\t/g, '').replace(/\n/g, '').replace(/\s/g, '').trim();
+
+                        svcPath = svcPath?.endsWith('/') ? svcPath.slice(0, -1) : svcPath;
 
                         if (inject) {
                             let service = StillAppSetup.get()?.services?.get(type);
-                            cmp.#handleServiceInjection(cmp, propertyName, type, service);
+                            cmp.#handleServiceInjection(cmp, propertyName, type, service, svcPath);
                         }
                     }
-                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing });
+                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing, svcPath });
 
                 }
             });
@@ -1254,7 +1278,7 @@ export class BaseComponent extends BehaviorComponent {
 
     }
 
-    #handleServiceInjection(cmp, propertyName, type, service) {
+    #handleServiceInjection(cmp, propertyName, type, service, svcPath) {
 
         /**
          * This is because first time service is instantiated it is assigned assynchronously
@@ -1302,32 +1326,30 @@ export class BaseComponent extends BehaviorComponent {
         }
 
         cmp[propertyName] = tempObj;
+        if (service) return handleServiceAssignement(service);
 
-        if (service) {
-            handleServiceAssignement(service);
-            return;
-        }
+        const servicePath = this.#getServicePath(type, svcPath);
+        if (!StillAppSetup.get()?.services?.get(type)) {
 
-        const servicePath = StillAppSetup.get().servicePath + '/' + type + '.js';
+            //(async () => {
+            import(servicePath)
+                .then(async cls => {
 
-        if (!document.getElementById(servicePath)) {
+                    /** @type { BaseService } */
+                    const service = new cls[type](this);
+                    service.parseServiceEvents();
+                    StillAppSetup.get()?.services?.set(type, service);
+                    handleServiceAssignement(service);
+                    Components.emitAction(type);
 
-            const script = document.createElement('script');
-            [script.src, script.id] = [servicePath, servicePath];
-            script.onload = async function () {
-
-                const service = eval(`new ${type}()`);
-                StillAppSetup.get()?.services?.set(type, service);
-                handleServiceAssignement(service);
-                Components.emitAction(type);
-            }
-            document.head.insertAdjacentElement('beforeend', script);
+                })
+                .catch(err => { })
 
         } else {
             Components.subscribeAction(
                 type,
                 () => {
-                    const service = StillAppSetup.get()?.services?.get(type);
+                    const service = this.#getServicePath(type, svcPath);
                     handleServiceAssignement(service);
                 }
             );
@@ -1345,6 +1367,14 @@ export class BaseComponent extends BehaviorComponent {
 
         }
 
+    }
+
+    #getServicePath(type, svcPath) {
+        let path = svcPath == '' ? StillAppSetup.get().servicePath : '';
+        if (path?.startsWith('/')) path = path.slice(1);
+        if (path?.endsWith('/')) path = path.slice(0, -1);
+        path = getBasePath('service', svcPath) + '' + path;
+        return path + '/' + type + '.js';
     }
 
 }

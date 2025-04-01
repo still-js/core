@@ -35,6 +35,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                     elm.id = `stillLone_${UUIDUtil.newId()}`
                     const cmpName = elm.getAttribute('component');
                     const { newInstance: cmp } = await Components.produceComponent({ cmp: cmpName, lone: true });
+                    await cmp.onRender();
                     new BaseComponent().parseStTag(elm.outerHTML, '', cmp);
                     const template = cmp.getBoundTemplate(elm.id);
 
@@ -44,9 +45,11 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                     document.getElementById(elm.id).innerHTML = template;
 
                     const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];
-                    setTimeout(() =>
-                        Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts)
-                    );
+                    setTimeout(async () => {
+                        Components.emitAction(cmp.getName());
+                        Components.handleInPlacePartsInit(cmp, cmp.cmpInternalId, cmpParts);
+                        await cmp.stAfterInit();
+                    });
 
                 });
 

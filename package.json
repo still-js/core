@@ -1,12 +1,12 @@
 {
   "name": "@stilljs/core",
-  "version": "0.0.08",
+  "version": "0.0.09",
   "type": "module",
   "author": {
     "name": "Nakassony Bernardo",
     "email": "sonybernardo_10@hotmail.com"
   },
-  "keywords": ["StillJS","StillJS Framework","Vanilla UI JavaScript Framework","Web Frontent Framework","UI Development Framework", "Frontend Engineering"],
+  "keywords": ["Still.js","StillJS","Microfrontend","Vanilla UI JavaScript Framework","Web Frontent Framework","UI Development Framework", "Frontend Engineering"],
   "scripts": {
     "dev": "npx live-server ./ --port 8181",
     "start": "npx live-server ./ --port 8181"

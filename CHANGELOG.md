@@ -2,6 +2,56 @@
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
+## [Released] - 2025-04-01
+## [Version] - 0.0.9
+New Features, improvements and Bug fixes transversally.
+ 
+
+### Added
+- <b>MAJOR</b> - `Base Service` super class and `Service Event` feature to allow global state management reactivelly.
+        
+
+- <b>MINOR</b> - `onRender` and `stAfterInit` hooks call for Lone entry component.
+- <b>MINOR</b> - `@ServicePath` annotation to allow to specify the service path specifically.
+<br>  
+ 
+### Changed
+- Definition of the temporary proxy when parsing `@Proxy` annotation.
+<br>
+
+- Moved `Component.getFromRef()` to `Component.ref()`.
+<br>
+
+- README.md for adding proper orientation for initial documentation access.
+<br>
+
+
+### Fixed
+- Component notification from Service when it get loaded and ready.
+- Component notification from Proxy when it get loaded and ready.
+<br>
+
+
+### Removed
+- `Component.getFromRef()` method.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
 ## [Released] - 2025-03-29
 ## [Version] - 0.0.8
 Fixed issued with component rendering and registraction.

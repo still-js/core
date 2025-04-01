@@ -1,11 +1,21 @@
+<div style="display:flex; justify-content: center">
+    <img src="@still/img/logo-no-bg.png" style="width: 10em;"/>
+</div>
+
 # Still.js Framework
 
 StillJS is a Web UI Framework which helps you to build your user interfaces which uses Vanilla JavaScript, yet the component approach is the main focus
 allowint you to modulrize your UI in the same fashion we do with React and Angular.
 
-The code itself is only the set of classes, structures and features concerning the Framework, in order to use it we need to instal the cli tool as follow:
+#### Documentation
+A complete documentation is not yet available as the work is in progress, anyway there is quite of content and documentation available on the Github, <a href="https://still-js.github.io/stilljs-doc/" target="_blank">click here</a>.
+
+The <b>@stilljs/core</b> itself is the set of classes, structures and features concerning the Framework, in order to use it we need to instal the cli tool as follow:
 
 #### Instalation
+
+The official documentation concerning environment set up and project creation can be found <a href="https://still-js.github.io/stilljs-doc/installation-and-running/" target="_blank">here</a>.
+
 ```
 npm i @stilljs/cli -g
 ```
@@ -13,6 +23,7 @@ npm i @stilljs/cli -g
 <br>
 
 #### Creating a project
+
 ```
 npx still create project project-name
 ```
@@ -69,6 +80,10 @@ npx still app serve
 
 
 #### Alternative from CDN
+
+When using CDN Still.js provides also with the capability of creating powerfull Microfrontend solutions in addition to regular component approach, follow the official documentation on how to set it up <a href="https://still-js.github.io/stilljs-doc/installation-and-running-cdn/" target="_blank">here</a>.
+
 ```
 npm i @stilljs/cli -g
 ```
+

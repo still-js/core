@@ -918,7 +918,6 @@ export class Components {
             for (const cmp of cmps) cmp.style.display = 'none';
             resolve([]);
 
-
         })
     }
 
@@ -1329,7 +1328,7 @@ export class Components {
                     })
             })
 
-        })
+        })()
 
     }
 

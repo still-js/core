@@ -234,12 +234,8 @@ export class Router {
                             await Components.produceComponent({ cmp })
                         ).newInstance;
 
-                        if (!oldInstance.stillParsedState) {
-                            $still.context.currentView = (new Components).getNewParsedComponent(
-                                $still.context.currentView
-                            );
-                        }
-                        $still.context.currentView.cmpInternalId = oldInstance.cmpInternalId;
+                        if (oldInstance?.cmpInternalId)
+                            $still.context.currentView.cmpInternalId = oldInstance.cmpInternalId;
                         $still.context.currentView.isRoutable = true;
                     }
                     Router.getAndDisplayPage($still.context.currentView, Router.importedMap[cmp]);

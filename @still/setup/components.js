@@ -169,7 +169,7 @@ export class Components {
     }
 
     /**
-     *  @returns { ProducedCmpResultType | boolean } 
+     *  @returns { ProducedCmpResultType } 
     */
     static async produceComponent(params = ProduceComponentType) {
         if (!params.cmp) return;
@@ -368,6 +368,7 @@ export class Components {
             this.template = cmp.getBoundTemplate();
             setTimeout(() => cmp.parseOnChange(), 500);
             setTimeout(() => {
+                cmp.setAndGetsParsed = true;
                 (new Components).parseGetsAndSets(cmp)
             }, 10);
 
@@ -865,7 +866,10 @@ export class Components {
 
         if (!Components.parsingTracking[cmp.cmpInternalId]) {
             Components.parsingTracking[cmp.cmpInternalId] = true;
-            setTimeout(() => parsing.parseGetsAndSets().markParsed());
+            setTimeout(() => {
+                cmp.setAndGetsParsed = true;
+                parsing.parseGetsAndSets().markParsed()
+            });
         } else {
             delete Components.parsingTracking[cmp.cmpInternalId];
         }
@@ -887,6 +891,7 @@ export class Components {
 
         if (!Components.parsingTracking[cmp.cmpInternalId]) {
             Components.parsingTracking[cmp.cmpInternalId] = true;
+            cmp.setAndGetsParsed = true;
             this.parseGetsAndSets(null, allowProps);
         } else {
             delete Components.parsingTracking[cmp.cmpInternalId];

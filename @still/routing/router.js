@@ -274,9 +274,12 @@ export class Router {
      * @param { ViewComponent } cmp
      */
     static parseComponent(cmp) {
-        setTimeout(() => {
-            (new Components).getNewParsedComponent(cmp);
-        });
+        if (!cmp.setAndGetsParsed) {
+            cmp.setAndGetsParsed = true;
+            setTimeout(() => {
+                (new Components).getNewParsedComponent(cmp);
+            });
+        }
     }
 
     /**
@@ -337,6 +340,15 @@ export class Router {
                     appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
 
                     setTimeout(() => cmp.parseOnChange(), 500);
+                    setTimeout(() => {
+                        if (!cmp.setAndGetsParsed) {
+                            cmp.setAndGetsParsed = true;
+                            (new Components)
+                                .parseGetsAndSets(
+                                    ComponentRegistror.component(cmp.cmpInternalId)
+                                )
+                        }
+                    }, 10);
                     await cmp.onRender();
                     setTimeout(() => cmp.$stillLoadCounter = cmp.$stillLoadCounter + 1, 100);
                     setTimeout(() => Router.callCmpAfterInit(`${cmpId}-check`));

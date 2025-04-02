@@ -41,7 +41,10 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
                     ComponentRegistror.add(cmp.cmpInternalId, cmp);
                     setTimeout(() => cmp.parseOnChange(), 500);
-                    setTimeout(() => (new Components).parseGetsAndSets(cmp), 10);
+                    setTimeout(() => {
+                        cmp.setAndGetsParsed = true;
+                        (new Components).parseGetsAndSets(cmp)
+                    }, 10);
                     document.getElementById(elm.id).innerHTML = template;
 
                     const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];

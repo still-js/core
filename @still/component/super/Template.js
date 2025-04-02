@@ -32,10 +32,7 @@ export class Template {
         else return new AppTemplate(cmp);
 
     }
-    /**
-     * 
-     * @returns { Template }
-     */
+    /** @returns { Template } */
     static get() {
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance)) {
@@ -118,7 +115,6 @@ export class Template {
 
     unloadApp() {
         Components.unloadApp();
-        //Router.goto('init');
         window.location.reload();
     }
 
@@ -217,22 +213,15 @@ export class Template {
                 <div class="still-toast-progress"></div>
             </div>
         `;
-
         document.body.insertAdjacentHTML('beforebegin', content);
 
     }
 
-
     static getToastId() {
-
         if (!Template.toastId)
             Template.toastId = `toast_${UUIDUtil.newId()}`;
-
         return Template.toastId;
-
     }
-
-
 
 }
 

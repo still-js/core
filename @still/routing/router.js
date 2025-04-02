@@ -1,6 +1,6 @@
 import { StillAppSetup } from "../../app-setup.js";
 import { AppTemplate } from "../../app-template.js";
-import { $stillGetRouteMap, stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
+import { stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
 import { $still, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
@@ -22,7 +22,6 @@ export class Router {
 
     static routeMap;
     static baseUrl = window.location.href.replace('#', '');
-    //static baseUrl = window.location.origin.toString().concat('/');
 
     #data = {};
     static instance = null;
@@ -32,10 +31,8 @@ export class Router {
     static navigatingView = null;
     static navigatingUrl = null;
     static urlParams = {};
-    /** 
-     * clickEvetCntrId only takes place when it comes to lone component so that
-     *  it can identify the context which an event (e.g. Navigation) occurred
-     * */
+    /** clickEvetCntrId only takes place when it comes to lone component so that
+     *  it can identify the context which an event (e.g. Navigation) occurred  */
     static clickEvetCntrId = null;
     static preView = null;
     static navCounter = 0;
@@ -58,11 +55,7 @@ export class Router {
 
     static data = (cmpName) => Router.getInstance().#data[cmpName];
 
-    /**
-     * 
-
-     * @param {String} data 
-     */
+    /** @param {String} data  */
     static aliasGoto(cmp, data, url = false, containerId = null) {
 
         if (!url) Router.clearUrlPath();
@@ -139,7 +132,12 @@ export class Router {
         }
 
 
-        const routeInstance = $stillGetRouteMap()
+        const routeInstance = {
+            route: {
+                ...stillRoutesMap.viewRoutes.lazyInitial,
+                ...stillRoutesMap.viewRoutes.regular
+            }
+        }
         const route = routeInstance.route[cmp]?.path;
 
         const cmpRegistror = $still.context.componentRegistror.componentList;
@@ -207,10 +205,8 @@ export class Router {
                             return Router.cmpTemplateNotDefinedCheck(cmp);
 
                         if (newInstance.isPublic) {
-                            //Components.registerPublicCmp(newInstance);
                             if (!AppTemplate.get().isAuthN()) {
                                 if (url) Router.updateUrlPath(cmp);
-                                //ComponentRegistror.add(cmp.cmpInternalId, cmp);
                                 return (new Components()).renderPublicComponent(newInstance);
                             }
                         }
@@ -246,7 +242,6 @@ export class Router {
     }
 
     static updateUrlPath(cmp) {
-
         let routeName = cmp;
         if (cmp instanceof Object) routeName = cmp.address;
 
@@ -310,8 +305,6 @@ export class Router {
                             cmp.parseOnChange();
                         }, 500);
                         await cmp.onRender();
-                        //await componentInstance.stAfterInit();
-
                     } else {
                         await Components.reloadedComponent(cmp, isHome);
                     }
@@ -437,15 +430,11 @@ export class Router {
     }
 
     static handleUnauthorizeIfPresent() {
-
-        //setTimeout(() => {
         const unauthorizeContent = document.getElementById(ST_UNAUTHOR_ID);
         if (unauthorizeContent) {
             const parent = unauthorizeContent.parentElement;
             parent.removeChild(unauthorizeContent);
         }
-        //}, 100);
-
     }
 
     static noPermAccessProcess(isPrivate, appPlaceholder) {
@@ -610,16 +599,12 @@ export class Router {
                     ...stillRoutesMap.viewRoutes.lazyInitial,
                     ...stillRoutesMap.viewRoutes.regular
                 };
-
             };
             resolve('');
-
         })
-
     }
 
-    static setStillHomeUrl() {
+    static setStillHomeUrl = () =>
         Router.baseUrl = `${location.origin}/${STILL_HOME}`;
-    }
 
 }

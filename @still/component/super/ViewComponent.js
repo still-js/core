@@ -1,15 +1,8 @@
 import { $stillconst } from "../../setup/constants.js";
 import { BaseComponent } from "./BaseComponent.js";
 
-class HTMLRefId {
-
-}
-
 export class ViewComponent extends BaseComponent {
 
-    /**
-     * @type {HTMLRefId}
-     */
     htmlRefId;
     #stMyParent;
 
@@ -41,7 +34,6 @@ export class ViewComponent extends BaseComponent {
 
     getTemplate() {
         this.beforeInit();
-        //this.prepareRender();
         let template = this.getBoundTemplate();
         const cmpUnicClass = this.getUUID();
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
@@ -56,18 +48,10 @@ export class ViewComponent extends BaseComponent {
         return template;
     }
 
-    render() {
-        this.renderOnViewFor(this.htmlRefId);
-    }
-
-    setParentComponent(parent) {
-        this.stMyParent = parent;
-    }
+    setParentComponent = (parent) => this.#stMyParent = parent;
 
     /** @returns { ViewComponent }  */
-    getParentComponent() {
-        return this.stMyParent;
-    }
+    getParentComponent = () => this.#stMyParent;
 
     runMethod(methodName, ...params) {
 

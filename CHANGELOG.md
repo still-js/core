@@ -2,6 +2,32 @@
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
+## [Released] - 2025-04-02
+## [Version] - 0.0.10
+Clean up, improvements and bug fixes.
+ 
+
+### Fixed
+- Gets and Set parsing in both component first load and reload.
+- Garbage collector.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
 ## [Released] - 2025-04-01
 ## [Version] - 0.0.9
 New Features, improvements and Bug fixes transversally.

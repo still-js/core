@@ -220,7 +220,8 @@ export class Router {
                             return document.write($stillconst.MSG.PRIVATE_CMP);
 
                         newInstance.isRoutable = true;
-                        if (!wasPrevLoaded && !newInstance.lone) Router.parseComponent(newInstance);
+                        if (!wasPrevLoaded && !newInstance.lone)
+                            if (!Router.importedMap[cmp]) Router.parseComponent(newInstance);
                         newInstance.setRoutableCmp(true);
                         if (isHomeCmp)
                             newInstance.setUUID($stillconst.TOP_LEVEL_CMP);
@@ -228,19 +229,18 @@ export class Router {
                         $still.context.currentView = newInstance;
 
                     } else {
-                        $still.context.currentView = cmpRegistror[cmp]?.instance
-                        if (!$still.context.currentView) {
-                            $still.context.currentView = await (
-                                await Components.produceComponent({ cmp })
-                            ).newInstance
-                        }
+                        const oldInstance = cmpRegistror[cmp]?.instance;
+                        $still.context.currentView = await (
+                            await Components.produceComponent({ cmp })
+                        ).newInstance;
 
-                        $still.context.currentView.isRoutable = true;
-                        if (!$still.context.currentView.stillParsedState) {
+                        if (!oldInstance.stillParsedState) {
                             $still.context.currentView = (new Components).getNewParsedComponent(
                                 $still.context.currentView
                             );
                         }
+                        $still.context.currentView.cmpInternalId = oldInstance.cmpInternalId;
+                        $still.context.currentView.isRoutable = true;
                     }
                     Router.getAndDisplayPage($still.context.currentView, Router.importedMap[cmp]);
                 });

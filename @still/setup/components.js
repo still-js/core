@@ -497,6 +497,7 @@ export class Components {
         const cmp = instance || this.component;
         const cmpName = this.componentName;
 
+        cmp.setAndGetsParsed = true;
         cmp.getProperties(allowfProp).forEach(field => {
 
             const inspectField = cmp[field];
@@ -866,8 +867,8 @@ export class Components {
 
         if (!Components.parsingTracking[cmp.cmpInternalId]) {
             Components.parsingTracking[cmp.cmpInternalId] = true;
+            cmp.setAndGetsParsed = true;
             setTimeout(() => {
-                cmp.setAndGetsParsed = true;
                 parsing.parseGetsAndSets().markParsed()
             });
         } else {
@@ -956,7 +957,7 @@ export class Components {
             elmRef = isUnAuthn ? $stillconst.ST_HOME_CMP : $stillconst.ST_HOME_CMP1;
         }
 
-        let container = cmp.loneCntrId
+        let container = cmp.loneCntrId && cmp.loneCntrId?.trim() != 'null'
             ? document.getElementById(cmp.loneCntrId)
             : document.querySelector(`.${elmRef}`);
         const previousContainer = container;
@@ -990,9 +991,16 @@ export class Components {
             );
         }
 
+        await newInstance.stAfterInit();
         setTimeout(async () => newInstance.parseOnChange(), 200);
-        //await newInstance.stAfterInit();
-        await newInstance.onRender();
+        if (!newInstance.setAndGetsParsed) {
+            newInstance.setAndGetsParsed = true;
+            setTimeout(() => {
+                (new Components).parseGetsAndSets(
+                    ComponentRegistror.component(newInstance.cmpInternalId)
+                )
+            }, 10);
+        }
         if (cmp.loneCntrId) {
             ComponentRegistror.add(newInstance.cmpInternalId, newInstance);
             //ComponentRegistror.add(cmpName, newInstance);

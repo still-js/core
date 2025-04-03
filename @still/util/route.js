@@ -19,8 +19,7 @@ export async function getRoutesFile(defaultFile) {
 
 export function getRouter(defaultRouter) {
     try {
-        if (Router)
-            return Router;
+        if (Router) return Router;
     } catch (error) {
         return defaultRouter;
     }
@@ -28,16 +27,22 @@ export function getRouter(defaultRouter) {
 
 export function getViewComponent(defaultViewComponent) {
     try {
-        if (ViewComponent)
-            return ViewComponent;
+        if (ViewComponent) return ViewComponent;
     } catch (error) {
         return defaultViewComponent;
     }
 }
 
 export function getBasePath(type = null, servicePath = null) {
-    const basePath = `${location.origin}/${STILL_HOME}`;
-    if (STILL_HOME)
-        return `${basePath}${type == 'service' ? `app/${servicePath ? servicePath + '' : ''}` : ''}`;
+    try {
+        if (STILL_HOME) {
+            const basePath = `${location.origin}/${STILL_HOME}`;
+            return `${basePath}${type == 'service' ? `app/${servicePath ? servicePath + '' : ''}` : ''}`;
+        }
+    } catch (error) { }
+
+    if (servicePath && servicePath?.length > 0)
+        return `${location.origin}/app/${servicePath}`;
+
     return `${location.origin}/app/`;
 }

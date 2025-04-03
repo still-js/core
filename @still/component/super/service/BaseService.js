@@ -8,16 +8,14 @@ export class ServiceEvent {
     value;
 
     constructor(value = null) { this.value = value };
-
     onChange = (cb = () => { }) => this.changeSubscribers.push(cb);
-
     dispatchOnChange = (value) =>
         this.changeSubscribers.forEach(async cb => await cb(value));
 }
 
 
 export class BaseService {
-
+    /** @param { 'load' } evt */
     on(evt, cb = () => { }) { }
 
     serviceId = UUIDUtil.newId();
@@ -28,9 +26,7 @@ export class BaseService {
             if (this[prop] instanceof ServiceEvent) {
 
                 /** @type { ServiceEvent } */
-                const svc = this[prop]; this[`$st${prop}sb`]
-
-                const subscribers = this[prop].changeSubscribers;
+                const [svc, subscribers] = [this[prop], this[prop].changeSubscribers];
                 this[prop] = { onChange: () => { }, [`$st${prop}sb`]: subscribers };
 
                 Object.assign(this, { ['$still_' + prop]: svc.value });

@@ -141,15 +141,18 @@ export class Router {
         const route = routeInstance.route[cmp]?.path;
 
         const cmpRegistror = $still.context.componentRegistror.componentList;
+        const cmpInstance = cmpRegistror[cmp]?.instance
         const isHomeCmp = StillAppSetup.get().entryComponentName == cmp;
         const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
         if (isHomeCmp && isLoneCmp) {
 
             if (cmp in cmpRegistror) {
 
-                $still.context.currentView = cmpRegistror[cmp].instance;
-                if (!AppTemplate.get().isAuthN() && !cmpRegistror[cmp].instance.isPublic)
-                    document.write(authErrorMessage());
+                $still.context.currentView = cmpInstance;
+                if (
+                    !AppTemplate.get().isAuthN() && !cmpInstance.isPublic
+                    && !Components.obj().isInWhiteList(cmpInstance.getName())
+                ) document.write(authErrorMessage());
 
                 Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
 
@@ -164,8 +167,10 @@ export class Router {
                     );
                     $still.context.currentView = newInstance;
 
-                    if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
-                        document.write(authErrorMessage());
+                    if (!AppTemplate.get().isAuthN()
+                        && !$still.context.currentView.isPublic
+                        && !Components.obj().isInWhiteList(newInstance.getName())
+                    ) document.write(authErrorMessage());
 
                     if ($still.context.currentView.template == undefined)
                         return Router.cmpTemplateNotDefinedCheck(cmp);
@@ -212,8 +217,10 @@ export class Router {
                         }
 
                         ComponentRegistror.add(cmp, newInstance);
-                        if (!document.getElementById($stillconst.APP_PLACEHOLDER) && !newInstance.isPublic)
-                            return document.write(authErrorMessage());
+                        const isWhiteListed = Components.obj().isInWhiteList(newInstance.getName());
+                        if (!document.getElementById($stillconst.APP_PLACEHOLDER)
+                            && !newInstance.isPublic && isWhiteListed
+                        ) return document.write(authErrorMessage());
 
                         newInstance.isRoutable = true;
                         if (!wasPrevLoaded && !newInstance.lone)
@@ -293,7 +300,7 @@ export class Router {
                 .unloadLoadedComponent(soleRouting && appPlaceholder)
                 .then(async () => {
                     Router.handleUnauthorizeIfPresent();
-                    if (Router.noPermAccessProcess(isPrivate, appPlaceholder)) return;
+                    if (Router.noPermAccessProcess(isPrivate, appPlaceholder, cmpName)) return;
                     if (cmp.subImported) {
                         const pageContent = `
                         <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName}" style="display:contents;">
@@ -316,7 +323,7 @@ export class Router {
                 .unloadLoadedComponent(soleRouting && appPlaceholder)
                 .then(async () => {
                     Router.handleUnauthorizeIfPresent();
-                    if (Router.noPermAccessProcess(isPrivate, appPlaceholder)) return;
+                    if (Router.noPermAccessProcess(isPrivate, appPlaceholder, cmpName)) return;
                     if (!appPlaceholder && cmp?.isPublic) {
                         appPlaceholder = document.getElementById($stillconst.UI_PLACEHOLDER);
                     }
@@ -437,11 +444,11 @@ export class Router {
         }
     }
 
-    static noPermAccessProcess(isPrivate, appPlaceholder) {
+    static noPermAccessProcess(isPrivate, appPlaceholder, cmpName) {
 
         const isUnauthorized = isPrivate && !AppTemplate.get().isAuthN();
         Router.handleUnauthorizeIfPresent();
-        if (isUnauthorized) {
+        if (isUnauthorized && !Components.obj().isInWhiteList(cmpName)) {
             appPlaceholder.insertAdjacentHTML('afterbegin', authErrorMessage());
             return true;
         }
@@ -608,8 +615,8 @@ export class Router {
         Router.baseUrl = `${location.origin}/${STILL_HOME}`;
 
     static escape() {
-        window.location.reload();
         window.location.href = location.origin + '/#/' + Router.preView.getName();
+        window.location.reload();
     }
 
 }

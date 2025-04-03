@@ -1170,7 +1170,7 @@ export class BaseComponent extends BehaviorComponent {
 
             on: async (_, action) => {
 
-                const svcInstance = Components.get().services.get(type);
+                const svcInstance = StillAppSetup.get().services.get(type);
                 if (
                     (cmp[propertyName]?.ready
                         && cmp[propertyName]?.status == $stillconst.A_STATUS.DONE)
@@ -1195,7 +1195,7 @@ export class BaseComponent extends BehaviorComponent {
 
                 tempObj.status = $stillconst.A_STATUS.PENDING;
                 tempObj.subscribers?.forEach(async (action) => {
-                    const svcInstance = Components.get().services.get(type);
+                    const svcInstance = StillAppSetup.get().services.get(type);
                     await action(svcInstance);
                     tempObj.subscribers?.shift();
                 });

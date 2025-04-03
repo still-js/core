@@ -22,6 +22,9 @@ export const StillAppMixin = (Component) =>
         /** @type { Array<ComponentType> } */
         #componentAOTList = [];
 
+        /** @type { Array<ViewComponent> } */
+        #componentWhiteList = [];
+
         /** 
          * @param { ComponentType | ViewComponent } cmp
          * @returns { StillAppSetup }
@@ -85,4 +88,21 @@ export const StillAppMixin = (Component) =>
         }
 
         setAnauthorizedWarning = (content) => super.injectAnauthorizedMsg(content);
+
+        /** @param { Array<ViewComponent> } whiteList */
+        setWhiteList(whiteList) {
+            this.#componentWhiteList = whiteList.map(r => r.name);
+            Object.freeze(this.#componentWhiteList);
+        }
+
+        /** @param { Array<String> } whiteList */
+        getWhiteList = () => this.#componentWhiteList;
+
+        /**  @returns { StillAppSetup } */
+        static get() {
+            if (StillAppSetup.instance == null)
+                StillAppSetup.instance = new StillAppSetup();
+            return StillAppSetup.instance;
+        }
+
     }

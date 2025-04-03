@@ -87,14 +87,10 @@ export class Components {
     static parsingTracking = {};
     static prevLoadingTracking = new Set();
 
-    void() { }
+    /** @type { Array<String> } */
+    #cmpPermWhiteList = [];
 
-    /**  @returns { StillAppSetup } */
-    static get() {
-        if (StillAppSetup.instance == null)
-            StillAppSetup.instance = new StillAppSetup();
-        return StillAppSetup.instance;
-    }
+    void() { }
 
     getTopLevelCmpId() {
         const { TOP_LEVEL_CMP, ANY_COMPONT_LOADED } = $stillconst;
@@ -286,7 +282,11 @@ export class Components {
                     await Components.produceComponent({ cmp: this.entryComponentName })
                 ).newInstance;
 
-                if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
+                if (
+                    !AppTemplate.get().isAuthN()
+                    && !$still.context.currentView.isPublic
+                    && !Components.obj().isInWhiteList(this.entryComponentName)
+                )
                     return document.write(authErrorMessage());
 
                 setTimeout(() => $still.context.currentView.parseOnChange(), 500);
@@ -343,7 +343,7 @@ export class Components {
     /** @param { ViewComponent } cmp */
     renderPublicComponent(cmp) {
 
-        if (cmp.isPublic) {
+        if (cmp.isPublic || Components.obj().isInWhiteList(cmp.getName())) {
             Components.registerPublicCmp(cmp);
 
             this.template = cmp.getBoundTemplate();
@@ -886,7 +886,9 @@ export class Components {
     /** @param {ViewComponent} cmp */
     static async reloadedComponent(cmp, isHome) {
         const isUnAuthn = !AppTemplate.get().isAuthN();
-        if (!cmp.isPublic && isUnAuthn) {
+        let cmpName = cmp.constructor.name, template;
+
+        if (!cmp.isPublic && isUnAuthn && !Components.obj().isInWhiteList(cmpName)) {
 
             if (document.querySelector(`.${$stillconst.ST_FIXE_CLS}`)) {
 
@@ -895,8 +897,6 @@ export class Components {
 
             } else return document.write(authErrorMessage());
         }
-
-        let cmpName = cmp.constructor.name, template;
 
         /** @type { ViewComponent } */
         let newInstance = await (
@@ -1419,14 +1419,10 @@ export class Components {
     }
 
     static knownClassed = [
-        ComponentNotFoundException.name,
-        BaseComponent.name,
-        Components.name,
-        'StillAppSetup'
-    ]
-    /** 
-     * @param { { name, prototype } } cmp 
-     * */
+        ComponentNotFoundException.name, BaseComponent.name,
+        Components.name, 'StillAppSetup'
+    ];
+    /** @param { { name, prototype } } cmp */
     static register(cmp) {
         /** Will register base and supper classe of the framewor
          * as well as any component class of the Application */
@@ -1439,9 +1435,7 @@ export class Components {
             || Components.knownClassed.includes(cmp?.name)
         ) window[cmp.name] = cmp;
 
-        else if (typeof cmp == 'function')
-            window[cmp.name] = cmp;
-
+        else if (typeof cmp == 'function') window[cmp.name] = cmp;
     }
 
     setHomeComponent(cmp) {
@@ -1449,7 +1443,7 @@ export class Components {
         this.entryComponentPath = stillRoutesMap.viewRoutes.regular[cmp.name]?.path;
     }
 
-    setServicePath = (path) => this.servicePath = path;
+    setServicePath(path) { this.servicePath = path }
 
     static importedMap = new Set();
     static setupImportWorkerState = false;
@@ -1482,13 +1476,11 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register(`${Router.baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
                 .then(() => console.log('Service Worker Registered'))
                 .catch(err => console.log('SW Registration Failed:', err));
         }
-
     }
 
     static loadCssAssets() {
@@ -1501,8 +1493,18 @@ export class Components {
         });
     }
 
-    injectAnauthorizedMsg(content) {
-        $stillconst.MSG.CUSTOM_PRIVATE_CMP = content;
+    static _obj = null;
+    /** @returns { Components } */
+    static obj() {
+        if (!Components._obj) Components._obj = new Components();
+        return Components._obj;
+    }
+
+    injectAnauthorizedMsg(content) { $stillconst.MSG.CUSTOM_PRIVATE_CMP = content; }
+
+    processWhiteList(content) { Components.obj().#cmpPermWhiteList = content.map(r => r.name); }
+    isInWhiteList(cmpName) {
+        return StillAppSetup.get().getWhiteList().includes(cmpName);
     }
 
 }

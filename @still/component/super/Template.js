@@ -17,7 +17,7 @@ export class Template {
 
         const ViewComponent = getViewComponent(DefaultViewComponent);
         if (cmp?.prototype instanceof ViewComponent)
-            Components.get().setHomeComponent(cmp);
+            StillAppSetup.get().setHomeComponent(cmp);
 
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance))

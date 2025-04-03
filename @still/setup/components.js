@@ -7,7 +7,7 @@ import { ViewComponent as DefaultViewComponent } from "../component/super/ViewCo
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
-import { $stillconst } from "./constants.js";
+import { $stillconst, authErrorMessage } from "./constants.js";
 import { StillError } from "./error.js";
 
 const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
@@ -287,7 +287,7 @@ export class Components {
                 ).newInstance;
 
                 if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
-                    return document.write($stillconst.MSG.PRIVATE_CMP);
+                    return document.write(authErrorMessage());
 
                 setTimeout(() => $still.context.currentView.parseOnChange(), 500);
                 StillAppSetup.register($still.context.currentView.constructor);
@@ -360,7 +360,7 @@ export class Components {
                 Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts)
             );
             Components.handleMarkedToRemoveParts();
-        } else document.body.innerHTML = ($stillconst.MSG.PRIVATE_CMP);
+        } else document.body.innerHTML = (authErrorMessage());
     }
 
     static registerPublicCmp = (cmp) =>
@@ -891,9 +891,9 @@ export class Components {
             if (document.querySelector(`.${$stillconst.ST_FIXE_CLS}`)) {
 
                 return document.getElementById($stillconst.UI_PLACEHOLDER)
-                    .insertAdjacentHTML('afterbegin', $stillconst.MSG.PRIVATE_CMP);
+                    .insertAdjacentHTML('afterbegin', authErrorMessage());
 
-            } else return document.write($stillconst.MSG.PRIVATE_CMP);
+            } else return document.write(authErrorMessage());
         }
 
         let cmpName = cmp.constructor.name, template;
@@ -1492,7 +1492,6 @@ export class Components {
     }
 
     static loadCssAssets() {
-
         const css1 = '@still/css/still-fundamental.css';
         const css2 = '@still/ui/css/still.css';
         [css1, css2].forEach(path => {
@@ -1500,6 +1499,10 @@ export class Components {
             cssTag.href = `${Router.baseUrl}${path}`;
             document.head.insertAdjacentElement('beforeend', cssTag);
         });
+    }
+
+    injectAnauthorizedMsg(content) {
+        $stillconst.MSG.CUSTOM_PRIVATE_CMP = content;
     }
 
 }

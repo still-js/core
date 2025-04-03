@@ -4,7 +4,7 @@ import { stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
 import { $still, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
-import { $stillconst, ST_UNAUTHOR_ID } from "../setup/constants.js";
+import { $stillconst, authErrorMessage, ST_UNAUTHOR_ID } from "../setup/constants.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { getRoutesFile } from "../util/route.js";
 
@@ -149,7 +149,7 @@ export class Router {
 
                 $still.context.currentView = cmpRegistror[cmp].instance;
                 if (!AppTemplate.get().isAuthN() && !cmpRegistror[cmp].instance.isPublic)
-                    document.write($stillconst.MSG.PRIVATE_CMP);
+                    document.write(authErrorMessage());
 
                 Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
 
@@ -165,7 +165,7 @@ export class Router {
                     $still.context.currentView = newInstance;
 
                     if (!AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic)
-                        document.write($stillconst.MSG.PRIVATE_CMP);
+                        document.write(authErrorMessage());
 
                     if ($still.context.currentView.template == undefined)
                         return Router.cmpTemplateNotDefinedCheck(cmp);
@@ -213,7 +213,7 @@ export class Router {
 
                         ComponentRegistror.add(cmp, newInstance);
                         if (!document.getElementById($stillconst.APP_PLACEHOLDER) && !newInstance.isPublic)
-                            return document.write($stillconst.MSG.PRIVATE_CMP);
+                            return document.write(authErrorMessage());
 
                         newInstance.isRoutable = true;
                         if (!wasPrevLoaded && !newInstance.lone)
@@ -442,7 +442,7 @@ export class Router {
         const isUnauthorized = isPrivate && !AppTemplate.get().isAuthN();
         Router.handleUnauthorizeIfPresent();
         if (isUnauthorized) {
-            appPlaceholder.insertAdjacentHTML('afterbegin', $stillconst.MSG.PRIVATE_CMP);
+            appPlaceholder.insertAdjacentHTML('afterbegin', authErrorMessage());
             return true;
         }
         return false;

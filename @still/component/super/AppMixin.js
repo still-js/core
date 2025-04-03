@@ -72,10 +72,6 @@ export const StillAppMixin = (Component) =>
         /** @returns { ViewComponent } */
         static getComponentFromRef = (name) => super.getComponentFromRef(name);
 
-        //static setAuthN = (val) => AppTemplate.get().setAuthN(val);
-
-        //setAuthN = (val) => AppTemplate.get().setAuthN(val);
-
         static setDevErrorTracing = () => StillError.setDevErrorContainer();
 
         static authFlag = {};
@@ -88,4 +84,5 @@ export const StillAppMixin = (Component) =>
             }
         }
 
+        setAnauthorizedWarning = (content) => super.injectAnauthorizedMsg(content);
     }

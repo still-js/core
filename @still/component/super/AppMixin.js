@@ -72,10 +72,20 @@ export const StillAppMixin = (Component) =>
         /** @returns { ViewComponent } */
         static getComponentFromRef = (name) => super.getComponentFromRef(name);
 
-        static setAuthN = (val) => AppTemplate.get().setAuthN(val);
+        //static setAuthN = (val) => AppTemplate.get().setAuthN(val);
 
-        setAuthN = (val) => AppTemplate.get().setAuthN(val);
+        //setAuthN = (val) => AppTemplate.get().setAuthN(val);
 
         static setDevErrorTracing = () => StillError.setDevErrorContainer();
+
+        static authFlag = {};
+
+        /** This makes sure that only StillAppSetup can set auth flag */
+        setAuthN(value) {
+            if (!('authn' in StillAppSetup.authFlag)) {
+                StillAppSetup.authFlag['authn'] = value;
+                Object.freeze(StillAppSetup.authFlag);
+            }
+        }
 
     }

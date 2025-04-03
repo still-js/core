@@ -1,3 +1,4 @@
+import { StillAppSetup } from "../../../app-setup.js";
 import { AppTemplate } from "../../../app-template.js";
 import { Router } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
@@ -93,24 +94,8 @@ export class Template {
 
     }
 
-    setAuthN(value) {
-
-        const clsName = this.constructor.name;
-        if (!('authn' in Template.instance[clsName])) {
-            Template.instance[clsName]['authn'] = null;
-        }
-        const storedValue = this.storageSet('authn', value);
-        Template.instance[clsName]['authn'] = storedValue;
-    }
-
     isAuthN() {
-
-        let storedValue = this.storageGet('authn');
-        if (storedValue) {
-            Template.instance[this.constructor.name]['authn'] = storedValue;
-        }
-
-        return storedValue;
+        return StillAppSetup.authFlag['authn'];
     }
 
     unloadApp() {
@@ -224,5 +209,3 @@ export class Template {
     }
 
 }
-
-window.Template = Template;

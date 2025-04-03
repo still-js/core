@@ -109,7 +109,7 @@ export class Components {
             this.template = this.template.join('');
 
         let cntr = document.getElementById(placeHolder);
-        if (isLoneCmp) cntr = document.getElementById(isLoneCmp);
+        if (isLoneCmp && isLoneCmp != 'null') cntr = document.getElementById(isLoneCmp);
         else {
             if (document.getElementById($stillconst.APP_PLACEHOLDER))
                 cntr = document.getElementById($stillconst.APP_PLACEHOLDER);

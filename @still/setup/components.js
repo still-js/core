@@ -1503,8 +1503,13 @@ export class Components {
     injectAnauthorizedMsg(content) { $stillconst.MSG.CUSTOM_PRIVATE_CMP = content; }
 
     processWhiteList(content) { Components.obj().#cmpPermWhiteList = content.map(r => r.name); }
+
     isInWhiteList(cmpName) {
-        return StillAppSetup.get().getWhiteList().includes(cmpName);
+        const isInBlackList = StillAppSetup.get().getBlackList().includes(cmpName);
+        const isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmpName);
+        if (!isInBlackList && !isInWhiteList) return true;
+        if (isInBlackList) return false;
+        return isInWhiteList;
     }
 
 }

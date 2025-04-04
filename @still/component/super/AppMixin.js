@@ -25,6 +25,9 @@ export const StillAppMixin = (Component) =>
         /** @type { Array<ViewComponent> } */
         #componentWhiteList = [];
 
+        /** @type { Array<ViewComponent> } */
+        #componentBlackList = [];
+
         /** 
          * @param { ComponentType | ViewComponent } cmp
          * @returns { StillAppSetup }
@@ -97,6 +100,15 @@ export const StillAppMixin = (Component) =>
 
         /** @param { Array<String> } whiteList */
         getWhiteList = () => this.#componentWhiteList;
+
+        /** @param { Array<ViewComponent> } whiteList */
+        setBlackList(whiteList) {
+            this.#componentBlackList = whiteList.map(r => r.name);
+            Object.freeze(this.#componentBlackList);
+        }
+
+        /** @param { Array<String> } whiteList */
+        getBlackList = () => this.#componentBlackList;
 
         /**  @returns { StillAppSetup } */
         static get() {

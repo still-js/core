@@ -211,6 +211,9 @@ export class Router {
 
                         if (newInstance.isPublic) {
                             if (!AppTemplate.get().isAuthN()) {
+                                if (!Components.obj().isInWhiteList(newInstance.getName()))
+                                    return document.write(authErrorMessage());
+
                                 if (url) Router.updateUrlPath(cmp);
                                 return (new Components()).renderPublicComponent(newInstance);
                             }

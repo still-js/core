@@ -2,6 +2,45 @@
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
+## [Released] - 2025-04-06
+## [Version] - 0.0.11
+Clean up, improvements and bug fixes.
+ 
+
+- <b>MEDIUM</b> - Blacklist and Whitelist to make components public and vice-versa.
+        
+
+- <b>MINOR</b> - App Config method to allow setting a customized warning message for private Components.
+- <b>MINOR</b> - escape method in the Router which is used in the private component warning message to go back the previous component.
+<br>  
+ 
+### Changed
+- Singleton instance from Components to AppMixin.
+<br>
+- AuthN flag to store in the App variable instead of localStorage.
+<br>
+
+
+### Fixed
+- `setServicePath` which is called in the `StillAppSetup`.
+- Service routing path generation from route.js util.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+This log contains all the changes which takes place for StillJS Framework.
+
 ## [Released] - 2025-04-02
 ## [Version] - 0.0.10
 Clean up, improvements and bug fixes.

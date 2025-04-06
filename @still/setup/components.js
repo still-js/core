@@ -283,9 +283,9 @@ export class Components {
                 ).newInstance;
 
                 if (
-                    !AppTemplate.get().isAuthN()
-                    && !$still.context.currentView.isPublic
-                    && !Components.obj().isInWhiteList(this.entryComponentName)
+                    (!AppTemplate.get().isAuthN()
+                        && !$still.context.currentView.isPublic)
+                    || !Components.obj().isInWhiteList($still.context.currentView)
                 )
                     return document.write(authErrorMessage());
 
@@ -343,7 +343,7 @@ export class Components {
     /** @param { ViewComponent } cmp */
     renderPublicComponent(cmp) {
 
-        if (cmp.isPublic || Components.obj().isInWhiteList(cmp.getName())) {
+        if (cmp.isPublic || Components.obj().isInWhiteList(cmp)) {
             Components.registerPublicCmp(cmp);
 
             this.template = cmp.getBoundTemplate();
@@ -888,7 +888,7 @@ export class Components {
         const isUnAuthn = !AppTemplate.get().isAuthN();
         let cmpName = cmp.constructor.name, template;
 
-        if (!cmp.isPublic && isUnAuthn && !Components.obj().isInWhiteList(cmpName)) {
+        if ((!cmp.isPublic && isUnAuthn) || !Components.obj().isInWhiteList(cmp)) {
 
             if (document.querySelector(`.${$stillconst.ST_FIXE_CLS}`)) {
 
@@ -1082,6 +1082,11 @@ export class Components {
                 const instance = await (
                     await Components.produceComponent({ cmp: component, parentCmp })
                 ).newInstance;
+
+                let cmpName, canHandle = true;
+                if (!Components.obj().canHandleCmpPart(instance))
+                    return;
+
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
                 /** In case the parent component is Lone component, then child component will also be */
                 instance.lone = parentCmp.lone;
@@ -1091,10 +1096,8 @@ export class Components {
                 instance.proxyName = proxy;
                 ComponentRegistror.add(instance.cmpInternalId, instance);
 
-                let cmpName;
-                if (instance) {
+                if (instance)
                     cmpName = 'constructor' in instance ? instance.constructor.name : null;
-                }
 
                 /** TOUCH TO REINSTANTIATE */
                 const cmp = (new Components).getNewParsedComponent(instance, cmpName);
@@ -1180,7 +1183,19 @@ export class Components {
                 }
             })
         }
+    }
 
+    /** @param { ViewComponent } cmp */
+    canHandleCmpPart(cmp) {
+        if (Components.obj().isInWhiteList(cmp)) return true;
+        if (AppTemplate.get().isAuthN() && !Components.obj().isInWhiteList(cmp))
+            return false;
+
+        if ((!AppTemplate.get().isAuthN()
+            && !cmp.isPublic)
+            || !Components.obj().isInWhiteList(cmp))
+            return false;
+        return true;
     }
 
     static handleMarkedToRemoveParts() {
@@ -1504,10 +1519,10 @@ export class Components {
 
     processWhiteList(content) { Components.obj().#cmpPermWhiteList = content.map(r => r.name); }
 
-    isInWhiteList(cmpName) {
-        const isInBlackList = StillAppSetup.get().getBlackList().includes(cmpName);
-        const isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmpName);
-        if (!isInBlackList && !isInWhiteList) return true;
+    isInWhiteList(cmp) {
+        const isInBlackList = StillAppSetup.get().getBlackList().includes(cmp.getName());
+        const isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmp.getName());
+        if (!isInBlackList && !isInWhiteList && cmp.isPublic) return true;
         if (isInBlackList) return false;
         return isInWhiteList;
     }

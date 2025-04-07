@@ -27,31 +27,55 @@ export class StillError {
 
     static handleStComponentNotFound(err, parentCmp, cmpName) {
 
+
         if (err.toString().includes('TypeError')) {
 
             const { errorFrag, errCntr } = this.handleCntrVisibility();
 
             errorFrag.innerHTML = `
-            <p>
-            <br>
-            <span class="sttypeErrorMessage">TypeError: ${err.message}</span> <br>
-            &nbsp;&nbsp;&nbsp;Error while loading 
-                <span class="nonExistingComponentSt">
-                    &lt;st-element component="<b>${cmpName}</b>"&gt;&lt;/st-element&gt;
-                </span> 
-                reference in 
-                <b><u>${parentCmp.constructor.name}.js</u></b>
-                <br>&nbsp; &#x2192; check if the component and/or the route 
-                                    ( <span class="nonExistingComponentSt"><b>${cmpName}</b></span> ) 
-                                    exists and was spelled correctly
-                <br>&nbsp; &#x2192; In the terminal type <span class="errorCmdSugestion">still route list</span>
-            </p>
+                ${!parentCmp
+                    ? StillError.componentRefError(err, cmpName)
+                    : StillError.componentEmbedingError(err, parentCmp, cmpName)}
             `;
             errorFrag.style.lineHeight = 1.5;
             errCntr.insertAdjacentElement('beforeend', errorFrag);
 
         }
 
+    }
+
+    static componentEmbedingError(err, parentCmp, cmpName) {
+        return `
+        <p>
+        <br>
+        <span class="sttypeErrorMessage">TypeError: ${err.message}</span> <br>
+        &nbsp;&nbsp;&nbsp;Error while loading 
+            <span class="nonExistingComponentSt">
+                &lt;st-element component="<b>${cmpName}</b>"&gt;&lt;/st-element&gt;
+            </span> 
+            &nbsp;reference in 
+            <b><u>${parentCmp.constructor.name}.js</u></b>
+            <br>&nbsp; &#x2192; check if the component and/or the route 
+                                ( <span class="nonExistingComponentSt"><b>${cmpName}</b></span> ) 
+                                exists and was spelled correctly
+            <br>&nbsp; &#x2192; In the terminal type <span class="errorCmdSugestion">still route list</span>
+        </p>
+        `
+    }
+
+    static componentRefError(err, cmpName) {
+        return `
+        <p>
+        <br>
+        <span class="sttypeErrorMessage">TypeError: ${err.message}</span> <br>
+        &nbsp;&nbsp;&nbsp;Invalid component name 
+            <span class="nonExistingComponentSt"><b>${cmpName}</b></span>
+            <br>&nbsp; &#x2192; check if the component and/or the route 
+                                ( <span class="nonExistingComponentSt"><b>${cmpName}</b></span> ) 
+                                exists and was spelled correctly
+            <br>&nbsp; &#x2192; In the terminal type <span class="errorCmdSugestion">still route list</span>
+        </p>
+        `
     }
 
     static handleInvalidTmplUrl(err, parentCmp, url) {

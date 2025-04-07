@@ -346,7 +346,11 @@ export class Components {
         if (cmp.isPublic || Components.obj().isInWhiteList(cmp)) {
             Components.registerPublicCmp(cmp);
 
-            this.template = cmp.getBoundTemplate();
+            this.template = `
+            <output class="${$stillconst.ANY_COMPONT_LOADED}" style="display:contents;">
+                ${cmp.getBoundTemplate()}
+            </output>
+            `;
             setTimeout(() => cmp.parseOnChange(), 500);
             setTimeout(() => {
                 cmp.setAndGetsParsed = true;
@@ -888,7 +892,7 @@ export class Components {
         const isUnAuthn = !AppTemplate.get().isAuthN();
         let cmpName = cmp.constructor.name, template;
 
-        if ((!cmp.isPublic && isUnAuthn) || !Components.obj().isInWhiteList(cmp)) {
+        if ((!cmp.isPublic && isUnAuthn) && !Components.obj().isInWhiteList(cmp)) {
 
             if (document.querySelector(`.${$stillconst.ST_FIXE_CLS}`)) {
 
@@ -918,13 +922,15 @@ export class Components {
             : document.querySelector(`.${elmRef}`);
         const previousContainer = container;
         if (!previousContainer) {
-            container = Components.getCmpViewContainer(cmpName, newInstance.cmpInternalId);
-            container.innerHTML = '';
+            await newInstance.onRender();
+            container = Components.getCmpViewContainer(cmpName, newInstance.cmpInternalId, newInstance.getTemplate());
+            //container.innerHTML = '';
             ComponentRegistror.add(newInstance.cmpInternalId, newInstance);
+        } else {
+            await newInstance.onRender();
+            container.innerHTML = newInstance.getTemplate();
         }
 
-        await newInstance.onRender();
-        container.innerHTML = newInstance.getTemplate();
         if (newInstance?.lone) setTimeout(() => {
             Components.emitAction(newInstance.getName(), newInstance.cmpInternalId);
         }, 200);
@@ -963,7 +969,7 @@ export class Components {
         else ComponentRegistror.add(cmpName, newInstance);
     }
 
-    static getCmpViewContainer(cmpName, cmpId) {
+    static getCmpViewContainer(cmpName, cmpId, template) {
 
         let cntr = document.querySelector(`.cmp-name-page-view-${cmpName}`);
         if (!cntr) {
@@ -971,10 +977,11 @@ export class Components {
             cntr.style.display = 'contents';
             cntr.id = `${cmpId}-check`;
             cntr.className = `cmp-name-page-view-${cmpName}`;
+            cntr.innerHTML = template;
 
             let appContr = document.getElementById($stillconst.APP_PLACEHOLDER);
             if (!appContr) appContr = document.getElementById($stillconst.UI_PLACEHOLDER);
-            appContr.insertAdjacentHTML('afterbegin', cntr);
+            appContr.insertAdjacentHTML('afterbegin', cntr.outerHTML);
         }
 
         return cntr;

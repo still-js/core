@@ -3,6 +3,33 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 ## [Released] - 2025-04-06
+## [Version] - 0.0.12
+Improvements and bug fixes.
+<br>
+
+- <b>MEDIUM</b> - implemented error handling for invalid component route Name or URL call.
+        
+
+### Fixed
+- fixed component loading/unloading logic when in the reloading flow.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-04-06
 ## [Version] - 0.0.11
 Clean up, improvements and bug fixes.
  

@@ -3,6 +3,7 @@ import { stillRoutesMap } from "../route.map.js";
 import { ComponentNotFoundException, ComponentRegistror } from "./component/manager/registror.js";
 import { BaseComponent } from "./component/super/BaseComponent.js";
 import { BehaviorComponent } from "./component/super/BehaviorComponent.js";
+import { BaseService } from "./component/super/service/BaseService.js";
 import { Router } from "./routing/router.js";
 import { Components } from "./setup/components.js";
 import { UUIDUtil } from "./util/UUIDUtil.js";
@@ -21,7 +22,8 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
             StillAppSetup.register(stillRoutesMap);
             StillAppSetup.register(UUIDUtil);
             StillAppSetup.register(BehaviorComponent);
-            StillAppSetup.register(Components)
+            StillAppSetup.register(Components);
+            StillAppSetup.register(BaseService);
 
             StillAppSetup.register(ComponentNotFoundException);
             /** Only for dev mode */ StillAppSetup.setDevErrorTracing();

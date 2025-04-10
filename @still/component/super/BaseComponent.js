@@ -1210,18 +1210,15 @@ export class BaseComponent extends BehaviorComponent {
         const servicePath = this.#getServicePath(type, svcPath);
         if (!StillAppSetup.get()?.services?.get(type)) {
 
-            import(servicePath)
-                .then(async cls => {
-
-                    /** @type { BaseService } */
-                    const service = new cls[type](this);
-                    service.parseServiceEvents();
-                    StillAppSetup.get()?.services?.set(type, service);
-                    handleServiceAssignement(service);
-                    Components.emitAction(type);
-
-                })
-                .catch(err => { })
+            (async () => {
+                const cls = await import(servicePath);
+                /** @type { BaseService } */
+                const service = new cls[type](this);
+                service.parseServiceEvents();
+                StillAppSetup.get()?.services?.set(type, service);
+                handleServiceAssignement(service);
+                Components.emitAction(type);
+            })();
 
         } else {
             Components.subscribeAction(
@@ -1234,15 +1231,13 @@ export class BaseComponent extends BehaviorComponent {
         };
 
         function handleServiceAssignement(service) {
-
             service['ready'] = true;
             service['status'] = cmp[propertyName].status;
             service['subscribers'] = cmp[propertyName].subscribers;
             service['load'] = cmp[propertyName].load;
             service['on'] = cmp[propertyName].on;
             cmp[propertyName] = service;
-            cmp[propertyName].load();
-
+            cmp[propertyName].load(service);
         }
 
     }

@@ -38,10 +38,12 @@ npm i @stilljs/cli -g
 <br>
 
 #### Creating a project
+Create a folder for you project (e.g. project-name) and from inside such folder init the project as the bellow instruction
+```
+npx still init
+```
 
-```
-npx still create project project-name
-```
+After initiating the project the framework structure and files are download to the folder.
 
 <br>
 

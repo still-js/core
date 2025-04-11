@@ -53,7 +53,7 @@ export class Router {
         Router.initRouting = true;
     }
 
-    static data = (cmpName) => Router.getInstance().#data[cmpName];
+    static data = (cmp) => Router.getInstance().#data[cmp.getName()];
 
     /** @param {String} data  */
     static aliasGoto(cmp, data, url = false, containerId = null) {

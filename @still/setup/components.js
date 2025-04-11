@@ -346,6 +346,7 @@ export class Components {
         if (cmp.isPublic || Components.obj().isInWhiteList(cmp)) {
             Components.registerPublicCmp(cmp);
 
+            setTimeout(async () => await cmp.onRender());
             this.template = `
             <output class="${$stillconst.ANY_COMPONT_LOADED}" style="display:contents;">
                 ${cmp.getBoundTemplate()}
@@ -363,6 +364,7 @@ export class Components {
             setTimeout(() =>
                 Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts)
             );
+            setTimeout(async () => await cmp.stAfterInit(), 120);
             Components.handleMarkedToRemoveParts();
         } else document.body.innerHTML = (authErrorMessage());
     }

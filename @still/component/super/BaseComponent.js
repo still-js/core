@@ -392,11 +392,11 @@ export class BaseComponent extends BehaviorComponent {
         containerId = containerId || this.loneCntrId;
         let cmd = this.getClassPath();
         template = template.replaceAll(
-            /\(click\)\=\"[a-zA-Z \(\)'\,\. \$]{0,}/gi,
+            /\(click\)\=\"[a-zA-Z0-9 \(\)'\,\. \$]{0,}/gi,
             (mt) => {
 
                 const methodName = mt.split('="')[1], otherParams = mt.split(",");
-                let data = otherParams[1]?.trim().replace(/\'/g, ''),
+                let data = otherParams[1]?.trim().replace(/\'{0,}[\s]{0,}\)/, '').replace(/\'/g, ''),
                     routeName = otherParams[0]?.split('\'')[1]?.trim(),
                     urlFlag = otherParams[2]?.replace(')', '').trim();
 

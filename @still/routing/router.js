@@ -98,7 +98,7 @@ export class Router {
         const { data, evt, url } = params;
 
         cmp = Router.initNavigation(cmp);
-        if (evt.containerId) Router.clickEvetCntrId = evt.containerId;
+        if (evt?.containerId) Router.clickEvetCntrId = evt.containerId;
         /**
          * The or (||) conditions serves to mount the application so the user can 
          * be redirected straight to a specific page/page-component instead of being 

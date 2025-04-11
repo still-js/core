@@ -318,8 +318,11 @@ export class Components {
                     );
                 }
 
-                if (!$still.context.currentView.lone && !Router.clickEvetCntrId)
+                if (!$still.context.currentView.lone && !Router.clickEvetCntrId) {
+                    $still.context.currentView.onRender();
                     this.renderOnViewFor('stillUiPlaceholder', $still.context.currentView);
+                    setTimeout(() => $still.context.currentView.stAfterInit(), 500);
+                }
                 setTimeout(() => Components.handleInPlacePartsInit($still.context.currentView, 'fixed-part'));
                 setTimeout(async () => {
                     await $still.context.currentView.stAfterInit();

@@ -506,7 +506,7 @@ export class Components {
                     cmp.__defineGetter__(field, () => newValue);
                     cmp['$still_' + field] = newValue;
                     this.defineSetter(cmp, field);
-                    (async () => await cmp.stOnUpdate());
+                    setTimeout(async () => await cmp.stOnUpdate());
 
                     if (cmp[`$still${field}Subscribers`].length > 0) {
                         setTimeout(() => cmp[`$still${field}Subscribers`].forEach(

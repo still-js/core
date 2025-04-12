@@ -321,7 +321,6 @@ export class Components {
                 if (!$still.context.currentView.lone && !Router.clickEvetCntrId) {
                     $still.context.currentView.onRender();
                     this.renderOnViewFor('stillUiPlaceholder', $still.context.currentView);
-                    setTimeout(() => $still.context.currentView.stAfterInit(), 500);
                 }
                 setTimeout(() => Components.handleInPlacePartsInit($still.context.currentView, 'fixed-part'));
                 setTimeout(async () => {
@@ -369,6 +368,7 @@ export class Components {
             );
             setTimeout(async () => await cmp.stAfterInit(), 120);
             Components.handleMarkedToRemoveParts();
+            Components.removeOldParts();
         } else document.body.innerHTML = (authErrorMessage());
     }
 
@@ -470,7 +470,9 @@ export class Components {
         cmp.getProperties(allowfProp).forEach(field => {
 
             const inspectField = cmp[field];
-            if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop') {
+            if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop'
+                || cmp.myAnnotations()?.get(field)?.prop
+            ) {
 
                 if (inspectField.sTForm) {
                     cmp[field].validate = function () {
@@ -479,16 +481,26 @@ export class Components {
                     return;
                 }
 
-                const listenerFlag = inspectField?.listenerFlag;
+                let listenerFlag = inspectField?.listenerFlag, inVal = inspectField.inVal;
                 cmp[field] = cmp[field].value;
-                if (listenerFlag) {
+                if (typeof inspectField == 'boolean') {
+                    listenerFlag = `_stFlag${field}_${cmp.constructor.name}_change`;
+                    cmp[field] = { inVal: inspectField }, inVal = inspectField;
+                }
 
+                if (listenerFlag) {
+                    if (!('st_flag_ini_val' in cmp)) cmp['st_flag_ini_val'] = {};
+                    cmp.st_flag_ini_val[field] = inVal;
                     cmp.__defineGetter__(field, () => inspectField.inVal);
 
                     cmp.__defineSetter__(field, (val) => {
-                        cmp[field];
+                        /** This is addressing the edge case where the (renderIf) is parsed after this setter is defined */
+                        if (field in cmp.st_flag_ini_val && !(val?.parsed)) {
+                            val = !cmp.st_flag_ini_val[field];
+                            delete cmp.st_flag_ini_val[field];
+                        }
                         /** This is for handling (renderIf) */
-                        const elmList = document.getElementsByClassName(inspectField.listenerFlag);
+                        const elmList = document.getElementsByClassName(listenerFlag);
                         for (const elm of elmList) {
                             if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
@@ -496,7 +508,6 @@ export class Components {
 
                         cmp.__defineGetter__(field, () => val);
                     });
-
                 }
             } else {
 
@@ -1112,7 +1123,7 @@ export class Components {
                     cmpName = 'constructor' in instance ? instance.constructor.name : null;
 
                 /** TOUCH TO REINSTANTIATE */
-                const cmp = (new Components).getNewParsedComponent(instance, cmpName);
+                const cmp = (new Components).getNewParsedComponent(instance, cmpName, true);
                 cmp.parentVersionId = cmpVersionId;
 
                 if (cmpInternalId != 'fixed-part') {

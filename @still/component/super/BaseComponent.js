@@ -211,6 +211,8 @@ export class BaseComponent extends BehaviorComponent {
 
     }
 
+    myAnnotations = () => this.#annotations;
+
     getStateValues() {
         const result = {};
         const fields = this.getProperties();
@@ -598,8 +600,8 @@ export class BaseComponent extends BehaviorComponent {
         return template.replace(reSIf, (mt) => {
 
             let result = mt;
-            const cleanMatching = mt.replace('\n', '').replace(/\s{0,}/, '');
-            if (cleanMatching.charAt(0) == '<') {
+            const cleanMatching = mt.replace(/[\n\t]{0,}/, '').replace(/\s{0,}/, '');
+            if (cleanMatching.charAt(0) == '<' || cleanMatching.indexOf('(showIf)=') > cleanMatching.indexOf('<')) {
                 const matchInstance = mt.match(matchShowIfRE)[0];
                 const showFlag = matchInstance.split('"')[1].replace('"', "");
 
@@ -620,7 +622,7 @@ export class BaseComponent extends BehaviorComponent {
 
                 // Validate the if the flag value is false, in case it's false then hide
                 let hide = '';
-                if (!showFlagValue.value) hide = $stillconst.PART_HIDE_CSS;
+                if (!showFlagValue?.value) hide = $stillconst.PART_HIDE_CSS;
                 else hide = '';
 
                 if (mt.indexOf('class="') > 0) {

@@ -655,7 +655,8 @@ export class BaseComponent extends BehaviorComponent {
 
             const cleanMatching = mt.replace('\n', '').replace(/\s{0,}/, '');
             let result = mt;
-            if (cleanMatching.charAt(0) == '<') {
+            if (cleanMatching.charAt(0) == '<'
+                || (cleanMatching.indexOf('(renderIf)="') > cleanMatching.indexOf('<'))) {
                 const matchInstance = mt.match(matchRenderIfRE)[0];
                 const renderFlag = matchInstance.split('"')[1].replace('"', "");
                 let renderFlagValue;

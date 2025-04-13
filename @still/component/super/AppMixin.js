@@ -120,13 +120,7 @@ export const StillAppMixin = (Component) =>
             return StillAppSetup.instance;
         }
 
-        addValidator = (name, validator) => this.#validators[name] = validator;
-        getValidators = () => this.#parsedValidators;
-
-        parseValidators() {
-            Object.entries(this.#validators).forEach(([name, value]) => {
-                validationPatterns[name] = value;
-            });
-        }
+        addValidator = (name, validator) => validationPatterns[name] = validator;
+        static addValidator = (name, validator) => StillAppSetup.get().addValidator(name, validator);
 
     }

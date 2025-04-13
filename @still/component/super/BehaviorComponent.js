@@ -104,7 +104,7 @@ export class BehaviorComponent {
     #handleInputValidation(inpt, field, formRef, pattern, required) {
 
         const { value } = inpt;
-        let isValid = true;
+        let isValid = true, validation;
         const fieldPath = `${this.constructor.name}${formRef && formRef != 'null' ? `-${formRef}` : ''}`;
         const numOutRangeMsg = this.#handleMinMaxValidation(inpt, pattern, value, fieldPath);
 
@@ -121,18 +121,20 @@ export class BehaviorComponent {
                 if (pattern in validationPatterns) {
                     regex = validationPatterns[pattern];
                 } else {
-
                     const datePattern = this.#checkDatePattern(pattern);
                     if (datePattern) regex = datePattern;
                     if (!datePattern) regex = String.raw`${regex}`;
                 }
-
-                const validation = value.match(new RegExp(regex));
-                if (!validation || !validation[0]?.length) isValid = false;
+                if (typeof regex == 'function') {
+                    validation = regex(value);
+                    if (!validation) isValid = false;
+                } else {
+                    validation = value.match(new RegExp(regex));
+                    if (!validation || !validation[0]?.length) isValid = false;
+                }
             }
 
             if (value.trim() == '' && required) isValid = false;
-
             if (!isValid) this.#handleValidationWarning('add', inpt, fieldPath);
             else this.#handleValidationWarning('remove', inpt, fieldPath);
 

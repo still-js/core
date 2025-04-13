@@ -1,6 +1,6 @@
 import { $stillconst } from "../../setup/constants.js";
 
-const validationPatterns = {
+export const validationPatterns = {
     'number': /^\d{0,}$/,
     'alhpanumeric': /^[a-zA-Z0-9]{0,}$/,
     'text': /^(.){0,}$/,
@@ -126,7 +126,6 @@ export class BehaviorComponent {
                     if (datePattern) regex = datePattern;
                     if (!datePattern) regex = String.raw`${regex}`;
                 }
-
 
                 const validation = value.match(new RegExp(regex));
                 if (!validation || !validation[0]?.length) isValid = false;

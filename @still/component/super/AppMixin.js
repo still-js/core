@@ -2,6 +2,7 @@ import { StillAppSetup } from "../../../app-setup.js";
 import { Components } from "../../setup/components.js";
 import { StillError } from "../../setup/error.js";
 import { ComponentType } from "../type/ComponentType.js";
+import { validationPatterns } from "./BehaviorComponent.js";
 import { ViewComponent } from "./ViewComponent.js";
 
 const cmp = Components;
@@ -18,6 +19,8 @@ export const StillAppMixin = (Component) =>
         entryComponentPath;
         entryComponentName;
         servicePath;
+        #validators = {};
+        #parsedValidators = {};
 
         /** @type { Array<ComponentType> } */
         #componentAOTList = [];
@@ -115,6 +118,15 @@ export const StillAppMixin = (Component) =>
             if (StillAppSetup.instance == null)
                 StillAppSetup.instance = new StillAppSetup();
             return StillAppSetup.instance;
+        }
+
+        addValidator = (name, validator) => this.#validators[name] = validator;
+        getValidators = () => this.#parsedValidators;
+
+        parseValidators() {
+            Object.entries(this.#validators).forEach(([name, value]) => {
+                validationPatterns[name] = value;
+            });
         }
 
     }

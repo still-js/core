@@ -421,7 +421,7 @@ export class Components {
 
     /**  @param {ViewComponent} cmp */
     defineSetter = (cmp, field) => {
-
+        if (cmp.myAnnotations()?.get(field)?.inject) return;
         cmp.__defineGetter__(field, () => {
 
             const result = {
@@ -430,7 +430,8 @@ export class Components {
                     cmp[`$still${field}Subscribers`].push(callback);
                 },
                 defined: true,
-                firstPropag: false
+                firstPropag: false,
+                onlyPropSignature: true
             };
 
             const validator = BehaviorComponent.currentFormsValidators;

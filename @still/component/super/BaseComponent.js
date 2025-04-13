@@ -1173,6 +1173,7 @@ export class BaseComponent extends BehaviorComponent {
             on: async (_, action) => {
 
                 const svcInstance = StillAppSetup.get().services.get(type);
+
                 if (
                     (cmp[propertyName]?.ready
                         && cmp[propertyName]?.status == $stillconst.A_STATUS.DONE)
@@ -1203,11 +1204,14 @@ export class BaseComponent extends BehaviorComponent {
                 });
             },
             assigned: true
-
         }
 
         cmp[propertyName] = tempObj;
-        if (service) return handleServiceAssignement(service);
+        if (service) {
+            cmp[propertyName] = service;
+            tempObj.load();
+            return
+        }
 
         const servicePath = this.#getServicePath(type, svcPath);
         if (!StillAppSetup.get()?.services?.get(type)) {

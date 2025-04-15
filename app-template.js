@@ -19,5 +19,3 @@ export class AppTemplate extends Template {
     `;
 
 }
-
-window.AppTemplate = AppTemplate;

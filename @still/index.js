@@ -1,4 +1,5 @@
 import { StillAppSetup } from "../app-setup.js";
+import { AppTemplate } from "../app-template.js";
 import { stillRoutesMap } from "../route.map.js";
 import { ComponentNotFoundException } from "./component/manager/registror.js";
 import { BehaviorComponent } from "./component/super/BehaviorComponent.js";
@@ -15,6 +16,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
             StillAppSetup.loadInterceptWorker();
 
             StillAppSetup.register(Router);
+            StillAppSetup.register(AppTemplate);
             StillAppSetup.register(stillRoutesMap);
             StillAppSetup.register(UUIDUtil);
             StillAppSetup.register(Components);

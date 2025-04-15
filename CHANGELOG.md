@@ -35,6 +35,8 @@ New Features, improvements and Bug fixes transversally.
         <input (value)="weekendShift" (validator)="validWeekendDays" placeholder="Enter you weekend shift day">
         ```
 
+    <br>
+    
     -  Defining in the <b>StillAppSetup</b>        
         ```{.javascript .numberLines .lineAnchors}
         

@@ -1069,7 +1069,7 @@ export class Components {
      */
     static handleInPartsImpl(parentCmp, cmpInternalId, cmpParts, placeHolderRef = null) {
 
-        if (!cmpParts || !parentCmp) return;
+        if ((!cmpParts || !parentCmp) && cmpInternalId != 'fixed-part') return;
 
         const placeHolders = Components
             .getPartPlaceHolder(parentCmp, cmpInternalId, placeHolderRef);
@@ -1113,7 +1113,7 @@ export class Components {
 
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
                 /** In case the parent component is Lone component, then child component will also be */
-                instance.lone = parentCmp.lone;
+                instance.lone = parentCmp?.lone;
                 await instance.onRender();
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;
                 instance.stillElement = true;

@@ -23,7 +23,7 @@ StillJS is a Web UI Framework which helps you to build your user interfaces whic
 #### Documentation
 A complete documentation is not yet available as the work is in progress, anyway there is quite of content and documentation available on the Github, <a href="https://still-js.github.io/stilljs-doc/" target="_blank">click here</a>.
 
-The <b>@stilljs/core</b> itself is the set of classes, structures and features concerning the Framework, in order to use it we need to instal the cli tool as follow:
+The <b>@stilljs/core</b> itself is the set of classes, structures and features concerning the Framework, in order to use it we need to instal the cli tool globally (using <b>`-g`</b> flag) as follow:
 
 <br>
 
@@ -43,7 +43,7 @@ Create a folder for you project (e.g. project-name) and from inside such folder 
 npx still init
 ```
 
-After initiating the project the framework structure and files are download to the folder.
+After initiating, the project the framework structure and files are download to the folder.
 
 <br>
 

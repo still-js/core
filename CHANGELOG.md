@@ -2,6 +2,101 @@
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
+## [Released] - 2025-04-15
+## [Version] - 0.0.14
+New Features, improvements and Bug fixes transversally.
+ 
+
+### Added
+- <b>MINOR</b> - Error handling for invalid component Route Name or URL call.
+<br>
+- <b>MINOR</b> - Service exposure for Lone Components.
+<br>
+- <b>MEDIUM</b> - Custom Validator capabilities.
+
+    -  Defining custom validatior inside the component
+
+        ```{.javascript .numberLines .lineAnchors}
+        //Inside the component
+        stOnRender() {
+            StillAppSetup.addValidator('validWeekendDays', (value) => {
+                if (value === 'Sat' || value === 'Sun')
+                    return true;
+                return false;
+            });
+        }
+
+        //Using in the template
+        <input (value)="weekendShift" (validator)="validWeekendDays" placeholder="Enter you weekend shift day">
+        ```
+
+    -  Defining in the <b>StillAppSetup</b>        
+        ```{.javascript .numberLines .lineAnchors}
+        
+        constructor() {
+            super();
+            StillAppSetup.addValidator('validWeekendDays', (value) => {
+                if (value === 'Sat' || value === 'Sun')
+                    return true;
+                return false;
+            });
+        }
+        ```
+
+<br>
+
+### Changed
+- `Router.data()` to receive object instance instead of name.
+
+
+    -  Getting data from navigation sent by another component
+
+        ```{.javascript .numberLines .lineAnchors}
+        Route.data(this);
+        ```
+
+<br>
+
+- Moved `Component.getFromRef()` to `Component.ref()`.
+<br>
+
+
+### Fixed
+- Component notification from Service when it get loaded and ready.
+- `stOnUpdate()` hook call.
+- Lifecycle method call for public and defined home Component.
+- Container id parsing for Lone component.
+- <b>(renderIf)</b> directive for embeded component.
+- Service injection for embeded component.
+<br>
+
+
+### Removed
+- `Component.getFromRef()` method.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-04-06
 ## [Version] - 0.0.13
 Improvements and bug fixes.
@@ -11,7 +106,7 @@ Improvements and bug fixes.
         
 
 ### Fixed
-- fixed Service injection for Lone component.
+- Component loading/unloading in the reloading flow.
 <br>
 <hr>
 <p>&nbsp;</p>

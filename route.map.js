@@ -11,14 +11,3 @@ export const stillRoutesMap = {
         lazyInitial: {}
     }
 }
-
-
-export function $stillGetRouteMap() {
-
-    return {
-        route: {
-            ...stillRoutesMap.viewRoutes.regular,
-            ...stillRoutesMap.viewRoutes.lazyInitial
-        },
-    }
-}

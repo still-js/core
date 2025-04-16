@@ -80,7 +80,7 @@ $stillconst = {
 
 export const ST_RE = {
     st_element: /\<st-element[\> \@ \/ \. \" \, \w \s \= \- \ \( \)]{0,}/g,
-    st_fixed: /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}\/\>/g,
+    st_fixed: /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}[\/\>]{0,}/g,
     bind_css: /(style\=\"(.*)\")/
 }
 

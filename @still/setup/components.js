@@ -475,15 +475,15 @@ export class Components {
                 || cmp.myAnnotations()?.get(field)?.prop
             ) {
 
-                if (inspectField.sTForm) {
+                if (inspectField?.sTForm) {
                     cmp[field].validate = function () {
                         return BehaviorComponent.validateForm(`${cmp.constructor.name}-${field}`);
                     }
                     return;
                 }
 
-                let listenerFlag = inspectField?.listenerFlag, inVal = inspectField.inVal;
-                cmp[field] = cmp[field].value;
+                let listenerFlag = inspectField?.listenerFlag, inVal = inspectField?.inVal;
+                cmp[field] = cmp[field]?.value;
                 if (typeof inspectField == 'boolean') {
                     listenerFlag = `_stFlag${field}_${cmp.constructor.name}_change`;
                     cmp[field] = { inVal: inspectField }, inVal = inspectField;

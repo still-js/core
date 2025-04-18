@@ -534,12 +534,15 @@ export class Components {
                     if (cmp.$stillClassLvlSubscribers.length > 0)
                         setTimeout(() => cmp.notifySubscribers(cmp.getStateValues()));
 
-                    if (cmp[field]?.defined || cmp.dynLoopObject)
+                    if (cmp[field]?.defined || cmp.dynLoopObject) {
+                        Components.firstPropagation[`${cmp.cmpInternalId}-${field}`] = true;
                         this.propageteChanges(cmp, field);
+                    }
 
                 });
                 const firstPropagateTimer = setInterval(() => {
-                    if ('value' in cmp[field]) {
+                    //Work in the garbage collector for this Components.firstPropagation flag
+                    if ('value' in cmp[field] && !Components.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
                         if (!this.notAssignedValue.includes(cmp['$still_' + field])) {
                             this.propageteChanges(cmp, field);
@@ -553,6 +556,8 @@ export class Components {
         });
         return this;
     }
+
+    static firstPropagation = {};
 
     /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field) {

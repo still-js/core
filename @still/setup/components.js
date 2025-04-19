@@ -802,43 +802,12 @@ export class Components {
         return obj;
     }
 
-
     /** @param {ViewComponent} cmp */
-    defineNewInstanceMethod() {
-
-        const cmp = this.component;
-        const cmpName = this.componentName;
-        Object.assign(cmp, {
-            new: (params) => {
-
-                /**  @type {ViewComponent} */
-                let instance;
-                if (params instanceof Object)
-                    instance = this.getNewParsedComponent(eval(`new ${cmpName}({...${JSON.stringify(params)}})`));
-
-                if (params instanceof Array)
-                    instance = this.getNewParsedComponent(eval(`new ${cmpName}([...${JSON.stringify(params)}])`));
-
-                instance.cmpInternalId = `dynamic-${instance.getUUID()}${cmpName}`;
-                /** TODO: Replace the bellow with the export under componentRegistror */
-                ComponentRegistror.add(
-                    instance.cmpInternalId,
-                    instance
-                );
-
-                if (instance) return instance;
-
-                return eval(`new ${cmpName}('${params}')`);
-            }
-        });
-        return this;
-    }
+    defineNewInstanceMethod() { return this; }
 
     markParsed() {
-
         Object.assign(this.component, { stillParsedState: true });
         return this;
-
     }
 
     /**  @param {ViewComponent} cmp */
@@ -879,13 +848,11 @@ export class Components {
             Components.parsingTracking[cmp.cmpInternalId] = true;
             cmp.setAndGetsParsed = true;
             this.parseGetsAndSets(null, allowProps);
-        } else {
+        } else
             delete Components.parsingTracking[cmp.cmpInternalId];
-        }
         this.markParsed();
 
         return cmp;
-
     }
 
     static unloadLoadedComponent(cntrPlaceholder = null) {
@@ -1545,7 +1512,6 @@ export class Components {
     }
 
     injectAnauthorizedMsg(content) { $stillconst.MSG.CUSTOM_PRIVATE_CMP = content; }
-
     processWhiteList(content) { Components.obj().#cmpPermWhiteList = content.map(r => r.name); }
 
     isInWhiteList(cmp) {
@@ -1554,6 +1520,17 @@ export class Components {
         if (!isInBlackList && !isInWhiteList && cmp.isPublic) return true;
         if (isInBlackList) return false;
         return isInWhiteList;
+    }
+
+    /** @param { ViewComponent } cmp */
+    static new(cmp) {
+        const instance = new cmp();
+        (async () => await instance.onRender())();
+        instance.cmpInternalId = `dynamic-${instance.getUUID()}${instance.getName()}`;
+        const template = Components.obj().getNewParsedComponent(instance).getBoundTemplate();
+        ComponentRegistror.add(instance.cmpInternalId, instance);
+        setTimeout(async () => await instance.stAfterInit(), 500);
+        return template;
     }
 
 }

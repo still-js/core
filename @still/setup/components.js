@@ -1523,8 +1523,8 @@ export class Components {
     }
 
     /** @param { ViewComponent } cmp */
-    static new(cmp) {
-        const instance = new cmp();
+    static async new(cmp) {
+        const { newInstance: instance } = await Components.produceComponent({ cmp: cmp.name });
         (async () => await instance.onRender())();
         instance.cmpInternalId = `dynamic-${instance.getUUID()}${instance.getName()}`;
         const template = Components.obj().getNewParsedComponent(instance).getBoundTemplate();

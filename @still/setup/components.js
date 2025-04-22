@@ -1523,15 +1523,18 @@ export class Components {
         return isInWhiteList;
     }
 
-    /** @param { ViewComponent } cmp */
-    static async new(cmp) {
+    /** 
+     * @param { ViewComponent } cmp
+     * @param { Object | any | null } data
+     * */
+    static async new(cmp, data = null) {
         const { newInstance: instance } = await Components.produceComponent({ cmp: cmp.name });
-        (async () => await instance.onRender())();
+        (async () => await instance.stOnRender(data))();
         instance.cmpInternalId = `dynamic-${instance.getUUID()}${instance.getName()}`;
         const template = Components.obj().getNewParsedComponent(instance).getBoundTemplate();
         ComponentRegistror.add(instance.cmpInternalId, instance);
         setTimeout(async () => await instance.stAfterInit(), 500);
-        return template;
+        return { template, component: instance };
     }
 
 }

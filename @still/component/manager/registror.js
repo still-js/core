@@ -1,3 +1,4 @@
+import { StillAppSetup } from "../../../app-setup.js";
 import { stillRoutesMap } from "../../../route.map.js";
 import { StillHTTPClient } from '../../helper/http.js';
 import { ViewComponent } from "../super/ViewComponent.js";
@@ -99,6 +100,10 @@ export class ComponentRegistror {
     static getClass(clsName) {
         return ComponentRegistror._classeList[clsName];
     }
+
+    static controller(type) {
+        return StillAppSetup.get().services.get(type);
+    }
 }
 
 export const $still = {
@@ -109,9 +114,8 @@ export const $still = {
     },
     component: {
         /** @param { ViewComponent } cmp */
-        expose: (cmp) => {
-            return ComponentRegistror.get().expose(cmp)
-        },
+        expose: (cmp) => ComponentRegistror.get().expose(cmp),
+        ref: (ref) => ComponentRegistror.component(ref),
         list: window,
         get: (cmpName) => window[cmpName]
     },
@@ -121,6 +125,7 @@ export const $still = {
             return ComponentRegistror.get().getComponent(viewComponentName);
         }
     },
+    controller: (type) => ComponentRegistror.controller(type),
     HTTPClient: new StillHTTPClient(),
 
 }

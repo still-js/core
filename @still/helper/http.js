@@ -31,7 +31,6 @@ export class StillHTTPClient {
             method: method || 'GET',
             headers: headers || {},
         }))
-            .json()
     }
 
     /**
@@ -48,8 +47,7 @@ export class StillHTTPClient {
             method: 'DELETE',
             body,
             headers: headers || {},
-        }))
-            .json();
+        }));
     }
 
     /**
@@ -66,8 +64,7 @@ export class StillHTTPClient {
             method: method || 'POST',
             body,
             headers: headers || {},
-        }))
-            .json();
+        }));
     }
 
     /**

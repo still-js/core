@@ -1352,8 +1352,8 @@ export class Components {
         delete Components.subscriptions[actonName];
 
     static parseAnnottationRE() {
-        const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop){0,1}[\n \s \*]{0,}/;
-        const servicePathRE = /(\@ServicePath){0,1}[\s\\/'A-Z-a-z0-9]{0,}[\n \s \*]{0,}/;
+        const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop|\@Controller){0,1}[\n \s \*]{0,}/;
+        const servicePathRE = /(\@Path){0,1}[\s\\/'A-Z-a-z0-9]{0,}[\n \s \*]{0,}/;
         const commentRE = /(\@type){0,1}[\s \@ \{ \} \: \| \< \> \, A-Za-z0-9]{1,}[\* \s]{1,}\//;
         const newLineRE = /[\n]{0,}/;
         const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
@@ -1367,13 +1367,14 @@ export class Components {
             propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
         }
 
-        let inject, proxy, prop, propParsing, type, servicePath, svcPath;
+        let inject, proxy, prop, propParsing, type, servicePath, svcPath, controller;
         if (propertyName != '') {
 
-            inject = mt.includes('@Inject'), servicePath = mt.includes('@ServicePath');
+            inject = mt.includes('@Inject'), servicePath = mt.includes('@Path');
             proxy = mt.includes('@Proxy'), prop = mt.includes('@Prop');
+            controller = mt.includes('@Controller');
             svcPath = !servicePath
-                ? '' : mt.split('@ServicePath')[1].split(' ')[1].replace('\n', '');
+                ? '' : mt.split('@Path')[1].split(' ')[1].replace('\n', '');
 
             if (mt.includes("@type")) {
                 type = mt.split('{')[1].split('}')[0].trim();
@@ -1381,9 +1382,9 @@ export class Components {
             }
         }
 
-        propParsing = inject || servicePath || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
+        propParsing = controller || inject || servicePath || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
 
-        return { type, inject, servicePath, proxy, prop, propParsing, svcPath };
+        return { type, inject, servicePath, proxy, prop, propParsing, svcPath, controller };
 
     }
 
@@ -1413,10 +1414,10 @@ export class Components {
                         try {
                             eval(`${cmp}`).toString().replace(new RegExp(re, 'g'), async (mt) => {
                                 const {
-                                    type, inject, proxy, prop, propParsing, propertyName
+                                    type, inject, proxy, prop, propParsing, propertyName, controller
                                 } = Components.processAnnotation(mt);
                                 Components.registerAnnotation(cmp, propertyName, {
-                                    type, inject, proxy, prop, propParsing
+                                    type, inject, proxy, prop, propParsing, controller
                                 });
                             });
                         } catch (error) { }

@@ -54,7 +54,7 @@ $stillconst = {
      */
     MSG: {
         PRIVATE_CMP: ``,
-
+        INVALID_INJECTION: `Invalid type injection {type} inside {cmp}. Injection is valid for Service and Controller only`,
         UNKNOWN_ROUTE: `<h3 style='color:red;' id="${ST_UNAUTHOR_ID}">
                         <b>Invalid Route:</b> You're trying to access a non existing route {{}}.
                            <br>Make sure you're spelling it correctly
@@ -75,7 +75,8 @@ $stillconst = {
     ST_FIXE_CLS: 'st-fixed-part',
     EVT: {
         LONE_LOADED: 'LONE_LOADED'
-    }
+    },
+
 }
 
 export const ST_RE = {

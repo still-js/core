@@ -263,7 +263,7 @@ export class BehaviorComponent {
      */
     static setOnValueInput(mt, cmp, field, formRef) {
 
-        const fieldPath = `${cmp.constructor.name}${formRef ? `-${formRef}` : ''}`;
+        const fieldPath = `${cmp.cmpInternalId}${formRef ? `-${formRef}` : ''}`;
         BehaviorComponent.setValidatorForField(fieldPath, field);
         let isValid = true;
 
@@ -300,13 +300,14 @@ export class BehaviorComponent {
         let valid = true;
         const intValidators = Object.entries(formFields);
         const behaviorInstance = new BehaviorComponent();
-        const formRef = String(fieldPath).split('-')[1];
+        const formRef = String(fieldPath)?.split('-')?.slice(-1)[0];
+        fieldPath = fieldPath.slice(0, -(formRef.length + 1));
         const validators = Object
             .entries(intValidators)
             .map(
                 ([_, stngs]) => {
                     const field = stngs[0];
-                    const inpt = document.querySelector(`.stillInputField-${field}`);
+                    const inpt = document.querySelector(`.${fieldPath}-${field}`);
                     return [
                         field, {
                             isValid: behaviorInstance.onValueInput(null, field, inpt, formRef),

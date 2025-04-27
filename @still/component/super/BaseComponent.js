@@ -254,9 +254,7 @@ export class BaseComponent extends BehaviorComponent {
         const allowfProp = true;
         const fields = this.getProperties(allowfProp);
         const currentClass = this;
-        const clsName = this.dynLoopObject || this.lone || isReloading
-            ? this.cmpInternalId
-            : currentClass.constructor.name;
+        const clsName = this.cmpInternalId;
 
         if (this.template instanceof Array)
             this.template = this.template.join('');
@@ -266,10 +264,10 @@ export class BaseComponent extends BehaviorComponent {
         /** Bind @dynCmpGeneratedId which takes place in special
          * situation that a component is created to be reference
          * as a tag <st-extern> */
-        tamplateWithState = tamplateWithState.replace(
-            `@dynCmpGeneratedId`,
-            currentClass[`dynCmpGeneratedId`]
-        );
+        tamplateWithState = tamplateWithState.replace(`@dynCmpGeneratedId`, currentClass[`dynCmpGeneratedId`]);
+
+        //To bind the internal id to any thing or property
+        tamplateWithState = tamplateWithState.replace(/\@cmpInternalId/g, this.cmpInternalId);
 
         let formsRef = [];
         if (this.isThereAForm()) {
@@ -337,7 +335,7 @@ export class BaseComponent extends BehaviorComponent {
 
             let subscriptionCls = '';
 
-            const subsCls = `listenChangeOn-${cmpName}-${ds}`;
+            const subsCls = `listenChangeOn-${this.cmpInternalId}-${ds}`;
             const hashValue = `hash_${this.getUUID()}`;
             const hash = `hash="${hashValue}"`;
             const newClassName = `newCls="${subsCls}"`;
@@ -437,7 +435,7 @@ export class BaseComponent extends BehaviorComponent {
                 else inpt.classList.remove('still-validation-failed-style');
 
                 if (fieldPath && field)
-                    BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
+                    BehaviorComponent.currentFormsValidators[this.cmpInternalId][field]['isValid'] = isValid;
 
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
@@ -1051,7 +1049,7 @@ export class BaseComponent extends BehaviorComponent {
             ? this.cmpInternalId
             : this.getProperInstanceName();
         const validatorClass = BehaviorComponent.setOnValueInput(mt, this, field, (formRef?.formRef || null));
-        const classList = `${validatorClass} listenChangeOn-${onChangeId}-${field}`;
+        const classList = `${validatorClass} listenChangeOn-${this.cmpInternalId}-${field}`;
 
         const clsPath = this.getClassPath();
 
@@ -1064,9 +1062,9 @@ export class BaseComponent extends BehaviorComponent {
             }`;
 
         if (mt.indexOf(`class="`) >= 0)
-            mt = mt.replace(`class="`, `${dataFields} class="${classList}${comboSuffix} stillInputField-${field} `);
+            mt = mt.replace(`class="`, `${dataFields} class="${classList}${comboSuffix} ${this.cmpInternalId}-${field} `);
         else
-            subscriptionCls = `${dataFields} class="${classList}${comboSuffix} stillInputField-${field}" `;
+            subscriptionCls = `${dataFields} class="${classList}${comboSuffix} ${this.cmpInternalId}-${field}" `;
 
         let replacer = `${subscriptionCls} `;
         if (!(isThereComboBox))

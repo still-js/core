@@ -436,7 +436,7 @@ export class Components {
 
             const validator = BehaviorComponent.currentFormsValidators;
             if (validator[cmp.cmpInternalId]) {
-                if (field in validator[cmp.constructor.name]) {
+                if (field in (validator[cmp?.constructor?.name] || [])) {
                     result['isValid'] = validator[cmp.constructor.name][field]['isValid'];
                 }
             }
@@ -542,7 +542,7 @@ export class Components {
                 });
                 const firstPropagateTimer = setInterval(() => {
                     //Work in the garbage collector for this Components.firstPropagation flag
-                    if ('value' in cmp[field] && !Components.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
+                    if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
                         if (!this.notAssignedValue.includes(cmp['$still_' + field])) {
                             this.propageteChanges(cmp, field);

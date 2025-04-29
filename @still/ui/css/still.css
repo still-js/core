@@ -150,6 +150,7 @@ END LOADING STYLE
 
 
 .still-toast {
+    --toast-stat-color: #2c5e24;
     position: fixed;
     top: 25px;
     right: 30px;
@@ -172,16 +173,24 @@ END LOADING STYLE
     align-items: center;
 }
 
-.still-toast-content .check {
+.still-toast-content .check,
+.still-toast-content .fa-times-circle {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 35px;
     min-width: 35px;
-    background-color: #2c5e24;
     color: #fff;
     font-size: 20px;
     border-radius: 50%;
+}
+
+.still-toast-content .check {
+    background-color: #2c5e24;
+}
+
+.still-toast-content .fa-times-circle {
+    background-color: red;
 }
 
 .still-toast-content .still-toast-message {
@@ -198,7 +207,7 @@ END LOADING STYLE
 
 .still-toast-message .text.text-1 {
     font-weight: 600;
-    color: #333;
+    color: var(--toast-stat-color);
 }
 
 .still-toast .close {
@@ -230,7 +239,7 @@ END LOADING STYLE
     right: 0;
     height: 100%;
     width: 100%;
-    background-color: #2c5e24;
+    background-color: var(--toast-stat-color);
 }
 
 .still-toast-progress.still-toast-active:before {

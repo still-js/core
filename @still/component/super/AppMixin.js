@@ -19,8 +19,6 @@ export const StillAppMixin = (Component) =>
         entryComponentPath;
         entryComponentName;
         servicePath;
-        #validators = {};
-        #parsedValidators = {};
 
         /** @type { Array<ComponentType> } */
         #componentAOTList = [];
@@ -60,9 +58,7 @@ export const StillAppMixin = (Component) =>
             return this;
         }
 
-        getPrefetchList() {
-            return this.#componentAOTList;
-        }
+        getPrefetchList() { return this.#componentAOTList; }
 
         static register = (piece) => cmp.register(piece);
 

@@ -7,6 +7,70 @@ This log contains all the changes which takes place for StillJS Framework.
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
+## [Released] - 2025-04-29
+## [Version] - 1.0.0
+New Features, improvements and Bug fixes transversally.
+ 
+
+### Added
+- <b>MAJOR</b> - Controllers and @Controller annotation to help offloading the component for UI and DOM feature implementation.
+<br>
+- <b>MINOR</b> - Service exposure for Lone Components.
+<br>
+- <b>MINOR</b> - Allow binding of cmpInternal
+
+<br>
+<br>
+
+### Changed
+- Dynamic new component generation moved Components.new.
+
+
+    -  template `represents` the UI template, `component` represents the generated component instance, follow the example:
+
+        ```{.javascript .numberLines .lineAnchors}
+        const { template, component } = await Components.new(MenuComponent);
+        ```
+
+<br>
+
+- HTTPClient not to return specific type on Get and Post methods.
+<br>
+
+- @ServicePath renamed to @Path so to be used with both controllers and services.
+<br>
+
+
+### Fixed
+- First propagation check validation.
+- Form validation when creating several instances of same component in the same area.
+<br>
+
+
+### Removed
+- `Component.getFromRef()` method.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
 ## [Released] - 2025-04-15
 ## [Version] - 0.0.14
 New Features, improvements and Bug fixes transversally.

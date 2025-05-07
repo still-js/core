@@ -4,6 +4,56 @@ This log contains all the changes which takes place for StillJS Framework.
 
 
 
+## [Released] - 2025-04-29
+## [Version] - 1.1.0
+New Features.
+ 
+
+### Added
+- <b>MEDIUM</b> - Added visual <st-divider> tag.
+<br>
+
+    -  This tag automatically provides with a component which is adivider that can be either horizontal or vertical:
+
+        ```{.javascript .numberLines .lineAnchors}
+        // In the template
+        // Divids the page vertically (e.g. top and bottom) allowinf resize by dragging the divder
+        <st-divider 
+            type="vertical"
+            minHeight="0"
+            maxHeight="300"
+            (onResize)="myMethod(params)"
+            />
+
+        // In the component class
+        myMethod({bottomHeight, topHeight}){
+            //My method implementation
+        }
+        ```
+
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 

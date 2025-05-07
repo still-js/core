@@ -40,11 +40,9 @@ export class Router {
 
     /** @returns { Router } */
     static getInstance() {
-
         if (!Router.instance)
             Router.instance = new Router();
         return Router.instance;
-
     }
 
     static init() {
@@ -57,13 +55,11 @@ export class Router {
 
     /** @param {String} data  */
     static aliasGoto(cmp, data, url = false, containerId = null) {
-
         if (!url) Router.clearUrlPath();
         if (data.startsWith($stillconst.RT_DT_PREFIX)) {
             data = Router.getInstance().#data[data];
             delete Router.getInstance().#data[data];
         }
-
         Router.goto(cmp, { data, url, evt: { containerId } });
     }
 
@@ -78,13 +74,11 @@ export class Router {
     }
 
     static initNavigation(cmp) {
-
         Router.clickEvetCntrId = null;
         Router.initRouting = false;
         Router.preView = $still.context.currentView;
         Components.setRemovingPartsVersionId($still.context.currentView?.versionId);
         Router.navCounter = Router.navCounter + 1;
-
         return Router.handleViewType(cmp);
     }
 
@@ -96,7 +90,6 @@ export class Router {
     static goto(cmp, params = GotoParams) {
 
         const { data, evt, url } = params;
-
         cmp = Router.initNavigation(cmp);
         if (evt?.containerId) Router.clickEvetCntrId = evt.containerId;
         /**
@@ -115,20 +108,15 @@ export class Router {
             Router.initRouting = true;
         }
 
-        if (cmp === 'exit') {
-            AppTemplate.get().unloadApp();
-            return;
-        }
+        if (cmp === 'exit') return AppTemplate.get().unloadApp();
 
         Router.getInstance().#data = null;
         if (data != '') {
             Router.getInstance().#data = {};
             if (data instanceof Object) {
-                if (Object.keys(data).length)
-                    Router.getInstance().#data[cmp] = data;
-            } else {
+                if (Object.keys(data).length) Router.getInstance().#data[cmp] = data;
+            } else 
                 Router.getInstance().#data[cmp] = data;
-            }
         }
 
 
@@ -381,7 +369,7 @@ export class Router {
                  * Runs stAfterInit special method in case it exists
                  */
                 if (!Components.checkStInit(cmp.constructor.name))
-                    setTimeout(async () => await cmp.stAfterInit(), 200);
+                    setTimeout(() => Components.runAfterInit(cmp), 200);
 
                 /**
                  * Load component parts or sub-components inside the main loaded component
@@ -420,14 +408,11 @@ export class Router {
 
     static handleViewType(cmp) {
 
-        if (
-            (cmp.prototype instanceof ViewComponent)
-            || (cmp.prototype instanceof BaseComponent)
-        ) cmp = cmp.name;
+        if ((cmp.prototype instanceof ViewComponent)
+            || (cmp.prototype instanceof BaseComponent)) cmp = cmp.name;
 
         Router.navigatingView = cmp;
         return cmp;
-
     }
 
     static routingDataParse(data) {
@@ -529,21 +514,18 @@ export class Router {
 
             url = url.toString().split("#");
             if (url == Router.navigatingUrl) return false;
-            if (url[0]?.endsWith('?'))
-                return Router.replaceUrlPath(url[1]);
+            if (url[0]?.endsWith('?')) return Router.replaceUrlPath(url[1]);
 
             const route = Router.getUrlPath();
 
             if (route.path != '' && route.path != '#/') {
-                if (route.address)
-                    Router.goto(route);
+                if (route.address) Router.goto(route);
                 else {
                     const pathValue = route.path.replace('#/', '/');
                     const err = $stillconst.MSG.UNKNOWN_ROUTE.replace('{{}}', pathValue)
                     document.write(err);
                 }
             }
-
         });
     }
 
@@ -560,8 +542,7 @@ export class Router {
             cmpCls = await (
                 await Components.produceComponent(
                     { cmp: route.address, urlRequest: true, loneCntrId: Router.clickEvetCntrId }
-                )
-            );
+                ));
         }
         return cmpCls?._class;
     }
@@ -585,7 +566,6 @@ export class Router {
         baseUrl = baseUrl.slice(-2) == '//' ? baseUrl.slice(0, -1) : baseUrl;
 
         return baseUrl;
-
     }
 
     static parsedRouteMap = {};

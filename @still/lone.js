@@ -54,7 +54,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                     setTimeout(async () => {
                         Components.emitAction(cmp.getName());
                         Components.handleInPlacePartsInit(cmp, cmp.cmpInternalId, cmpParts);
-                        await cmp.stAfterInit();
+                        Components.runAfterInit(cmp);
                     });
 
                 });

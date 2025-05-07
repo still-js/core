@@ -353,3 +353,108 @@ END LOADING STYLE
 /*
 * END OF STILL FUNDAMENTALS
 */
+
+/** STILL DIVIDER STYLESHEETS */
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+}
+
+.panel {
+    flex-grow: 1;
+    overflow: auto;
+    background-color: #f0f0f0;
+    border-right: 1px solid #ccc;
+    position: relative;
+}
+
+.panel:last-child {
+    border-right: none;
+}
+
+.separator {
+    width: 5px;
+    background-color: #ccc;
+    cursor: ew-resize;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    background-color: #151111;
+    border-radius: 50%;
+    opacity: .5;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+.separator:hover .handle {
+    opacity: 0.9;
+}
+
+.separator.resizing .handle {
+    opacity: 1;
+    background-color: #666;
+}
+/** STILL DIVIDER STYLESHEETS */
+
+
+/** STILL VERTICAL RESIZER COMPONENT STYLESHEET */
+
+    .container-divider-parent {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .container-divider-parent .panel {
+      padding: 10px;
+      overflow: auto;
+    }
+
+    .container-divider-parent .divider {
+      height: 10px;
+      background-color: #b3b0b0;
+      cursor: ns-resize;
+      position: relative;
+      z-index: 1;
+      display: flex;
+    }
+
+    .container-divider-parent .panel.top {
+      background-color: #d0f0fd;
+    }
+
+    .container-divider-parent .panel.bottom {
+      background-color: #fef3c7;
+      height: 200px;
+    }
+
+    .handlehor {
+        width: 15px;
+        height: 15px;
+        position: relative;
+        background-color: #151111;
+        border-top-right-radius: 50%;
+        border-top-left-radius: 50%;
+        opacity: .5;
+        transition: opacity 0.2s ease-in-out;
+        pointer-events: none;
+        margin-top: -4px;
+        align-items: center; /** Y-axis align **/
+        justify-content: center;
+        display: flex;
+        left: calc(50% - 150px);
+    }
+
+/** END STILL RESIZER COMPONENT STYLESHEET */

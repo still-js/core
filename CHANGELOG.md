@@ -3,6 +3,87 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-05-11
+## [Version] - 1.2.0
+New Major no-breaking feature, clean up, improvements and bug fix.
+ 
+
+- <b>MAJOR</b> - FormHelper for dynamic field creation in the runtime.
+    <br>
+
+    -  We can add as many new inpts as needed in the form in the run time, some properties are also available:
+
+        <br/>
+
+        Template part
+        ```{.html .numberLines .lineAnchors}
+        <!-- In the template -->
+		<form (formRef)="personFormRef" onsubmit="return false;">
+            <div class="field-group">
+                <p>First Name:</p>
+                <input type="text" (value)="firstName">
+            </div>
+            <!-- Dynamic field will be added bellow -->
+		</form>
+        <button (click)="addNewField()">Add Field</button>
+        ```  
+
+        <br/>
+
+        Component part
+        ```{.javascript .numberLines .lineAnchors}
+        // .... above coding (e.g. imports)
+        class PersonComponent extends ViewComponent {
+
+            /** @Prop */
+            personFormRef;
+
+            firstName;
+
+            addNewField(){
+
+                const placeholder = 'Enter your nick name';
+                FormHelper
+                    .newField(this, this.personFormRef, 'nickName')
+                    .getInput({ required: true, placeholder, validator: 'alhpanumeric' })
+                    //Add will add in the form which reference was specified (2nd param of newField)
+                    // .add() recieves the generated input element, in case we need to wrap it can do as bellow
+                    .add((inpt) => 
+                        `<div class="field-group">
+                            <p>First Name:</p>
+                            ${inpt}
+                        </div>`
+                    );	
+            }
+
+        }
+
+        ```  
+<br>  
+ 
+### Changed
+- Restrcture of the folder structure adding config/ in the root.
+<br>
+
+
+### Fixed
+- Validation for combobox component.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## [Released] - 2025-04-29
 ## [Version] - 1.1.0

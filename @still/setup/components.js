@@ -1,5 +1,5 @@
-import { StillAppSetup } from "../../app-setup.js";
-import { stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
+import { StillAppSetup } from "../../config/app-setup.js";
+import { stillRoutesMap as DefaultstillRoutesMap } from "../../config/route.map.js";
 import { $still, ComponentNotFoundException, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
@@ -444,14 +444,15 @@ export class Components {
     parseOnChange = () => this;
 
     /** @param {ViewComponent} instance */
-    parseGetsAndSets(instance = null, allowfProp = false, loneContainer = null) {
-        /** @type { ViewComponent } */
-        const cmp = instance || this.component;
-        const cmpName = this.componentName;
-
+    parseGetsAndSets(instance = null, allowfProp = false, field = null) {
+        const cmp = instance || this.component, o = this;
         cmp.setAndGetsParsed = true;
-        cmp.getProperties(allowfProp).forEach(field => {
 
+        if(field) return parseField(field, cmp);
+
+        cmp.getProperties(allowfProp).forEach(field => parseField(field, cmp));
+
+        function parseField(field, cmp){
             const inspectField = cmp[field];
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop'
                 || cmp.myAnnotations()?.get(field)?.prop
@@ -489,7 +490,6 @@ export class Components {
                             if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
                         }
-
                         cmp.__defineGetter__(field, () => val);
                     });
                 }
@@ -500,12 +500,12 @@ export class Components {
 
                 Object.assign(cmp, { ['$still_' + field]: value });
                 Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
-                this.defineSetter(cmp, field);
+                o.defineSetter(cmp, field);
 
                 cmp.__defineSetter__(field, (newValue) => {
                     cmp.__defineGetter__(field, () => newValue);
                     cmp['$still_' + field] = newValue;
-                    this.defineSetter(cmp, field);
+                    o.defineSetter(cmp, field);
                     setTimeout(async () => await cmp.stOnUpdate());
 
                     if (cmp[`$still${field}Subscribers`].length > 0) {
@@ -519,7 +519,7 @@ export class Components {
 
                     if (cmp[field]?.defined || cmp.dynLoopObject) {
                         Components.firstPropagation[`${cmp.cmpInternalId}-${field}`] = true;
-                        this.propageteChanges(cmp, field);
+                        o.propageteChanges(cmp, field);
                     }
 
                 });
@@ -527,16 +527,13 @@ export class Components {
                     //Work in the garbage collector for this Components.firstPropagation flag
                     if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
-                        if (!this.notAssignedValue.includes(cmp['$still_' + field])) {
-                            this.propageteChanges(cmp, field);
-                        }
+                        if (!o.notAssignedValue.includes(cmp['$still_' + field])) o.propageteChanges(cmp, field);
                         cmp[field].firstPropag = true;
                     }
                 }, 200);
-
             }
+        }
 
-        });
         return this;
     }
 
@@ -1456,11 +1453,13 @@ export class Components {
     }
 
     /** 
-     * @param { ViewComponent } cmp
+     * @param { ViewComponent | String } cmp
      * @param { Object | any | null } data
      * */
     static async new(cmp, data = null) {
-        const { newInstance: instance } = await Components.produceComponent({ cmp: cmp.name });
+        let cmpName = cmp;        
+        if(cmp?.__proto__?.name == 'ViewComponent') cmpName = cmp.name;
+        const { newInstance: instance } = await Components.produceComponent({ cmp: cmpName });
         (async () => await instance.stOnRender(data))();
         instance.cmpInternalId = `dynamic-${instance.getUUID()}${instance.getName()}`;
         const template = instance.getBoundTemplate();

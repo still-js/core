@@ -1,5 +1,5 @@
-import { StillAppSetup } from "../../../app-setup.js";
-import { stillRoutesMap as DefaultstillRoutesMap } from "../../../route.map.js";
+import { StillAppSetup } from "../../../config/app-setup.js";
+import { stillRoutesMap as DefaultstillRoutesMap } from "../../../config/route.map.js";
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
@@ -101,14 +101,7 @@ export class BaseComponent extends BehaviorComponent {
     setAndGetsParsed = false;
     navigationId = Router.navCounter;
     $cmpStController;
-
-
-    /**
-     * signature method only
-     * @param {object|any} 
-     * @returns { ViewComponent | BaseComponent } 
-     */
-    new(params) { }
+    #dynFields = [];
 
     async load() { }
     async onRender() { this.stOnRender(); }
@@ -117,7 +110,19 @@ export class BaseComponent extends BehaviorComponent {
     async stOnUnload() { }
     async stOnRender() { }
     reRender() { }
-
+    getState = (fName) => this[fName].value;
+    setDynamicField = (fName, value) => {
+        this[fName] = value;
+        this.#dynFields.push(fName);
+    }
+    getDynamicFieldNames = () => this.#dynFields;
+    /** @returns { {[fieldName]: value} } */
+    getDynamicFields = () => {
+        return this.getDynamicFieldNames().reduce((accum, tbl) => {
+			accum[tbl] = this.getState(tbl);
+			return accum;
+		}, {});
+    };
     static importScripts() { }
     static importAssets() { }
 
@@ -162,21 +167,10 @@ export class BaseComponent extends BehaviorComponent {
                     || fieldInspect?.onlyPropSignature)
                     return true;
 
-                /**
-                 * Check the liklyhood
-                 * of the field ot be a proxy
-                 */
+                //Check the liklyhood of the field ot be a proxy
                 if (fieldInspect instanceof Object && !(fieldInspect instanceof Array)) {
-                    /**
-                     * Ignore current field
-                     * in case it's a Proxy
-                     */
-                    if (
-                        (fieldInspect.name == 'Proxy' && 'revocable' in fieldInspect)
-                        /* || fieldInspect.name == 'Prop'
-                        || fieldInspect?.onlyPropSignature */
-                    )
-                        return false;
+                    //Ignore current field  in case it's a Proxy
+                    if (fieldInspect.name == 'Proxy' && 'revocable' in fieldInspect) return false;
                 }
 
                 if (!allowfProp) {
@@ -229,16 +223,13 @@ export class BaseComponent extends BehaviorComponent {
             ) {
                 /** If component was generated dynamically in a loop */
                 path = `$still.context.componentRegistror.getComponent('${this.cmpInternalId}')`;
-
             } else {
-
                 if (this.getRoutableCmp())
                     path = `$still.context.componentRegistror.getComponent('${this.getName()}')`;
                 else
                     path = `$still.component.get('${this.getInstanceName()}')`;
             }
         }
-
         return path;
     }
 
@@ -252,38 +243,35 @@ export class BaseComponent extends BehaviorComponent {
 
     getBoundState(isReloading = false) {
 
-        const allowfProp = true;
+        const allowfProp = true, currentClass = this, clsName = this.cmpInternalId;
         const fields = this.getProperties(allowfProp);
-        const currentClass = this;
-        const clsName = this.cmpInternalId;
 
-        if (this.template instanceof Array)
-            this.template = this.template.join('');
+        if (this.template instanceof Array) this.template = this.template.join('');
 
-        let tamplateWithState = this.template;
+        let tamplateWithState = this.template, formsRef = [];
+        tamplateWithState = tamplateWithState.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
 
-        /** Bind @dynCmpGeneratedId which takes place in special
-         * situation that a component is created to be reference
-         * as a tag <st-extern> */
+        /** Bind @dynCmpGeneratedId which takes place in special situation that 
+         * a component is created to be reference as a tag <st-extern> */
         tamplateWithState = tamplateWithState.replace(`@dynCmpGeneratedId`, currentClass[`dynCmpGeneratedId`]);
 
         //To bind the internal id to any thing or property
         tamplateWithState = tamplateWithState.replace(/\@cmpInternalId/g, this.cmpInternalId);
 
-        let formsRef = [];
         if (this.isThereAForm()) {
             formsRef = this.#getFormReference(tamplateWithState);
-            if (formsRef?.length)
-                formsRef.forEach(r => currentClass[r.formRef] = new STForm());
+            if (formsRef?.length){
+                for(const r of formsRef) {
+                    currentClass[r.formRef] = new STForm(r.formRef, `fId_${r.formRef}`);
+                    tamplateWithState = tamplateWithState.replace(`(formRef)="${r.formRef}"`,`id="fId_${r.formRef}"`);
+                }
+            }
         }
 
-        /** Inject/Bind the component state/properties to the
-         * referenced place */
+        /** Inject/Bind the component state/properties to the referenced place */
         fields.forEach(field => {
 
-            const fieldRE = new RegExp(`@${field}`);
-            const finalRE = /\^/.source + fieldRE.source + /\$/;
-
+            const fieldRE = new RegExp(`@${field}`), finalRE = /\^/.source + fieldRE.source + /\$/;
             tamplateWithState = tamplateWithState.replaceAll(
                 `@${field}`,
                 (mt, pos) => {
@@ -292,15 +280,13 @@ export class BaseComponent extends BehaviorComponent {
                     const nextChar = tamplateWithState.slice(pos, pos + field.length + 41);
 
                     /** Check if the match isn't only coencidence 
-                     * (e.g. number and number1 are similir in the begining) 
-                     * */
+                     * (e.g. number and number1 are similir in the begining) */
                     if (!nextChar.replace(`@${field}`, '')[0]?.match(/[A-Za-z0-9]/)) {
 
                         let data = currentClass[field];
-                        if (data instanceof Object) {
+                        if (data instanceof Object) 
                             if ('value' in data) data = currentClass[field]?.value
-                        }
-
+                        
                         if (this.#annotations.has(field)) return data
 
                         //this.#stateChangeSubsribers.push(`subrcibe-${clsName}-${field}`);
@@ -407,11 +393,9 @@ export class BaseComponent extends BehaviorComponent {
                     Router.serviceId = containerId;
                     return mt.replace('(click)="', 'onclick="' + cmd + '.').replace('$event', 'event');
                 }
-
                 return mt.replace('(click)="', `onclick="${cmd}.`);
             }
         );
-
         return template;
     }
 
@@ -429,14 +413,13 @@ export class BaseComponent extends BehaviorComponent {
                 const fieldPath = `${cls}${formref ? `-${formref}` : ''}`;
 
                 let isValid = true;
-                if (value == '')
-                    isValid = false;
+                if (value == '') isValid = false;
 
                 if (!isValid) inpt.classList.add('still-validation-failed-style');
                 else inpt.classList.remove('still-validation-failed-style');
 
                 if (fieldPath && field)
-                    BehaviorComponent.currentFormsValidators[this.cmpInternalId][field]['isValid'] = isValid;
+                    BehaviorComponent.currentFormsValidators[this.cmpInternalId+'-'+formref][field]['isValid'] = isValid;
 
                 setTimeout(() => {
                     const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
@@ -507,17 +490,13 @@ export class BaseComponent extends BehaviorComponent {
 
             const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z0-9 \{ \} \[ \] \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"\w*\"\s?/.source;
-            const matchForEachRE = '(forEach)=\"';
-            const matchValue = '(value)="';
-            const matchChange = '(change)="';
-
+            const matchForEachRE = '(forEach)=\"', matchValue = '(value)="', matchChange = '(change)="';
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe, "gi");
 
             template = template.replace(valueBindRE, (mt, matchPos) => {
 
                 const isThereComboBox = mt.indexOf('<select') >= 0;
-                const value = mt.indexOf(matchValue);
-                const changeEvt = mt.indexOf(matchChange);
+                const value = mt.indexOf(matchValue), changeEvt = mt.indexOf(matchChange);
 
                 const onChangeId = this.dynLoopObject
                     ? this.cmpInternalId
@@ -613,21 +592,17 @@ export class BaseComponent extends BehaviorComponent {
                 else hide = '';
 
                 if (mt.indexOf('class="') > 0) {
-                    /**
-                     * .replace('class="', `class="${hide} `) 
+                    /** .replace('class="', `class="${hide} `) 
                      *      Add the framework hide classso that component gets hidden
                      * 
-                     * .replace(matchInstance, '');
-                     *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code
-                     */
+                     *  .replace(matchInstance, '');
+                     *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code */
                     result = mt
                         .replace('class="', `class="${hide} ${listenerFlag} `)
                         .replace(matchInstance, '');
                 } else {
-                    /**
-                     * .replace(matchInstance, `class="${hide}"`) 
-                     *      Replace the (renderIf)="anything" directive and value with hide classe
-                     */
+                    /**  .replace(matchInstance, `class="${hide}"`) 
+                     *      Replace the (renderIf)="anything" directive and value with hide classe */
                     result = mt.replace(matchInstance, `class="${hide} ${listenerFlag}"`);
                 }
             }

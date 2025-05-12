@@ -1,4 +1,4 @@
-import { StillAppSetup } from "../../../../app-setup.js";
+import { StillAppSetup } from "../../../../config/app-setup.js";
 import { UUIDUtil } from "../../../util/UUIDUtil.js";
 
 class ControllerFactory { }

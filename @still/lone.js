@@ -1,5 +1,5 @@
-import { StillAppSetup } from "../app-setup.js";
-import { stillRoutesMap } from "../route.map.js";
+import { StillAppSetup } from "../config/app-setup.js";
+import { stillRoutesMap } from "../config/route.map.js";
 import { ComponentNotFoundException, ComponentRegistror } from "./component/manager/registror.js";
 import { BaseComponent } from "./component/super/BaseComponent.js";
 import { BehaviorComponent } from "./component/super/BehaviorComponent.js";

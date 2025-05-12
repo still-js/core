@@ -1,5 +1,5 @@
-import { StillAppSetup } from "../../../app-setup.js";
-import { AppTemplate } from "../../../app-template.js";
+import { StillAppSetup } from "../../../config/app-setup.js";
+import { AppTemplate } from "../../../config/app-template.js";
 import { Router } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";

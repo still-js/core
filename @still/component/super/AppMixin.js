@@ -1,4 +1,4 @@
-import { StillAppSetup } from "../../../app-setup.js";
+import { StillAppSetup } from "../../../config/app-setup.js";
 import { Components } from "../../setup/components.js";
 import { StillError } from "../../setup/error.js";
 import { ComponentType } from "../type/ComponentType.js";
@@ -8,7 +8,7 @@ import { ViewComponent } from "./ViewComponent.js";
 const cmp = Components;
 
 /**
- * 
+ * s
  * @param {Components} Component 
  * @returns 
  */

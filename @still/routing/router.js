@@ -1,6 +1,6 @@
-import { StillAppSetup } from "../../app-setup.js";
-import { AppTemplate } from "../../app-template.js";
-import { stillRoutesMap as DefaultstillRoutesMap } from "../../route.map.js";
+import { StillAppSetup } from "../../config/app-setup.js";
+import { AppTemplate } from "../../config/app-template.js";
+import { stillRoutesMap as DefaultstillRoutesMap } from "../../config/route.map.js";
 import { $still, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { Components, loadComponentFromPath } from "../setup/components.js";
@@ -169,7 +169,8 @@ export class Router {
                             <div id="${Router.appPlaceholder}" class="${$stillconst.TOP_LEVEL_CMP}">${template}</div>
                         `
                     );
-                    document.getElementById('stillUiPlaceholder').innerHTML = template;
+                    const ctnrId = isLoneCmp ? Router.clickEvetCntrId : 'stillUiPlaceholder';
+                    document.getElementById(ctnrId).innerHTML = template;
                     setTimeout(() => Router.callCmpAfterInit(null, isHomeCmp, Router.appPlaceholder));
 
                 })();

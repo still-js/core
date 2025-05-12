@@ -1,5 +1,5 @@
-import { StillAppSetup } from "../../../app-setup.js";
-import { stillRoutesMap } from "../../../route.map.js";
+import { StillAppSetup } from "../../../config/app-setup.js";
+import { stillRoutesMap } from "../../../config/route.map.js";
 import { StillHTTPClient } from '../../helper/http.js';
 import { ViewComponent } from "../super/ViewComponent.js";
 

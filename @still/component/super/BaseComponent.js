@@ -145,7 +145,7 @@ export class BaseComponent extends BehaviorComponent {
 
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = [
-            'settings', 'componentName', 'template',
+            'settings', 'componentName', 'template','routesMap',
             'cmpProps', 'htmlRefId', 'new', 'cmpInternalId',
             'routableCmp', '$stillLoadCounter', 'subscribers',
             '$stillIsThereForm', '$stillpfx', 'subImported',
@@ -155,7 +155,7 @@ export class BaseComponent extends BehaviorComponent {
             'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus',
             'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp',
-            'stillAdjastableCmp'
+            'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl'
         ];
         return fields.filter(
             field => {

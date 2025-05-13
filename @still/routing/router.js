@@ -560,8 +560,7 @@ export class Router {
         if (baseUrl.indexOf(`//${clsName}`) > 0)
             baseUrl = Router.baseUrl.replace(`//${clsName}`, '/');
 
-        if (url)
-            baseUrl = baseUrl.replace(`/${clsName}`, '');
+        if (url) baseUrl = baseUrl.replace(`/${clsName}`, '');
 
         /** Case where # or #/ was entered as the path */
         baseUrl = baseUrl.slice(-2) == '//' ? baseUrl.slice(0, -1) : baseUrl;

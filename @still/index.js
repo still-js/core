@@ -37,7 +37,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
             /** 
              * Detect when a path was entered in the URL after 
              * hash (#) and route it to the respective component
-             * */
+             **/
             Router.listenUrlChange();
 
         });

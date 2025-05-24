@@ -90,7 +90,7 @@ export class BaseComponent extends BehaviorComponent {
     baseUrl = window.location.href;
     #stateChangeSubsribers = [];
     bindStatus;
-    $parent;
+    /** @type { ViewComponent } */$parent;
     routesMap = {
         ...stillRoutesMap.viewRoutes.lazyInitial,
         ...stillRoutesMap.viewRoutes.regular
@@ -102,6 +102,7 @@ export class BaseComponent extends BehaviorComponent {
     navigationId = Router.navCounter;
     $cmpStController;
     #dynFields = [];
+    
 
     async load() { }
     async onRender() { this.stOnRender(); }
@@ -125,6 +126,12 @@ export class BaseComponent extends BehaviorComponent {
     };
     static importScripts() { }
     static importAssets() { }
+    parseEvents = (obj) => {
+        obj.content = obj?.content
+            ?.replace(/parent.|self./g,`$still.component.ref('${this.$parent.cmpInternalId}').`)
+            ?.replace(/inner./g,`$still.component.ref('${this.cmpInternalId}').`)?.replace(/\$event/g,`event`)
+        return obj;
+    };
 
     props(props = {}) {
         this.cmpProps = props;
@@ -138,10 +145,11 @@ export class BaseComponent extends BehaviorComponent {
     getName() { return this.constructor.name; }
     getInstanceName() { return this.constructor.name; }
     getStateSubriber() { return this.#stateChangeSubsribers; }
+    runParseAnnot() { return this.#parseAnnotations(); }
 
     getProperties(allowfProp = false) {
 
-        if (!this.wasAnnotParsed) this.#parseAnnotations();
+        this.#parseAnnotations();
 
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = [
@@ -288,6 +296,9 @@ export class BaseComponent extends BehaviorComponent {
                             if ('value' in data) data = currentClass[field]?.value
                         
                         if (this.#annotations.has(field)) return data
+                        if(tamplateWithState.substr(pos - 2,2).startsWith('="') && tamplateWithState.substr(pos + field.length + 1,1) == '"'){
+                            return data;
+                        }
 
                         //this.#stateChangeSubsribers.push(`subrcibe-${clsName}-${field}`);
                         return `<state class="state-change-${clsName}-${field}">${data}</state>`;
@@ -322,7 +333,7 @@ export class BaseComponent extends BehaviorComponent {
 
             let subscriptionCls = '';
 
-            const subsCls = `listenChangeOn-${this.cmpInternalId}-${ds}`;
+            const subsCls = `listenChangeOn-${this.cmpInternalId.replace('/','').replace('@','')}-${ds}`;
             const hashValue = `hash_${this.getUUID()}`;
             const hash = `hash="${hashValue}"`;
             const newClassName = `newCls="${subsCls}"`;
@@ -542,7 +553,7 @@ export class BaseComponent extends BehaviorComponent {
      */
     getBoundRender(template) {
 
-        const extremRe = /[\n \r \< \$ \( \) \- \s A-Za-z \= \" \.]{0,}/.source;
+        const extremRe = /[\n \r \t \< \$ \( \) \- \s A-Za-z0-9 \@ \= \" \.]{0,}/.source;
         const matchRenderIfRE = /\(renderIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
         const matchShowIfRE = /\(showIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
         const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
@@ -687,6 +698,7 @@ export class BaseComponent extends BehaviorComponent {
          * NOTE: Needs to be always the first to be called */
         let template = this.getBoundState(isReloading);
         template = Components.obj().parseAdjustable(template, this);
+        template = Components.obj().parseLocalLoader(template, this);
         template = this.getBoundRender(template);
         /** Parse still tags */
         template = this.parseStSideComponent(template),
@@ -1022,7 +1034,8 @@ export class BaseComponent extends BehaviorComponent {
             ? this.cmpInternalId
             : this.getProperInstanceName();
         const validatorClass = BehaviorComponent.setOnValueInput(mt, this, field, (formRef?.formRef || null));
-        const classList = `${validatorClass} listenChangeOn-${this.cmpInternalId}-${field}`;
+        const cmpId = this.cmpInternalId.replace('/','').replace('@','');
+        const classList = `${validatorClass} listenChangeOn-${cmpId}-${field}`;
 
         const clsPath = this.getClassPath();
 
@@ -1052,7 +1065,7 @@ export class BaseComponent extends BehaviorComponent {
     //ignoreProp = [];
     //services = [];
     #parseAnnotations() {
-
+        if(this.wasAnnotParsed) return;
         const cmp = this;
         const cmpName = this.constructor.name;
 
@@ -1106,10 +1119,10 @@ export class BaseComponent extends BehaviorComponent {
 
                 }
             });
-
         }
 
         this.wasAnnotParsed = true;
+        return this.#annotations;
 
     }
 

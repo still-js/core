@@ -447,6 +447,7 @@ export class Components {
     parseGetsAndSets(instance = null, allowfProp = false, field = null) {
         const cmp = instance || this.component, o = this;
         cmp.setAndGetsParsed = true;
+        const annot = cmp.runParseAnnot();
 
         if(field) return parseField(field, cmp);
 
@@ -455,7 +456,7 @@ export class Components {
         function parseField(field, cmp){
             const inspectField = cmp[field];
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop'
-                || cmp.myAnnotations()?.get(field)?.prop
+                || cmp.myAnnotations()?.get(field)?.prop || annot?.get(field)?.prop
             ) {
 
                 if (inspectField?.sTForm) {
@@ -467,7 +468,7 @@ export class Components {
                 }
 
                 let listenerFlag = inspectField?.listenerFlag, inVal = inspectField?.inVal;
-                cmp[field] = cmp[field]?.value;
+                cmp[field] = cmp[field]?.value || cmp[field];
                 if (typeof inspectField == 'boolean') {
                     listenerFlag = `_stFlag${field}_${cmp.constructor.name}_change`;
                     cmp[field] = { inVal: inspectField }, inVal = inspectField;
@@ -476,9 +477,16 @@ export class Components {
                 if (listenerFlag) {
                     if (!('st_flag_ini_val' in cmp)) cmp['st_flag_ini_val'] = {};
                     cmp.st_flag_ini_val[field] = inVal;
-                    cmp.__defineGetter__(field, () => inspectField.inVal);
+                    const getValue = annot?.size ? inVal : inspectField.inVal;
+                    cmp.__defineGetter__(field, () => getValue);
 
                     cmp.__defineSetter__(field, (val) => {
+                        // This is to address the initial assignment for child component having (showIf) since ths instantiation is automatically by handleInPartsImpl
+                        if(typeof val === 'object'){
+                            if('v' in val) {
+                                val = val.v; delete cmp.st_flag_ini_val[field];
+                            }
+                        }
                         /** This is addressing the edge case where the (renderIf) is parsed after this setter is defined */
                         if (field in cmp.st_flag_ini_val && !(val?.parsed)) {
                             val = !cmp.st_flag_ini_val[field];
@@ -541,8 +549,7 @@ export class Components {
 
     /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field) {
-
-        const cpName = cmp.cmpInternalId;
+        const cpName = cmp.cmpInternalId.replace('/','').replace('@','');
         const cssRef = `.listenChangeOn-${cpName}-${field}`;
         const subscribers = document.querySelectorAll(cssRef);
         const cssRefCombo = `.listenChangeOn-${cpName}-${field}-combobox`;
@@ -1033,7 +1040,7 @@ export class Components {
 
             const { proxy, component, props, annotations, ref } = cmpParts[idx];
             if (component == undefined) continue;
-
+            
             (async () => {
 
                 /** TODO: Dynamic import of assets of a vendor component  */
@@ -1083,13 +1090,18 @@ export class Components {
                         if (prop != 'proxy' && prop != 'component') {
                             if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
                                 const method = prop.replace('(', '').replace(')', '');
-                                cmp[method] = function (...param) {
-                                    return parentCmp[value.split('(')[0]](...param);
-                                }
+                                cmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
                                 continue;
                             }
-
+                            
                             let prefix = String(value).toLowerCase();
+                            
+                            if(prop in instance && !value?.startsWith('parent.') && !value?.startsWith('self.')){
+                                //Because this assignement will trigger getters for flag, passing an object 
+                                //with v field will allow identify that this is framework initial instance assignement
+                                instance[prop] = ['false',false].includes(value) ? { v: false } : ['true',true].includes(value) ? { v: true } : value;
+                                continue;
+                            }
 
                             if (prefix.startsWith('parent.')) prefix = 'parent.';
                             else if (prefix.startsWith('self.')) prefix = 'self.';
@@ -1477,8 +1489,8 @@ export class Components {
         const reStStart = /\<st-divider[\s\t]{0,}/, reStClose = /[\/\>]{2}/;
         const reAnyProp = /[\=\"A-Za-z0-9\s\t\r\n\.\(\)\&\;\#]{0,}[\s]{0,}/;
         const RE = new RegExp(reStStart.source + reAnyProp.source + reStClose.source,'g');
-        const t2 = `<div ${c} ${id} {h} {w}><l-l class='label'>{{}}</l-l><div ${d}></div></div>`;
-        const t1 = `<div ${a} ${id} {h} {w}><l-l class='label'>{{}}</l-l><div ${b}></div></div>`;
+        const t2 = `<div ${c} ${id}><l-l class='label'>{{}}</l-l><div ${d}></div></div>`;
+        const t1 = `<div ${a} ${id}><l-l class='label'>{{}}</l-l><div ${b}></div></div>`;
         t = t.replace(RE, (_) => {
             let tmpl = t1, props = {}, m = _.replace(/\t/g,'').replace(/\n/,' ').replace(/\s{2,}/,' ');
             m.split(/"\s/i).map((r) => {
@@ -1490,7 +1502,7 @@ export class Components {
             tmpl = tmpl.replace('{{}}', props?.label || '');
             const dividerId = `devid-${UUIDUtil.newId()}`;
             if (!cp['stillDevidersCmp']) cp['stillDevidersCmp'] = [];
-            cp['stillDevidersCmp'].push({dividerId, ...props});
+            cp['stillDevidersCmp'].push({dividerId, ...props, parent: cp});
             return tmpl.replace('$StId', `${dividerId}`)
         });
         return t;
@@ -1501,6 +1513,7 @@ export class Components {
             const {dividerId, type, ev1: onResize, ev2: onLblClick } = p;
             if(type != 'horizontal') return;
             const separator = document.getElementById(dividerId);
+            p.parent[p.proxy] = separator;
             const method = Components.obj().newResizeEvt(c, onResize);
             const { previousElementSibling: _left, nextElementSibling: _right } = separator;
             let [isResizing, startX, leftPanelWidth] = [false, undefined, undefined];
@@ -1540,40 +1553,49 @@ export class Components {
 
 	setHrzntlDevider(c){
         c['stillDevidersCmp'].forEach((p) => {
-            const {dividerId, type, ev1: onRsiz, ev2: onLblClk, minHeight: miH, maxHeight: maH, startHeight  } = p;
+            const {dividerId, type, ev1: onRsiz, ev2: onLblClk, minHeight, maxHeight } = p;
+            
             if(type != 'vertical') return;
             const d = document.getElementById(dividerId);
             d.querySelector('.label').onclick = async () => await Components.obj().newResizeEvt(c, onLblClk)();
-            if(startHeight) d.style.marginTop = startHeight + 'px';
+            if(p.startHeight) d.style.marginTop = p.startHeight + 'px';
             const method = Components.obj().newResizeEvt(c, onRsiz);
             const {previousElementSibling: _top, nextElementSibling: _bottom, parentElement: cntr} = d;
             cntr.classList.add('container-divider-parent');
             _top.className = _top.className + ' panel top';
             _bottom.classNam = _bottom.className + ' panel bottom';
-            let isDragging = false;
+            let isDragging = false, maH = Number(maxHeight), miH = Number(minHeight);  
+            p.parent[p?.proxy] = { 
+                element: d, 
+                setHeight: (number) => onDividerMove(null, (d.parentElement.clientHeight - number)),
+                setMaxHeight: () => onDividerMove(null, d.parentElement.clientHeight - Number(maH)),
+            };
         
             d.addEventListener("mousedown", function () {
               isDragging = true, document.body.style.cursor = 'ns-resize';
             });
         
             document.addEventListener("mousemove", (e) => {
-              if (!isDragging) return;
-              
-              const {offsetTop: containerOffsetTop, offsetHeight: containerHeight} = cntr;
-              const pointerRelativeY = e.clientY - containerOffsetTop;
-              const topHeight = pointerRelativeY;
-              const bottomHeight = containerHeight - topHeight - d.offsetHeight;
-            
-              if(miH && (bottomHeight < miH) || maH && (bottomHeight > maH)) return;
-
-              [_top.style.flex, _bottom.style.flex] = ['none', 'none'];
-              [_top.style.height, _bottom.style.height] = [topHeight + "px", bottomHeight + "px"];
-              (async () => await method({ topHeight, bottomHeight }))();
+              if (!isDragging) return; onDividerMove(e);
             });
         
             document.addEventListener("mouseup", () => {
               isDragging = false, document.body.style.cursor = 'default';
             });
+
+            function onDividerMove(e, height = null){ 
+                
+                const {offsetTop: containerOffsetTop, offsetHeight: containerHeight} = cntr;
+                let topHeight = height;
+                if(!height) topHeight = e.clientY - containerOffsetTop;
+                const bottomHeight = containerHeight - topHeight - d.offsetHeight;
+              
+                if((miH && (bottomHeight < miH) && !height) || maH && (bottomHeight > maH)) return;
+  
+                [_top.style.flex, _bottom.style.flex] = ['none', 'none'];
+                [_top.style.height, _bottom.style.height] = [topHeight + "px", bottomHeight + "px"];
+                (async () => await method({ topHeight, bottomHeight }))();
+            }
         })
 	}
 
@@ -1593,6 +1615,15 @@ export class Components {
                 return tmpl.replace('{{$stContPlaceholder}}',mt2).replace('{{$stId}}', adjtbleId);
             }
         );
+    }
+
+    parseLocalLoader(template){
+        return template.replace(/<st-loader[\s\(\)a-z0-9\.\=\"]{0,}>/i, (mt) => {
+            let complement = mt.split(' ');
+            if(complement.length > 1) complement = complement[1].slice(0,-1);
+            else complement = '';
+            return `<div class="still-cmp-loader" ${complement}></div>`;
+        });
     }
 
     static runAfterInit(cmp) {

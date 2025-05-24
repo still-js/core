@@ -3,6 +3,74 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-05-24
+## [Version] - 1.2.2
+New minor no-breaking feature, clean up, improvements and bug fix.
+ 
+
+- <b>MINOR</b> - Loader component to be used locally in the component.
+    <br>
+
+    -  If we want a loading to be displayed in a component while loading we can do it as follow:
+
+        <br/>
+
+        Template part
+        ```{.html .numberLines .lineAnchors}
+        <!-- In the template -->
+		<st-loader (showIf)="self.showLoader">
+        <table>
+            <!-- Heare goes the Datatable code -->
+        </table>
+        ```  
+
+        <br/>
+
+        Component part
+        ```{.javascript .numberLines .lineAnchors}
+        // .... above coding (e.g. imports)
+        class InvoicesComponent extends ViewComponent {
+
+            /** @Prop */
+            showLoader = true;
+
+            stAfterInit(){
+                //Fetch Data in the API
+                //Parse and display data in the UI
+
+                //remove the loader
+                this.showLoader = false;
+            }
+
+        }
+
+        ```  
+<br>  
+ 
+### Fixed
+- gets and sets parsing for child component when embeded in the parent.
+- prop parsing when passing form Parent component.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
+
 ## [Released] - 2025-05-11
 ## [Version] - 1.2.0
 New Major no-breaking feature, clean up, improvements and bug fix.

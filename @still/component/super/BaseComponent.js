@@ -7,7 +7,7 @@ import { UUIDUtil } from "../../util/UUIDUtil.js";
 import { getBasePath, getRouter, getRoutesFile } from "../../util/route.js";
 import { $still, ComponentNotFoundException, ComponentRegistror } from "../manager/registror.js";
 import { sleepForSec } from "../manager/timer.js";
-import { STForm } from "../type/STForm.js";
+import { STForm } from "../type/ComponentType.js";
 import { BehaviorComponent } from "./BehaviorComponent.js";
 import { ViewComponent } from "./ViewComponent.js";
 import { BaseController } from "./service/BaseController.js";
@@ -242,10 +242,8 @@ export class BaseComponent extends BehaviorComponent {
     }
 
     isThereAForm() {
-        if (!this.$stillIsThereForm) {
-            const form = $stillconst.CMP_FORM_PREFIX
-            this.$stillIsThereForm = this.template.indexOf(form) >= 0;
-        }
+        if (!this.$stillIsThereForm) 
+            this.$stillIsThereForm = this.template.indexOf($stillconst.CMP_FORM_PREFIX) >= 0;
         return this.$stillIsThereForm;
     }
 
@@ -324,7 +322,6 @@ export class BaseComponent extends BehaviorComponent {
         const forEach = '(forEach)="';
 
         const re = new RegExp(extremRe + matchForEach + extremRe, 'gi');
-        let cmd = this.getClassPath();
 
         template = template.replace(re, (mt) => {
             let ds = '';
@@ -437,16 +434,14 @@ export class BaseComponent extends BehaviorComponent {
                     const instance = eval(this.getClassPath());
 
                     if (field != undefined) {
-                        if (!(field in instance)) {
+                        if (!(field in instance)) 
                             throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
-                        }
                         instance[field] = value;
                     }
 
                     if (evt != 'Components.void') {
-                        if (!(evt in instance)) {
+                        if (!(evt in instance)) 
                             throw new Error(`Method with name ${evt}() is not define in ${this.getName()}`);
-                        }
                         instance[evt](param);
                     }
 
@@ -489,7 +484,7 @@ export class BaseComponent extends BehaviorComponent {
         const type = this.$cmpStController;
         template = template.replace(/component\.|controller\.|controller\(\'/ig, (mt) => {
             if (mt.includes("component.")) return `$still.component.ref('${this.cmpInternalId}').`;
-            if (mt.includes("controller('")) return `$still.controller('`
+            if (mt.includes("controller('")) return `$still.controller('`;
             return `$still.controller('${type}').`;
         });
         return template;
@@ -718,27 +713,10 @@ export class BaseComponent extends BehaviorComponent {
         return template;
     }
 
-    render() {
-        this.incrementLoadCounter();
-        document.write(this.getBoundTemplate());
-    }
 
     getTemplate(count = true) {
         this.incrementLoadCounter();
         return this.getBoundTemplate();
-    }
-
-    prepareRender() {
-
-        const [fields, currentClass] = [this.getProperties(), this];
-        fields.forEach(field => {
-            this.template = this.template.replace(`@${field}`, currentClass[field].value);
-        });
-
-        Object.entries(this.cmpProps).forEach(([key, value]) => {
-            this.template = this.template.replace(`{{${key}}}`, value);
-        });
-
     }
 
     /**
@@ -751,19 +729,6 @@ export class BaseComponent extends BehaviorComponent {
         if (settings.scripts) settings.scripts.forEach(BaseComponent.importScript);
         $still.context.componentRegistror.export({ ...settings, instance: this });
     }
-
-    setPath(path) {
-        this.settings.path = path;
-        return this;
-    }
-
-    setComponentName(name) {
-        this.settings.componentName = name;
-        return this;
-    }
-
-    register = () =>
-        $still.context.componentRegistror.export(settings);
 
     static importScript(scriptPath, module = false, cls = null) {
 

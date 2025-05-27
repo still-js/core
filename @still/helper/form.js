@@ -42,7 +42,8 @@ export const FormHelper = {
                 `;
                 return {
                     add(cb = function(input){}, subContainer = null){
-                        const cnt = cb(input), ctr = document.getElementById(formRef.formId);
+                        let cnt = cb(input), ctr = document.getElementById(formRef.formId);
+                        if(subContainer) ctr = ctr.querySelector(subContainer);
                         ctr.insertAdjacentHTML('beforeend', cnt || input);
                     },
                     element: input 
@@ -50,5 +51,4 @@ export const FormHelper = {
             }
         }
     },
-
 }

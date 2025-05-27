@@ -253,16 +253,6 @@ export class Components {
 
     }
 
-    /* static async fetchTemplate(tmplFileUrl, filePath) {
-        const result = await fetch(tmplFileUrl);
-        if (result.status == 404) {
-            StillError.handleInvalidTmplUrl('TypeError', parentCmp, filePath);
-            return
-        }
-        return result;
-
-    } */
-
     async loadComponent() {
         loadComponentFromPath(
             this.entryComponentPath,
@@ -372,25 +362,6 @@ export class Components {
     static registerPublicCmp = (cmp) =>
         window['Public_' + cmp.constructor.name] = cmp;
 
-    getInitialPrivateTemplate(cmpName) {
-
-        $still.context.currentView = eval(`new ${cmpName}()`);
-        let template = this.getCurrentCmpTemplate($still.context.currentView);
-        template = currentView.template.replace(
-            this.stillCmpConst,
-            `<div id="${this.stillAppConst}" class="${$stillconst.TOP_LEVEL_CMP}">${template}</div>`
-        );
-        return template;
-    }
-
-    /** @param {ViewComponent} cmp */
-    getCurrentCmpTemplate(cmp, regularId = false) {
-        const init = cmp;
-        init.setUUID(regularId ? cmp.getUUID() : this.getTopLevelCmpId());
-        const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;
-        return (init.template)
-            .replace('class="', `class="${init.getUUID()} ${loadCmpClass} `);
-    }
 
     /**  @param {ViewComponent} cmp */
     getHomeCmpTemplate(cmp) {
@@ -576,7 +547,6 @@ export class Components {
                 });
             });
         }
-
     }
 
     /**
@@ -636,7 +606,8 @@ export class Components {
                 elm.parentNode.insertAdjacentElement('beforeend', container);
 
             else {
-
+                const loopCntr = elm.querySelector(`.loop-container-${cmp.cmpInternalId}`);
+                if(loopCntr) elm.removeChild(loopCntr);
                 const finalCtnr = document.createElement('output');
                 finalCtnr.innerHTML = container.innerHTML;
                 finalCtnr.className = `loop-container-${cmp.cmpInternalId}`;
@@ -757,7 +728,7 @@ export class Components {
         for (const [f, v] of fields) {
             parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, v);
         }
-        return parsingTemplate;
+        return parsingTemplate.replaceAll('($event','(event');
     }
 
     /** 
@@ -769,18 +740,14 @@ export class Components {
         if (noFieldsMap) {
             for (const [f, v] of Object.entries(rec)) {
                 if (f in obj) {
-                    if (typeof v == 'string')
-                        obj[f] = v?.replace('item.', '')?.trim();
-                    else
-                        obj[f] = v;
+                    if (typeof v == 'string') obj[f] = v?.replace('item.', '')?.trim();
+                    else obj[f] = v;
                 }
             }
         } else {
             for (const [f, v] of fields) {
-                if (typeof v == 'string')
-                    obj[f] = rec[v?.replace('item.', '')?.trim()];
-                else
-                    obj[f] = rec[v];
+                if (typeof v == 'string') obj[f] = rec[v?.replace('item.', '')?.trim()];
+                else obj[f] = rec[v];
             }
         }
 
@@ -1077,7 +1044,6 @@ export class Components {
 
                 if (cmpInternalId != 'fixed-part') {
                     Components.parseProxy(proxy, cmp, parentCmp, annotations);
-                    cmp.setParentComponent(parentCmp);
                     cmp['name'] = cmpName;
                     StillAppSetup.register(cmp);
 
@@ -1375,7 +1341,7 @@ export class Components {
 
     }
 
-    static knownClassed = [
+    static knownClasses = [
         ComponentNotFoundException.name, BaseComponent.name,
         Components.name, 'StillAppSetup'
     ];
@@ -1389,7 +1355,7 @@ export class Components {
             || cmp.prototype instanceof ViewComponent
             || cmp.__proto__ instanceof BaseComponent
             || cmp.__proto__ instanceof ViewComponent
-            || Components.knownClassed.includes(cmp?.name)
+            || Components.knownClasses.includes(cmp?.name)
         ) window[cmp.name] = cmp;
 
         else if (typeof cmp == 'function') window[cmp.name] = cmp;
@@ -1437,7 +1403,6 @@ export class Components {
     }
 
     static loadCssAssets() {
-        const css1 = '@still/css/still-fundamental.css';
         const css2 = '@still/ui/css/still.css';
         [css1, css2].forEach(path => {
             const cssTag = document.createElement('link');

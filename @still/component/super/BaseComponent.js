@@ -865,7 +865,7 @@ export class BaseComponent extends BehaviorComponent {
 
             const { component, ref, proxy: p, each, ...tagProps } = propMap;
             const foundProps = Object.values(tagProps);
-            const isThereProp = foundProps.some(r => !r.startsWith('item.'))
+            const isThereProp = foundProps.some(r => !r?.startsWith('item.'))
                 || foundProps.length == 0;
 
             if (!(this.cmpInternalId in Components.componentPartsMap))
@@ -1056,7 +1056,7 @@ export class BaseComponent extends BehaviorComponent {
 
                 /** If statement is in place to not parse skip method 
                  * parsing when it finds a comment annotation */
-                if (!mt.includes('(')) {
+                if (!mt.includes('(') && mt.indexOf('State<') < 0) {
                     const commentEndPos = mt.indexOf('*/') + 2;
                     const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
 

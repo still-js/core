@@ -1404,7 +1404,7 @@ export class Components {
 
     static loadCssAssets() {
         const css2 = '@still/ui/css/still.css';
-        [css1, css2].forEach(path => {
+        [css2].forEach(path => {
             const cssTag = document.createElement('link');
             cssTag.href = `${Router.baseUrl}${path}`;
             document.head.insertAdjacentElement('beforeend', cssTag);

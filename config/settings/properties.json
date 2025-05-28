@@ -1,0 +1,15 @@
+{
+    "DEV":{
+        "httpClient": {
+            "baseUrl": ""
+        },
+        "logs": false
+    },
+    
+    "PROD":{
+        "httpClient": {
+            "baseUrl": ""
+        },
+        "logs": false
+    }
+}

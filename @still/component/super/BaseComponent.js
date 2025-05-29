@@ -128,8 +128,8 @@ export class BaseComponent extends BehaviorComponent {
     static importAssets() { }
     parseEvents = (obj) => {
         obj.content = obj?.content
-            ?.replace(/parent.|self./g,`$still.component.ref('${this.$parent.cmpInternalId}').`)
-            ?.replace(/inner./g,`$still.component.ref('${this.cmpInternalId}').`)?.replace(/\$event/g,`event`)
+            ?.replace(/parent\.|self\./g,`$still.component.ref('${this.$parent.cmpInternalId}').`)
+            ?.replace(/inner\./g,`$still.component.ref('${this.cmpInternalId}').`)?.replace(/\$event/g,`event`)
         return obj;
     };
 
@@ -828,7 +828,7 @@ export class BaseComponent extends BehaviorComponent {
 
     }
 
-    stWhenReady(cb = () => { }) {
+    stWhenReady(cb = () => { }, waitForSec = .5) {
         const timer = setTimeout(async () => {
 
             try {
@@ -837,7 +837,7 @@ export class BaseComponent extends BehaviorComponent {
             } catch (error) {
                 console.log(`Error on when ready: `, error);
             }
-        }, 1000);
+        }, 1000 * waitForSec);
     }
 
     parseStSideComponent(template, cmpInternalId = null, cmpUUID = null) {

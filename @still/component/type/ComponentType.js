@@ -18,8 +18,6 @@ export class STForm {
     validate() { }
 }
 
-window.STForm = STForm;
-
 
 /** @template T */
 export class State {

@@ -83,7 +83,7 @@ export class Components {
     static subscriptions = {};
     static stAppInitStatus = true;
     static baseUrl = Router.baseUrl;
-    static vendorPath = `${Router.baseUrl}@still/vendors`;
+    static vendorPath = `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/vendors`;
     static parsingTracking = {};
     static prevLoadingTracking = new Set();
 
@@ -171,7 +171,8 @@ export class Components {
             const clsPath = cmp.split('/');
             clsName = clsPath.at(-1);
             clsPath.pop();
-            folderPah = `${Components.baseUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
+            const parsedUrl = Components.obj().parseBaseUrl(Components.baseUrl);
+            folderPah = `${parsedUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
             cmpPath = `${folderPah}/${clsName}`;
         } else {
             let cmpRoute = Router.routeMap[clsName]?.path;
@@ -1135,7 +1136,7 @@ export class Components {
             return false;
 
         if ((!AppTemplate.get().isAuthN()
-            && !cmp.isPublic)
+            && !cmp?.isPublic)
             || !Components.obj().isInWhiteList(cmp))
             return false;
         return true;
@@ -1376,7 +1377,7 @@ export class Components {
 
             Components.setupImportWorkerState = true;
             const worker = new Worker(
-                `${Router.baseUrl}@still/component/manager/import_worker.js`,
+                `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/component/manager/import_worker.js`,
                 { type: 'module' }
             );
 
@@ -1396,10 +1397,17 @@ export class Components {
 
     static loadInterceptWorker() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register(`${Router.baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+            const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+            navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
                 .then(() => console.log('Service Worker Registered'))
                 .catch(err => console.log('SW Registration Failed:', err));
         }
+    }
+
+    parseBaseUrl(Url){
+        let baseUrl = Url.split('//');
+        if(baseUrl.length > 2) return baseUrl.slice(0,2).join('//') + '/';
+        return Router.baseUrl;
     }
 
     static loadCssAssets() {
@@ -1422,9 +1430,9 @@ export class Components {
     processWhiteList(content) { Components.obj().#cmpPermWhiteList = content.map(r => r.name); }
 
     isInWhiteList(cmp) {
-        const isInBlackList = StillAppSetup.get().getBlackList().includes(cmp.getName());
-        const isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmp.getName());
-        if (!isInBlackList && !isInWhiteList && cmp.isPublic) return true;
+        const isInBlackList = StillAppSetup.get().getBlackList().includes(cmp?.getName());
+        const isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmp?.getName());
+        if (!isInBlackList && !isInWhiteList && cmp?.isPublic) return true;
         if (isInBlackList) return false;
         return isInWhiteList;
     }

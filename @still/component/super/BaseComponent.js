@@ -1061,16 +1061,17 @@ export class BaseComponent extends BehaviorComponent {
                     const commentEndPos = mt.indexOf('*/') + 2;
                     const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
 
-                    let inject, proxy, prop, propParsing, type, svcPath, controller;
+                    let inject, proxy, prop, propParsing, type, svcPath, controller, propValue;
                     if (propertyName != '') {
 
-                        const result = Components.processAnnotation(mt, propertyName);
+                        const result = Components.processAnnotation(mt, propertyName, cmpName);
                         inject = result.inject;
                         prop = result.prop;
                         proxy = result.proxy;
                         type = result.type;
                         propParsing = result.propParsing;
                         controller = result.controller;
+                        if(result.propValue) cmp[propertyName] = result.propValue;
                         svcPath = result.svcPath.replace(/\t/g, '').replace(/\n/g, '').replace(/\s/g, '').trim();
                         svcPath = svcPath?.endsWith('/') ? svcPath.slice(0, -1) : svcPath;
 

@@ -1263,32 +1263,34 @@ export class Components {
         return injectOrProxyRE.source + servicePathRE.source + commentRE.source + newLineRE.source + fieldNameRE.source;
     }
 
-    static processAnnotation(mt, propertyName = null) {
+    static processAnnotation(mt, propertyName = null, cmpName = null) {
 
         if (!propertyName) {
             const commentEndPos = mt.indexOf('*/') + 2;
             propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
         }
 
-        let inject, proxy, prop, propParsing, type, servicePath, svcPath, controller;
+        let inject, proxy, prop, propParsing, type, servicePath, svcPath, controller, propValue = null;
         if (propertyName != '') {
 
             inject = mt.includes('@Inject'), servicePath = mt.includes('@Path');
             proxy = mt.includes('@Proxy'), prop = mt.includes('@Prop');
             controller = mt.includes('@Controller');
-            svcPath = !servicePath ? '' : Components.extractPropValue(mt.split('@Path')[1].split(' ')[1].replace('\n', ''));
-
+            const value = Components.propValue(mt.split(/@Path|@Prop/)[1].split(' ')[1].replace('\n', ''));
+            svcPath = !servicePath ? '' : value;
+            
+            if(prop && mt.includes('@config.')) propValue = value;
             if (mt.includes("@type")) {
-                type = mt.split('{')[1].split('}')[0].trim();
-                type = type.replace(/\s/g, '');
+                type = mt.split('{')[1].split('}')[0].trim().replace(/\s/g, '');
+                if(svcPath == undefined) StillError.undefinedPathInjectionError(type, cmpName);
             }
         }
 
         propParsing = controller || inject || servicePath || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
-        return { type, inject, servicePath, proxy, prop, propParsing, svcPath, controller };
+        return { type, inject, servicePath, proxy, prop, propParsing, svcPath, controller, propValue };
     }
 
-    static extractPropValue(val){
+    static propValue(val){
         return val.startsWith('@config.') 
         ? StillAppSetup.config.get(val.replace('@config.','')) : val;
     }
@@ -1316,9 +1318,10 @@ export class Components {
 
                         try {
                             eval(`${cmp}`).toString().replace(new RegExp(re, 'g'), async (mt) => {
+                                
                                 const {
                                     type, inject, proxy, prop, propParsing, propertyName, controller
-                                } = Components.processAnnotation(mt);
+                                } = Components.processAnnotation(mt,null, cmp);
                                 Components.registerAnnotation(cmp, propertyName, {
                                     type, inject, proxy, prop, propParsing, controller
                                 });

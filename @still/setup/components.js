@@ -249,11 +249,26 @@ export class Components {
 
     }
 
+    static async processInitProperties(){
+        //Disable the logs
+        const { default: df, error ,warning, time } = StillAppSetup.config.props.logs;        
+        if(error === false) window.console.error = () => ''; 
+        if(warning === false) window.console.warn = () => ''; 
+        if(df === false) {
+            window.console.log = () => '';
+        }
+        if(time !== true){
+            window.console.time = () => '';
+            window.console.timeEnd = () => ''; 
+        }
+    }
+
     async loadComponent() {
         (async () => {
             StillAppSetup.config.props = await Components.#loadConfig(StillAppSetup.configFile);
             Object.freeze(StillAppSetup.config.props);
             $still.context.currentView = await StillAppSetup.instance.init();
+            await Components.processInitProperties();
 
             /**  @type { ViewComponent } */
             const currentView = $still.context.currentView;
@@ -1393,8 +1408,8 @@ export class Components {
         if ('serviceWorker' in navigator) {
             const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
             navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                .then(() => console.log('Service Worker Registered'))
-                .catch(err => console.log('SW Registration Failed:', err));
+                .then(() => setTimeout(() => console.log('Service Worker Registered'), 1000))
+                .catch(err => console.error('SW Registration Failed:', err));
         }
     }
 

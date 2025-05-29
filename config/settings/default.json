@@ -2,9 +2,13 @@
     "httpClient": {
         "baseUrl": ""
     },
-    "logs": true,
+    "logs": {
+        "default": true,
+        "error": false,
+        "warning": false
+    },
     "path": {
-        "services": "",
+        "service": "",
         "controller": ""
-    } 
+    }
 }

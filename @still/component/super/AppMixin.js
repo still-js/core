@@ -19,6 +19,9 @@ export const StillAppMixin = (Component) =>
         entryComponentPath;
         entryComponentName;
         servicePath;
+        static configFile = null;
+        static config = { get: (propPath) => eval(`StillAppSetup.config.props.${propPath}`), props: {} };
+        setConfigFile = (/** @type { String } */fileName) => StillAppSetup.configFile = fileName;
 
         /** @type { Array<ComponentType> } */
         #componentAOTList = [];
@@ -59,20 +62,12 @@ export const StillAppMixin = (Component) =>
         }
 
         getPrefetchList() { return this.#componentAOTList; }
-
         static register = (piece) => cmp.register(piece);
-
         register = (piece) => cmp.register(piece);
-
         setHomeComponent = (cmp) => super.setHomeComponent(cmp);
-
         setServicePath = (path) => super.setServicePath(path);
-
         componentAOTLoad = () => super.setupImportWorker()
-
         runPrefetch = () => super.setupImportWorker();
-
-        configurePrefetch() { }
 
         /** @returns { ViewComponent } */
         static getComponentFromRef = (name) => super.getComponentFromRef(name);

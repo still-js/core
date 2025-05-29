@@ -3,6 +3,7 @@ import { stillRoutesMap as DefaultstillRoutesMap } from "../../../config/route.m
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
+import { StillError } from "../../setup/error.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
 import { getBasePath, getRouter, getRoutesFile } from "../../util/route.js";
 import { $still, ComponentNotFoundException, ComponentRegistror } from "../manager/registror.js";
@@ -1142,8 +1143,8 @@ export class BaseComponent extends BehaviorComponent {
             tempObj.load();
             return
         }
-
-        const servicePath = this.#getServicePath(type, svcPath);
+        
+        const servicePath = this.#getServicePath(type, svcPath, cmp.getName());
         if (!StillAppSetup.get()?.services?.get(type)) {
 
             (async () => {
@@ -1182,8 +1183,9 @@ export class BaseComponent extends BehaviorComponent {
 
     }
 
-    #getServicePath(type, svcPath) {
+    #getServicePath(type, svcPath, injecter) {
         let path = svcPath == '' ? StillAppSetup.get().servicePath : '';
+        if(path == undefined) StillError.undefinedPathInjectionError(type, injecter);
         if (path?.startsWith('/')) path = path.slice(1);
         if (path?.endsWith('/')) path = path.slice(0, -1);
         path = getBasePath('service', svcPath) + '' + path;

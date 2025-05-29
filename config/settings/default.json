@@ -1,0 +1,10 @@
+{
+    "httpClient": {
+        "baseUrl": ""
+    },
+    "logs": true,
+    "path": {
+        "services": "",
+        "controller": ""
+    } 
+}

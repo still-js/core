@@ -24,9 +24,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
             //StillAppSetup.register(BaseComponent);
             StillAppSetup.register(BehaviorComponent);
 
-            /**
-             * Run Application UI component Loading
-             */
+            // Run Application UI component Loading
             await StillAppSetup.get().loadComponent();
 
             StillAppSetup.register(ComponentNotFoundException);
@@ -34,10 +32,8 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
             /** Only for dev mode */
             StillAppSetup.setDevErrorTracing();
 
-            /** 
-             * Detect when a path was entered in the URL after 
-             * hash (#) and route it to the respective component
-             **/
+            /** Detect when a path was entered in the URL after 
+             *  hash (#) and route it to the respective component */
             Router.listenUrlChange();
 
         });

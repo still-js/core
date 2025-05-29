@@ -40,7 +40,7 @@ class ProducedCmpResultType {
     /** @type { string } */ template;
     /** @type { class | any } */ _class;
 }
-
+/** @deprecated */
 export const loadComponentFromPath = (path, className, callback = () => { }) => {
     return new Promise(resolve => resolve(''));
 }
@@ -243,23 +243,16 @@ export class Components {
         }, 'gi');
 
         const styleRE = /[a-z0-9 \. \$\#\&\*\-\_\~\>\<\:\;\,\.\|\=\'\%\@\!\(\)\[\]\{\} ]*?{/ig
-        styles = styles.toString().replace(styleRE, (mtch) => {
-            return mtch.trim();
-        });
+        styles = styles.toString().replace(styleRE, (mtch) =>  mtch.trim());
 
-        return `<output class="${scope}" style="display: contents;">
-                    ${template}
-                <output>
-                \n${styles}`;
+        return `<output class="${scope}" style="display: contents;">${template}<output>\n${styles}`;
 
     }
 
     async loadComponent() {
-        loadComponentFromPath(
-            this.entryComponentPath,
-            this.entryComponentName
-        ).then(async () => {
-
+        (async () => {
+            StillAppSetup.config.props = await Components.#loadConfig(StillAppSetup.configFile);
+            Object.freeze(StillAppSetup.config.props);
             $still.context.currentView = await StillAppSetup.instance.init();
 
             /**  @type { ViewComponent } */
@@ -282,10 +275,7 @@ export class Components {
                 StillAppSetup.register($still.context.currentView.constructor);
                 this.template = this.getHomeCmpTemplate($still.context.currentView);
 
-                ComponentRegistror.add(
-                    $still.context.currentView.cmpInternalId,
-                    $still.context.currentView
-                );
+                ComponentRegistror.add($still.context.currentView.cmpInternalId, $still.context.currentView);
 
                 const { TOP_LEVEL_CMP, ST_HOME_CMP } = $stillconst;
                 this.template = currentView.template.replace(
@@ -306,7 +296,6 @@ export class Components {
                         this.template, $still.context.currentView.cmpInternalId, $still.context.currentView.cmpInternalId
                     );
                 }
-
                 if (!$still.context.currentView.lone && !Router.clickEvetCntrId) {
                     $still.context.currentView.onRender();
                     this.renderOnViewFor('stillUiPlaceholder', $still.context.currentView);
@@ -316,7 +305,6 @@ export class Components {
                     Components.runAfterInit($still.context.currentView);
                     if (!Router.clickEvetCntrId) AppTemplate.injectToastContent();
                 });
-
                 return;
             }
 
@@ -324,7 +312,7 @@ export class Components {
                 this.renderOnViewFor(this.stillAppConst, $still.context.currentView);
             else new Components().renderPublicComponent($still.context.currentView);
             Components.runAfterInit($still.context.currentView)
-        });
+        })();
     }
 
 
@@ -1268,7 +1256,7 @@ export class Components {
 
     static parseAnnottationRE() {
         const injectOrProxyRE = /(\@Inject|\@Proxy|\@Prop|\@Controller){0,1}[\n \s \*]{0,}/;
-        const servicePathRE = /(\@Path){0,1}[\s\\/'A-Z-a-z0-9]{0,}[\n \s \*]{0,}/;
+        const servicePathRE = /(\@Path){0,1}[\s\\/'A-Z-a-z0-9\.\@]{0,}[\n \s \*]{0,}/;
         const commentRE = /(\@type){0,1}[\s \@ \{ \} \: \| \< \> \, A-Za-z0-9]{1,}[\* \s]{1,}\//;
         const newLineRE = /[\n]{0,}/;
         const fieldNameRE = /[\s A-Za-z0-9 \$ \# \(]{1,}/;
@@ -1288,8 +1276,7 @@ export class Components {
             inject = mt.includes('@Inject'), servicePath = mt.includes('@Path');
             proxy = mt.includes('@Proxy'), prop = mt.includes('@Prop');
             controller = mt.includes('@Controller');
-            svcPath = !servicePath
-                ? '' : mt.split('@Path')[1].split(' ')[1].replace('\n', '');
+            svcPath = !servicePath ? '' : Components.extractPropValue(mt.split('@Path')[1].split(' ')[1].replace('\n', ''));
 
             if (mt.includes("@type")) {
                 type = mt.split('{')[1].split('}')[0].trim();
@@ -1299,7 +1286,11 @@ export class Components {
 
         propParsing = controller || inject || servicePath || proxy || prop || $stillconst.PROP_TYPE_IGNORE.includes(type);
         return { type, inject, servicePath, proxy, prop, propParsing, svcPath, controller };
+    }
 
+    static extractPropValue(val){
+        return val.startsWith('@config.') 
+        ? StillAppSetup.config.get(val.replace('@config.','')) : val;
     }
 
     static processedAnnotations = {};
@@ -1404,7 +1395,13 @@ export class Components {
         }
     }
 
-    parseBaseUrl(Url){
+    static async #loadConfig(file = null){
+        const configFile = `${Components.obj().parseBaseUrl()}config/settings/${file || 'default.json'}`;
+        const properties = await (await fetch(configFile)).json();
+        return properties; 
+    }
+
+    parseBaseUrl(Url = Components.baseUrl){
         let baseUrl = Url.split('//');
         if(baseUrl.length > 2) return baseUrl.slice(0,2).join('//') + '/';
         return Router.baseUrl;

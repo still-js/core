@@ -3,6 +3,151 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-05-30
+## [Version] - 1.2.5
+This version releases some of no-breaking features that had be on hold, also some clean up and fixes are part of it.
+ 
+
+- <b>MEDIUM</b> - Programatically loading `app-template.js` fixed element (`<st-fixed>`) from the `app-setup.js` 
+    <br>
+
+    -  You can load specific template fixed part from the app-setup, allowing it to be done conditionally:
+
+        <br/>
+
+        In the AppTemplate (line 16 to 18) one fixed part is being added.
+        ```{.javascript .numberLines .lineAnchors}
+
+        export class AppTemplate extends Template {
+
+            /**
+            * <still-component> is the placeholder where components 
+            * should be render both when loading or routing to the component
+            * 
+            * <still-fixed> is the specification of a specific component part from the 
+            * User interface that needs to be fiexed (e.g. Header, Footer, Menu, Navigation, etc.)
+            * 
+            * THIS SHOULD BE CHANGED ACCORDING TO MY LAYOUT WHERE I'M HAVING COMPONENTS FOR
+            * EACH PART AND THE FIXED ONES WIIL BE REFERENCED AS <st-fixed> AND THE COMPONENT
+            * TO BE RENDERED WILL BE PASSED AS THE VALUES OF component PROPERTY OF <st-fixed>
+            * e.g. <st-fixed component="AppHeader">
+            */
+            template = `
+                <st-fixed 
+                    component="TopMenu" spot="app.topMenuSpot">
+                </st-fixed>
+                <still-component/>
+            `;
+        }
+        ```  
+
+        <br/>
+
+        In the StillAppSetup (line 14)
+        ```{.javascript .numberLines .lineAnchors}
+        import { StillAppMixin } from "../@still/component/super/AppMixin.js";
+        import { Components, SpotValue } from "../@still/setup/components.js";
+        import { AlternateTopMenu } from "../app/components/menu/AlternateTopMenu.js";
+        import { HomeComponent } from "../app/home/HomeComponent.js";
+        import { AppTemplate } from "./app-template.js";
+
+        export class StillAppSetup extends StillAppMixin(Components) {
+
+            constructor() {
+                super();
+                this.setHomeComponent(HomeComponent);
+                // this.topMenuSpot points to the AppTeamplte spot="app.topMenuSpot"
+                this.topMenuSpot = new SpotValue(AlternateTopMenu, { anyProp: 'Updated prop value' })
+            }
+
+            async init() {
+                return await AppTemplate.newApp();
+            }
+
+        }
+
+        ```
+<br>  
+
+
+- <b>MEDIUM</b> - Condiguration file for setting up specific variables to be used in in the runtime. logs can be disabled form there, HttpClient base url also can be set from there. In addition we can set our custom properties. 
+    <br>
+
+    -  You can load specific template fixed part from the app-setup, allowing it to be done conditionally:
+
+        <br/>
+
+        The config file, the default is `config/settings/default.json`.
+        ```{.json .numberLines .lineAnchors}
+        {
+            "httpClient": {
+                "baseUrl": ""
+            },
+            "logs": {
+                "default": true,
+                "error": true,
+                "warning": true
+            },
+            "path": {
+                "service": "",
+                "controller": ""
+            },
+            "my": {
+                "custom": { "prop": "My defined value" }
+            }
+        }
+        ```  
+
+        <br/>
+
+        In the StillAppSetup (lines 12 and 15)
+        ```{.javascript .numberLines .lineAnchors}
+        import { StillAppMixin } from "../@still/component/super/AppMixin.js";
+        import { Components } from "../@still/setup/components.js";
+        import { HomeComponent } from "../app/home/HomeComponent.js";
+        import { AppTemplate } from "./app-template.js";
+
+        export class StillAppSetup extends StillAppMixin(Components) {
+
+            constructor() {
+                super();
+                this.setHomeComponent(HomeComponent);
+                // we can override the config file to anotehr one in the same path
+                this.setConfigFile('production.json');
+
+                // We can retrieve the value of a specific confi property any where throughout the application
+                const customProp = StillAppSetup.config.get('my.custom.prop');
+            }
+
+            async init() {
+                return await AppTemplate.newApp();
+            }
+
+        }
+
+        ```
+<br>  
+ 
+### Fixed
+- template fixed part parametr passing.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-05-24
 ## [Version] - 1.2.2
 New minor no-breaking feature, clean up, improvements and bug fix.

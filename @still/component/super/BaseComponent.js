@@ -164,7 +164,7 @@ export class BaseComponent extends BehaviorComponent {
             'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus',
             'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp',
-            'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl'
+            'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed'
         ];
         return fields.filter(
             field => {
@@ -581,16 +581,17 @@ export class BaseComponent extends BehaviorComponent {
                 let showFlagValue, listenerFlag;
                 if (showFlag.indexOf('self.') == 0) {
                     const classFlag = `${showFlag.replace('self.', '').trim()}`;
-
-                    try {
-                        const value = eval(`cls.${classFlag}`);
-                        showFlagValue = { value: value?.parsed ? value.value : value, onlyPropSignature: true };
-                        listenerFlag = '_stFlag' + classFlag + '_' + clsName + '_change';
-                        Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value, parsed: true });
-                        this[classFlag] = showFlagValue;
-                    } catch (e) {
-                        handleErrorMessage(classFlag, matchInstance);
-                    }
+                    if(!cls.isStFixed){
+                        try {
+                            const value = eval(`cls.${classFlag}`);
+                            showFlagValue = { value: value?.parsed ? value.value : value, onlyPropSignature: true };
+                            listenerFlag = '_stFlag' + classFlag + '_' + clsName + '_change';
+                            Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value, parsed: true });
+                            this[classFlag] = showFlagValue;
+                        } catch (e) {
+                            handleErrorMessage(classFlag, matchInstance);
+                        }
+                    }else showFlagValue = { value: cls[classFlag] };
                 }
 
                 // Validate the if the flag value is false, in case it's false then hide
@@ -857,8 +858,15 @@ export class BaseComponent extends BehaviorComponent {
                     delete Components.componentPartsMap[this.cmpInternalId];
                 matchCounter++;
             }
-
-            const propMap = this.parseStTag(mt, cmpInternalId);
+            //StillAppSetup
+            let propMap = this.parseStTag(mt, cmpInternalId);
+            if(propMap?.spot){
+                const replacerCmp = propMap.spot.replace('app.','');
+                if(propMap.spot.startsWith('app.') && replacerCmp in StillAppSetup.get()){
+                    propMap['component'] = StillAppSetup.get()[replacerCmp].type.name;
+                    propMap = { ...propMap, ...StillAppSetup.get()[replacerCmp].props }
+                }
+            }
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
 
@@ -960,13 +968,13 @@ export class BaseComponent extends BehaviorComponent {
         if (classFlag.at(-1) == ')') {
             console.error(`
                 Method with name ${classFlag} does not exists for 
-                ${cls.constructor.name} as referenced on ${matchInstance}
+                ${cls?.constructor?.name} as referenced on ${matchInstance}
             `);
         }
         else {
             console.error(`
                 Property with name ${classFlag} does not exists for 
-                ${cls.constructor.name} as referenced on ${matchInstance}
+                ${cls?.constructor?.name} as referenced on ${matchInstance}
             `);
         }
     }
@@ -1072,9 +1080,9 @@ export class BaseComponent extends BehaviorComponent {
                         propParsing = result.propParsing;
                         controller = result.controller;
                         if(result.propValue) cmp[propertyName] = result.propValue;
-                        svcPath = result.svcPath.replace(/\t/g, '').replace(/\n/g, '').replace(/\s/g, '').trim();
+                        svcPath = result?.svcPath?.replace(/\t/g, '').replace(/\n/g, '').replace(/\s/g, '').trim();
                         svcPath = svcPath?.endsWith('/') ? svcPath.slice(0, -1) : svcPath;
-
+                        
                         if (inject || controller) {
                             // Service it covering both Services and Controllers Injection
                             if (controller) cmp.$cmpStController = type; //If controller set the Class name

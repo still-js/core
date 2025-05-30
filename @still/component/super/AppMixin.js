@@ -20,22 +20,26 @@ export const StillAppMixin = (Component) =>
         entryComponentName;
         servicePath;
         static configFile = null;
-        static config = { get: (propPath) => eval(`StillAppSetup.config.props.${propPath}`), props: {} };
+        static config = { get: (propPath) => StillAppSetup.get().#getProp(propPath), props: {} };
         setConfigFile = (/** @type { String } */fileName) => StillAppSetup.configFile = fileName;
+        #getProp = (path) => {
+            try {
+                return eval(`StillAppSetup.config.props.${path}`);
+            } catch (error) {
+                new ReferenceError(`Configuration property with path ${path} is not set`);
+            }
+        }
 
         /** @type { Array<ComponentType> } */
         #componentAOTList = [];
-
         /** @type { Array<ViewComponent> } */
         #componentWhiteList = [];
-
         /** @type { Array<ViewComponent> } */
         #componentBlackList = [];
 
         /** 
          * @param { ComponentType | ViewComponent } cmp
-         * @returns { StillAppSetup }
-         * */
+         * @returns { StillAppSetup }*/
         addPrefetch(cmp) {
 
             /* if (

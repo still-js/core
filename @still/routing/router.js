@@ -3,7 +3,7 @@ import { AppTemplate } from "../../config/app-template.js";
 import { stillRoutesMap as DefaultstillRoutesMap } from "../../config/route.map.js";
 import { $still, ComponentRegistror } from "../component/manager/registror.js";
 import { BaseComponent } from "../component/super/BaseComponent.js";
-import { Components, loadComponentFromPath } from "../setup/components.js";
+import { Components } from "../setup/components.js";
 import { $stillconst, authErrorMessage, ST_UNAUTHOR_ID } from "../setup/constants.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { getRoutesFile } from "../util/route.js";
@@ -13,9 +13,7 @@ const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
 const GotoParams = {
     data: {},
     url: true,
-    evt: {
-        containerId: null
-    }
+    evt: { containerId: null  }
 }
 
 export class Router {
@@ -179,62 +177,61 @@ export class Router {
 
         } else {
 
-            loadComponentFromPath(route, cmp)
-                .then(async ({ imported, isRoutable }) => {
-                    if (!Router.importedMap[cmp]) {
-                        if (cmp == 'init') return;
+            (async () => {
+                if (!Router.importedMap[cmp]) {
+                    if (cmp == 'init') return;
 
-                        if (cmp instanceof Object)
-                            if ('address' in cmp) cmp = cmp.address;
+                    if (cmp instanceof Object)
+                        if ('address' in cmp) cmp = cmp.address;
 
-                        const wasPrevLoaded = Components.prevLoadingTracking.has(cmp);
-                        /** the bellow line clears previous component from memory
-                         * @type { ViewComponent } */
-                        const { newInstance } = await (
-                            await Components.produceComponent({ cmp, loneCntrId: Router.clickEvetCntrId })
-                        );
+                    const wasPrevLoaded = Components.prevLoadingTracking.has(cmp);
+                    /** the bellow line clears previous component from memory
+                     * @type { ViewComponent } */
+                    const { newInstance } = await (
+                        await Components.produceComponent({ cmp, loneCntrId: Router.clickEvetCntrId })
+                    );
 
-                        AppTemplate.get().storageSet('stAppInitStatus', true);
-                        if (newInstance.template == undefined)
-                            return Router.cmpTemplateNotDefinedCheck(cmp);
+                    AppTemplate.get().storageSet('stAppInitStatus', true);
+                    if (newInstance.template == undefined)
+                        return Router.cmpTemplateNotDefinedCheck(cmp);
 
-                        if (newInstance.isPublic) {
-                            if (!AppTemplate.get().isAuthN()) {
-                                if (!Components.obj().isInWhiteList(newInstance))
-                                    return document.write(authErrorMessage());
+                    if (newInstance.isPublic) {
+                        if (!AppTemplate.get().isAuthN()) {
+                            if (!Components.obj().isInWhiteList(newInstance))
+                                return document.write(authErrorMessage());
 
-                                if (url) Router.updateUrlPath(cmp);
-                                return (new Components()).renderPublicComponent(newInstance);
-                            }
+                            if (url) Router.updateUrlPath(cmp);
+                            return (new Components()).renderPublicComponent(newInstance);
                         }
-
-                        ComponentRegistror.add(cmp, newInstance);
-                        const isWhiteListed = Components.obj().isInWhiteList(newInstance);
-                        if (!document.getElementById($stillconst.APP_PLACEHOLDER)
-                            && !newInstance.isPublic && isWhiteListed
-                        ) return document.write(authErrorMessage());
-
-                        newInstance.isRoutable = true;
-                        if (!wasPrevLoaded && !newInstance.lone)
-                            if (!Router.importedMap[cmp]) Router.parseComponent(newInstance);
-                        newInstance.setRoutableCmp(true);
-                        if (isHomeCmp)
-                            newInstance.setUUID($stillconst.TOP_LEVEL_CMP);
-
-                        $still.context.currentView = newInstance;
-
-                    } else {
-                        const oldInstance = cmpRegistror[cmp]?.instance;
-                        $still.context.currentView = await (
-                            await Components.produceComponent({ cmp })
-                        ).newInstance;
-
-                        if (oldInstance?.cmpInternalId)
-                            $still.context.currentView.cmpInternalId = oldInstance.cmpInternalId;
-                        $still.context.currentView.isRoutable = true;
                     }
-                    Router.getAndDisplayPage($still.context.currentView, Router.importedMap[cmp]);
-                });
+
+                    ComponentRegistror.add(cmp, newInstance);
+                    const isWhiteListed = Components.obj().isInWhiteList(newInstance);
+                    if (!document.getElementById($stillconst.APP_PLACEHOLDER)
+                        && !newInstance.isPublic && isWhiteListed
+                    ) return document.write(authErrorMessage());
+
+                    newInstance.isRoutable = true;
+                    if (!wasPrevLoaded && !newInstance.lone)
+                        if (!Router.importedMap[cmp]) Router.parseComponent(newInstance);
+                    newInstance.setRoutableCmp(true);
+                    if (isHomeCmp)
+                        newInstance.setUUID($stillconst.TOP_LEVEL_CMP);
+
+                    $still.context.currentView = newInstance;
+
+                } else {
+                    const oldInstance = cmpRegistror[cmp]?.instance;
+                    $still.context.currentView = await (
+                        await Components.produceComponent({ cmp })
+                    ).newInstance;
+
+                    if (oldInstance?.cmpInternalId)
+                        $still.context.currentView.cmpInternalId = oldInstance.cmpInternalId;
+                    $still.context.currentView.isRoutable = true;
+                }
+                Router.getAndDisplayPage($still.context.currentView, Router.importedMap[cmp]);
+            })()
         }
         if (url) Router.updateUrlPath(cmp);
 

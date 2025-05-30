@@ -128,7 +128,7 @@ export class StillError {
             <p>
             <br>
             <span class="sttypeErrorMessage">UndefinedInjectionPath: Error while injecting <span class="nonExistingFieldSt">${serviceName}</span> for ${injecter}</span> <br>
-            &nbsp;&nbsp;&nbsp;Reason: <span class="nonExistingFieldSt">Service path and/or @Path not defined</span> 
+            &nbsp;&nbsp;&nbsp;Reason: <span class="nonExistingFieldSt">Wrong/not set Service path and/or @Path</span> 
             </p>
             `;
         errorFrag.style.lineHeight = 1.5;

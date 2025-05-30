@@ -4,8 +4,8 @@
     },
     "logs": {
         "default": true,
-        "error": false,
-        "warning": false
+        "error": true,
+        "warning": true
     },
     "path": {
         "service": "",

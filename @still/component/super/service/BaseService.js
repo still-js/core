@@ -17,7 +17,7 @@ export class ServiceEvent {
 export class BaseService {
     /** @param { 'load' } evt */
     on(evt, cb = () => { }) { }
-
+    /* stServiceTypeInjectable */ stSTI = true;
     serviceId = UUIDUtil.newId();
 
     parseServiceEvents() {

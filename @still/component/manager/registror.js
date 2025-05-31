@@ -25,30 +25,9 @@ export class ComponentRegistror {
 
     /** @returns { ComponentRegistror } */
     static get() {
-
-        if (ComponentRegistror.registror == null) {
+        if (ComponentRegistror.registror == null) 
             ComponentRegistror.registror = new ComponentRegistror();
-        }
         return ComponentRegistror.registror;
-
-    }
-
-    /**
-     * 
-     * @param {SettingType} component 
-     */
-    export({ componentName: name, path, instance }) {
-        if (!(name in this.componentList))
-            this.componentList[instance.componentName] = { path, instance };
-
-    }
-
-    /**
-     * 
-     * @param {ViewComponent} cmp 
-     */
-    expose(cmp) {
-        return new Components().getParsedComponent(cmp);
     }
 
     getComponent(name) {
@@ -72,37 +51,27 @@ export class ComponentRegistror {
             cmpName = cmp.getName();
         else
             cmpName = cmp.getInstanceName();
-
         return cmpName in $still.context.componentRegistror.componentList;
     }
 
-    static clearRegistror(cmp) {
-        $still.context.componentRegistror.componentList = {};
-    }
-
-    static add(name, instance) {
+    static add = (name, instance) =>
         $still.context.componentRegistror.componentList[name] = { instance }
-    }
-
+    
     static getFromRef(name) {
         const source = $still.context.componentRegistror.componentList;
         if (name in source) return source[name].instance;
         else return null
     }
 
-    /** @param { ViewComponent } cls */
-    static addClass(cls) {
-        let clsName = cls;
-        if (cls instanceof ViewComponent) clsName = cls.name;
-        ComponentRegistror._classeList[clsName] = cls;
-    }
+    static controller = (type) =>  StillAppSetup.get().services.get(type);
 
-    static getClass(clsName) {
-        return ComponentRegistror._classeList[clsName];
-    }
-
-    static controller(type) {
-        return StillAppSetup.get().services.get(type);
+    static desrtroyCmpInstance = (cmpId) => {
+        ComponentRegistror.get().componentList[cmpId].instance.stOnUnload();
+        if(StillAppSetup.get().entryComponentId == cmpId){
+            delete ComponentRegistror.get().componentList[StillAppSetup.get().entryComponentName];
+            return delete ComponentRegistror.get().componentList[cmpId];
+        }     
+        delete ComponentRegistror.get().componentList[cmpId];
     }
 }
 
@@ -114,16 +83,9 @@ export const $still = {
     },
     component: {
         /** @param { ViewComponent } cmp */
-        expose: (cmp) => ComponentRegistror.get().expose(cmp),
         ref: (ref) => ComponentRegistror.component(ref),
         list: window,
         get: (cmpName) => window[cmpName]
-    },
-    view: {
-        /** @type { ViewComponent } */
-        get: (viewComponentName) => {
-            return ComponentRegistror.get().getComponent(viewComponentName);
-        }
     },
     controller: (type) => ComponentRegistror.controller(type),
     HTTPClient: new StillHTTPClient(),

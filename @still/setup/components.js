@@ -219,7 +219,7 @@ export class Components {
             Object.freeze(StillAppSetup.config.props);
             $still.context.currentView = await StillAppSetup.instance.init();
             await Components.processInitProperties();
-
+            
             /**  @type { ViewComponent } */
             const currentView = $still.context.currentView;
 
@@ -270,9 +270,9 @@ export class Components {
                     Components.runAfterInit($still.context.currentView);
                     if (!Router.clickEvetCntrId) AppTemplate.injectToastContent();
                 });
+                StillAppSetup.get()['entryComponentId'] = $still.context.currentView.cmpInternalId;
                 return;
             }
-
             if (document.getElementById(this.stillAppConst))
                 this.renderOnViewFor(this.stillAppConst, $still.context.currentView);
             else new Components().renderPublicComponent($still.context.currentView);
@@ -380,6 +380,8 @@ export class Components {
 
         function parseField(field, cmp) {
             const inspectField = cmp[field];
+            
+            if(true === inspectField?.injectable || true === inspectField?.stSTI) return;
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop'
                 || cmp.myAnnotations()?.get(field)?.prop || annot?.get(field)?.prop
             ) {

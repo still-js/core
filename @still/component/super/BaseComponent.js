@@ -3,11 +3,9 @@ import { stillRoutesMap as DefaultstillRoutesMap } from "../../../config/route.m
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
-import { StillError } from "../../setup/error.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
-import { getBasePath, getRouter, getRoutesFile } from "../../util/route.js";
-import { $still, ComponentNotFoundException, ComponentRegistror } from "../manager/registror.js";
-import { sleepForSec } from "../manager/timer.js";
+import {  getRouter, getRoutesFile, getServicePath } from "../../util/route.js";
+import { $still, ComponentRegistror } from "../manager/registror.js";
 import { STForm } from "../type/ComponentType.js";
 import { BehaviorComponent } from "./BehaviorComponent.js";
 import { ViewComponent } from "./ViewComponent.js";
@@ -474,12 +472,10 @@ export class BaseComponent extends BehaviorComponent {
 
                 const _className = ` onChange_${Math.random().toString().substring(2)}`.trim();
                 this.onChangeEventsList.push({ evt: `(change)="${changeEvt}"`, _className });
-                if (mtch.indexOf('class="') >= 0) {
-                    mtch = mtch
-                        .replace(`class="`, `class="${_className} `);
-                } else {
+                if (mtch.indexOf('class="') >= 0)
+                    mtch = mtch.replace(`class="`, `class="${_className} `);
+                else
                     mtch += `class="${_className} " `;
-                }
             }
             mtch = mtch.replace(mathIfChangeEvt, '');
             return mtch;
@@ -539,7 +535,6 @@ export class BaseComponent extends BehaviorComponent {
                     const { replacer, mt: updatedMt } = this.#getFormInputReplacer(
                         mt, field, isThereComboBox, forEachValue, formRef
                     );
-
                     mt = updatedMt.replace(`(value)="${field}"`, replacer);
                 }
                 return mt;
@@ -727,17 +722,6 @@ export class BaseComponent extends BehaviorComponent {
         return this.getBoundTemplate();
     }
 
-    /**
-     * @param {SettingType} settings 
-     */
-    setup(settings) {
-        this.componentName = this.constructor.name;
-        this.settings = settings;
-
-        if (settings.scripts) settings.scripts.forEach(BaseComponent.importScript);
-        $still.context.componentRegistror.export({ ...settings, instance: this });
-    }
-
     static importScript(scriptPath, module = false, cls = null) {
 
         const ext = scriptPath.slice(-3);
@@ -798,44 +782,6 @@ export class BaseComponent extends BehaviorComponent {
     wasItLoadedBefor = () =>
         ComponentRegistror.previousLoaded(this);
 
-    stRunOnFirstLoad(cb = () => { }) {
-        if (this.wasItLoadedBefor() && this.$stillLoadCounter) return false;
-        cb();
-    }
-
-    async stLazyExecution(cb = () => { }) {
-
-        const multiplier = 1000;
-        let retryCounter = 2;
-
-        const timer = setInterval(async () => {
-
-            try {
-                await cb();
-                clearInterval(timer);
-            } catch (error) {
-                if (error instanceof ComponentNotFoundException) {
-
-                    if (retryCounter < 8) retryCounter++
-                    const content = JSON.parse(error.message);
-                    const { path } = this.routesMap[content.component];
-
-                    const script = $stillLoadScript(path, content.component);
-                    document.head.insertAdjacentElement('beforeend', script);
-                    script.onload = function () {
-                        const registror = $still.context.componentRegistror.componentList;
-                        const instance = eval(`new ${content.component}()`);
-                        instance.subImported = true;
-                        if (!(instance in registror))
-                            registror[content.component] = { instance, subImported: true };
-                    }
-                    await sleepForSec(multiplier * retryCounter);
-                }
-            }
-        }, 500);
-
-    }
-
     stWhenReady(cb = () => { }, waitForSec = .5) {
         const timer = setTimeout(async () => {
 
@@ -864,7 +810,7 @@ export class BaseComponent extends BehaviorComponent {
                     delete Components.componentPartsMap[this.cmpInternalId];
                 matchCounter++;
             }
-            //StillAppSetup
+
             let propMap = this.parseStTag(mt, cmpInternalId);
             if(propMap?.spot){
                 const replacerCmp = propMap.spot.replace('app.','');
@@ -960,12 +906,10 @@ export class BaseComponent extends BehaviorComponent {
                     if (r.toLowerCase() == field) assigneToCmp[r] = value;
                 });
 
-            } else {
+            } else 
                 result[field] = typeof value == 'string' ? value : value;
-            }
             ++idx;
         }
-
         return result;
     }
 
@@ -1003,9 +947,8 @@ export class BaseComponent extends BehaviorComponent {
 
     #getFormInputReplacer(mt, field, isThereComboBox, forEachValue, formRef) {
 
-        let val = ''
-        if (!(this[field] instanceof Object) && !!(this[field]))
-            val = this[field];
+        let val = '', subscriptionCls = '';
+        if (!(this[field] instanceof Object) && !!(this[field])) val = this[field];
         else if (this[field] instanceof Object) {
             if ('value' in this[field]) val = this[field].value;
         }
@@ -1019,7 +962,6 @@ export class BaseComponent extends BehaviorComponent {
 
         const clsPath = this.getClassPath();
 
-        let subscriptionCls = '';
         const clsName = this.constructor.name;
         const comboSuffix = isThereComboBox ? '-combobox' : '';
         const dataFields = `${isThereComboBox
@@ -1124,23 +1066,17 @@ export class BaseComponent extends BehaviorComponent {
                     (cmp[propertyName]?.ready
                         && cmp[propertyName]?.status == $stillconst.A_STATUS.DONE)
                     || svcInstance
-                ) {
-                    await action(svcInstance);
-                    return;
-                }
+                ) return await action(svcInstance);
 
-                if (!('subscribers' in tempObj)) {
+                if (!('subscribers' in tempObj)) 
                     Object.assign(tempObj, { subscribers: [], status: $stillconst.A_STATUS.PENDING })
-                }
                 tempObj.subscribers.push(action);
             },
 
             load: async () => {
 
-                if (!('status' in tempObj)) {
-                    Object.assign(tempObj, { status: $stillconst.A_STATUS.DONE, subscribers: [] });
-                    return;
-                }
+                if (!('status' in tempObj)) 
+                    return Object.assign(tempObj, { status: $stillconst.A_STATUS.DONE, subscribers: [] });
 
                 tempObj.status = $stillconst.A_STATUS.PENDING;
                 tempObj.subscribers?.forEach(async (action) => {
@@ -1149,17 +1085,16 @@ export class BaseComponent extends BehaviorComponent {
                     tempObj.subscribers?.shift();
                 });
             },
-            assigned: true
+            assigned: true, injectable: true
         }
 
         cmp[propertyName] = tempObj;
         if (service) {
             cmp[propertyName] = service;
-            tempObj.load();
-            return
+            return tempObj.load();
         }
         
-        const servicePath = this.#getServicePath(type, svcPath, cmp.getName());
+        const servicePath = getServicePath(type, svcPath, cmp.getName());
         if (!StillAppSetup.get()?.services?.get(type)) {
 
             (async () => {
@@ -1169,8 +1104,7 @@ export class BaseComponent extends BehaviorComponent {
                     throw new Error($stillconst.MSG.INVALID_INJECTION.replace('{type}', type).replace('{cmp}', cmp.constructor.name));
 
                 if (service instanceof BaseService) service.parseServiceEvents();
-                else console.log(`It's about controller with ${service.versionId}`);
-
+                
                 StillAppSetup.get()?.services?.set(type, service);
                 handleServiceAssignement(service);
                 Components.emitAction(type);
@@ -1180,7 +1114,7 @@ export class BaseComponent extends BehaviorComponent {
             Components.subscribeAction(
                 type,
                 () => {
-                    const service = this.#getServicePath(type, svcPath, type);
+                    const service = getServicePath(type, svcPath, type);
                     handleServiceAssignement(service);
                 }
             );
@@ -1190,21 +1124,15 @@ export class BaseComponent extends BehaviorComponent {
             service['ready'] = true;
             service['status'] = cmp[propertyName].status;
             service['subscribers'] = cmp[propertyName].subscribers;
-            service['load'] = cmp[propertyName].load;
+            service['load'] = cmp[propertyName]?.load;
             service['on'] = cmp[propertyName].on;
             cmp[propertyName] = service;
             cmp[propertyName].load(service);
         }
-
     }
 
-    #getServicePath(type, svcPath, injecter) {
-        let path = svcPath == '' ? StillAppSetup.get().servicePath : '';
-        if(path == undefined) StillError.undefinedPathInjectionError(type, injecter);
-        if (path?.startsWith('/')) path = path.slice(1);
-        if (path?.endsWith('/')) path = path.slice(0, -1);
-        path = getBasePath('service', svcPath) + '' + path;
-        return path + '/' + type + '.js';
+    unload(){
+        ComponentRegistror.desrtroyCmpInstance(this.cmpInternalId);
     }
 
 }

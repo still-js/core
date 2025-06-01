@@ -980,7 +980,7 @@ export class Components {
 
                 //if (cmpInternalId != 'fixed-part') {
                 Components.parseProxy(proxy, cmp, parentCmp, annotations);
-                cmp['name'] = cmpName;
+                cmp['stName'] = cmpName;
                 StillAppSetup.register(cmp);
 
                 const allProps = Object.entries(props);
@@ -1304,7 +1304,7 @@ export class Components {
             || cmp.__proto__ instanceof BaseComponent
             || cmp.__proto__ instanceof ViewComponent
             || Components.knownClasses.includes(cmp?.name)
-        ) window[cmp.name] = cmp;
+        ) window[cmp.name || cmp.stName] = cmp;
 
         else if (typeof cmp == 'function') window[cmp.name] = cmp;
     }

@@ -22,7 +22,6 @@ export class Template {
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance))
             Template.instance[clsName] = this;
-
     }
 
     /** @param { DefaultViewComponent } cmp */

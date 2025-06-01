@@ -34,8 +34,7 @@ const ProduceComponentType = {
 };
 
 class ProducedCmpResultType {
-    /** @type { DefaultViewComponent } */
-    newInstance;
+    /** @type { DefaultViewComponent } */ newInstance;
     /** @type { string } */ template;
     /** @type { class | any } */ _class;
 }
@@ -570,7 +569,6 @@ export class Components {
                 finalCtnr.style.display = 'contents';
                 elm.insertAdjacentElement('beforeend', finalCtnr);
             }
-
         })();
 
     }
@@ -622,8 +620,7 @@ export class Components {
 
     async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null) {
 
-        let template = tmpltContent.replace('display:none;', ''), childTmpl,
-            childResult = '';
+        let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '';
 
         if (cmp['$still_' + field] instanceof Array) {
 
@@ -637,7 +634,6 @@ export class Components {
                 childTmpl = childInstance.template;
                 let fields = Object.entries(childCmp.props), noFieldsMap;
                 if (fields.length == 0) noFieldsMap = true;
-
 
                 for (const rec of cmp['$still_' + field]) {
                     /** @type { ViewComponent } */
@@ -673,9 +669,7 @@ export class Components {
                     let fields = Object.entries(rec);
                     result += this.replaceBoundField(parsingTemplate, fields);
                 });
-
             }
-
         }
         return childCmp?.stElement ? childResult : result;
     }
@@ -736,9 +730,7 @@ export class Components {
         } else {
             delete Components.parsingTracking[cmp.cmpInternalId];
         }
-
         return window[componentName];
-
     }
 
     /**  
@@ -773,11 +765,6 @@ export class Components {
             for (const cmp of cmps) cmp.style.display = 'none';
             resolve([]);
         })
-    }
-
-    static markPrevContarOrphan(cmpClassId) {
-        const cmpCntrs = document.querySelectorAll(`.${cmpClassId}`);
-        cmpCntrs.forEach(elm => elm.classList.add('orphan-cmp-container'));
     }
 
     /** @param {ViewComponent} cmp */
@@ -817,7 +804,7 @@ export class Components {
         if (!previousContainer) {
             await newInstance.onRender();
             container = Components.getCmpViewContainer(cmpName, newInstance.cmpInternalId, newInstance.getTemplate());
-            //container.innerHTML = '';
+
             ComponentRegistror.add(newInstance.cmpInternalId, newInstance);
         } else {
             await newInstance.onRender();
@@ -836,9 +823,7 @@ export class Components {
         container.style.display = 'contents';
         const isTHereFixedPart = document.querySelector(`.${$stillconst.ST_FIXE_CLS}`);
 
-        if (
-            !isTHereFixedPart && isUnAuthn
-            || (isTHereFixedPart && isUnAuthn)
+        if (!isTHereFixedPart && isUnAuthn || (isTHereFixedPart && isUnAuthn)
         ) {
             Router.callCmpAfterInit(
                 null, isHome, isHome ? Router.appPlaceholder : null
@@ -876,7 +861,6 @@ export class Components {
             if (!appContr) appContr = document.getElementById($stillconst.UI_PLACEHOLDER);
             appContr.insertAdjacentHTML('afterbegin', cntr.outerHTML);
         }
-
         return cntr;
     }
 
@@ -923,20 +907,18 @@ export class Components {
 
     static getPartPlaceHolder(parentCmp, cmpInternalId, placeHolderRef) {
 
-        if (placeHolderRef) {
+        if (placeHolderRef) 
             return document.getElementsByClassName(`still-placeholder${placeHolderRef}`);
-        }
+
         return cmpInternalId == 'fixed-part'
             ? document.getElementById(`stillUiPlaceholder`).getElementsByTagName('still-placeholder')
             : document.getElementsByClassName(`still-placeholder${parentCmp?.getUUID()}`)
     }
 
     /**
-     * 
      * @param {BaseComponent} parentCmp 
      * @param {*} cmpInternalId 
      * @param {*} cmpParts 
-     * @returns 
      */
     static handleInPartsImpl(parentCmp, cmpInternalId, cmpParts, placeHolderRef = null) {
 
@@ -945,19 +927,16 @@ export class Components {
         const placeHolders = Components
             .getPartPlaceHolder(parentCmp, cmpInternalId, placeHolderRef);
 
-        /** Get all <st-element> component to replace with the
-         *  actual component template */
-        if (cmpInternalId != 'fixed-part') {
+        /** Get all <st-element> component to replace with the actual component template */
+        if (cmpInternalId != 'fixed-part') 
             if (parentCmp) parentCmp.versionId = UUIDUtil.newId();
-        }
 
         const cmpVersionId = cmpInternalId == 'fixed-part' ? null : parentCmp.versionId;
         for (let idx = 0; idx < cmpParts.length; idx++) {
             const parentClss = placeHolders[idx]?.parentNode?.classList;
 
-            /** Preventing this component to be instantiated in case it 
-             * should not be rendered due to the (renderIf) flag value
-             * is found to be false */
+            /** Preventing this component to be instantiated in case it should not be 
+             * rendered due to the (renderIf) flag value is found to be false */
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
                 continue;
 
@@ -965,7 +944,6 @@ export class Components {
             if (component == undefined) continue;
 
             (async () => {
-
                 /** TODO: Dynamic import of assets of a vendor component  */
                 /* if (isVendorCmp) {
                     const imports = await cmpCls[realClsName]?.importAssets();
@@ -989,6 +967,7 @@ export class Components {
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;
                 instance.stillElement = true;
                 instance.proxyName = proxy;
+                instance.nstngCount = parentCmp?.nstngCount ? parentCmp.nstngCount + 1 : 1;
                 if(cmpInternalId == 'fixed-part') instance['isStFixed'] = true;
                 ComponentRegistror.add(instance.cmpInternalId, instance);
 
@@ -1038,10 +1017,8 @@ export class Components {
 
                         if (prefix == '') {
                             value = value.trim();
-                            if (
-                                !isNaN(value)
-                                || (value.startsWith('\'') && value.endsWith('\''))
-                            ) cmp[prop] = value;
+                            if (!isNaN(value) || (value.startsWith('\'') && value.endsWith('\''))) 
+                                cmp[prop] = value;
                         }
 
                         else if (String(value).toLowerCase().startsWith(prefix) || prefix == '') {
@@ -1065,6 +1042,8 @@ export class Components {
                 //replaces the actual template in the <st-element> component placeholder
                 placeHolders[idx]
                     ?.insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+                // Renders second level of nesting
+                if(cmp?.nstngCount == 1) Components.handleInPlaceParts(cmp);
                 setTimeout(async () => {
                     /** Runs the load method which is supposed to implement what should be run
                      * for the component to be displayed accordingly in the User interface */

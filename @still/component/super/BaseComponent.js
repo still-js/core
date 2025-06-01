@@ -25,14 +25,6 @@ class SettingType {
     scripts = [];
 }
 
-class StEvent {
-    value;
-    onChange(callback) { }
-    constructor(value) {
-        this.value = value;
-    }
-}
-
 class ComponentPart {
     template;
     proxy;
@@ -50,19 +42,11 @@ class ComponentPart {
         this.annotations = annotations;
     }
 
-    render() {
-        const { template, component } = this;
-        const cntr = document.getElementById(component.dynCmpGeneratedId);
-        //cntr.innerHTML
-    }
-
 }
 
 export class BaseComponent extends BehaviorComponent {
 
-    /**
-     * @type {SettingType}
-     */
+    /** @type {SettingType} */
     settings = null;
     componentName;
     componentId;
@@ -89,11 +73,6 @@ export class BaseComponent extends BehaviorComponent {
     baseUrl = window.location.href;
     #stateChangeSubsribers = [];
     bindStatus;
-    /** @type { ViewComponent } */$parent;
-    routesMap = {
-        ...stillRoutesMap.viewRoutes.lazyInitial,
-        ...stillRoutesMap.viewRoutes.regular
-    };
     dynLoopObject = false;
     lone = false;
     loneCntrId = null;
@@ -138,11 +117,6 @@ export class BaseComponent extends BehaviorComponent {
             ?.replace(/inner\./g,`$still.component.ref('${this.cmpInternalId}').`)?.replace(/\$event/g,`event`)
     };
 
-    props(props = {}) {
-        this.cmpProps = props;
-        return this;
-    }
-
     /** @param { BaseController } controller */
     setController(controller) { this.$cmpStController = controller.name; }
     setRoutableCmp() { this.routableCmp = true; }
@@ -158,15 +132,12 @@ export class BaseComponent extends BehaviorComponent {
 
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = [
-            'settings', 'componentName', 'template','routesMap',
-            'cmpProps', 'htmlRefId', 'new', 'cmpInternalId',
-            'routableCmp', '$stillLoadCounter', 'subscribers',
-            '$stillIsThereForm', '$stillpfx', 'subImported',
-            'onChangeEventsList', 'isPublic', '$stillExternComponentParts',
-            'dynCmpGeneratedId', 'stillElement', 'proxyName',
-            'parentVersionId', 'versionId', 'behaviorEvtSubscriptions',
-            'wasAnnotParsed', 'stateChangeSubsribers', 'bindStatus',
-            'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId',
+            'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', 
+            'new', 'cmpInternalId', 'routableCmp', '$stillLoadCounter', 'subscribers',
+            '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic', 
+            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount',
+            'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 
+            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed'
         ];

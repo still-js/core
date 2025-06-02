@@ -621,7 +621,7 @@ export class Components {
     async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null) {
 
         let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '';
-        if(template.indexOf('</stopt-group>')) template = template.replace('display:none;', '');
+        if(template.indexOf('</st-lstgp>')) template = template.replace('display:none;', '');
 
         if (cmp['$still_' + field] instanceof Array) {
 

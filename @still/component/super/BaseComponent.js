@@ -293,48 +293,45 @@ export class BaseComponent extends BehaviorComponent {
         const cmpName = this.dynLoopObject || this.lone
             ? this.cmpInternalId
             : this.getProperInstanceName()
-        const extremRe = /[\n \r \< \$ \( \) \. \- \s A-Za-z \= \"]{0,}/.source;
-        const matchForEach = /(\(forEach\))\=\"(\w*){0,}\"/.source;
-        const forEach = '(forEach)="';
 
-        const re = new RegExp(extremRe + matchForEach + extremRe, 'gi');
+        const extremRe = /[\n \r \<\> \$ \( \) \. \;\: \- \s A-Za-z0-9 \= \"]{0,}/.source;
+        const matchForEach = /<[a-zA-Z0-9\s\"\=\- \;\:]{0,}(\(forEach\))\=\"(\w*){0,}\"/i.source;
 
-        template = template.replace(re, (mt) => {
-            let ds = '';
-            const loopPos = mt.indexOf(forEach);
-            if (loopPos >= 0) ds = mt.substr(loopPos).split('"')[1].trim();
+        const re = new RegExp(matchForEach + extremRe, 'gi');
+
+        template = template.replace(re, (mt, drctv, ds) => {
 
             let subscriptionCls = '';
+            const endPos = mt.indexOf('>') + 1;
+            const stLstGp = mt.slice(endPos).startsWith('<st-lstgp>');
+            // This is to hide the template of the foreach wrapper, and it'll be shown when parsing each element of the list
+            if(stLstGp) mt = mt.replace('<st-lstgp>','<st-lstgp style="display:none;">')
 
             const subsCls = `listenChangeOn-${this.cmpInternalId.replace('/','').replace('@','')}-${ds}`;
             const hashValue = `hash_${this.getUUID()}`;
-            const hash = `hash="${hashValue}"`;
-            const newClassName = `newCls="${subsCls}"`;
+            const hash = `hash="${hashValue}"`, newClassName = `newCls="${subsCls}"`;
             const finalAttrs = `${newClassName} ${hash} class="${subsCls}`;
 
-            if (mt.indexOf(`class="`) >= 0)
+            if (mt.slice(0,endPos).indexOf(`class="`) >= 0)
                 mt = mt.replace(`class="`, `${finalAttrs} `);
-            else
-                subscriptionCls = `${finalAttrs}" `;
+            else subscriptionCls = `${finalAttrs}" `;
 
-            mt = mt.replace(`(forEach)="${ds}"`, subscriptionCls);
+            mt = mt.replace(`${drctv}="${ds}"`, subscriptionCls);
 
             return `<output class="${hashValue}"></output>${mt}`;
 
-        }).replaceAll('each="item"', 'style="display:none;"');
+        })
+        // This is to hide the template of the foreach wrapper, and it'll be shown when parsing each element of the list
+        .replaceAll('each="item"', 'style="display:none;"');
 
         return template;
     }
 
     getBoundProps(template) {
-        /**
-         * Inject/Bind the component props/params to the
-         * referenced place
-         */
+        /** Inject/Bind the component props/params to the referenced place */
         Object.entries(this.cmpProps).forEach(([key, value]) => {
             template = template.replace(`{{${key}}}`, value);
         });
-
         return template;
     }
 
@@ -520,27 +517,26 @@ export class BaseComponent extends BehaviorComponent {
 
     #parseRadioOrChkBox(mt, mtchValue, value){
         if(!this['stOptListFieldMap']) this['stOptListFieldMap'] = new Set();
-        let lbfrDrectv = '(labelBefore)', laftDrectv = '(labelAfter)', fDrectv = '(field)', 
-              hide = `style="display:none;"`, optLstField = null;
+        let lbfrDrectv = '(labelBefore)', laftDrectv = '(labelAfter)', fDrectv = '(field)', field = null;
         if(mt.indexOf(fDrectv) > 0) {
-            optLstField = mt.split(fDrectv)[1]?.split('"')[1];
-            mt = mt.replace(`${fDrectv}="${optLstField}"`,`name="${optLstField}"`);
+            field = mt.split(fDrectv)[1]?.split('"')[1];
+            mt = mt.replace(`${fDrectv}="${field}"`,`name="${field}"`);
         }
         if(value > 0) {
-            if(mt.split('(value)')[1].split('"')[1].startsWith('{item.')) this[optLstField] = '';
+            if(mt.split('(value)')[1].split('"')[1].startsWith('{item.')) this[field] = '';
             mt = mt?.replace(mtchValue, 'value="');
         }
 
         if(mt.indexOf(lbfrDrectv) > 0) {
             const lbl = `${mt.split(lbfrDrectv)[1].split('"')[1]}`;
-            mt = `<stopt-group ${hide}><label>${lbl}</label> ${mt.replace(`${lbfrDrectv}="${lbl}"`,'')}</stopt-group>`;
+            mt = `<st-lstgp><label>${lbl}</label> ${mt.replace(`${lbfrDrectv}="${lbl}"`,'')}</st-lstgp>`;
         }
         else if(mt.indexOf(laftDrectv) > 0) {
             const lbl = `${mt.split(laftDrectv)[1].split('"')[1]}`;
-            mt = `<stopt-group ${hide}>${mt.replace(`${laftDrectv}="${lbl}"`,'')} <label>${lbl}</label></stopt-group>`;
+            mt = `<st-lstgp>${mt.replace(`${laftDrectv}="${lbl}"`,'')} <label>${lbl}</label></st-lstgp>`;
         }
-        if(optLstField) this['stOptListFieldMap'].add(optLstField);
-        return {mt, optLstField};
+        if(field) this['stOptListFieldMap'].add(field);
+        return {mt, optLstField: field};
     }
 
     /**

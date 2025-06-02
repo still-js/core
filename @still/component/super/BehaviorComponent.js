@@ -73,8 +73,12 @@ export class BehaviorComponent {
                 else currentValues = currentValues.filter(v => v != inpt.value);
                 fieldSrc[field] = currentValues;
                 isOptListValid = currentValues.length > 0 ? true : false;
-            } else 
-                fieldSrc[field] = inpt.value;
+            } 
+            else {
+                //this is shared with both scenarios (entering/selecting a value and form validation)
+                //the assignment will not happen in case it's in the form validation flow
+                if(cmp == null) fieldSrc[field] = inpt.value;
+            }
         } else 
             fieldSrc[field] = inpt.value;
 
@@ -132,21 +136,26 @@ export class BehaviorComponent {
         /** Remove Out of range warning if added before */
         this.#handleValidationWarning('remove', inpt, fieldPath, 'to-remove', 'range');
 
-        if (pattern && value.trim() != '') {
+        if (pattern && value.trim() != '' || ('radio' == inpt.type)) {
             let regex = pattern;
             if (pattern in validationPatterns) {
                 regex = validationPatterns[pattern];
             } else {
-                const datePattern = this.#checkDatePattern(pattern);
-                if (datePattern) regex = datePattern;
-                if (!datePattern) regex = String.raw`${regex}`;
+                if(pattern){
+                    const datePattern = this.#checkDatePattern(pattern);
+                    if (datePattern) regex = datePattern;
+                    if (!datePattern) regex = String.raw`${regex}`;
+                }
             }
             if (typeof regex == 'function') {
                 validation = regex(value);
                 if (!validation) isValid = false;
             } else {
-                validation = value.match(new RegExp(regex));
-                if (!validation || !validation[0]?.length) isValid = false;
+                if(pattern){
+                    validation = value.match(new RegExp(regex));
+                    if (!validation || !validation[0]?.length) isValid = false;
+                }
+                else if (value?.trim() == '' && required) isValid = false;
             }
         }
 
@@ -154,7 +163,8 @@ export class BehaviorComponent {
         else if (value?.trim() == '' && required) isValid = false;
 
         if(!isOptListValid) this.#handleValidationWarning('add', inpt, fieldPath);
-        else if (!isValid && !isOptList) this.#handleValidationWarning('add', inpt, fieldPath);
+        else if (!isValid && !isOptList || (!isValid && 'radio' == inpt.type)) 
+            this.#handleValidationWarning('add', inpt, fieldPath);
         else this.#handleValidationWarning('remove', inpt, fieldPath);
 
         BehaviorComponent.setValidatorForField(fieldPath, field);

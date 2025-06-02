@@ -526,7 +526,10 @@ export class BaseComponent extends BehaviorComponent {
             optLstField = mt.split(fDrectv)[1]?.split('"')[1];
             mt = mt.replace(`${fDrectv}="${optLstField}"`,`name="${optLstField}"`);
         }
-        if(value > 0) mt = mt?.replace(mtchValue, 'value="');
+        if(value > 0) {
+            if(mt.split('(value)')[1].split('"')[1].startsWith('{item.')) this[optLstField] = '';
+            mt = mt?.replace(mtchValue, 'value="');
+        }
 
         if(mt.indexOf(lbfrDrectv) > 0) {
             const lbl = `${mt.split(lbfrDrectv)[1].split('"')[1]}`;

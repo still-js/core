@@ -85,11 +85,11 @@ export const $still = {
         /** @param { ViewComponent } cmp */
         ref: (ref) => ComponentRegistror.component(ref),
         list: window,
-        get: (cmpName) => window[cmpName]
+        get: (cmpName) => window[cmpName],
     },
+    c: { ref: (ref) => ComponentRegistror.get().componentList[ref].instance },
     controller: (type) => ComponentRegistror.controller(type),
     HTTPClient: new StillHTTPClient(),
-
 }
 
 //window.$still = $still;

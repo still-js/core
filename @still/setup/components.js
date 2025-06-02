@@ -388,7 +388,7 @@ export class Components {
                 if (inspectField?.sTForm) {
                     cmp[field].validate = function () {
                         const formRef = field;
-                        return BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`);
+                        return BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp);
                     }
                     return;
                 }
@@ -489,7 +489,7 @@ export class Components {
             });
         }
 
-        if (subscribers) {
+        if (subscribers && !cmp['stOptListFieldMap']?.has(field)) {
             subscribers.forEach(/** @type {HTMLElement} */elm => {
                 this.dispatchPropagation(elm, field, cmp);
             });
@@ -621,6 +621,7 @@ export class Components {
     async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null) {
 
         let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '';
+        if(template.indexOf('</stopt-group>')) template = template.replace('display:none;', '');
 
         if (cmp['$still_' + field] instanceof Array) {
 

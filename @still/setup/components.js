@@ -729,7 +729,7 @@ export class Components {
         for (const [f, v] of fields) {
             parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, (m, pos, tmpl) => {
                 const isCls = tmpl.slice(pos + m.length).startsWith('st');
-                return isCls ? v.replace(/\s/g,'-')+' ' : v;
+                return isCls ? new String(v)?.replace(/\s/g,'-')+' ' : v;
             });
         }
         return parsingTemplate.replaceAll('($event', '(event');

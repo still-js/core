@@ -409,7 +409,7 @@ export class BaseComponent extends BehaviorComponent {
                 if (!isValid) inpt.classList.add('still-validation-failed-style');
                 else inpt.classList.remove('still-validation-failed-style');
 
-                if (fieldPath && field)
+                if (fieldPath && field && (formref && !!(formref)))
                     BehaviorComponent.currentFormsValidators[this.cmpInternalId+'-'+formref][field]['isValid'] = isValid;
 
                 setTimeout(() => {

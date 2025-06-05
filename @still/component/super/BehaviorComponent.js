@@ -47,12 +47,20 @@ export class BehaviorComponent {
      * @param {*} field 
      * @param {{ value: string, required: Blob, pattern: RegExp }} inpt 
      */
-    onValueInput(e, field, inpt, formRef, cmp = null) {
+    onValueInput(e, field, inpt, formRef, cmp = null, reset = false) {
+
         const fieldType = inpt?.type?.toLowerCase();
+        const fieldSrc = this.constructor.name == 'BehaviorComponent' ? cmp : this;
+
+        if(reset){
+            fieldSrc[field] = (fieldType == 'checkbox' || inpt.multiple) ? [] : '';
+            return;
+        }
+
         const isOptList = ['radio','checkbox'].includes(fieldType);
         if (e && !isOptList) 
             if (BehaviorComponent.ignrKeys.includes(e.key.toString().toLowerCase())) return;
-        
+         
         const pattern = inpt.getAttribute('(validator)');
         let required = inpt.getAttribute('(required)');
         let validationTrigger = inpt.getAttribute('(validator-trigger)');
@@ -64,13 +72,16 @@ export class BehaviorComponent {
         isTriggerSet = isTriggerSet == "false" ? false : isTriggerSet;
         isOntypeTrigger = isOntypeTrigger == "false" ? false : isOntypeTrigger;
         let isOptListValid = true;
-        const fieldSrc = this.constructor.name == 'BehaviorComponent' ? cmp : this;
 
-        if(isOptList){
-            if(fieldType == 'checkbox' || inpt.multiple){
+        if(isOptList || inpt.multiple){
+            if(fieldType == 'checkbox'){
                 let currentValues = ['',undefined].includes(fieldSrc[field].value) ? [] : fieldSrc[field].value;
                 if(inpt?.checked) currentValues.push(inpt.value);
-                else currentValues = currentValues.filter(v => v != inpt.value);
+                else {
+                    currentValues = currentValues.filter(v => v != inpt.value);
+                    fieldSrc['st'+field+'cbRem'] = inpt.value;
+                }
+                fieldSrc['st'+field+'cbClk'] = true;
                 fieldSrc[field] = currentValues;
                 isOptListValid = currentValues.length > 0 ? true : false;
             } 
@@ -122,6 +133,7 @@ export class BehaviorComponent {
         const isCBInValidator = this.constructor.name == 'BehaviorComponent' && isOptList;
 
         if(isCBInValidator) value = cmp[field].value.length > 0 ? cmp[field].value : '';
+        if('radio' == inpt.type && value == '') value = cmp[field].value;
 
         let isValid = true, validation;
         const fieldPath = `${this.constructor.name}${formRef && formRef != 'null' ? `-${formRef}` : ''}`;
@@ -152,9 +164,11 @@ export class BehaviorComponent {
                 if (!validation) isValid = false;
             } else {
                 if(pattern){
+                    pattern = validationPatterns[pattern];
                     validation = value.match(new RegExp(regex));
                     if (!validation || !validation[0]?.length) isValid = false;
                 }
+                else if(!isNaN(value) && 'radio' == inpt.type && value != '') isValid = true;
                 else if (value?.trim() == '' && required) isValid = false;
             }
         }
@@ -334,7 +348,7 @@ export class BehaviorComponent {
 
     }
 
-    static validateForm(fieldPath, cmp) {
+    static validateForm(fieldPath, cmp, formRefObj = {}, reset = false) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
         let valid = true;
@@ -350,15 +364,19 @@ export class BehaviorComponent {
                     const inpt = document.querySelector(`.${fieldPath}-${field}`);
                     return [
                         field, {
-                            isValid: behaviorInstance.onValueInput(null, field, inpt, formRef, cmp),
+                            isValid: behaviorInstance.onValueInput(null, field, inpt, formRef, cmp, reset),
                             inputClass: stngs[1].inputClass
                         }
                     ];
                 });
 
+        if(formRefObj) formRefObj.errorCount = 0;
         for (let [field, validator] of validators) {
 
-            if (!validator.isValid) valid = false;
+            if (!validator.isValid) {
+                if(formRefObj) formRefObj.errorCount++;
+                valid = false;
+            }
 
             if (validator.inputClass) {
                 const obj = new BehaviorComponent();

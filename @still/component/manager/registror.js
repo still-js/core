@@ -90,6 +90,7 @@ export const $still = {
     c: { ref: (ref) => ComponentRegistror.get().componentList[ref].instance },
     controller: (type) => ComponentRegistror.controller(type),
     HTTPClient: new StillHTTPClient(),
+    multplWaitSec: 200,
 }
 
 //window.$still = $still;

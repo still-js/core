@@ -344,24 +344,27 @@ export class Components {
     defineSetter = (cmp, field) => {
         if (cmp.myAnnotations()?.get(field)?.inject) return;
         cmp.__defineGetter__(field, () => {
-            const cmpId = cmp.cmpInternalId;
-            const result = {
-                value: cmp['$still_' + field],
+            const optLst = cmp['stOptListFieldMap']?.get(field);
+            const r = {
+                value: cmp['$still_' + field], defined: true,
                 onChange: (callback = function () { }) => {
                     cmp[`$still${field}Subscribers`].push(callback);
                 },
-                defined: true,
-                firstPropag: false,
-                onlyPropSignature: true
+                firstPropag: false, onlyPropSignature: true,
             };
+            if(optLst?.chkBox) r.isChkbox = true;
+            if(optLst?.radio) r.isRadio = true;
+            if(optLst?.multpl) {
+                if (r.value == '') r.value = []; 
+                r.multpl = true;
+            }
 
             const validator = BehaviorComponent.currentFormsValidators;
             if (validator[cmp.cmpInternalId]) {
-                if (field in (validator[cmp?.constructor?.name] || [])) {
-                    result['isValid'] = validator[cmp.constructor.name][field]['isValid'];
-                }
+                if (field in (validator[cmp?.constructor?.name] || [])) 
+                    r['isValid'] = validator[cmp.constructor.name][field]['isValid'];
             }
-            return result;
+            return r;
         });
     }
 
@@ -388,7 +391,12 @@ export class Components {
                 if (inspectField?.sTForm) {
                     cmp[field].validate = function () {
                         const formRef = field;
-                        return BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp);
+                        return BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp, cmp[field]);
+                    }
+                    cmp[field].reset = () => {
+                        const formRef = field;
+                        BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp, cmp[field], true);
+                        document.getElementById(`fId_${field}`).reset();
                     }
                     return;
                 }
@@ -437,8 +445,13 @@ export class Components {
                 o.defineSetter(cmp, field);
 
                 cmp.__defineSetter__(field, (newValue) => {
+                    if(cmp['stOptListFieldMap']?.get(field)?.multpl)
+                        cmp['$still_' + field] = newValue;
                     cmp.__defineGetter__(field, () => newValue);
+
+                    //Address multi selection combobox: TOUCHING HERE
                     cmp['$still_' + field] = newValue;
+
                     o.defineSetter(cmp, field);
                     setTimeout(async () => await cmp.stOnUpdate());
 
@@ -453,13 +466,19 @@ export class Components {
 
                     if (cmp[field]?.defined || cmp.dynLoopObject) {
                         Components.firstPropagation[`${cmp.cmpInternalId}-${field}`] = true;
-                        o.propageteChanges(cmp, field);
+                        o.propageteChanges(cmp, field, { A: !cmp['st'+field+'cbRem'], C: cmp['st'+field+'cbClk'] });
                     }
+                    delete cmp['st'+field+'cbRem'];
+                    delete cmp['st'+field+'cbClk'];
 
                 });
                 const firstPropagateTimer = setInterval(() => {
                     //Work in the garbage collector for this Components.firstPropagation flag
-                    if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
+                    if(Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
+                        clearInterval(firstPropagateTimer);
+                        o.propageteChanges(cmp, field);
+                    }
+                    else if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
                         if (!o.notAssignedValue.includes(cmp['$still_' + field])) o.propageteChanges(cmp, field);
                         cmp[field].firstPropag = true;
@@ -474,32 +493,55 @@ export class Components {
     static firstPropagation = {};
 
     /** @param { ViewComponent } cmp */
-    propageteChanges(cmp, field) {
-        const cpName = cmp.cmpInternalId.replace('/', '').replace('@', '');
-        const cssRef = `.listenChangeOn-${cpName}-${field}`;
+    propageteChanges(cmp, field, chkBoxOpts = {}) {
+        const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
+        const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
-        const cssRefCombo = `.listenChangeOn-${cpName}-${field}-combobox`;
+        const cssRefCombo = `.listenChangeOn-${cpName}-${f}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
-        const stateChange = `.state-change-${cpName}-${field}`;
+        const stateChange = `.state-change-${cpName}-${f}`;
         const stateChangeSubsribers = document.querySelectorAll(stateChange);
+        const { isChkbox, isRadio, multpl, value } = cmp[f];       
 
-        if (stateChangeSubsribers) {
-            stateChangeSubsribers.forEach(subcriber => {
-                subcriber.innerHTML = cmp['$still_' + field];
-            });
+        if(isChkbox || (multpl && !cmp['stClk' + f])){
+            // chkBoxOpts.A = add, chkBoxOpts.C = click
+            if((chkBoxOpts.A && !chkBoxOpts.C) || multpl){
+                const action = multpl ? 'selected' : 'checked';
+                let waitSec = multpl ? new Number($still.multplWaitSec) : 0; //Adding  a delay to allow th combobox to render
+                value.forEach(v => {
+                    setTimeout(() => {
+                        const opt = document.querySelector(`.${cpName}-${f}-val-${v}`.replace(/\s/g,'-'));
+                        if(opt) {
+                            opt[action] = true;
+                            const empty = document.querySelector(`.${cpName}-${f}empty`);
+                            if(empty) empty.selected = false;
+                        }
+                    },waitSec);
+                });
+                if($still.multplWaitSec > 0) $still.multplWaitSec = 0;
+            }
         }
 
-        if (subscribers && !cmp['stOptListFieldMap']?.has(field)) {
-            subscribers.forEach(/** @type {HTMLElement} */elm => {
-                this.dispatchPropagation(elm, field, cmp);
-            });
+        if(isRadio){
+            if(chkBoxOpts.A && !chkBoxOpts.C){
+                const opt = document.querySelector(`.${cpName}-${f}-val-${value}`);
+                if(opt) {
+                    //cmp['$still_' + f] = value;
+                    opt.checked = true;
+                }
+                
+            }
         }
+
+        if (stateChangeSubsribers) 
+            stateChangeSubsribers.forEach(s => s.innerHTML = cmp['$still_' + f]);
+
+        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
+            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
 
         if (subscribersCombo) {
-            subscribersCombo.forEach(/** @type {HTMLElement} */elm => {
-                setTimeout(() => {
-                    this.propageteToInput(elm, field, cmp);
-                });
+            subscribersCombo.forEach(/**@type {HTMLElement}*/elm => {
+                setTimeout(() => this.propageteToInput(elm, f, cmp));
             });
         }
     }
@@ -579,18 +621,22 @@ export class Components {
      */
     async parseAndAssigneValue(elm, field, cmp, container) {
 
-        const hash = elm.getAttribute('hash');
+        const hash = elm.getAttribute('hash'), cmpId = cmp.cmpInternalId;
         container.classList.add($stillconst.SUBSCRIBE_LOADED);
 
-        let tmpltContent, childCmp;
+        let tmpltContent, childCmp, f = elm.dataset.field;
         if (elm.tagName == 'SELECT') {
             const childs = elm.querySelectorAll('option');
 
             const placeholder = elm.getAttribute('placeholder') || 'Select an option';
-            if (childs[0].outerHTML.toString().indexOf('value="{item.') > 0)
+            if (childs[0].outerHTML.toString().indexOf('{item.') > 0){
                 tmpltContent = childs[0].outerHTML.toString();
+                const valField = tmpltContent.split('value')[1].split('"')[1];
+                const cls = `${cmpId}-${f}-val-${valField}st`;
+                tmpltContent = tmpltContent.replace('<option','<option class="'+cls+'"');
+            }
 
-            let result = `<option value='' selected>${placeholder}</option>`;
+            let result = `<option value='' class="${cmpId}-${f}empty" selected>${placeholder}</option>`;
             container.innerHTML = await this.parseForEachTemplate(tmpltContent, cmp, field, result);
             return container;
 
@@ -608,7 +654,11 @@ export class Components {
         /** Get the previous table body */
         const oldContainer = elm.parentNode.querySelector(`.${hash}`);
         /** Check if it exists previous table body and remove it */
-        if (oldContainer) elm?.parentNode?.removeChild(oldContainer);
+        if (oldContainer){
+            try {
+                elm?.parentNode?.removeChild(oldContainer);
+            } catch (error) {}   
+        }
         container.classList.add(hash);
 
         container.innerHTML = await this.parseForEachTemplate(
@@ -677,7 +727,10 @@ export class Components {
 
     replaceBoundField(parsingTemplate, fields) {
         for (const [f, v] of fields) {
-            parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, v);
+            parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, (m, pos, tmpl) => {
+                const isCls = tmpl.slice(pos + m.length).startsWith('st');
+                return isCls ? v.replace(/\s/g,'-')+' ' : v;
+            });
         }
         return parsingTemplate.replaceAll('($event', '(event');
     }

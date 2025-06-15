@@ -10,7 +10,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
 
 (() => {
-
+    const boolMap = { 'false': false, 'true': true };
     Router.parseRouteMap()
         .then(async () => {
 
@@ -35,9 +35,17 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
                 [...stillDeclarations].forEach(async elm => {
 
-                    elm.id = `stillLone_${UUIDUtil.newId()}`
+                    elm.id = `stillLone_${UUIDUtil.newId()}`;
                     const cmpName = elm.getAttribute('component');
+                    
                     const { newInstance: cmp } = await Components.produceComponent({ cmp: cmpName, lone: true });
+                    const attrs = [...elm.getAttributeNames()];
+                    for(const atr of attrs){
+                        const attrVal = elm.getAttribute(atr);
+                        const realVal = attrVal in boolMap ? boolMap[attrVal] : attrVal;
+                        if(!['component','id'].includes(atr)) cmp[atr] = realVal;
+                    }
+
                     await cmp.onRender();
                     new BaseComponent().parseStTag(elm.outerHTML, '', cmp);
                     const template = cmp.getBoundTemplate(elm.id);
@@ -55,6 +63,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                         Components.emitAction(cmp.getName());
                         Components.handleInPlacePartsInit(cmp, cmp.cmpInternalId, cmpParts);
                         Components.runAfterInit(cmp);
+                        Components.handleMarkedToRemoveParts();
                     });
 
                 });

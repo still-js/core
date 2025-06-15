@@ -619,9 +619,15 @@ export class BaseComponent extends BehaviorComponent {
                         .replace('class="', `class="${hide} ${listenerFlag} `)
                         .replace(matchInstance, '');
                 } else {
-                    /**  .replace(matchInstance, `class="${hide}"`) 
-                     *      Replace the (renderIf)="anything" directive and value with hide classe */
+                    /**  .replace(matchInstance, `class="${hide}"`) Replaces the (renderIf)="anything" directive and value with hide classe */
                     result = mt.replace(matchInstance, `class="${hide} ${listenerFlag}"`);
+                }
+                if(STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
+                    if(mt.indexOf('style="') > 0) {
+                        result = result.replace('style="','style="display: none;');
+                    }else{
+                        result = result.replace('class="','style="display: none;" class="');
+                    }
                 }
             }
             return result;
@@ -682,6 +688,13 @@ export class BaseComponent extends BehaviorComponent {
                     }
                 } else {
                     result = mt.replace(matchInstance, '');
+                }
+                if(STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
+                    if(mt.indexOf('style="') > 0) {
+                        result = result.replace('style="','style="display: none;');
+                    }else{
+                        result = result.replace('class="','style="display: none;" class="');
+                    }
                 }
             }
             return result;

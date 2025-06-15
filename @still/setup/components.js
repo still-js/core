@@ -429,6 +429,10 @@ export class Components {
                         /** This is for handling (renderIf) */
                         const elmList = document.getElementsByClassName(listenerFlag);
                         for (const elm of elmList) {
+
+                            if(elm.style.display === 'none') elm.style.display = '';
+                            else if(elm.style.display === '') elm.style.display = 'none';
+
                             if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
                         }

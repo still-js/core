@@ -58,8 +58,10 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                     }, 10);
                     document.getElementById(elm.id).innerHTML = template;
                     if(ref && ref != ''){
-                        const appLoaderId = window['stillFrontendsList'][ref];
-                        window['stillFrontendsLoader'][appLoaderId][ref] = cmp;
+                        if(window['stillFrontendsList']){
+                            const appLoaderId = window['stillFrontendsList'][ref];
+                            window['stillFrontendsLoader'][appLoaderId][ref] = cmp;
+                        }
                     }
 
                     const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];

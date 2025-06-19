@@ -1,4 +1,5 @@
-import { AppTemplate } from "../../../app-template.js";
+import { StillAppSetup } from "../../../config/app-setup.js";
+import { AppTemplate } from "../../../config/app-template.js";
 import { Router } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
@@ -16,12 +17,11 @@ export class Template {
 
         const ViewComponent = getViewComponent(DefaultViewComponent);
         if (cmp?.prototype instanceof ViewComponent)
-            Components.get().setHomeComponent(cmp);
+            StillAppSetup.get().setHomeComponent(cmp);
 
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance))
             Template.instance[clsName] = this;
-
     }
 
     /** @param { DefaultViewComponent } cmp */
@@ -32,10 +32,7 @@ export class Template {
         else return new AppTemplate(cmp);
 
     }
-    /**
-     * 
-     * @returns { Template }
-     */
+    /** @returns { Template } */
     static get() {
         const clsName = 'AppTemplate';
         if (!(clsName in Template.instance)) {
@@ -96,29 +93,12 @@ export class Template {
 
     }
 
-    setAuthN(value) {
-
-        const clsName = this.constructor.name;
-        if (!('authn' in Template.instance[clsName])) {
-            Template.instance[clsName]['authn'] = null;
-        }
-        const storedValue = this.storageSet('authn', value);
-        Template.instance[clsName]['authn'] = storedValue;
-    }
-
     isAuthN() {
-
-        let storedValue = this.storageGet('authn');
-        if (storedValue) {
-            Template.instance[this.constructor.name]['authn'] = storedValue;
-        }
-
-        return storedValue;
+        return StillAppSetup.authFlag['authn'];
     }
 
     unloadApp() {
         Components.unloadApp();
-        //Router.goto('init');
         window.location.reload();
     }
 
@@ -156,15 +136,26 @@ export class Template {
         `;
     }
 
-    static toast({ status, message } = {}) {
 
-        const uuid = Template.getToastId();
-        const stat = status || 'Successo';
+    static toast = {
+        error: (message) => Template.launchToast({ status: 'Error', message }),
+        success: (message) => Template.launchToast({ status: 'Success', message })
+    }
+
+    /** @param {Object} [param0={}] 
+    * @param {'success'|'Success'|'error'|any} param0.status
+    **/
+    static launchToast({ status, message } = {}) {
+        const [uuid, stat] = [Template.getToastId(), status || 'Success'];
         const msg = message || 'Operação realizada com sucesso';
+        const icons = document.getElementsByClassName('toast-type-icon')[0].children;
+        const statusId = ['success', 'Success'].includes(status) ? 0 : 1;
 
-        const statPlaceId = `${uuid}-status`;
-        const msgPlaceId = `${uuid}-msg`;
+        [...icons].forEach((r, idx) => {
+            r.style.display = idx == statusId ? 'block' : 'none';
+        });
 
+        const [statPlaceId, msgPlaceId] = [`${uuid}-status`, `${uuid}-msg`];
         document.getElementById(statPlaceId).innerHTML = stat;
         document.getElementById(msgPlaceId).innerHTML = msg;
 
@@ -172,31 +163,22 @@ export class Template {
         const toast = document.querySelector(".still-toast");
         const closeIcon = document.querySelector(".close");
         const progress = document.querySelector(".still-toast-progress");
+        toast.style.setProperty('--toast-stat-color', statusId == 1 ? 'red' : '#2c5e24')
 
         toast.classList.add("still-toast-active");
         progress.classList.add("still-toast-active");
 
-        timer1 = setTimeout(() => {
-            toast.classList.remove("still-toast-active");
-        }, 5000);
-
-        timer2 = setTimeout(() => {
-            progress.classList.remove("still-toast-active");
-        }, 5300);
-
+        timer1 = setTimeout(() => toast.classList.remove("still-toast-active"), 5000);
+        timer2 = setTimeout(() => progress.classList.remove("still-toast-active"), 5300);
 
         closeIcon.addEventListener("click", () => {
             toast.classList.remove("still-toast-active");
-
-            setTimeout(() => {
-                progress.classList.remove("still-toast-active");
-            }, 300);
+            setTimeout(() => progress.classList.remove("still-toast-active"), 300);
+            [...icons].forEach(r => r.style.display = 'none');
 
             clearTimeout(timer1);
             clearTimeout(timer2);
-
         });
-
     }
 
 
@@ -207,33 +189,27 @@ export class Template {
         const content = `
             <div class="still-toast">
                 <div class="still-toast-content">
-                    <i class="fas fa-solid fa-check check"></i>
+                    <div class="toast-type-icon">
+                        <i style="display:none;" class="fas fa-solid fa-check check"></i>
+                        <i style="display:none;" class="fa fa-times-circle" aria-hidden="true"></i>
+                    </div>
                     <div class="still-toast-message">
-                    <span class="text text-1" id="${uuid}-status"></span>
-                    <span class="text text-2" id="${uuid}-msg"></span>
+                        <span class="text text-1" id="${uuid}-status"></span>
+                        <span class="text text-2" id="${uuid}-msg"></span>
                     </div>
                 </div>
                 <i class="fa-solid fa-xmark close">X</i>
                 <div class="still-toast-progress"></div>
             </div>
         `;
-
         document.body.insertAdjacentHTML('beforebegin', content);
 
     }
 
-
     static getToastId() {
-
         if (!Template.toastId)
             Template.toastId = `toast_${UUIDUtil.newId()}`;
-
         return Template.toastId;
-
     }
 
-
-
 }
-
-window.Template = Template;

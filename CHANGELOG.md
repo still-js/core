@@ -2,6 +2,658 @@
 # Change Log
 This log contains all the changes which takes place for StillJS Framework.
 
+
+## [Released] - 2025-05-30
+## [Version] - 1.2.10
+Adjustments on the Lone component/Microfrotend loading and event handling in the integration with React.
+ 
+- <b>MINOR</b> - Value passing from React to Still component through (`<st-element>`) 
+<br>  
+
+- <b>MINOR</b> - `stRef` for providing a reference to allow comunication from external app (e.g. React). 
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-05-30
+## [Version] - 1.2.5
+This version releases some of no-breaking features that had be on hold, also some clean up and fixes are part of it.
+ 
+
+- <b>MEDIUM</b> - Programatically loading `app-template.js` fixed element (`<st-fixed>`) from the `app-setup.js` 
+    <br>
+
+    -  You can load specific template fixed part from the app-setup, allowing it to be done conditionally:
+
+        <br/>
+
+        In the AppTemplate (line 16 to 18) one fixed part is being added.
+        ```{.javascript .numberLines .lineAnchors}
+
+        export class AppTemplate extends Template {
+
+            /**
+            * <still-component> is the placeholder where components 
+            * should be render both when loading or routing to the component
+            * 
+            * <still-fixed> is the specification of a specific component part from the 
+            * User interface that needs to be fiexed (e.g. Header, Footer, Menu, Navigation, etc.)
+            * 
+            * THIS SHOULD BE CHANGED ACCORDING TO MY LAYOUT WHERE I'M HAVING COMPONENTS FOR
+            * EACH PART AND THE FIXED ONES WIIL BE REFERENCED AS <st-fixed> AND THE COMPONENT
+            * TO BE RENDERED WILL BE PASSED AS THE VALUES OF component PROPERTY OF <st-fixed>
+            * e.g. <st-fixed component="AppHeader">
+            */
+            template = `
+                <st-fixed 
+                    component="TopMenu" spot="app.topMenuSpot">
+                </st-fixed>
+                <still-component/>
+            `;
+        }
+        ```  
+
+        <br/>
+
+        In the StillAppSetup (line 14)
+        ```{.javascript .numberLines .lineAnchors}
+        import { StillAppMixin } from "../@still/component/super/AppMixin.js";
+        import { Components, SpotValue } from "../@still/setup/components.js";
+        import { AlternateTopMenu } from "../app/components/menu/AlternateTopMenu.js";
+        import { HomeComponent } from "../app/home/HomeComponent.js";
+        import { AppTemplate } from "./app-template.js";
+
+        export class StillAppSetup extends StillAppMixin(Components) {
+
+            constructor() {
+                super();
+                this.setHomeComponent(HomeComponent);
+                // this.topMenuSpot points to the AppTeamplte spot="app.topMenuSpot"
+                this.topMenuSpot = new SpotValue(AlternateTopMenu, { anyProp: 'Updated prop value' })
+            }
+
+            async init() {
+                return await AppTemplate.newApp();
+            }
+
+        }
+
+        ```
+<br>  
+
+
+- <b>MEDIUM</b> - Condiguration file for setting up specific variables to be used in in the runtime. logs can be disabled form there, HttpClient base url also can be set from there. In addition we can set our custom properties. 
+    <br>
+
+    -  You can load specific template fixed part from the app-setup, allowing it to be done conditionally:
+
+        <br/>
+
+        The config file, the default is `config/settings/default.json`.
+        ```{.json .numberLines .lineAnchors}
+        {
+            "httpClient": {
+                "baseUrl": ""
+            },
+            "logs": {
+                "default": true,
+                "error": true,
+                "warning": true
+            },
+            "path": {
+                "service": "",
+                "controller": ""
+            },
+            "my": {
+                "custom": { "prop": "My defined value" }
+            }
+        }
+        ```  
+
+        <br/>
+
+        In the StillAppSetup (lines 12 and 15)
+        ```{.javascript .numberLines .lineAnchors}
+        import { StillAppMixin } from "../@still/component/super/AppMixin.js";
+        import { Components } from "../@still/setup/components.js";
+        import { HomeComponent } from "../app/home/HomeComponent.js";
+        import { AppTemplate } from "./app-template.js";
+
+        export class StillAppSetup extends StillAppMixin(Components) {
+
+            constructor() {
+                super();
+                this.setHomeComponent(HomeComponent);
+                // we can override the config file to anotehr one in the same path
+                this.setConfigFile('production.json');
+
+                // We can retrieve the value of a specific confi property any where throughout the application
+                const customProp = StillAppSetup.config.get('my.custom.prop');
+            }
+
+            async init() {
+                return await AppTemplate.newApp();
+            }
+
+        }
+
+        ```
+<br>  
+ 
+### Fixed
+- template fixed part parametr passing.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-05-24
+## [Version] - 1.2.2
+New minor no-breaking feature, clean up, improvements and bug fix.
+ 
+
+- <b>MINOR</b> - Loader component to be used locally in the component.
+    <br>
+
+    -  If we want a loading to be displayed in a component while loading we can do it as follow:
+
+        <br/>
+
+        Template part
+        ```{.html .numberLines .lineAnchors}
+        <!-- In the template -->
+		<st-loader (showIf)="self.showLoader">
+        <table>
+            <!-- Heare goes the Datatable code -->
+        </table>
+        ```  
+
+        <br/>
+
+        Component part
+        ```{.javascript .numberLines .lineAnchors}
+        // .... above coding (e.g. imports)
+        class InvoicesComponent extends ViewComponent {
+
+            /** @Prop */
+            showLoader = true;
+
+            stAfterInit(){
+                //Fetch Data in the API
+                //Parse and display data in the UI
+
+                //remove the loader
+                this.showLoader = false;
+            }
+
+        }
+
+        ```  
+<br>  
+ 
+### Fixed
+- gets and sets parsing for child component when embeded in the parent.
+- prop parsing when passing form Parent component.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
+
+## [Released] - 2025-05-11
+## [Version] - 1.2.0
+New Major no-breaking feature, clean up, improvements and bug fix.
+ 
+
+- <b>MAJOR</b> - FormHelper for dynamic field creation in the runtime.
+    <br>
+
+    -  We can add as many new inpts as needed in the form in the run time, some properties are also available:
+
+        <br/>
+
+        Template part
+        ```{.html .numberLines .lineAnchors}
+        <!-- In the template -->
+		<form (formRef)="personFormRef" onsubmit="return false;">
+            <div class="field-group">
+                <p>First Name:</p>
+                <input type="text" (value)="firstName">
+            </div>
+            <!-- Dynamic field will be added bellow -->
+		</form>
+        <button (click)="addNewField()">Add Field</button>
+        ```  
+
+        <br/>
+
+        Component part
+        ```{.javascript .numberLines .lineAnchors}
+        // .... above coding (e.g. imports)
+        class PersonComponent extends ViewComponent {
+
+            /** @Prop */
+            personFormRef;
+
+            firstName;
+
+            addNewField(){
+
+                const placeholder = 'Enter your nick name';
+                FormHelper
+                    .newField(this, this.personFormRef, 'nickName')
+                    .getInput({ required: true, placeholder, validator: 'alhpanumeric' })
+                    //Add will add in the form which reference was specified (2nd param of newField)
+                    // .add() recieves the generated input element, in case we need to wrap it can do as bellow
+                    .add((inpt) => 
+                        `<div class="field-group">
+                            <p>First Name:</p>
+                            ${inpt}
+                        </div>`
+                    );	
+            }
+
+        }
+
+        ```  
+<br>  
+ 
+### Changed
+- Restrcture of the folder structure adding config/ in the root.
+<br>
+
+
+### Fixed
+- Validation for combobox component.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-04-29
+## [Version] - 1.1.0
+New Features.
+ 
+
+### Added
+- <b>MEDIUM</b> - Added visual <st-divider> tag.
+<br>
+
+    -  This tag automatically provides with a component which is adivider that can be either horizontal or vertical:
+
+        ```{.javascript .numberLines .lineAnchors}
+        // In the template
+        // Divids the page vertically (e.g. top and bottom) allowinf resize by dragging the divder
+        <st-divider 
+            type="vertical"
+            minHeight="0"
+            maxHeight="300"
+            (onResize)="myMethod(params)"
+            />
+
+        // In the component class
+        myMethod({bottomHeight, topHeight}){
+            //My method implementation
+        }
+        ```
+
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
+## [Released] - 2025-04-29
+## [Version] - 1.0.0
+New Features, improvements and Bug fixes transversally.
+ 
+
+### Added
+- <b>MAJOR</b> - Controllers and @Controller annotation to help offloading the component for UI and DOM feature implementation.
+<br>
+- <b>MINOR</b> - Service exposure for Lone Components.
+<br>
+- <b>MINOR</b> - Allow binding of cmpInternal
+
+<br>
+<br>
+
+### Changed
+- Dynamic new component generation moved Components.new.
+
+
+    -  template `represents` the UI template, `component` represents the generated component instance, follow the example:
+
+        ```{.javascript .numberLines .lineAnchors}
+        const { template, component } = await Components.new(MenuComponent);
+        ```
+
+<br>
+
+- HTTPClient not to return specific type on Get and Post methods.
+<br>
+
+- @ServicePath renamed to @Path so to be used with both controllers and services.
+<br>
+
+
+### Fixed
+- First propagation check validation.
+- Form validation when creating several instances of same component in the same area.
+<br>
+
+
+### Removed
+- `Component.getFromRef()` method.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
+## [Released] - 2025-04-15
+## [Version] - 0.0.14
+New Features, improvements and Bug fixes transversally.
+ 
+
+### Added
+- <b>MINOR</b> - Error handling for invalid component Route Name or URL call.
+<br>
+- <b>MINOR</b> - Service exposure for Lone Components.
+<br>
+- <b>MEDIUM</b> - Custom Validator capabilities.
+
+    -  Defining custom validatior inside the component
+
+        ```{.javascript .numberLines .lineAnchors}
+        //Inside the component
+        stOnRender() {
+            StillAppSetup.addValidator('validWeekendDays', (value) => {
+                if (value === 'Sat' || value === 'Sun')
+                    return true;
+                return false;
+            });
+        }
+
+        //Using in the template
+        <input (value)="weekendShift" (validator)="validWeekendDays" placeholder="Enter you weekend shift day">
+        ```
+
+    <br>
+    
+    -  Defining in the <b>StillAppSetup</b>        
+        ```{.javascript .numberLines .lineAnchors}
+        
+        constructor() {
+            super();
+            StillAppSetup.addValidator('validWeekendDays', (value) => {
+                if (value === 'Sat' || value === 'Sun')
+                    return true;
+                return false;
+            });
+        }
+        ```
+
+<br>
+
+### Changed
+- `Router.data()` to receive object instance instead of name.
+
+
+    -  Getting data from navigation sent by another component
+
+        ```{.javascript .numberLines .lineAnchors}
+        Route.data(this);
+        ```
+
+<br>
+
+- Moved `Component.getFromRef()` to `Component.ref()`.
+<br>
+
+
+### Fixed
+- Component notification from Service when it get loaded and ready.
+- `stOnUpdate()` hook call.
+- Lifecycle method call for public and defined home Component.
+- Container id parsing for Lone component.
+- <b>(renderIf)</b> directive for embeded component.
+- Service injection for embeded component.
+<br>
+
+
+### Removed
+- `Component.getFromRef()` method.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-04-06
+## [Version] - 0.0.13
+Improvements and bug fixes.
+<br>
+
+- <b>MEDIUM</b> - implemented error handling for invalid component route Name or URL call.
+        
+
+### Fixed
+- Component loading/unloading in the reloading flow.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-04-06
+## [Version] - 0.0.12
+Improvements and bug fixes.
+<br>
+
+- <b>MEDIUM</b> - implemented error handling for invalid component route Name or URL call.
+        
+
+### Fixed
+- fixed component loading/unloading logic when in the reloading flow.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-04-06
+## [Version] - 0.0.11
+Clean up, improvements and bug fixes.
+ 
+
+- <b>MEDIUM</b> - Blacklist and Whitelist to make components public and vice-versa.
+        
+
+- <b>MINOR</b> - App Config method to allow setting a customized warning message for private Components.
+- <b>MINOR</b> - escape method in the Router which is used in the private component warning message to go back the previous component.
+<br>  
+ 
+### Changed
+- Singleton instance from Components to AppMixin.
+<br>
+- AuthN flag to store in the App variable instead of localStorage.
+<br>
+
+
+### Fixed
+- `setServicePath` which is called in the `StillAppSetup`.
+- Service routing path generation from route.js util.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+This log contains all the changes which takes place for StillJS Framework.
+
+## [Released] - 2025-04-02
+## [Version] - 0.0.10
+Clean up, improvements and bug fixes.
+ 
+
+### Fixed
+- Gets and Set parsing in both component first load and reload.
+- Garbage collector.
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+# Change Log
+This log contains all the changes which takes place for StillJS Framework.
+
 ## [Released] - 2025-04-01
 ## [Version] - 0.0.9
 New Features, improvements and Bug fixes transversally.

@@ -1,3 +1,5 @@
+import { StillAppSetup } from "../../config/app-setup.js";
+
 class HttpRequestOptions {
     headers;
     signal;
@@ -7,93 +9,80 @@ class HttpRequestOptions {
 
 export class StillHTTPClient {
 
-    static #baseUrl = '';
+    static #baseUrl = null;
 
     static setBaseUrl(baseUrl) {
         StillHTTPClient.#baseUrl = baseUrl;
     }
 
-    getBaseURL() {
-        const url = `${StillHTTPClient.#baseUrl}`;
-        return url
+    static getURL(p = '') {
+        const env = StillAppSetup.config.env;
+        StillHTTPClient.#baseUrl = StillHTTPClient.#baseUrl || StillAppSetup.config.get(`httpClient.baseUrl`);
+        if (p.startsWith('http://') || p.startsWith('https://')) return p;
+        return `${StillHTTPClient.#baseUrl}${p}`;
     }
 
     /**
-     * 
      * @param {string} url 
      * @param {HttpRequestOptions} options 
-     * @returns {Promise}
-     */
+     * @returns {Promise} */
     async get(path, options = {}) {
-        const url = `${StillHTTPClient.#baseUrl}${path}`;
+        const url = StillHTTPClient.getURL(path);
         const { headers, method } = options;
         return (await fetch(url, {
             method: method || 'GET',
             headers: headers || {},
         }))
-            .json()
     }
 
     /**
-     * 
      * @param {string} url 
      * @param {HttpRequestOptions} options 
-     * @returns {Promise}
-     */
+     * @returns {Promise} */
     async delete(path, body, options = {}) {
-        const url = `${StillHTTPClient.#baseUrl}${path}`;
+        const url = StillHTTPClient.getURL(path);
         //return await this.get(url, { ...options, method: 'DELETE' })
         const { headers } = options;
         return (await fetch(url, {
             method: 'DELETE',
             body,
             headers: headers || {},
-        }))
-            .json();
+        }));
     }
 
     /**
-     * 
      * @param {string} url 
      * @param {string|JSON|object} body 
      * @param {HttpRequestOptions} options 
-     * @returns {Promise}
-     */
+     * @returns {Promise} */
     async post(path, body, options = {}) {
-        const url = `${StillHTTPClient.#baseUrl}${path}`;
+        const url = StillHTTPClient.getURL(path);
         const { headers, method } = options;
         return (await fetch(url, {
             method: method || 'POST',
             body,
             headers: headers || {},
-        }))
-            .json();
+        }));
     }
 
     /**
-     * 
      * @param {string} url 
      * @param {string|JSON|object} body 
      * @param {HttpRequestOptions} options 
-     * @returns {Promise}
-     */
+     * @returns {Promise} */
     async put(path, body, options = {}) {
-        const url = `${StillHTTPClient.#baseUrl}${path}`;
         return await this.post(path, body, { ...options, method: 'PUT' });
         // url duplicated
         //return await this.post(url, body, { ...options, method: 'PUT' });
     }
 
     /**
-     * 
      * @param {string} url 
      * @param {string|JSON|object} body 
      * @param {HttpRequestOptions} options 
-     * @returns {Promise}
-     */
+     * @returns {Promise} */
     async patch(path, body, options = {}) {
-        const url = `${StillHTTPClient.#baseUrl}${path}`;
-        return await this.post(url, body, { ...options, method: 'PATCH' });
+        return await this.post(path, body, { ...options, method: 'PATCH' });
     }
 
 }

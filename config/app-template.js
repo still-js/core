@@ -1,4 +1,4 @@
-import { Template } from "./@still/component/super/Template.js";
+import { Template } from "../@still/component/super/Template.js";
 
 export class AppTemplate extends Template {
 
@@ -19,5 +19,3 @@ export class AppTemplate extends Template {
     `;
 
 }
-
-window.AppTemplate = AppTemplate;

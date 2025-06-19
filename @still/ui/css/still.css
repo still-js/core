@@ -1,3 +1,5 @@
+#stillUiPlaceholder, #stillAppPlaceholder, .still-toplevel-and-root-app { width: 100%; height: 100%; }
+
 #stllAppGlobalLoadingCurtain {
     position: fixed;
     width: 100%;
@@ -150,6 +152,7 @@ END LOADING STYLE
 
 
 .still-toast {
+    --toast-stat-color: #2c5e24;
     position: fixed;
     top: 25px;
     right: 30px;
@@ -172,16 +175,24 @@ END LOADING STYLE
     align-items: center;
 }
 
-.still-toast-content .check {
+.still-toast-content .check,
+.still-toast-content .fa-times-circle {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 35px;
     min-width: 35px;
-    background-color: #2c5e24;
     color: #fff;
     font-size: 20px;
     border-radius: 50%;
+}
+
+.still-toast-content .check {
+    background-color: #2c5e24;
+}
+
+.still-toast-content .fa-times-circle {
+    background-color: red;
 }
 
 .still-toast-content .still-toast-message {
@@ -198,7 +209,7 @@ END LOADING STYLE
 
 .still-toast-message .text.text-1 {
     font-weight: 600;
-    color: #333;
+    color: var(--toast-stat-color);
 }
 
 .still-toast .close {
@@ -230,7 +241,7 @@ END LOADING STYLE
     right: 0;
     height: 100%;
     width: 100%;
-    background-color: #2c5e24;
+    background-color: var(--toast-stat-color);
 }
 
 .still-toast-progress.still-toast-active:before {
@@ -344,3 +355,151 @@ END LOADING STYLE
 /*
 * END OF STILL FUNDAMENTALS
 */
+
+/** STILL DIVIDER STYLESHEETS */
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+}
+
+.panel {
+    flex-grow: 1;
+    overflow: auto;
+    background-color: #f0f0f0;
+    border-right: 1px solid #ccc;
+    position: relative;
+}
+
+.panel:last-child {
+    border-right: none;
+}
+
+.separator {
+    width: 5px;
+    background-color: #ccc;
+    cursor: ew-resize;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    background-color: #151111;
+    border-radius: 50%;
+    opacity: .5;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+.separator:hover .handle {
+    opacity: 0.9;
+}
+
+.separator.resizing .handle {
+    opacity: 1;
+    background-color: #666;
+}
+/** STILL DIVIDER STYLESHEETS */
+
+
+/** STILL VERTICAL RESIZER COMPONENT STYLESHEET */
+
+    .container-divider-parent {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .container-divider-parent .panel {
+      padding: 10px;
+      overflow: auto;
+    }
+
+    .container-divider-parent .divider {
+      height: 10px;
+      background-color: #b3b0b0;
+      cursor: ns-resize;
+      position: relative;
+      z-index: 1;
+      display: flex;
+    }
+
+    .container-divider-parent .panel.top {
+      background-color: #d0f0fd;
+    }
+
+    .container-divider-parent .panel.bottom {
+      background-color: #fef3c7;
+      height: 200px;
+    }
+
+    .handlehor {
+        width: 15px;
+        height: 15px;
+        position: relative;
+        background-color: #151111;
+        border-top-right-radius: 50%;
+        border-top-left-radius: 50%;
+        opacity: .5;
+        transition: opacity 0.2s ease-in-out;
+        pointer-events: none;
+        margin-top: -4px;
+        align-items: center; /** Y-axis align **/
+        justify-content: center;
+        display: flex;
+        left: calc(50% - 150px);
+    }
+
+/** END STILL RESIZER COMPONENT STYLESHEET */
+
+/** TOOLTIP STYLING */
+*[tooltip] {
+    position: relative;
+    border-bottom: dotted 1px #000;
+}
+  
+
+*[tooltip]:hover:before {
+    font-size: 12px;
+    content: attr(tooltip);
+    background-color: #696969;
+    color: #fff;
+    top: 1em;
+    position: absolute;
+    z-index: 100000000000000000000000;
+    white-space: nowrap;
+    padding: 5px;
+    border-radius: 6px;
+    margin-top: attr(tooltip-y px,5px);
+    margin-left: attr(tooltip-x px, -100px);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+/** END TOOLTIP STYLING */
+
+/** LOCAL LOADER */
+
+.still-cmp-loader {
+  border: 10px solid #f3f3f3; /* Light grey */
+  border-top: 10px solid #3d3f40; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: still-cmp-loaderspin 2s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes still-cmp-loaderspin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/** LOCAL LOADER */

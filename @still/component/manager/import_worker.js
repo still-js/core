@@ -1,5 +1,14 @@
-import { $stillGetRouteMap } from "../../../route.map.js";
+import { stillRoutesMap } from "../../../config/route.map.js";
 import { ComponentType } from "../type/ComponentType.js";
+
+const $stillGetRouteMap = () => {
+    return {
+        route: {
+            ...stillRoutesMap.viewRoutes.regular,
+            ...stillRoutesMap.viewRoutes.lazyInitial
+        },
+    }
+}
 
 addEventListener('message', (event) => {
 

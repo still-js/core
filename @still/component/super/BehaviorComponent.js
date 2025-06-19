@@ -1,8 +1,8 @@
 import { $stillconst } from "../../setup/constants.js";
 
-const validationPatterns = {
+export const validationPatterns = {
     'number': /^\d{0,}$/,
-    'alhpanumeric': /^[a-zA-Z0-9]{0,}$/,
+    'alphanumeric': /^[a-zA-Z0-9\s]{0,}$/,
     'text': /^(.){0,}$/,
     'email': /^[a-z0-9]{0,}(\@){1}[a-z0-9]{2,}(\.){1}[a-z0-9]{2,}$/,
     'phone': /^[\+]{0,1}[\d \s]{8,}$/,
@@ -38,24 +38,29 @@ export class BehaviorComponent {
         );
     }
 
-    static ignoreKeys = [
-        'arrowleft', 'arrowright', 'arrowdown', 'arrowup', 'tab', 'space',
+    static ignrKeys = [
+        'arrowleft', 'arrowright', 'arrowdown', 'arrowup', 'tab', 'space', 'meta',
         'control', 'alt', 'shift', 'escape', 'end', 'home', 'insert', 'capslock'
     ]
 
     /**
-     * 
      * @param {*} field 
      * @param {{ value: string, required: Blob, pattern: RegExp }} inpt 
      */
-    onValueInput(event, field, inpt, formRef) {
+    onValueInput(e, field, inpt, formRef, cmp = null, reset = false) {
 
-        if (event) {
-            if (
-                BehaviorComponent.ignoreKeys.includes(event.key.toString().toLowerCase())
-            ) return;
+        const fieldType = inpt?.type?.toLowerCase();
+        const fieldSrc = this.constructor.name == 'BehaviorComponent' ? cmp : this;
+
+        if(reset){
+            fieldSrc[field] = (fieldType == 'checkbox' || inpt.multiple) ? [] : '';
+            return;
         }
 
+        const isOptList = ['radio','checkbox'].includes(fieldType);
+        if (e && !isOptList) 
+            if (BehaviorComponent.ignrKeys.includes(e.key.toString().toLowerCase())) return;
+         
         const pattern = inpt.getAttribute('(validator)');
         let required = inpt.getAttribute('(required)');
         let validationTrigger = inpt.getAttribute('(validator-trigger)');
@@ -66,26 +71,40 @@ export class BehaviorComponent {
 
         isTriggerSet = isTriggerSet == "false" ? false : isTriggerSet;
         isOntypeTrigger = isOntypeTrigger == "false" ? false : isOntypeTrigger;
+        let isOptListValid = true;
 
-        this[field] = inpt.value;
+        if(isOptList || inpt.multiple){
+            if(fieldType == 'checkbox'){
+                let currentValues = ['',undefined].includes(fieldSrc[field].value) ? [] : fieldSrc[field].value;
+                if(inpt?.checked) currentValues.push(inpt.value);
+                else {
+                    currentValues = currentValues.filter(v => v != inpt.value);
+                    fieldSrc['st'+field+'cbRem'] = inpt.value;
+                }
+                fieldSrc['st'+field+'cbClk'] = true;
+                fieldSrc[field] = currentValues;
+                isOptListValid = currentValues.length > 0 ? true : false;
+            } 
+            else {
+                //this is shared with both scenarios (entering/selecting a value and form validation)
+                //the assignment will not happen in case it's in the form validation flow
+                if(cmp == null) fieldSrc[field] = inpt.value;
+            }
+        } else 
+            fieldSrc[field] = inpt.value;
 
-        /**
-         * If the validation trigger was set and it and
-         * it should not trigger when typing then its get 
-         * stopped by return statement
-         */
+        /* If the validation trigger was set and it and  it should not trigger 
+         * when typing then its get stopped by return statement */
         if (isTriggerSet && !isOntypeTrigger) return;
 
         if (validationTrigger && !isOntypeTrigger) {
             if (validationTriggers[validationTrigger] != validationTriggers.typing) {
                 const actualTrigger = validationTriggers[validationTrigger];
                 if (!inpt[actualTrigger] && (validationTrigger in validationTriggers)) {
-                    /**
-                     * Bellow line will pich the trigger and add as event to the input
-                     * e.g input.onkeyup = () => {};
-                     */
+                    /* Bellow line will pich the trigger and add as event to the input
+                     * e.g input.onkeyup = () => {}; */
                     inpt[actualTrigger] = () => {
-                        this.#handleInputValidation(inpt, field, formRef, pattern, required);
+                        this.#handleInputValidation(inpt, field, formRef, pattern, required, isOptListValid);
                     }
                     inpt.setAttribute(this.#triggetSet, true);
                     inpt.setAttribute(this.#triggetOnType, false);
@@ -100,57 +119,72 @@ export class BehaviorComponent {
             }
         }
 
-        /**
-         * In case no validation trigger was not set of set to typing (ontype/onkeyup)
-         * then validation function will be called everytime new character is entered
-         */
-        return this.#handleInputValidation(inpt, field, formRef, pattern, required);
+        /** In case no validation trigger was not set of set to typing (ontype/onkeyup)
+         * then validation function will be called everytime new character is entered */
+        return this.#handleInputValidation(inpt, field, formRef, pattern, required, isOptListValid, cmp);
 
     }
 
-    #handleInputValidation(inpt, field, formRef, pattern, required) {
+    #handleInputValidation(inpt, field, formRef, pattern, required, isOptListValid = null, cmp = null) {
 
-        const { value } = inpt;
-        let isValid = true;
+        let { value } = inpt;
+        // To address radio and checkbox edge case when running form validator
+        const isOptList = ['checkbox','radio'].includes(inpt.type);
+        const isCBInValidator = this.constructor.name == 'BehaviorComponent' && isOptList;
+
+        if(isCBInValidator) value = cmp[field].value.length > 0 ? cmp[field].value : '';
+        if('radio' == inpt.type && value == '') value = cmp[field].value;
+
+        let isValid = true, validation;
         const fieldPath = `${this.constructor.name}${formRef && formRef != 'null' ? `-${formRef}` : ''}`;
-        const numOutRangeMsg = this.#handleMinMaxValidation(inpt, pattern, value, fieldPath);
 
-        /** Only apply out of range validation in case there is a value in the input  */
-        if (numOutRangeMsg && value != '') {
-            this.#handleValidationWarning('add', inpt, fieldPath, numOutRangeMsg, 'range');
+        if(!isCBInValidator && isOptList){
+            const numOutRangeMsg = this.#handleMinMaxValidation(inpt, pattern, value, fieldPath);
+            /** Only apply out of range validation in case there is a value in the input  */
+            if (numOutRangeMsg && value != '') 
+                this.#handleValidationWarning('add', inpt, fieldPath, numOutRangeMsg, 'range');
         }
-        else {
-            /** Remove Out of range warning if added before */
-            this.#handleValidationWarning('remove', inpt, fieldPath, 'to-remove', 'range');
+        
+        /** Remove Out of range warning if added before */
+        this.#handleValidationWarning('remove', inpt, fieldPath, 'to-remove', 'range');
 
-            if (pattern && value.trim() != '') {
-                let regex = pattern;
-                if (pattern in validationPatterns) {
-                    regex = validationPatterns[pattern];
-                } else {
-
+        if (pattern && value.trim() != '' || ('radio' == inpt.type)) {
+            let regex = pattern;
+            if (pattern in validationPatterns) {
+                regex = validationPatterns[pattern];
+            } else {
+                if(pattern){
                     const datePattern = this.#checkDatePattern(pattern);
                     if (datePattern) regex = datePattern;
                     if (!datePattern) regex = String.raw`${regex}`;
                 }
-
-
-                const validation = value.match(new RegExp(regex));
-                if (!validation || !validation[0]?.length) isValid = false;
             }
-
-            if (value.trim() == '' && required) isValid = false;
-
-            if (!isValid) this.#handleValidationWarning('add', inpt, fieldPath);
-            else this.#handleValidationWarning('remove', inpt, fieldPath);
-
+            if (typeof regex == 'function') {
+                validation = regex(value);
+                if (!validation) isValid = false;
+            } else {
+                if(pattern){
+                    pattern = validationPatterns[pattern];
+                    validation = value.match(new RegExp(regex));
+                    if (!validation || !validation[0]?.length) isValid = false;
+                }
+                else if(!isNaN(value) && 'radio' == inpt.type && value != '') isValid = true;
+                else if (value?.trim() == '' && required) isValid = false;
+            }
         }
+
+        else if (isOptList && value.length > 0) isValid = true;
+        else if (value?.trim() == '' && required) isValid = false;
+
+        if(!isOptListValid) this.#handleValidationWarning('add', inpt, fieldPath);
+        else if (!isValid && !isOptList || (!isValid && 'radio' == inpt.type)) 
+            this.#handleValidationWarning('add', inpt, fieldPath);
+        else this.#handleValidationWarning('remove', inpt, fieldPath);
 
         BehaviorComponent.setValidatorForField(fieldPath, field);
         BehaviorComponent.currentFormsValidators[fieldPath][field]['isValid'] = isValid;
 
         return isValid;
-
     }
 
     #handleMinMaxValidation(inpt, pattern, value, fieldPath) {
@@ -161,11 +195,9 @@ export class BehaviorComponent {
             let min = this.#parseLikelyNumber(inpt.getAttribute('(validator-min)'));
             let max = this.#parseLikelyNumber(inpt.getAttribute('(validator-max)'));
 
-            /**
-             * If not min and max restriction stated then 
+            /** If not min and max restriction stated then 
              * any value will be allowed and get passed to
-             * the next validation on the pipeline
-             */
+             * the next validation on the pipeline */
             if (!min && !max) return false;
 
             const isValidNum = this.#parseLikelyNumber(value);
@@ -194,7 +226,6 @@ export class BehaviorComponent {
     }
 
     /**
-     * 
      * @param {string} pattern 
      */
     #checkDatePattern(pattern) {
@@ -220,7 +251,6 @@ export class BehaviorComponent {
     }
 
     /**
-     * 
      * @param {'add' | 'remove'} opt 
      * @param {HTMLElement} inpt 
      * @param {string} message 
@@ -228,8 +258,9 @@ export class BehaviorComponent {
      */
     #handleValidationWarning(opt, inpt, fieldPath, msg = null, msgSuffix = '') {
 
-        let validationWarning = msg;
+        let validationWarning = msg, optListParent = inpt.parentElement;
         if (!validationWarning) validationWarning = inpt.getAttribute('(validator-warn)');
+        if(!validationWarning && ['checkbox','radio'].includes(inpt.type)) validationWarning = 'This is s mandatory field';
 
         if (validationWarning) {
 
@@ -237,18 +268,22 @@ export class BehaviorComponent {
             const classList = `still-validation-warning`;
 
             if (opt == 'add') {
+                if(['checkbox','radio'].includes(inpt.type)) 
+                    optListParent = BehaviorComponent.getOptListContainert(optListParent);
                 const content = `<div id="${id}" class="${classList}">${validationWarning}</div>`;
                 inpt.classList.add('still-validation-failed-style');
-                const inputField = document.getElementById(id);
-                if (!inputField)
-                    inpt.parentElement.insertAdjacentHTML('beforeend', content);
+                if(optListParent.querySelector('.still-validation-warning')) return;
+                //const inputField = document.getElementById(id);
+                if (content) optListParent.insertAdjacentHTML('beforeend', content);
             }
 
             if (opt == 'remove') {
+                let content = document.getElementById(id);
+                if(['checkbox','radio'].includes(inpt.type)) 
+                    optListParent = BehaviorComponent.getOptListContainert(optListParent);
+                content = optListParent.querySelector('.still-validation-warning');
                 inpt.classList.remove('still-validation-failed-style');
-                const inputField = document.getElementById(id);
-                if (inputField)
-                    inpt.parentElement.removeChild(inputField);
+                if (content) try { optListParent.removeChild(content); } catch (error) {}
             }
         } else {
 
@@ -256,6 +291,15 @@ export class BehaviorComponent {
             if (opt == 'remove') inpt.classList.remove('still-validation-failed-style');
         }
 
+    }
+
+    static getOptListContainert(optListParent){
+        let foundTopParent = null, treeLvl = 0;
+        while(treeLvl < 5 && foundTopParent == null) {
+            if(optListParent.parentElement.tagName != 'OUTPUT') foundTopParent = true;
+            optListParent = optListParent.parentElement, treeLvl += 1;
+        }
+        return optListParent;
     }
 
     static setValidatorForField(fieldPath, field) {
@@ -267,14 +311,13 @@ export class BehaviorComponent {
     }
 
     /**
-     * 
      * @param {string} mt 
      * @param {Object} cmp 
      * @param {string} field 
      */
     static setOnValueInput(mt, cmp, field, formRef) {
 
-        const fieldPath = `${cmp.constructor.name}${formRef ? `-${formRef}` : ''}`;
+        const fieldPath = `${cmp.cmpInternalId}${formRef ? `-${formRef}` : ''}`;
         BehaviorComponent.setValidatorForField(fieldPath, field);
         let isValid = true;
 
@@ -305,40 +348,44 @@ export class BehaviorComponent {
 
     }
 
-    changeState(input, value) { }
-
-    static validateForm(fieldPath) {
+    static validateForm(fieldPath, cmp, formRefObj = {}, reset = false) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
         let valid = true;
         const intValidators = Object.entries(formFields);
         const behaviorInstance = new BehaviorComponent();
-        const formRef = String(fieldPath).split('-')[1];
+        const formRef = String(fieldPath)?.split('-')?.slice(-1)[0];
+        fieldPath = fieldPath.slice(0, -(formRef.length + 1));
         const validators = Object
             .entries(intValidators)
             .map(
                 ([_, stngs]) => {
                     const field = stngs[0];
-                    const inpt = document.querySelector(`.stillInputField-${field}`);
+                    const inpt = document.querySelector(`.${fieldPath}-${field}`);
                     return [
                         field, {
-                            isValid: behaviorInstance.onValueInput(null, field, inpt, formRef),
+                            isValid: behaviorInstance.onValueInput(null, field, inpt, formRef, cmp, reset),
                             inputClass: stngs[1].inputClass
                         }
                     ];
                 });
 
+        if(formRefObj) formRefObj.errorCount = 0;
         for (let [field, validator] of validators) {
 
-            if (!validator.isValid) valid = false;
+            if (!validator.isValid) {
+                if(formRefObj) formRefObj.errorCount++;
+                valid = false;
+            }
 
             if (validator.inputClass) {
                 const obj = new BehaviorComponent();
                 const inpt = document.querySelector('.' + validator.inputClass);
-                if (!validator.isValid) {
+                if (!validator.isValid && !['checkbox','radio'].includes(inpt.type)) {
                     obj.#handleValidationWarning('add', inpt, fieldPath);
                 } else {
-                    obj.#handleValidationWarning('remove', inpt, fieldPath);
+                    if(!['checkbox','radio'].includes(inpt.type))
+                        obj.#handleValidationWarning('remove', inpt, fieldPath);
                 }
             }
         }
@@ -353,10 +400,7 @@ export class BehaviorComponent {
         return null;
     }
 
-    /**
-     * 
-     * @param {'load'} evt 
-     */
+    /** @param {'load'} evt */
     on(evt, action) {
 
         if (evt in this.behaviorEvtSubscriptions) {
@@ -379,10 +423,7 @@ export class BehaviorComponent {
 
     }
 
-    /**
-     * 
-     * @param {'load'} evt 
-     */
+    /** @param {'load'} evt */
     emit(evt) {
         if (!(evt in this.behaviorEvtSubscriptions)) {
             const status = $stillconst.A_STATUS.DONE;

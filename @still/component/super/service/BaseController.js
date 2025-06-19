@@ -1,15 +1,8 @@
 import { StillAppSetup } from "../../../../config/app-setup.js";
 import { UUIDUtil } from "../../../util/UUIDUtil.js";
 
-class ControllerFactory { }
-
-export class ControllerManager {
-    static instances = new Map();
-    static get = (type) => ControllerManager.instances.get(type);
-}
-
 export class BaseController {
-
+    /* stServiceTypeInjectable */ stSTI = true;
     versionId = UUIDUtil.newId();
     /** @param { 'load' } evt */ on(evt, cb = () => { }) { }
     constructor() {

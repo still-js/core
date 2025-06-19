@@ -13,9 +13,12 @@ export class STForm {
     sTForm = true;
     name;
     formId;
+    errorCount;
     constructor(refName, formId){ this.name = refName, this.formId = formId };
     /**  @returns { boolean } */
-    validate() { }
+    validate() { };
+    /** Clears the form  */
+    reset(){};
 }
 
 

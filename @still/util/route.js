@@ -1,3 +1,6 @@
+import { StillAppSetup } from "../../config/app-setup.js";
+import { StillError } from "../setup/error.js";
+
 let filePathAltered = false;
 export async function getRoutesFile(defaultFile) {
     try {
@@ -45,4 +48,13 @@ export function getBasePath(type = null, servicePath = null) {
         return `${location.origin}/app/${servicePath}`;
 
     return `${location.origin}/app/`;
+}
+
+export function  getServicePath(type, svcPath, injecter) {
+    let path = svcPath == '' ? StillAppSetup.get().servicePath : '';
+    if(path == undefined) StillError.undefinedPathInjectionError(type, injecter);
+    if (path?.startsWith('/')) path = path.slice(1);
+    if (path?.endsWith('/')) path = path.slice(0, -1);
+    path = getBasePath('service', svcPath) + '' + path;
+    return path + '/' + type + '.js';
 }

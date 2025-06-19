@@ -4,6 +4,33 @@ This log contains all the changes which takes place for StillJS Framework.
 
 
 ## [Released] - 2025-05-30
+## [Version] - 1.2.10
+Adjustments on the Lone component/Microfrotend loading and event handling in the integration with React.
+ 
+- <b>MINOR</b> - Value passing from React to Still component through (`<st-element>`) 
+<br>  
+
+- <b>MINOR</b> - `stRef` for providing a reference to allow comunication from external app (e.g. React). 
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-05-30
 ## [Version] - 1.2.5
 This version releases some of no-breaking features that had be on hold, also some clean up and fixes are part of it.
  

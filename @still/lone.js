@@ -10,7 +10,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
 
 (() => {
-
+    const boolMap = { 'false': false, 'true': true, false: false, true: true, 'no': false, 'yes': true };
     Router.parseRouteMap()
         .then(async () => {
 
@@ -35,9 +35,17 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
                 [...stillDeclarations].forEach(async elm => {
 
-                    elm.id = `stillLone_${UUIDUtil.newId()}`
-                    const cmpName = elm.getAttribute('component');
+                    elm.id = `stillLone_${UUIDUtil.newId()}`;
+                    const cmpName = elm.getAttribute('component'), ref = elm.getAttribute('stRef');
+                    
                     const { newInstance: cmp } = await Components.produceComponent({ cmp: cmpName, lone: true });
+                    const attrs = [...elm.getAttributeNames()];
+                    for(const atr of attrs){
+                        const attrVal = elm.getAttribute(atr);
+                        const realVal = attrVal in boolMap ? boolMap[attrVal] : attrVal;
+                        if(!['component','id','ref'].includes(atr)) cmp[atr] = realVal;
+                    }
+
                     await cmp.onRender();
                     new BaseComponent().parseStTag(elm.outerHTML, '', cmp);
                     const template = cmp.getBoundTemplate(elm.id);
@@ -49,12 +57,19 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                         (new Components).parseGetsAndSets(cmp)
                     }, 10);
                     document.getElementById(elm.id).innerHTML = template;
+                    if(ref && ref != ''){
+                        if(window['stillFrontendsList']){
+                            const appLoaderId = window['stillFrontendsList'][ref];
+                            window['stillFrontendsLoader'][appLoaderId][ref] = cmp;
+                        }
+                    }
 
                     const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];
                     setTimeout(async () => {
                         Components.emitAction(cmp.getName());
                         Components.handleInPlacePartsInit(cmp, cmp.cmpInternalId, cmpParts);
-                        Components.runAfterInit(cmp);
+                        setTimeout(() => Components.runAfterInit(cmp),100);
+                        Components.handleMarkedToRemoveParts();
                     });
 
                 });

@@ -34,8 +34,7 @@ const ProduceComponentType = {
 };
 
 class ProducedCmpResultType {
-    /** @type { DefaultViewComponent } */
-    newInstance;
+    /** @type { DefaultViewComponent } */ newInstance;
     /** @type { string } */ template;
     /** @type { class | any } */ _class;
 }
@@ -219,7 +218,7 @@ export class Components {
             Object.freeze(StillAppSetup.config.props);
             $still.context.currentView = await StillAppSetup.instance.init();
             await Components.processInitProperties();
-
+            
             /**  @type { ViewComponent } */
             const currentView = $still.context.currentView;
 
@@ -270,9 +269,9 @@ export class Components {
                     Components.runAfterInit($still.context.currentView);
                     if (!Router.clickEvetCntrId) AppTemplate.injectToastContent();
                 });
+                StillAppSetup.get()['entryComponentId'] = $still.context.currentView.cmpInternalId;
                 return;
             }
-
             if (document.getElementById(this.stillAppConst))
                 this.renderOnViewFor(this.stillAppConst, $still.context.currentView);
             else new Components().renderPublicComponent($still.context.currentView);
@@ -345,24 +344,27 @@ export class Components {
     defineSetter = (cmp, field) => {
         if (cmp.myAnnotations()?.get(field)?.inject) return;
         cmp.__defineGetter__(field, () => {
-            const cmpId = cmp.cmpInternalId;
-            const result = {
-                value: cmp['$still_' + field],
+            const optLst = cmp['stOptListFieldMap']?.get(field);
+            const r = {
+                value: cmp['$still_' + field], defined: true,
                 onChange: (callback = function () { }) => {
                     cmp[`$still${field}Subscribers`].push(callback);
                 },
-                defined: true,
-                firstPropag: false,
-                onlyPropSignature: true
+                firstPropag: false, onlyPropSignature: true,
             };
+            if(optLst?.chkBox) r.isChkbox = true;
+            if(optLst?.radio) r.isRadio = true;
+            if(optLst?.multpl) {
+                if (r.value == '') r.value = []; 
+                r.multpl = true;
+            }
 
             const validator = BehaviorComponent.currentFormsValidators;
             if (validator[cmp.cmpInternalId]) {
-                if (field in (validator[cmp?.constructor?.name] || [])) {
-                    result['isValid'] = validator[cmp.constructor.name][field]['isValid'];
-                }
+                if (field in (validator[cmp?.constructor?.name] || [])) 
+                    r['isValid'] = validator[cmp.constructor.name][field]['isValid'];
             }
-            return result;
+            return r;
         });
     }
 
@@ -380,6 +382,8 @@ export class Components {
 
         function parseField(field, cmp) {
             const inspectField = cmp[field];
+            
+            if(true === inspectField?.injectable || true === inspectField?.stSTI) return;
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop'
                 || cmp.myAnnotations()?.get(field)?.prop || annot?.get(field)?.prop
             ) {
@@ -387,7 +391,12 @@ export class Components {
                 if (inspectField?.sTForm) {
                     cmp[field].validate = function () {
                         const formRef = field;
-                        return BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`);
+                        return BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp, cmp[field]);
+                    }
+                    cmp[field].reset = () => {
+                        const formRef = field;
+                        BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp, cmp[field], true);
+                        document.getElementById(`fId_${field}`).reset();
                     }
                     return;
                 }
@@ -420,6 +429,10 @@ export class Components {
                         /** This is for handling (renderIf) */
                         const elmList = document.getElementsByClassName(listenerFlag);
                         for (const elm of elmList) {
+
+                            if(elm.style.display === 'none') elm.style.display = '';
+                            else if(elm.style.display === '') elm.style.display = 'none';
+
                             if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
                         }
@@ -436,8 +449,13 @@ export class Components {
                 o.defineSetter(cmp, field);
 
                 cmp.__defineSetter__(field, (newValue) => {
+                    if(cmp['stOptListFieldMap']?.get(field)?.multpl)
+                        cmp['$still_' + field] = newValue;
                     cmp.__defineGetter__(field, () => newValue);
+
+                    //Address multi selection combobox: TOUCHING HERE
                     cmp['$still_' + field] = newValue;
+
                     o.defineSetter(cmp, field);
                     setTimeout(async () => await cmp.stOnUpdate());
 
@@ -452,13 +470,19 @@ export class Components {
 
                     if (cmp[field]?.defined || cmp.dynLoopObject) {
                         Components.firstPropagation[`${cmp.cmpInternalId}-${field}`] = true;
-                        o.propageteChanges(cmp, field);
+                        o.propageteChanges(cmp, field, { A: !cmp['st'+field+'cbRem'], C: cmp['st'+field+'cbClk'] });
                     }
+                    delete cmp['st'+field+'cbRem'];
+                    delete cmp['st'+field+'cbClk'];
 
                 });
                 const firstPropagateTimer = setInterval(() => {
                     //Work in the garbage collector for this Components.firstPropagation flag
-                    if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
+                    if(Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
+                        clearInterval(firstPropagateTimer);
+                        o.propageteChanges(cmp, field);
+                    }
+                    else if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
                         if (!o.notAssignedValue.includes(cmp['$still_' + field])) o.propageteChanges(cmp, field);
                         cmp[field].firstPropag = true;
@@ -473,32 +497,55 @@ export class Components {
     static firstPropagation = {};
 
     /** @param { ViewComponent } cmp */
-    propageteChanges(cmp, field) {
-        const cpName = cmp.cmpInternalId.replace('/', '').replace('@', '');
-        const cssRef = `.listenChangeOn-${cpName}-${field}`;
+    propageteChanges(cmp, field, chkBoxOpts = {}) {
+        const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
+        const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
-        const cssRefCombo = `.listenChangeOn-${cpName}-${field}-combobox`;
+        const cssRefCombo = `.listenChangeOn-${cpName}-${f}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
-        const stateChange = `.state-change-${cpName}-${field}`;
+        const stateChange = `.state-change-${cpName}-${f}`;
         const stateChangeSubsribers = document.querySelectorAll(stateChange);
+        const { isChkbox, isRadio, multpl, value } = cmp[f];       
 
-        if (stateChangeSubsribers) {
-            stateChangeSubsribers.forEach(subcriber => {
-                subcriber.innerHTML = cmp['$still_' + field];
-            });
+        if(isChkbox || (multpl && !cmp['stClk' + f])){
+            // chkBoxOpts.A = add, chkBoxOpts.C = click
+            if((chkBoxOpts.A && !chkBoxOpts.C) || multpl){
+                const action = multpl ? 'selected' : 'checked';
+                let waitSec = multpl ? new Number($still.multplWaitSec) : 0; //Adding  a delay to allow th combobox to render
+                value.forEach(v => {
+                    setTimeout(() => {
+                        const opt = document.querySelector(`.${cpName}-${f}-val-${v}`.replace(/\s/g,'-'));
+                        if(opt) {
+                            opt[action] = true;
+                            const empty = document.querySelector(`.${cpName}-${f}empty`);
+                            if(empty) empty.selected = false;
+                        }
+                    },waitSec);
+                });
+                if($still.multplWaitSec > 0) $still.multplWaitSec = 0;
+            }
         }
 
-        if (subscribers) {
-            subscribers.forEach(/** @type {HTMLElement} */elm => {
-                this.dispatchPropagation(elm, field, cmp);
-            });
+        if(isRadio){
+            if(chkBoxOpts.A && !chkBoxOpts.C){
+                const opt = document.querySelector(`.${cpName}-${f}-val-${value}`);
+                if(opt) {
+                    //cmp['$still_' + f] = value;
+                    opt.checked = true;
+                }
+                
+            }
         }
+
+        if (stateChangeSubsribers) 
+            stateChangeSubsribers.forEach(s => s.innerHTML = cmp['$still_' + f]);
+
+        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
+            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
 
         if (subscribersCombo) {
-            subscribersCombo.forEach(/** @type {HTMLElement} */elm => {
-                setTimeout(() => {
-                    this.propageteToInput(elm, field, cmp);
-                });
+            subscribersCombo.forEach(/**@type {HTMLElement}*/elm => {
+                setTimeout(() => this.propageteToInput(elm, f, cmp));
             });
         }
     }
@@ -568,7 +615,6 @@ export class Components {
                 finalCtnr.style.display = 'contents';
                 elm.insertAdjacentElement('beforeend', finalCtnr);
             }
-
         })();
 
     }
@@ -579,18 +625,22 @@ export class Components {
      */
     async parseAndAssigneValue(elm, field, cmp, container) {
 
-        const hash = elm.getAttribute('hash');
+        const hash = elm.getAttribute('hash'), cmpId = cmp.cmpInternalId;
         container.classList.add($stillconst.SUBSCRIBE_LOADED);
 
-        let tmpltContent, childCmp;
+        let tmpltContent, childCmp, f = elm.dataset.field;
         if (elm.tagName == 'SELECT') {
             const childs = elm.querySelectorAll('option');
 
             const placeholder = elm.getAttribute('placeholder') || 'Select an option';
-            if (childs[0].outerHTML.toString().indexOf('value="{item.') > 0)
+            if (childs[0].outerHTML.toString().indexOf('{item.') > 0){
                 tmpltContent = childs[0].outerHTML.toString();
+                const valField = tmpltContent.split('value')[1].split('"')[1];
+                const cls = `${cmpId}-${f}-val-${valField}st`;
+                tmpltContent = tmpltContent.replace('<option','<option class="'+cls+'"');
+            }
 
-            let result = `<option value='' selected>${placeholder}</option>`;
+            let result = `<option value='' class="${cmpId}-${f}empty" selected>${placeholder}</option>`;
             container.innerHTML = await this.parseForEachTemplate(tmpltContent, cmp, field, result);
             return container;
 
@@ -608,7 +658,11 @@ export class Components {
         /** Get the previous table body */
         const oldContainer = elm.parentNode.querySelector(`.${hash}`);
         /** Check if it exists previous table body and remove it */
-        if (oldContainer) elm?.parentNode?.removeChild(oldContainer);
+        if (oldContainer){
+            try {
+                elm?.parentNode?.removeChild(oldContainer);
+            } catch (error) {}   
+        }
         container.classList.add(hash);
 
         container.innerHTML = await this.parseForEachTemplate(
@@ -620,8 +674,8 @@ export class Components {
 
     async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null) {
 
-        let template = tmpltContent.replace('display:none;', ''), childTmpl,
-            childResult = '';
+        let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '';
+        if(template.indexOf('</st-lstgp>')) template = template.replace('display:none;', '');
 
         if (cmp['$still_' + field] instanceof Array) {
 
@@ -635,7 +689,6 @@ export class Components {
                 childTmpl = childInstance.template;
                 let fields = Object.entries(childCmp.props), noFieldsMap;
                 if (fields.length == 0) noFieldsMap = true;
-
 
                 for (const rec of cmp['$still_' + field]) {
                     /** @type { ViewComponent } */
@@ -671,16 +724,17 @@ export class Components {
                     let fields = Object.entries(rec);
                     result += this.replaceBoundField(parsingTemplate, fields);
                 });
-
             }
-
         }
         return childCmp?.stElement ? childResult : result;
     }
 
     replaceBoundField(parsingTemplate, fields) {
         for (const [f, v] of fields) {
-            parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, v);
+            parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, (m, pos, tmpl) => {
+                const isCls = tmpl.slice(pos + m.length).startsWith('st');
+                return isCls ? new String(v)?.replace(/\s/g,'-')+' ' : v;
+            });
         }
         return parsingTemplate.replaceAll('($event', '(event');
     }
@@ -734,9 +788,7 @@ export class Components {
         } else {
             delete Components.parsingTracking[cmp.cmpInternalId];
         }
-
         return window[componentName];
-
     }
 
     /**  
@@ -771,11 +823,6 @@ export class Components {
             for (const cmp of cmps) cmp.style.display = 'none';
             resolve([]);
         })
-    }
-
-    static markPrevContarOrphan(cmpClassId) {
-        const cmpCntrs = document.querySelectorAll(`.${cmpClassId}`);
-        cmpCntrs.forEach(elm => elm.classList.add('orphan-cmp-container'));
     }
 
     /** @param {ViewComponent} cmp */
@@ -815,7 +862,7 @@ export class Components {
         if (!previousContainer) {
             await newInstance.onRender();
             container = Components.getCmpViewContainer(cmpName, newInstance.cmpInternalId, newInstance.getTemplate());
-            //container.innerHTML = '';
+
             ComponentRegistror.add(newInstance.cmpInternalId, newInstance);
         } else {
             await newInstance.onRender();
@@ -834,9 +881,7 @@ export class Components {
         container.style.display = 'contents';
         const isTHereFixedPart = document.querySelector(`.${$stillconst.ST_FIXE_CLS}`);
 
-        if (
-            !isTHereFixedPart && isUnAuthn
-            || (isTHereFixedPart && isUnAuthn)
+        if (!isTHereFixedPart && isUnAuthn || (isTHereFixedPart && isUnAuthn)
         ) {
             Router.callCmpAfterInit(
                 null, isHome, isHome ? Router.appPlaceholder : null
@@ -874,7 +919,6 @@ export class Components {
             if (!appContr) appContr = document.getElementById($stillconst.UI_PLACEHOLDER);
             appContr.insertAdjacentHTML('afterbegin', cntr.outerHTML);
         }
-
         return cntr;
     }
 
@@ -921,20 +965,18 @@ export class Components {
 
     static getPartPlaceHolder(parentCmp, cmpInternalId, placeHolderRef) {
 
-        if (placeHolderRef) {
+        if (placeHolderRef) 
             return document.getElementsByClassName(`still-placeholder${placeHolderRef}`);
-        }
+
         return cmpInternalId == 'fixed-part'
             ? document.getElementById(`stillUiPlaceholder`).getElementsByTagName('still-placeholder')
             : document.getElementsByClassName(`still-placeholder${parentCmp?.getUUID()}`)
     }
 
     /**
-     * 
      * @param {BaseComponent} parentCmp 
      * @param {*} cmpInternalId 
      * @param {*} cmpParts 
-     * @returns 
      */
     static handleInPartsImpl(parentCmp, cmpInternalId, cmpParts, placeHolderRef = null) {
 
@@ -943,19 +985,16 @@ export class Components {
         const placeHolders = Components
             .getPartPlaceHolder(parentCmp, cmpInternalId, placeHolderRef);
 
-        /** Get all <st-element> component to replace with the
-         *  actual component template */
-        if (cmpInternalId != 'fixed-part') {
+        /** Get all <st-element> component to replace with the actual component template */
+        if (cmpInternalId != 'fixed-part') 
             if (parentCmp) parentCmp.versionId = UUIDUtil.newId();
-        }
 
         const cmpVersionId = cmpInternalId == 'fixed-part' ? null : parentCmp.versionId;
         for (let idx = 0; idx < cmpParts.length; idx++) {
             const parentClss = placeHolders[idx]?.parentNode?.classList;
 
-            /** Preventing this component to be instantiated in case it 
-             * should not be rendered due to the (renderIf) flag value
-             * is found to be false */
+            /** Preventing this component to be instantiated in case it should not be 
+             * rendered due to the (renderIf) flag value is found to be false */
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
                 continue;
 
@@ -963,7 +1002,6 @@ export class Components {
             if (component == undefined) continue;
 
             (async () => {
-
                 /** TODO: Dynamic import of assets of a vendor component  */
                 /* if (isVendorCmp) {
                     const imports = await cmpCls[realClsName]?.importAssets();
@@ -987,6 +1025,7 @@ export class Components {
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;
                 instance.stillElement = true;
                 instance.proxyName = proxy;
+                instance.nstngCount = parentCmp?.nstngCount ? parentCmp.nstngCount + 1 : 1;
                 if(cmpInternalId == 'fixed-part') instance['isStFixed'] = true;
                 ComponentRegistror.add(instance.cmpInternalId, instance);
 
@@ -999,7 +1038,7 @@ export class Components {
 
                 //if (cmpInternalId != 'fixed-part') {
                 Components.parseProxy(proxy, cmp, parentCmp, annotations);
-                cmp['name'] = cmpName;
+                cmp['stName'] = cmpName;
                 StillAppSetup.register(cmp);
 
                 const allProps = Object.entries(props);
@@ -1036,10 +1075,8 @@ export class Components {
 
                         if (prefix == '') {
                             value = value.trim();
-                            if (
-                                !isNaN(value)
-                                || (value.startsWith('\'') && value.endsWith('\''))
-                            ) cmp[prop] = value;
+                            if (!isNaN(value) || (value.startsWith('\'') && value.endsWith('\''))) 
+                                cmp[prop] = value;
                         }
 
                         else if (String(value).toLowerCase().startsWith(prefix) || prefix == '') {
@@ -1063,6 +1100,8 @@ export class Components {
                 //replaces the actual template in the <st-element> component placeholder
                 placeHolders[idx]
                     ?.insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+                // Renders second level of nesting
+                if(cmp?.nstngCount == 1) Components.handleInPlaceParts(cmp);
                 setTimeout(async () => {
                     /** Runs the load method which is supposed to implement what should be run
                      * for the component to be displayed accordingly in the User interface */
@@ -1323,7 +1362,7 @@ export class Components {
             || cmp.__proto__ instanceof BaseComponent
             || cmp.__proto__ instanceof ViewComponent
             || Components.knownClasses.includes(cmp?.name)
-        ) window[cmp.name] = cmp;
+        ) window[cmp.name || cmp.stName] = cmp;
 
         else if (typeof cmp == 'function') window[cmp.name] = cmp;
     }

@@ -407,7 +407,7 @@ export class Router {
     static handleViewType(cmp) {
 
         if ((cmp.prototype instanceof ViewComponent)
-            || (cmp.prototype instanceof BaseComponent)) cmp = cmp.name;
+            || (cmp.prototype instanceof BaseComponent)) cmp = cmp.stName;
 
         Router.navigatingView = cmp;
         return cmp;

@@ -561,7 +561,7 @@ export class BaseComponent extends BehaviorComponent {
 
         const extremRe = /[\n \r \t \< \$ \( \) \- \s A-Za-z0-9 \@ \= \" \.]{0,}/.source;
         const matchRenderIfRE = /\(renderIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
-        const matchShowIfRE = /\(showIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
+        const matchShowIfRE = /\(showIf\)\="[A-Za-z0-9 \.\! \( \)]{0,}\"/;
         const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
         const reRIf = new RegExp(extremRe + matchRenderIfRE.source + extremRe, 'gi');
         const handleError = this.#handleErrorMessage;
@@ -586,7 +586,10 @@ export class BaseComponent extends BehaviorComponent {
             const cleanMatching = mt.replace(/[\n\t]{0,}/, '').replace(/\s{0,}/, '');
             if (cleanMatching.charAt(0) == '<' || cleanMatching.indexOf('(showIf)=') > cleanMatching.indexOf('<')) {
                 const matchInstance = mt.match(matchShowIfRE)[0];
-                const showFlag = matchInstance.split('"')[1].replace('"', "");
+                let showFlag = matchInstance.split('"')[1].replace('"', ""), negateFlag = false;
+                if(showFlag.startsWith('!')){
+                    showFlag = showFlag.slice(1), negateFlag = true;
+                }
 
                 let showFlagValue, listenerFlag;
                 if (showFlag.indexOf('self.') == 0) {
@@ -595,7 +598,7 @@ export class BaseComponent extends BehaviorComponent {
                         try {
                             const value = eval(`cls.${classFlag}`);
                             showFlagValue = { value: value?.parsed ? value.value : value, onlyPropSignature: true };
-                            listenerFlag = '_stFlag' + classFlag + '_' + clsName + '_change';
+                            listenerFlag = `_stFlag${classFlag}_${clsName}_change`;
                             Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value, parsed: true });
                             this[classFlag] = showFlagValue;
                         } catch (e) {
@@ -606,7 +609,8 @@ export class BaseComponent extends BehaviorComponent {
 
                 // Validate the if the flag value is false, in case it's false then hide
                 let hide = '';
-                if (!showFlagValue?.value) hide = $stillconst.PART_HIDE_CSS;
+                if (!showFlagValue?.value && !negateFlag) hide = $stillconst.PART_HIDE_CSS;
+                else if (showFlagValue?.value && negateFlag) hide = $stillconst.PART_HIDE_CSS;
                 else hide = '';
 
                 if (mt.indexOf('class="') > 0) {
@@ -616,18 +620,17 @@ export class BaseComponent extends BehaviorComponent {
                      *  .replace(matchInstance, '');
                      *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code */
                     result = mt
-                        .replace('class="', `class="${hide} ${listenerFlag} `)
+                        .replace('class="', `class="${hide} ${listenerFlag} ${negateFlag ? $stillconst.NEGATE_FLAG : ''}`)
                         .replace(matchInstance, '');
                 } else {
                     /**  .replace(matchInstance, `class="${hide}"`) Replaces the (renderIf)="anything" directive and value with hide classe */
-                    result = mt.replace(matchInstance, `class="${hide} ${listenerFlag}"`);
+                    result = mt.replace(matchInstance, `class="${hide} ${listenerFlag} ${negateFlag ? $stillconst.NEGATE_FLAG : ''}"`);
                 }
-                if(STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
-                    if(mt.indexOf('style="') > 0) {
+                if(window.STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
+                    if(mt.indexOf('style="') > 0) 
                         result = result.replace('style="','style="display: none;');
-                    }else{
+                    else
                         result = result.replace('class="','style="display: none;" class="');
-                    }
                 }
             }
             return result;
@@ -689,7 +692,7 @@ export class BaseComponent extends BehaviorComponent {
                 } else {
                     result = mt.replace(matchInstance, '');
                 }
-                if(STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
+                if(window.STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
                     if(mt.indexOf('style="') > 0) {
                         result = result.replace('style="','style="display: none;');
                     }else{

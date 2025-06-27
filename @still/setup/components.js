@@ -423,17 +423,23 @@ export class Components {
                         }
                         /** This is addressing the edge case where the (renderIf) is parsed after this setter is defined */
                         if (field in cmp.st_flag_ini_val && !(val?.parsed)) {
-                            val = !cmp.st_flag_ini_val[field];
-                            delete cmp.st_flag_ini_val[field];
+                            val = !cmp.st_flag_ini_val[field]; delete cmp.st_flag_ini_val[field];
                         }
                         /** This is for handling (renderIf) */
                         const elmList = document.getElementsByClassName(listenerFlag);
                         for (const elm of elmList) {
-
-                            if(elm.style.display === 'none') elm.style.display = '';
+                            let remHide = false;
+                            if(elm.classList.contains($stillconst.NEGATE_FLAG)){
+                                if(val === 'true' || val === true) elm.style.display = 'none';
+                                else{
+                                    remHide = true;
+                                    elm.style.display = '';
+                                }
+                            }
+                            else if(val === 'true' || val === true) elm.style.display = '';
                             else if(elm.style.display === '') elm.style.display = 'none';
 
-                            if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
+                            if (val || remHide) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
                         }
                         cmp.__defineGetter__(field, () => val);
@@ -1608,11 +1614,39 @@ export class Components {
     }
 
     parseLocalLoader(template) {
-        return template.replace(/<st-loader[\s\(\)a-z0-9\.\=\"]{0,}>/i, (mt) => {
-            let complement = mt.split(' ');
-            if (complement.length > 1) complement = complement[1].slice(0, -1);
-            else complement = '';
-            return `<div class="still-cmp-loader" ${complement}></div>`;
+        return template.replace(/<st-loader[\s\(\)a-z0-9\.\=\"]{0,}[\s]{0,}[\/]{0,}>/i, (mt) => {
+            let sheet = document.styleSheets[0], complement = mt.replace('<st-loader','').replace('>',''), lbl = '';
+            
+            if(!sheet['has-still-cmp-loader']){
+                sheet['has-still-cmp-loader'] = true;
+                sheet.insertRule(`
+                    .still-cmp-loader {
+                        border: 10px solid #f3f3f3; border-top: 10px solid #3d3f40; 
+                        border-radius: 50%; width: 120px; margin: 0 auto;
+                        height: 120px; animation: still-cmp-loaderspin 2s linear infinite;
+                    }`,sheet.cssRules.length);
+
+                sheet.insertRule(`
+                    @keyframes still-cmp-loaderspin {0% {transform:rotate(0deg);} 100% {transform:rotate(360deg);}
+                    }`,sheet.cssRules.length);
+
+                sheet.insertRule(`st-loader-cntr{ display: flex;  }`, sheet.cssRules.length)
+
+                if(mt.indexOf(' center ') > 0)
+                    sheet.insertRule(`st-loader-cntr{ 
+                        position: absolute;  left: 50%; top: 50%; transform: translate(-50%, -50%); }`, sheet.cssRules.length)
+            }
+            const lblStartPos = complement.indexOf('(label)="');
+            if(lblStartPos > 0){
+                lbl = complement.slice(lblStartPos+9).slice(0,complement.slice(lblStartPos+9).indexOf('"'));            
+                complement = complement.replace(`(label)="${lbl}"`,'')
+            }
+
+            return `
+            <st-loader-cntr style="flex-direction:column;align-items:center;" ${complement}>
+                <div class="still-cmp-loader"></div>${lbl}
+            </st-loader-cntr>
+            `;
         });
     }
 

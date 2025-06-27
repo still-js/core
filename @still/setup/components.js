@@ -423,13 +423,22 @@ export class Components {
                         }
                         /** This is addressing the edge case where the (renderIf) is parsed after this setter is defined */
                         if (field in cmp.st_flag_ini_val && !(val?.parsed)) {
-                            val = !cmp.st_flag_ini_val[field]; delete cmp.st_flag_ini_val[field];
+                            if(typeof val === 'boolean' || ['false','true'].includes(val))
+                                val = !cmp.st_flag_ini_val[field]; 
+                            delete cmp.st_flag_ini_val[field];
                         }
                         /** This is for handling (renderIf) */
                         const elmList = document.getElementsByClassName(listenerFlag);
                         for (const elm of elmList) {
                             let remHide = false;
-                            if(elm.classList.contains($stillconst.NEGATE_FLAG)){
+                            if(!(val === 'true' || val === true || val === 'false' || val === false)){
+                                if(elm.classList.contains(`${$stillconst.FLAG}${val?.toString()?.replace(/\s/,'-')}`)){
+                                        remHide = true;
+                                        elm.style.display = '';
+                                }else 
+                                    elm.style.display = 'none';
+                            }
+                            else if(elm.classList.contains($stillconst.NEGATE_FLAG)){
                                 if(val === 'true' || val === true) elm.style.display = 'none';
                                 else{
                                     remHide = true;
@@ -439,7 +448,7 @@ export class Components {
                             else if(val === 'true' || val === true) elm.style.display = '';
                             else if(elm.style.display === '') elm.style.display = 'none';
 
-                            if (val || remHide) elm.classList.remove($stillconst.PART_HIDE_CSS);
+                            if (val === true || remHide) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
                         }
                         cmp.__defineGetter__(field, () => val);

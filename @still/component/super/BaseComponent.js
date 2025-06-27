@@ -561,7 +561,7 @@ export class BaseComponent extends BehaviorComponent {
 
         const extremRe = /[\n \r \t \< \$ \( \) \- \s A-Za-z0-9 \@ \= \" \.]{0,}/.source;
         const matchRenderIfRE = /\(renderIf\)\="[A-Za-z0-9 \. \( \)]{0,}\"/;
-        const matchShowIfRE = /\(showIf\)\="[A-Za-z0-9 \.\! \( \)]{0,}\"/;
+        const matchShowIfRE = /\(showIf\)\="[A-Za-z0-9 \=\.\!\' \( \)]{0,}\"/;
         const reSIf = new RegExp(extremRe + matchShowIfRE.source + extremRe, 'gi');
         const reRIf = new RegExp(extremRe + matchRenderIfRE.source + extremRe, 'gi');
         const handleError = this.#handleErrorMessage;
@@ -572,6 +572,15 @@ export class BaseComponent extends BehaviorComponent {
         return template;
     }
 
+    #parseRndrIfFlag(showFlag, negateFlag, litValFlag, flagVal = undefined){
+        if(showFlag.startsWith('!')) [showFlag, negateFlag] = [showFlag.slice(1),true];
+        else if(showFlag.indexOf('==') > 0){
+            [showFlag, flagVal] = showFlag.split('==');
+            litValFlag = `flag-${flagVal?.trim()?.replace(/\'/g,'')?.replace(/\s/g,'-')}`;
+        }
+
+        return [showFlag, negateFlag, litValFlag, flagVal];
+    }
 
     parseShowIf(template, reSIf, matchShowIfRE, handleErrorMessage) {
 
@@ -586,10 +595,8 @@ export class BaseComponent extends BehaviorComponent {
             const cleanMatching = mt.replace(/[\n\t]{0,}/, '').replace(/\s{0,}/, '');
             if (cleanMatching.charAt(0) == '<' || cleanMatching.indexOf('(showIf)=') > cleanMatching.indexOf('<')) {
                 const matchInstance = mt.match(matchShowIfRE)[0];
-                let showFlag = matchInstance.split('"')[1].replace('"', ""), negateFlag = false;
-                if(showFlag.startsWith('!')){
-                    showFlag = showFlag.slice(1), negateFlag = true;
-                }
+                let showFlag = matchInstance.split('"')[1].replace('"', ""), negateFlag = false, litValFlag = null, initVal;
+                [showFlag, negateFlag, litValFlag, initVal] = this.#parseRndrIfFlag(showFlag, negateFlag, litValFlag);
 
                 let showFlagValue, listenerFlag;
                 if (showFlag.indexOf('self.') == 0) {
@@ -609,10 +616,15 @@ export class BaseComponent extends BehaviorComponent {
 
                 // Validate the if the flag value is false, in case it's false then hide
                 let hide = '';
-                if (!showFlagValue?.value && !negateFlag) hide = $stillconst.PART_HIDE_CSS;
+                if(initVal !== undefined){
+                    if(!isNaN(initVal) && initVal.indexOf("'") < 0) initVal = parseFloat(initVal);
+                    if(showFlagValue?.value !== initVal) hide = $stillconst.PART_HIDE_CSS;
+                }
+                else if (!showFlagValue?.value && !negateFlag) hide = $stillconst.PART_HIDE_CSS;
                 else if (showFlagValue?.value && negateFlag) hide = $stillconst.PART_HIDE_CSS;
                 else hide = '';
 
+                const complementFlag = `${negateFlag ? $stillconst.NEGATE_FLAG : ''} ${litValFlag ? litValFlag : ''}`;
                 if (mt.indexOf('class="') > 0) {
                     /** .replace('class="', `class="${hide} `) 
                      *      Add the framework hide classso that component gets hidden
@@ -620,11 +632,11 @@ export class BaseComponent extends BehaviorComponent {
                      *  .replace(matchInstance, '');
                      *      Remove the (renderIf) dorectove so it does not shows-up on the final HTML code */
                     result = mt
-                        .replace('class="', `class="${hide} ${listenerFlag} ${negateFlag ? $stillconst.NEGATE_FLAG : ''}`)
+                        .replace('class="', `class="${hide} ${listenerFlag} ${complementFlag}`)
                         .replace(matchInstance, '');
                 } else {
                     /**  .replace(matchInstance, `class="${hide}"`) Replaces the (renderIf)="anything" directive and value with hide classe */
-                    result = mt.replace(matchInstance, `class="${hide} ${listenerFlag} ${negateFlag ? $stillconst.NEGATE_FLAG : ''}"`);
+                    result = mt.replace(matchInstance, `class="${hide} ${listenerFlag} ${complementFlag}"`);
                 }
                 if(window.STILL_HOME && result.indexOf($stillconst.PART_HIDE_CSS) > 0){
                     if(mt.indexOf('style="') > 0) 

@@ -74,7 +74,8 @@ $stillconst = {
     EVT: {
         LONE_LOADED: 'LONE_LOADED'
     },
-    NEGATE_FLAG: 'negate-flag'
+    NEGATE_FLAG: 'negate-flag',
+    FLAG: 'flag-'
 
 }
 

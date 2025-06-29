@@ -6,8 +6,7 @@ class InParams {
     datasets = {}; 
     type; 
     placeholder; 
-    min; max; r
-    equired; 
+    min; max; required; warn;
     /** @type { 'number'|'alhpanumeric'|'text'|'email'|'phone'|'date'|'dateUS' } */
     validator;
 } ;
@@ -19,14 +18,14 @@ export const FormHelper = {
         Components.obj().parseGetsAndSets(cmp, false,fieldName);
         return {
             /** @param { InParams } params  */
-            getInput(params = inParams){
-                const {className, id, datasets = {}, type, placeholder, min, max, required, validator} = params;
+            input(params = inParams){
+                const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn} = params;
                 const datafields = Object.entries(datasets).map(([f,v]) => (`data-${f}="${v}"`)).join(' ');
                 const ftype=`type="${type || 'text'}"`, isOptList = ['radio','checkbox'].includes(type);
                 const hint = `${placeholder ? `placeholder="${placeholder}"` : ''}`;
                 const val = `${value ? `value="${value}"` : ''}`, _id = `${id ? `id="${id}"` : ''}`;
                 const mn = `${min ? `min="${min}"` : ''}`, mx = `${max ? `max="${max}"` : ''}`;
-                const req = `${required ? ' (required)="true" ' : ''}`;
+                const req = `${required ? ' (required)="true" ' : ''}`, wrn = `${warn ? ` (validator-warn)="${warn}"` : ''}`;
                 const validatorClass = BehaviorComponent.setOnValueInput(req, cmp, fieldName, (formRef.name || null));
                 const validateEvt = required ?
                  `onkeyup="$still.component.ref('${cmp.cmpInternalId}').onValueInput(event,'${fieldName}',this, '${formRef.name}')"`
@@ -36,7 +35,7 @@ export const FormHelper = {
                 const input = `
                     <input ${datafields}
                         class="${genInputsClasses(validatorClass, cmpId, fieldName, val, isOptList)} ${cmp.cmpInternalId}-${fieldName} ${className || ''}"
-                        ${ftype} ${val} ${_id} ${req.trim()} ${hint} ${mn} ${mx}
+                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx}
                         ${validateEvt} ${vlidtor}
                     >
                 `;
@@ -44,7 +43,7 @@ export const FormHelper = {
                     add(cb = function(input){}, subContainer = null){
                         let cnt = cb(input), ctr = document.getElementById(formRef.formId);
                         if(subContainer) ctr = ctr.querySelector(subContainer);
-                        ctr.insertAdjacentHTML('beforeend', cnt || input);
+                        ctr.insertAdjacentHTML('beforeend', `<span>${cnt || input}</span>`);
                     },
                     element: input 
                 }

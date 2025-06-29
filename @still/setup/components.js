@@ -396,7 +396,7 @@ export class Components {
                     cmp[field].reset = () => {
                         const formRef = field;
                         BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp, cmp[field], true);
-                        document.getElementById(`fId_${field}`).reset();
+                        document.getElementById(`fId_${cmp.cmpInternalId}`).reset();
                     }
                     return;
                 }
@@ -713,6 +713,7 @@ export class Components {
                     inCmp.dynLoopObject = true;
                     inCmp.stillElement = true;
                     inCmp.parentVersionId = cmp.versionId;
+                    inCmp.$parent = cmp;
 
                     if (noFieldsMap && childCmp.stDSource)
                         fields = Object.entries(cmp['$still_' + field][0]);
@@ -724,11 +725,10 @@ export class Components {
 
                     setTimeout(() => inCmp.parseOnChange(), 500);
                     ComponentRegistror.add(inCmp.cmpInternalId, inCmp);
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         (new Components)
-                            .parseGetsAndSets(
-                                ComponentRegistror.component(inCmp.cmpInternalId)
-                            )
+                            .parseGetsAndSets(ComponentRegistror.component(inCmp.cmpInternalId));
+                        await inCmp.stAfterInit();
                     }, 10);
                 };
 

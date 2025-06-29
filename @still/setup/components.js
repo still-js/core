@@ -340,16 +340,15 @@ export class Components {
         return this;
     }
 
-    /**  @param {ViewComponent} cmp */
-    defineSetter = (cmp, field) => {
-        if (cmp.myAnnotations()?.get(field)?.inject) return;
-        cmp.__defineGetter__(field, () => {
-            const optLst = cmp['stOptListFieldMap']?.get(field);
+    /** @param {ViewComponent} cmp */
+    defineSetter = (cmp, f) => {
+        if (cmp.myAnnotations()?.get(f)?.inject) return;
+        cmp.__defineGetter__(f, () => {
+            const optLst = cmp['stOptListFieldMap']?.get(f);
             const r = {
-                value: cmp['$still_' + field], defined: true,
-                onChange: (callback = function () { }) => {
-                    cmp[`$still${field}Subscribers`].push(callback);
-                },
+                value: cmp['$still_' + f], defined: true,
+                onChange: (cb = () => { }) =>  cmp[`$still${f}Subscribers`].push(cb),
+                onComplete: (cb = () => { }) => cmp[`$${f}CmpltCbs`].push(cb),
                 firstPropag: false, onlyPropSignature: true,
             };
             if(optLst?.chkBox) r.isChkbox = true;
@@ -361,8 +360,8 @@ export class Components {
 
             const validator = BehaviorComponent.currentFormsValidators;
             if (validator[cmp.cmpInternalId]) {
-                if (field in (validator[cmp?.constructor?.name] || [])) 
-                    r['isValid'] = validator[cmp.constructor.name][field]['isValid'];
+                if (f in (validator[cmp?.constructor?.name] || [])) 
+                    r['isValid'] = validator[cmp.constructor.name][f]['isValid'];
             }
             return r;
         });
@@ -396,7 +395,7 @@ export class Components {
                     cmp[field].reset = () => {
                         const formRef = field;
                         BehaviorComponent.validateForm(`${cmp.cmpInternalId}-${formRef}`, cmp, cmp[field], true);
-                        document.getElementById(`fId_${field}`).reset();
+                        document.getElementById(`fId_${cmp.cmpInternalId}`).reset();
                     }
                     return;
                 }
@@ -423,17 +422,32 @@ export class Components {
                         }
                         /** This is addressing the edge case where the (renderIf) is parsed after this setter is defined */
                         if (field in cmp.st_flag_ini_val && !(val?.parsed)) {
-                            val = !cmp.st_flag_ini_val[field];
+                            if(typeof val === 'boolean' || ['false','true'].includes(val))
+                                val = !cmp.st_flag_ini_val[field]; 
                             delete cmp.st_flag_ini_val[field];
                         }
                         /** This is for handling (renderIf) */
                         const elmList = document.getElementsByClassName(listenerFlag);
                         for (const elm of elmList) {
-
-                            if(elm.style.display === 'none') elm.style.display = '';
+                            let remHide = false;
+                            if(!(val === 'true' || val === true || val === 'false' || val === false)){
+                                if(elm.classList.contains(`${$stillconst.FLAG}${val?.toString()?.replace(/\s/,'-')}`)){
+                                        remHide = true;
+                                        elm.style.display = '';
+                                }else 
+                                    elm.style.display = 'none';
+                            }
+                            else if(elm.classList.contains($stillconst.NEGATE_FLAG)){
+                                if(val === 'true' || val === true) elm.style.display = 'none';
+                                else{
+                                    remHide = true;
+                                    elm.style.display = '';
+                                }
+                            }
+                            else if(val === 'true' || val === true) elm.style.display = '';
                             else if(elm.style.display === '') elm.style.display = 'none';
 
-                            if (val) elm.classList.remove($stillconst.PART_HIDE_CSS);
+                            if (val === true || remHide) elm.classList.remove($stillconst.PART_HIDE_CSS);
                             else elm.classList.add($stillconst.PART_HIDE_CSS);
                         }
                         cmp.__defineGetter__(field, () => val);
@@ -445,7 +459,7 @@ export class Components {
                 if (!cmp[field] && cmp[field] != 0) value = '';
 
                 Object.assign(cmp, { ['$still_' + field]: value });
-                Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
+                Object.assign(cmp, { [`$still${field}Subscribers`]: [], [`$${field}CmpltCbs`]: [] });
                 o.defineSetter(cmp, field);
 
                 cmp.__defineSetter__(field, (newValue) => {
@@ -480,7 +494,7 @@ export class Components {
                     //Work in the garbage collector for this Components.firstPropagation flag
                     if(Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
-                        o.propageteChanges(cmp, field);
+                        //o.propageteChanges(cmp, field);
                     }
                     else if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
@@ -501,6 +515,10 @@ export class Components {
         const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
+
+        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
+            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
+
         const cssRefCombo = `.listenChangeOn-${cpName}-${f}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
         const stateChange = `.state-change-${cpName}-${f}`;
@@ -539,9 +557,6 @@ export class Components {
 
         if (stateChangeSubsribers) 
             stateChangeSubsribers.forEach(s => s.innerHTML = cmp['$still_' + f]);
-
-        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
-            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
 
         if (subscribersCombo) {
             subscribersCombo.forEach(/**@type {HTMLElement}*/elm => {
@@ -698,6 +713,7 @@ export class Components {
                     inCmp.dynLoopObject = true;
                     inCmp.stillElement = true;
                     inCmp.parentVersionId = cmp.versionId;
+                    inCmp.$parent = cmp;
 
                     if (noFieldsMap && childCmp.stDSource)
                         fields = Object.entries(cmp['$still_' + field][0]);
@@ -709,14 +725,16 @@ export class Components {
 
                     setTimeout(() => inCmp.parseOnChange(), 500);
                     ComponentRegistror.add(inCmp.cmpInternalId, inCmp);
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         (new Components)
-                            .parseGetsAndSets(
-                                ComponentRegistror.component(inCmp.cmpInternalId)
-                            )
+                            .parseGetsAndSets(ComponentRegistror.component(inCmp.cmpInternalId));
+                        await inCmp.stAfterInit();
                     }, 10);
                 };
-
+                // Run all the subscribe methods to onComplete for a specific variable
+                setTimeout(() => cmp[`$${field}CmpltCbs`].forEach(async cb => {
+                    const fn = cmp[`$${field}CmpltCbs`].shift(); await fn();
+                }), 250);
             } else {
 
                 cmp['$still_' + field].forEach((rec) => {
@@ -1608,11 +1626,39 @@ export class Components {
     }
 
     parseLocalLoader(template) {
-        return template.replace(/<st-loader[\s\(\)a-z0-9\.\=\"]{0,}>/i, (mt) => {
-            let complement = mt.split(' ');
-            if (complement.length > 1) complement = complement[1].slice(0, -1);
-            else complement = '';
-            return `<div class="still-cmp-loader" ${complement}></div>`;
+        return template.replace(/<st-loader[\s\(\)a-z0-9\!\.\=\"]{0,}[\s]{0,}[\/]{0,}>/i, (mt) => {
+            let sheet = document.styleSheets[0], complement = mt.replace('<st-loader','').replace('>',''), lbl = '';
+            
+            if(!sheet['has-still-cmp-loader']){
+                sheet['has-still-cmp-loader'] = true;
+                sheet.insertRule(`
+                    .still-cmp-loader {
+                        border: 10px solid #f3f3f3; border-top: 10px solid #3d3f40; 
+                        border-radius: 50%; width: 120px; margin: 0 auto;
+                        height: 120px; animation: still-cmp-loaderspin 2s linear infinite;
+                    }`,sheet.cssRules.length);
+
+                sheet.insertRule(`
+                    @keyframes still-cmp-loaderspin {0% {transform:rotate(0deg);} 100% {transform:rotate(360deg);}
+                    }`,sheet.cssRules.length);
+
+                sheet.insertRule(`st-loader-cntr{ display: flex;  }`, sheet.cssRules.length)
+
+                if(mt.indexOf(' center ') > 0)
+                    sheet.insertRule(`st-loader-cntr{ 
+                        position: absolute;  left: 50%; top: 50%; transform: translate(-50%, -50%); }`, sheet.cssRules.length)
+            }
+            const lblStartPos = complement.indexOf('(label)="');
+            if(lblStartPos > 0){
+                lbl = complement.slice(lblStartPos+9).slice(0,complement.slice(lblStartPos+9).indexOf('"'));            
+                complement = complement.replace(`(label)="${lbl}"`,'')
+            }
+
+            return `
+            <st-loader-cntr style="flex-direction:column;align-items:center;" ${complement}>
+                <div class="still-cmp-loader"></div>${lbl}
+            </st-loader-cntr>
+            `;
         });
     }
 

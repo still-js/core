@@ -484,22 +484,3 @@ body {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 /** END TOOLTIP STYLING */
-
-/** LOCAL LOADER */
-
-.still-cmp-loader {
-  border: 10px solid #f3f3f3; /* Light grey */
-  border-top: 10px solid #3d3f40; /* Blue */
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  animation: still-cmp-loaderspin 2s linear infinite;
-  margin: 0 auto;
-}
-
-@keyframes still-cmp-loaderspin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/** LOCAL LOADER */

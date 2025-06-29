@@ -27,4 +27,5 @@ export class State {
     /** @type T */
     value;
     onChange(callback = (/** @type T */ updatedValue) => {}){}
+    onComplete(callback = () => {}){}
 }

@@ -3,7 +3,37 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
-## [Released] - 2025-05-30
+## [Released] - 2025-06-29
+## [Version] - 1.2.11
+Improvements on the (showIf) and validator. Fixing `stAfterInit()` in looping.
+ 
+- <b>MINOR</b> - (showIf) flag multi value tracking (`<st-element>`) 
+<br>  
+
+- <b>MINOR</b> - Moved (formRef) id to component internal id. 
+
+### Fixed
+- `stAfterInit()` in the `(forEach)` context.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-06-15
 ## [Version] - 1.2.10
 Adjustments on the Lone component/Microfrotend loading and event handling in the integration with React.
  
@@ -11,6 +41,7 @@ Adjustments on the Lone component/Microfrotend loading and event handling in the
 <br>  
 
 - <b>MINOR</b> - `stRef` for providing a reference to allow comunication from external app (e.g. React). 
+
 
 <br>
 <hr>

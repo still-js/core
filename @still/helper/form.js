@@ -12,10 +12,10 @@ class InParams {
 } ;
 
 export const FormHelper = {
-    newField(cmp, formRef, fieldName, value = null){
+    newField(cmp, formRef, fName, value = null){
         //Components is available globally from import { Components } from "../setup/components";        
-        Components.ref(cmp.cmpInternalId).setDynamicField(fieldName, value);
-        Components.obj().parseGetsAndSets(cmp, false,fieldName);
+        Components.ref(cmp.cmpInternalId).setDynamicField(fName, value);
+        Components.obj().parseGetsAndSets(cmp, false,fName);
         return {
             /** @param { InParams } params  */
             input(params = inParams){
@@ -26,15 +26,15 @@ export const FormHelper = {
                 const val = `${value ? `value="${value}"` : ''}`, _id = `${id ? `id="${id}"` : ''}`;
                 const mn = `${min ? `min="${min}"` : ''}`, mx = `${max ? `max="${max}"` : ''}`;
                 const req = `${required ? ' (required)="true" ' : ''}`, wrn = `${warn ? ` (validator-warn)="${warn}"` : ''}`;
-                const validatorClass = BehaviorComponent.setOnValueInput(req, cmp, fieldName, (formRef.name || null));
+                const validatorClass = required ? BehaviorComponent.setOnValueInput(req, cmp, fName, (formRef.name || null)) : '';
                 const validateEvt = required ?
-                 `onkeyup="$still.component.ref('${cmp.cmpInternalId}').onValueInput(event,'${fieldName}',this, '${formRef.name}')"`
+                 `onkeyup="$still.component.ref('${cmp.cmpInternalId}').onValueInput(event,'${fName}',this, '${formRef.name}')"`
                  : '';
                 const vlidtor = `${validator ? `(validator)=${validator}`: ''}`;
                 const cmpId = this.cmpInternalId?.replace('/','').replace('@','');
                 const input = `
                     <input ${datafields}
-                        class="${genInputsClasses(validatorClass, cmpId, fieldName, val, isOptList)} ${cmp.cmpInternalId}-${fieldName} ${className || ''}"
+                        class="${genInputsClasses(validatorClass, cmpId, fName, val, isOptList)} ${cmp.cmpInternalId}-${fName} ${className || ''}"
                         ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx}
                         ${validateEvt} ${vlidtor}
                     >

@@ -340,16 +340,15 @@ export class Components {
         return this;
     }
 
-    /**  @param {ViewComponent} cmp */
-    defineSetter = (cmp, field) => {
-        if (cmp.myAnnotations()?.get(field)?.inject) return;
-        cmp.__defineGetter__(field, () => {
-            const optLst = cmp['stOptListFieldMap']?.get(field);
+    /** @param {ViewComponent} cmp */
+    defineSetter = (cmp, f) => {
+        if (cmp.myAnnotations()?.get(f)?.inject) return;
+        cmp.__defineGetter__(f, () => {
+            const optLst = cmp['stOptListFieldMap']?.get(f);
             const r = {
-                value: cmp['$still_' + field], defined: true,
-                onChange: (callback = function () { }) => {
-                    cmp[`$still${field}Subscribers`].push(callback);
-                },
+                value: cmp['$still_' + f], defined: true,
+                onChange: (cb = () => { }) =>  cmp[`$still${f}Subscribers`].push(cb),
+                onComplete: (cb = () => { }) => cmp[`$${f}CmpltCbs`].push(cb),
                 firstPropag: false, onlyPropSignature: true,
             };
             if(optLst?.chkBox) r.isChkbox = true;
@@ -361,8 +360,8 @@ export class Components {
 
             const validator = BehaviorComponent.currentFormsValidators;
             if (validator[cmp.cmpInternalId]) {
-                if (field in (validator[cmp?.constructor?.name] || [])) 
-                    r['isValid'] = validator[cmp.constructor.name][field]['isValid'];
+                if (f in (validator[cmp?.constructor?.name] || [])) 
+                    r['isValid'] = validator[cmp.constructor.name][f]['isValid'];
             }
             return r;
         });
@@ -460,7 +459,7 @@ export class Components {
                 if (!cmp[field] && cmp[field] != 0) value = '';
 
                 Object.assign(cmp, { ['$still_' + field]: value });
-                Object.assign(cmp, { [`$still${field}Subscribers`]: [] });
+                Object.assign(cmp, { [`$still${field}Subscribers`]: [], [`$${field}CmpltCbs`]: [] });
                 o.defineSetter(cmp, field);
 
                 cmp.__defineSetter__(field, (newValue) => {
@@ -495,7 +494,7 @@ export class Components {
                     //Work in the garbage collector for this Components.firstPropagation flag
                     if(Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
-                        o.propageteChanges(cmp, field);
+                        //o.propageteChanges(cmp, field);
                     }
                     else if ('value' in cmp[field] && !Components?.firstPropagation[`${cmp.cmpInternalId}-${field}`]) {
                         clearInterval(firstPropagateTimer);
@@ -516,6 +515,10 @@ export class Components {
         const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
+
+        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
+            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
+
         const cssRefCombo = `.listenChangeOn-${cpName}-${f}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
         const stateChange = `.state-change-${cpName}-${f}`;
@@ -554,9 +557,6 @@ export class Components {
 
         if (stateChangeSubsribers) 
             stateChangeSubsribers.forEach(s => s.innerHTML = cmp['$still_' + f]);
-
-        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
-            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
 
         if (subscribersCombo) {
             subscribersCombo.forEach(/**@type {HTMLElement}*/elm => {
@@ -731,7 +731,10 @@ export class Components {
                         await inCmp.stAfterInit();
                     }, 10);
                 };
-
+                // Run all the subscribe methods to onComplete for a specific variable
+                setTimeout(() => cmp[`$${field}CmpltCbs`].forEach(async cb => {
+                    const fn = cmp[`$${field}CmpltCbs`].shift(); await fn();
+                }), 250);
             } else {
 
                 cmp['$still_' + field].forEach((rec) => {
@@ -1623,7 +1626,7 @@ export class Components {
     }
 
     parseLocalLoader(template) {
-        return template.replace(/<st-loader[\s\(\)a-z0-9\.\=\"]{0,}[\s]{0,}[\/]{0,}>/i, (mt) => {
+        return template.replace(/<st-loader[\s\(\)a-z0-9\!\.\=\"]{0,}[\s]{0,}[\/]{0,}>/i, (mt) => {
             let sheet = document.styleSheets[0], complement = mt.replace('<st-loader','').replace('>',''), lbl = '';
             
             if(!sheet['has-still-cmp-loader']){

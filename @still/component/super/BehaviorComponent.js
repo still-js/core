@@ -344,13 +344,12 @@ export class BehaviorComponent {
         }
 
         return '';
-
-
     }
 
     static validateForm(fieldPath, cmp, formRefObj = {}, reset = false) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
+        if(formFields === undefined) return;
         let valid = true;
         const intValidators = Object.entries(formFields);
         const behaviorInstance = new BehaviorComponent();

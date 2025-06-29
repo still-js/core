@@ -81,7 +81,6 @@ export class BaseComponent extends BehaviorComponent {
     navigationId = Router.navCounter;
     $cmpStController;
     #dynFields = [];
-    $parent;
     
 
     async load() { }
@@ -247,7 +246,8 @@ export class BaseComponent extends BehaviorComponent {
             if (formsRef?.length){
                 for(const r of formsRef) {
                     currentClass[r.formRef] = new STForm(r.formRef, `fId_${this.cmpInternalId}`);
-                    tamplateWithState = tamplateWithState.replace(`(formRef)="${r.formRef}"`,`id="fId_${this.cmpInternalId}" data-form="${r.formRef}"`);
+                    const rplacer = `onsubmit="javascript: return false;" id="fId_${this.cmpInternalId}" data-form="${r.formRef}"`
+                    tamplateWithState = tamplateWithState.replace(`(formRef)="${r.formRef}"`,`${rplacer}`);
                 }
             }
         }

@@ -6,6 +6,7 @@ import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
 import { ViewComponent as DefaultViewComponent } from "../component/super/ViewComponent.js";
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
+import { checkPropBind } from "../util/componentUtil.js";
 import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
 import { $stillconst, authErrorMessage } from "./constants.js";
 import { StillError } from "./error.js";
@@ -70,6 +71,7 @@ export class Components {
     static vendorPath = `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/vendors`;
     static parsingTracking = {};
     static prevLoadingTracking = new Set();
+    static prevLoadLoopContainer = new Set();
 
     /** @type { Array<String> } */
     #cmpPermWhiteList = [];
@@ -350,6 +352,8 @@ export class Components {
                 onChange: (cb = () => { }) =>  cmp[`$still${f}Subscribers`].push(cb),
                 onComplete: (cb = () => { }) => cmp[`$${f}CmpltCbs`].push(cb),
                 firstPropag: false, onlyPropSignature: true,
+                set: (val) => { cmp[f] = val, cmp[`$_stset${f}`] = true; },
+                update: (val) => { cmp[f] = val, cmp[`$_stupt${f}`] = true; },
             };
             if(optLst?.chkBox) r.isChkbox = true;
             if(optLst?.radio) r.isRadio = true;
@@ -370,7 +374,7 @@ export class Components {
     parseOnChange = () => this;
 
     /** @param {ViewComponent} instance */
-    parseGetsAndSets(instance = null, allowfProp = false, field = null) {
+    parseGetsAndSets(instance = null, allowfProp = false, field = null, prntField = null) {
         const cmp = instance || this.component, o = this;
         cmp.setAndGetsParsed = true;
         const annot = cmp.runParseAnnot();
@@ -380,8 +384,9 @@ export class Components {
         cmp.getProperties(allowfProp).forEach(field => parseField(field, cmp));
 
         function parseField(field, cmp) {
-            const inspectField = cmp[field];
-            
+            const inspectField = cmp[field];            
+            if(cmp[`$_stupt${prntField}`] === true) cmp[`$_stupt${field}`] = true;
+
             if(true === inspectField?.injectable || true === inspectField?.stSTI) return;
             if (inspectField?.onlyPropSignature || inspectField?.name == 'Prop'
                 || cmp.myAnnotations()?.get(field)?.prop || annot?.get(field)?.prop
@@ -512,12 +517,16 @@ export class Components {
 
     /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field, chkBoxOpts = {}) {
+        if(field?.startsWith('$_stup')) return;
         const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
 
-        if (subscribers && !cmp['stOptListFieldMap']?.has(f)) 
-            subscribers.forEach(/**@type {HTMLElement}*/elm => this.dispatchPropagation(elm, f, cmp));
+        if (subscribers && !cmp['stOptListFieldMap']?.has(f)){
+            subscribers.forEach(/**@type {HTMLElement}*/elm => 
+                this.dispatchPropagation(elm, f, cmp)
+            );
+        }
 
         const cssRefCombo = `.listenChangeOn-${cpName}-${f}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
@@ -611,24 +620,39 @@ export class Components {
     propagetToHTMLContainer(elm, field, cmp) {
 
         (async () => {
-
+            let hasParent = elm.classList.contains('parent_class'), prntId, prntPrevLoad;
+            if(!hasParent){
+                console.log(elm);
+                if(!elm.hasAttribute($stillconst.LOOP_PREV_LOAD))
+                    elm.setAttribute($stillconst.LOOP_PREV_LOAD, true);
+            }else{
+                prntId = elm.getAttribute('st-parent-cmp');
+                prntPrevLoad = Components.prevLoadLoopContainer.has(prntId+''+cmp.constructor.name);
+            }
+            
+            if(elm.getAttribute('stchildcmp') === 'true'){
+                if(elm.getAttribute('firstLoad')) elm.setAttribute('firstLoad', false); 
+            }
+            
             let container = document.createElement(elm.tagName);
             let prevClass = elm.getAttribute('newCls');
             prevClass = elm.getAttribute('class').replace(prevClass, '');
             container.className = `${prevClass}`;
 
-            container = await this.parseAndAssigneValue(elm, field, cmp, container);
+            container = await this.parseAndAssigneValue(elm, field, cmp, container, prntPrevLoad);
             if (elm.tagName == 'TBODY')
-                elm.parentNode.insertAdjacentElement('beforeend', container);
+                elm.parentNode.insertAdjacentElement('beforeend', container.container);
 
             else {
-                const loopCntr = elm.querySelector(`.loop-container-${cmp.cmpInternalId}`);
-                if (loopCntr) elm.removeChild(loopCntr);
-                const finalCtnr = document.createElement('output');
-                finalCtnr.innerHTML = container.innerHTML;
-                finalCtnr.className = `loop-container-${cmp.cmpInternalId}`;
-                finalCtnr.style.display = 'contents';
-                elm.insertAdjacentElement('beforeend', finalCtnr);
+                if(container.fullRerender){
+                    const loopCntr = elm.querySelector(`.loop-container-${cmp.cmpInternalId}`);
+                    if (loopCntr) elm.removeChild(loopCntr);
+                    const finalCtnr = document.createElement('output');
+                    finalCtnr.innerHTML = container.container.innerHTML;
+                    finalCtnr.className = `loop-container-${cmp.cmpInternalId}`;
+                    finalCtnr.style.display = 'contents';
+                    elm.insertAdjacentElement('beforeend', finalCtnr);
+                }
             }
         })();
 
@@ -638,7 +662,7 @@ export class Components {
      * @param { HTMLElement } elm
      * @param { ViewComponent } cmp
      */
-    async parseAndAssigneValue(elm, field, cmp, container) {
+    async parseAndAssigneValue(elm, field, cmp, container, wasPrntLoad = false) {
 
         const hash = elm.getAttribute('hash'), cmpId = cmp.cmpInternalId;
         container.classList.add($stillconst.SUBSCRIBE_LOADED);
@@ -656,10 +680,11 @@ export class Components {
             }
 
             let result = `<option value='' class="${cmpId}-${f}empty" selected>${placeholder}</option>`;
-            container.innerHTML = await this.parseForEachTemplate(tmpltContent, cmp, field, result);
+            container.innerHTML = (await this.parseForEachTemplate(tmpltContent, cmp, field, result)).result;
             return container;
 
         } else {
+
             tmpltContent = elm.firstElementChild.outerHTML.toString();
             const stDSource = elm.firstElementChild.getAttribute('loopDSource');
 
@@ -679,17 +704,16 @@ export class Components {
             } catch (error) {}   
         }
         container.classList.add(hash);
-
-        container.innerHTML = await this.parseForEachTemplate(
-            tmpltContent, cmp, field, '', childCmp
-        );
-        return container;
+        const result = await this.parseForEachTemplate(tmpltContent, cmp, field, '', childCmp);
+        if(result.fullRerender) container.innerHTML = result.result;
+        return { container, fullRerender: result.fullRerender};
 
     }
 
-    async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null) {
+    async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null, wasPrntLoad = false) {
 
-        let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '';
+        let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '', content = '';
+        let totalLoopItm = cmp['$still_' + field].length, loopCount = 0, childLvl = 1, fullRerender = false;
         if(template.indexOf('</st-lstgp>')) template = template.replace('display:none;', '');
 
         if (cmp['$still_' + field] instanceof Array) {
@@ -697,13 +721,20 @@ export class Components {
             if (childCmp?.stElement) {
 
                 const childInstance = await (await Components.produceComponent({
-                    cmp: childCmp.stElement,
-                    parentCmp: cmp, registerCls: true
+                    cmp: childCmp.stElement, parentCmp: cmp, registerCls: true
                 }));
 
                 childTmpl = childInstance.template;
                 let fields = Object.entries(childCmp.props), noFieldsMap;
                 if (fields.length == 0) noFieldsMap = true;
+
+                let prntId = cmp.cmpInternalId;
+                if(cmp.$parent) {
+                    prntId = cmp.$parent.cmpInternalId;
+                    childLvl = 2;
+                };
+                const loadKey = (childLvl == 2 ? cmp.cmpInternalId+prntId : prntId)+childCmp.stElement;
+                wasPrntLoad = Components.prevLoadLoopContainer.has(loadKey);
 
                 for (const rec of cmp['$still_' + field]) {
                     /** @type { ViewComponent } */
@@ -714,57 +745,95 @@ export class Components {
                     inCmp.stillElement = true;
                     inCmp.parentVersionId = cmp.versionId;
                     inCmp.$parent = cmp;
+                    if(cmp[`$_stupt${field}`] === true) inCmp[`$_stupt${field}`] = true;
 
                     if (noFieldsMap && childCmp.stDSource)
                         fields = Object.entries(cmp['$still_' + field][0]);
 
                     await inCmp.onRender();
-                    childResult += await this
-                        .replaceBoundFieldStElement(inCmp, fields, rec, noFieldsMap)
-                        .getBoundTemplate();
+                    const result = this.replaceBoundFieldStElement(inCmp, fields, rec, noFieldsMap, cmp, field);
+
+                    if((loopCount + 1) === totalLoopItm && !wasPrntLoad)
+                        Components.prevLoadLoopContainer.add(loadKey);                    
+
+                    if(result.obj != null){
+                        childResult += result.obj?.getBoundTemplate();
+                        fullRerender = true;
+                    }
 
                     setTimeout(() => inCmp.parseOnChange(), 500);
                     ComponentRegistror.add(inCmp.cmpInternalId, inCmp);
                     setTimeout(async () => {
+                        const instance = result.instance || inCmp;
+                        if(cmp[`$_stupt${field}`] === true) instance[`$_stupt${field}`] = true;
+                                                
                         (new Components)
-                            .parseGetsAndSets(ComponentRegistror.component(inCmp.cmpInternalId));
-                        await inCmp.stAfterInit();
+                            .parseGetsAndSets(
+                                ComponentRegistror.component(instance.cmpInternalId),
+                                false, null, field
+                            );
+
+                        if(cmp[`$_stupt${field}`] === true){
+                            if(result.nodeChanged !== false || result.appending) 
+                                await instance.stAfterInit();
+                        }else
+                            await instance.stAfterInit();
+                        
                     }, 10);
+                    loopCount++;
                 };
                 // Run all the subscribe methods to onComplete for a specific variable
                 setTimeout(() => cmp[`$${field}CmpltCbs`].forEach(async cb => {
                     const fn = cmp[`$${field}CmpltCbs`].shift(); await fn();
                 }), 250);
             } else {
-
+                fullRerender = true;
                 cmp['$still_' + field].forEach((rec) => {
-                    let parsingTemplate = template;
-                    let fields = Object.entries(rec);
-                    result += this.replaceBoundField(parsingTemplate, fields);
+                    result += this.replaceBoundField(template, Object.entries(rec), cmp.cmpInternalId);
                 });
             }
         }
-        return childCmp?.stElement ? childResult : result;
+
+        return { result: childCmp?.stElement ? childResult : result, fullRerender };
     }
 
-    replaceBoundField(parsingTemplate, fields) {
+    replaceBoundField(parsingTemplate, fields, parentId) {
+        let nodeId = null, nodeExists = false;
         for (const [f, v] of fields) {
+            if(f == 'id') nodeId = v;
             parsingTemplate = parsingTemplate.replaceAll(`{item.${f}}`, (m, pos, tmpl) => {
                 const isCls = tmpl.slice(pos + m.length).startsWith('st');
                 return isCls ? new String(v)?.replace(/\s/g,'-')+' ' : v;
             });
+        }
+
+        const isCombo = parsingTemplate.trim().startsWith('<option');
+        const isRadioOrCheck = parsingTemplate.trim().startsWith('<input');
+        
+        if(nodeId && !(isCombo && isRadioOrCheck)){
+            nodeExists = document.getElementById(`${parentId}-child-${nodeId}`)?.nodeValue;
+            parsingTemplate = parsingTemplate.replace(/\>/,` id="${parentId}-child-${nodeId}">`);
+            if(nodeExists){
+                const newNode = new DOMParser().parseFromString(parsingTemplate,'text/html');
+                document.getElementsByClassName(`loop-container-${parentId}`)[0].replaceChild(nodeExists,newNode);
+            }
         }
         return parsingTemplate.replaceAll('($event', '(event');
     }
 
     /** 
      * @param { ViewComponent } obj
-     * @returns { ViewComponent }
+     * @returns { ViewComponent | Object }
      * */
-    replaceBoundFieldStElement(obj, fields, rec, noFieldsMap) {
-
+    replaceBoundFieldStElement(obj, fields, rec, noFieldsMap, cmp, field) {
+        // Abbreviating the Loop word as Lp
+        if(obj['#stLpChild']) obj['#stLpUpdate'] = true;
+        obj['#stLpChild'] = true, obj['#stLpStat'] = {};
+        obj['#stLpId'] = obj.$parent.cmpInternalId+'-stStat-'+obj.constructor.name+rec['id'];
+        
         if (noFieldsMap) {
             for (const [f, v] of Object.entries(rec)) {
+                if(checkPropBind(obj, f)) obj['#stLpStat'][f] = v;
                 if (f in obj) {
                     if (typeof v == 'string') obj[f] = v?.replace('item.', '')?.trim();
                     else obj[f] = v;
@@ -772,12 +841,49 @@ export class Components {
             }
         } else {
             for (const [f, v] of fields) {
+                if(checkPropBind(obj, f)) obj['#stLpStat'][f] = v;
                 if (typeof v == 'string') obj[f] = rec[v?.replace('item.', '')?.trim()];
                 else obj[f] = rec[v];
             }
         }
 
-        return obj;
+        obj['#stLpStat'] = JSON.stringify(obj['#stLpStat']);
+        let existingNode, nodeChanged, internalId, appending, replacing, content; 
+        if(cmp[`$_stupt${field}`]){
+            existingNode = document.getElementById(obj['#stLpId']);
+            if(!existingNode) {
+
+                content = obj?.getBoundTemplate();
+                let container = cmp['#stAppndId']
+                    ? document.getElementById(cmp['#stAppndId']).parentNode
+                    : document.getElementsByClassName(`loop-container-${cmp.cmpInternalId}`)[0];
+                
+                if(!container && obj.$parent.loopPrnt)
+                    container = document.getElementsByClassName(`listenChangeOn-${cmp.cmpInternalId}-${field}`)[0];
+
+                obj['#stAppndId'] = obj['#stLpId']; 
+                container.insertAdjacentHTML('beforeend', content);
+                nodeChanged = false;
+                existingNode = true;
+                appending = true;
+
+            }else{
+                nodeChanged = existingNode?.getAttribute('stLpStat') != obj['#stLpStat'];
+                internalId = existingNode?.getAttribute('stinternalid');
+                if(internalId) obj.cmpInternalId = internalId;
+                obj.loopPrnt = obj.$parent.cmpInternalId;
+                
+                content = obj?.getBoundTemplate(null, false, );
+                if(nodeChanged === true){
+                    existingNode.parentNode.innerHTML = content.replace('<st-wrap>','').replace('<st-wrap>','');
+                    replacing = true;
+                }
+            }
+        }
+        
+        return existingNode 
+            ? { nodeChanged, existingNode, obj: null, content, instance: obj, appending, replacing } 
+            : { obj };
     }
 
     /** @param {ViewComponent} cmp */
@@ -1016,7 +1122,7 @@ export class Components {
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
                 continue;
 
-            const { proxy, component, props, annotations, ref } = cmpParts[idx];
+            const { proxy, component, props, annotations, ref, loopPrnt } = cmpParts[idx];
             if (component == undefined) continue;
 
             (async () => {
@@ -1042,7 +1148,7 @@ export class Components {
                 await instance.onRender();
                 instance.cmpInternalId = `dynamic-${instance.getUUID()}${component}`;
                 instance.stillElement = true;
-                instance.proxyName = proxy;
+                instance.proxyName = proxy, instance.loopPrntId = loopPrnt;
                 instance.nstngCount = parentCmp?.nstngCount ? parentCmp.nstngCount + 1 : 1;
                 if(cmpInternalId == 'fixed-part') instance['isStFixed'] = true;
                 ComponentRegistror.add(instance.cmpInternalId, instance);
@@ -1050,7 +1156,7 @@ export class Components {
                 if (instance)
                     cmpName = 'constructor' in instance ? instance.constructor.name : null;
 
-                /** TOUCH TO REINSTANTIATE */
+                /** REINSTANTIATE */
                 const cmp = (new Components).getNewParsedComponent(instance, cmpName, true);
                 cmp.parentVersionId = cmpVersionId;
 

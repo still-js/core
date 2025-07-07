@@ -342,7 +342,6 @@ export class BehaviorComponent {
             BehaviorComponent.currentFormsValidators[fieldPath][field]['inputClass'] = specificValidatorClass;
             return validatorClass;
         }
-
         return '';
     }
 

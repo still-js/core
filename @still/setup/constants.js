@@ -75,7 +75,8 @@ $stillconst = {
         LONE_LOADED: 'LONE_LOADED'
     },
     NEGATE_FLAG: 'negate-flag',
-    FLAG: 'flag-'
+    FLAG: 'flag-',
+    LOOP_PREV_LOAD: 'loop-prev-loaded'
 
 }
 

@@ -89,6 +89,7 @@ export class Router {
 
         const { data, evt, url } = params;
         cmp = Router.initNavigation(cmp);
+        Components.prevLoadLoopContainer.clear();
         if (evt?.containerId) Router.clickEvetCntrId = evt.containerId;
         /**
          * The or (||) conditions serves to mount the application so the user can 

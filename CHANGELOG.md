@@ -3,6 +3,74 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-07-06
+## [Version] - 1.2.12
+Diferent improvements and bugfixes.
+ 
+- <b>MIDDLE</b> - List rerender capabilities by using ListState type of state variable
+    <br>
+
+    -  When it comes a a large list, you can define it as a ListState thereby being provided with `update` and `delete` methods which are more performant in the rerender perspective:
+
+        <br/>
+
+        In the AppTemplate (line 16 to 18) one fixed part is being added.
+        ```{.javascript .numberLines .lineAnchors}
+        // .... import statements above
+        export class TodoApp extends ViewComponent {
+
+            //Declaration, the id is mandatory and needs to be unique
+            /**
+            * @type { ListState<Array<{ id, status, title }>> }
+            */
+            taskList = [
+                { id: 1, title: "Do something", status: "todo"},
+                { id: 5, title: "Do another thing", status: "todo"},
+                { id: 20, title: "Last thing", status: "todo"},
+            ];
+
+            updateStatus(){
+                const data = this.taskList.value;
+                //Updates first and last task
+                data[0].status = "done";
+                data[2].status = "done";
+                // Updates last and first tasks
+                this.taskList.update(data);
+            }
+
+            deleteTask(){
+                // Receives a list of objects with the id field
+                this.taskList.update([{ id: 1 }, { id: 20 }]);
+            }
+
+        }
+        ```
+<br>  
+
+- <b>MINOR</b> - Dynamic Form field removal. 
+
+### Fixed
+- Dynamic Form Field validator, removed the required as default.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-06-29
 ## [Version] - 1.2.11
 Improvements on the (showIf) and validator. Fixing `stAfterInit()` in looping.

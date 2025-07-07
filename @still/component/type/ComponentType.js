@@ -30,16 +30,13 @@ export class State {
 }
 
 /** @template T */
-export class DataSourceState extends State {
+export class ListState extends State {
     /** @param { T } newList set or override the datasource value */
     set(newValues){}    
     
     /** @param { T } updatedList updated list of items */
     update(updatedList){}
 
-    /** @param { any } id Id of the element to be removed */
-    delete(id){}
-
-    /** Clear the value of the state making it empty */
-    clear(){}
+    /** @param { T } idsList Id of the element to be removed */
+    delete(idsList){}
 }

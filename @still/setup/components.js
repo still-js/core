@@ -354,6 +354,7 @@ export class Components {
                 firstPropag: false, onlyPropSignature: true,
                 set: (val) => { cmp[f] = val, cmp[`$_stset${f}`] = true; },
                 update: (val) => { cmp[f] = val, cmp[`$_stupt${f}`] = true; },
+                delete: (val) => { Components.deleteDomNode(val, cmp, f); },
             };
             if(optLst?.chkBox) r.isChkbox = true;
             if(optLst?.radio) r.isRadio = true;
@@ -368,6 +369,27 @@ export class Components {
                     r['isValid'] = validator[cmp.constructor.name][f]['isValid'];
             }
             return r;
+        });
+    }
+
+    static deleteDomNode(removingList, cmp, field){
+        const cntrId = `listenChangeOn-${cmp.cmpInternalId}-${field}`;
+        const mainCnter = document.getElementsByClassName(cntrId)[0];
+        let removingId;
+        removingList.forEach(itm => {
+            const container = mainCnter.getElementsByClassName(`child-${mainCnter.getAttribute('jstid')}-${itm.id}`)[0];
+            if(itm?.childs){
+                itm?.childs.forEach(subItm => {
+                    const childIdCmplt = container.getAttribute('stinternalid');
+                    const subSubItm = container.getElementsByClassName(`child-${childIdCmplt}-${subItm.id}`)[0];                                      
+                    removingId = subSubItm.getAttribute('stinternalid');
+                    subSubItm.parentElement.removeChild(subSubItm);
+                });
+            }else{
+                removingId = container.getAttribute('stinternalid');
+                container.parentElement.removeChild(container);
+            }
+            $still.c.ref(removingId).unload();
         });
     }
 
@@ -716,6 +738,8 @@ export class Components {
         let totalLoopItm = cmp['$still_' + field].length, loopCount = 0, childLvl = 1, fullRerender = false;
         if(template.indexOf('</st-lstgp>')) template = template.replace('display:none;', '');
 
+        console.log(`IS IT DELETING: `,cmp[`$_stdel${field}`]);
+
         if (cmp['$still_' + field] instanceof Array) {
 
             if (childCmp?.stElement) {
@@ -766,7 +790,10 @@ export class Components {
                     setTimeout(async () => {
                         const instance = result.instance || inCmp;
                         if(cmp[`$_stupt${field}`] === true) instance[`$_stupt${field}`] = true;
-                                                
+                        
+                        //if(result.obj === null && result.nodeChanged)                        
+                        //    result.existingNode.parentElement.innerHTML = result.content;
+                        
                         (new Components)
                             .parseGetsAndSets(
                                 ComponentRegistror.component(instance.cmpInternalId),
@@ -828,8 +855,8 @@ export class Components {
     replaceBoundFieldStElement(obj, fields, rec, noFieldsMap, cmp, field) {
         // Abbreviating the Loop word as Lp
         if(obj['#stLpChild']) obj['#stLpUpdate'] = true;
-        obj['#stLpChild'] = true, obj['#stLpStat'] = {};
-        obj['#stLpId'] = obj.$parent.cmpInternalId+'-stStat-'+obj.constructor.name+rec['id'];
+        obj['#stLpChild'] = true, obj['#stLpStat'] = {}, obj['#stLpId'] = rec['id'];
+        obj['#stLpIdDesc'] = obj.$parent.cmpInternalId+'-stStat-'+obj.constructor.name+rec['id'];
         
         if (noFieldsMap) {
             for (const [f, v] of Object.entries(rec)) {
@@ -848,9 +875,9 @@ export class Components {
         }
 
         obj['#stLpStat'] = JSON.stringify(obj['#stLpStat']);
-        let existingNode, nodeChanged, internalId, appending, replacing, content; 
+        let existingNode, nodeChanged, internalId, appending, content; 
         if(cmp[`$_stupt${field}`]){
-            existingNode = document.getElementById(obj['#stLpId']);
+            existingNode = document.getElementById(obj['#stLpIdDesc']);
             if(!existingNode) {
 
                 content = obj?.getBoundTemplate();
@@ -861,11 +888,9 @@ export class Components {
                 if(!container && obj.$parent.loopPrnt)
                     container = document.getElementsByClassName(`listenChangeOn-${cmp.cmpInternalId}-${field}`)[0];
 
-                obj['#stAppndId'] = obj['#stLpId']; 
+                obj['#stAppndId'] = obj['#stLpIdDesc']; 
                 container.insertAdjacentHTML('beforeend', content);
-                nodeChanged = false;
-                existingNode = true;
-                appending = true;
+                nodeChanged = false, existingNode = true, appending = true;
 
             }else{
                 nodeChanged = existingNode?.getAttribute('stLpStat') != obj['#stLpStat'];
@@ -873,16 +898,15 @@ export class Components {
                 if(internalId) obj.cmpInternalId = internalId;
                 obj.loopPrnt = obj.$parent.cmpInternalId;
                 
-                content = obj?.getBoundTemplate(null, false, );
+                content = obj?.getBoundTemplate();
                 if(nodeChanged === true){
                     existingNode.parentNode.innerHTML = content.replace('<st-wrap>','').replace('<st-wrap>','');
-                    replacing = true;
                 }
             }
         }
         
         return existingNode 
-            ? { nodeChanged, existingNode, obj: null, content, instance: obj, appending, replacing } 
+            ? { nodeChanged, existingNode, obj: null, content, instance: obj, appending } 
             : { obj };
     }
 

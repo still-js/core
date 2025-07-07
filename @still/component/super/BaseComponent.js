@@ -137,7 +137,7 @@ export class BaseComponent extends BehaviorComponent {
 
         const fields = Object.getOwnPropertyNames(this);
         const excludingFields = [
-            'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', '#stLpChild','#stLpId',
+            'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', '#stLpChild','#stLpId','#stLpIdDesc',
             '#stLpStat','new', 'cmpInternalId', 'routableCmp', '$stillLoadCounter', 'subscribers', '#stAppndId',
             '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields', 
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount',
@@ -238,7 +238,8 @@ export class BaseComponent extends BehaviorComponent {
         let tmpltWthState = this.template, formsRef = [];
         tmpltWthState = tmpltWthState.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
         if(this['#stLpChild']){
-            const cls = ` stinternalid="${this.cmpInternalId}" stLpStat='${this['#stLpStat']}' id=${this['#stLpId']}`;
+            const cls = ` class="child-${this.$parent.cmpInternalId}-${this['#stLpId']}" stinternalid="${this.cmpInternalId}" 
+                            stLpStat='${this['#stLpStat']}' id=${this['#stLpIdDesc']}`;
             tmpltWthState = `<st-wrap>${tmpltWthState.replace(/\>/,`${cls}>`)}</st-wrap>`;
         }
 
@@ -321,8 +322,9 @@ export class BaseComponent extends BehaviorComponent {
             const subCls = `listenChangeOn-${internalId}-${ds}`;
             const hashValue = `hash_${this.getUUID()}`;
             const hash = `hash="${hashValue}"`, newCls = `newCls="${subCls}"`;
+            const justId = `jstId="${this.getUUID()}"`;
             const prnt = this.#prntCls ? `st-parent-cmp=${this.#prntCls}` : '';
-            const finalAttrs = `${newCls} ${prnt} ${hash} class="${this.#prntCls ? this.#prntCls+' parent_class' : ''} ${subCls}`;
+            const finalAttrs = `${newCls} ${prnt} ${justId} ${hash} class="${this.#prntCls ? this.#prntCls+' parent_class' : ''} ${subCls}`;
 
             if (mt.slice(0,endPos).indexOf(`class="`) >= 0)
                 mt = mt.replace(`class="`, `${finalAttrs} `);

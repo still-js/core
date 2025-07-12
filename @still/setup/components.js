@@ -644,7 +644,6 @@ export class Components {
         (async () => {
             let hasParent = elm.classList.contains('parent_class'), prntId, prntPrevLoad;
             if(!hasParent){
-                console.log(elm);
                 if(!elm.hasAttribute($stillconst.LOOP_PREV_LOAD))
                     elm.setAttribute($stillconst.LOOP_PREV_LOAD, true);
             }else{
@@ -666,7 +665,7 @@ export class Components {
                 elm.parentNode.insertAdjacentElement('beforeend', container.container);
 
             else {
-                if(container.fullRerender){
+                if(container?.fullRerender){
                     const loopCntr = elm.querySelector(`.loop-container-${cmp.cmpInternalId}`);
                     if (loopCntr) elm.removeChild(loopCntr);
                     const finalCtnr = document.createElement('output');
@@ -707,6 +706,7 @@ export class Components {
 
         } else {
 
+            if(elm.firstElementChild === null) return;
             tmpltContent = elm.firstElementChild.outerHTML.toString();
             const stDSource = elm.firstElementChild.getAttribute('loopDSource');
 
@@ -776,7 +776,7 @@ export class Components {
 
                     await inCmp.onRender();
                     const result = this.replaceBoundFieldStElement(inCmp, fields, rec, noFieldsMap, cmp, field);
-
+                    
                     if((loopCount + 1) === totalLoopItm && !wasPrntLoad)
                         Components.prevLoadLoopContainer.add(loadKey);                    
 
@@ -803,8 +803,12 @@ export class Components {
                         if(cmp[`$_stupt${field}`] === true){
                             if(result.nodeChanged !== false || result.appending) 
                                 await instance.stAfterInit();
-                        }else
+                        }else{
+                            if('nodeChanged' in result){
+                                if(!result.nodeChanged) return;
+                            }
                             await instance.stAfterInit();
+                        }
                         
                     }, 10);
                     loopCount++;
@@ -866,6 +870,7 @@ export class Components {
                     else obj[f] = v;
                 }
             }
+            
         } else {
             for (const [f, v] of fields) {
                 if(checkPropBind(obj, f)) obj['#stLpStat'][f] = v;
@@ -879,7 +884,7 @@ export class Components {
         if(cmp[`$_stupt${field}`]){
             existingNode = document.getElementById(obj['#stLpIdDesc']);
             if(!existingNode) {
-
+                
                 content = obj?.getBoundTemplate();
                 let container = cmp['#stAppndId']
                     ? document.getElementById(cmp['#stAppndId']).parentNode
@@ -898,8 +903,8 @@ export class Components {
                 if(internalId) obj.cmpInternalId = internalId;
                 obj.loopPrnt = obj.$parent.cmpInternalId;
                 
-                content = obj?.getBoundTemplate();
                 if(nodeChanged === true){
+                    content = obj?.getBoundTemplate();
                     existingNode.parentNode.innerHTML = content.replace('<st-wrap>','').replace('<st-wrap>','');
                 }
             }

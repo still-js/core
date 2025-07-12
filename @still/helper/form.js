@@ -6,7 +6,7 @@ class InParams {
     className; 
     id; 
     datasets = {}; 
-    type; 
+    value; type; 
     placeholder; 
     min; max; required; warn;
     /** @type { 'number'|'alhpanumeric'|'text'|'email'|'phone'|'date'|'dateUS' } */
@@ -23,28 +23,28 @@ export const FormHelper = {
         //Components is available globally from import { Components } from "../setup/components";        
         Components.ref(cmp.cmpInternalId).setDynamicField(fName, value);
         Components.obj().parseGetsAndSets(cmp, false,fName);
+
         return {
             /** @param { InParams } params  */
             input(params = inParams){
-                const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn} = params;
+                
+                const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn, value} = params;
                 const datafields = Object.entries(datasets).map(([f,v]) => (`data-${f}="${v}"`)).join(' ');
                 const ftype=`type="${type || 'text'}"`, isOptList = ['radio','checkbox'].includes(type);
                 const hint = `${placeholder ? `placeholder="${placeholder}"` : ''}`;
                 const val = `${value ? `value="${value}"` : ''}`, _id = `${id ? `id="${id}"` : ''}`;
                 const mn = `${min ? `min="${min}"` : ''}`, mx = `${max ? `max="${max}"` : ''}`;
                 const req = `${required ? ' (required)="true" ' : ''}`, wrn = `${warn ? ` (validator-warn)="${warn}"` : ''}`;
-                console.log(`VALUES TO BE: `, req, fName, (formRef.name || null));
+                const checked = `${ ['checkbox','radio'].includes(type) && value === true ? `checked="true"` : "" }`;
                 
-                const validatorClass = required ? BehaviorComponent.setOnValueInput(req, cmp, fName, (formRef.name || null)) : '';
+                const validatorClass = required ? BehaviorComponent.setOnValueInput(req, cmp, fName, (formRef?.name || null)) : '';
                 const validateEvt = `onkeyup="$still.c.ref('${cmp.cmpInternalId}').onValueInput(event,'${fName}',this, '${formRef.name}')"`;
                 const vlidtor = `${validator ? `(validator)=${validator}`: ''}`;
                 const cmpId = cmp.cmpInternalId?.replace('/','').replace('@','');
                 const input = `
                     <input ${datafields}
                         class="${genInputsClasses(validatorClass, cmpId, fName, val, isOptList)} ${cmp.cmpInternalId}-${fName} ${className || ''}"
-                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx}
-                        ${validateEvt} ${vlidtor}
-                    >
+                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx} ${validateEvt} ${vlidtor} ${checked}>
                 `;
                 return {
                     add(cb = function(input){}, subContainer = null){

@@ -27,7 +27,7 @@ export const FormHelper = {
         return {
             /** @param { InParams } params  */
             input(params = inParams){
-                
+                if(formRef === undefined) return;
                 const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn, value} = params;
                 const datafields = Object.entries(datasets).map(([f,v]) => (`data-${f}="${v}"`)).join(' ');
                 const ftype=`type="${type || 'text'}"`, isOptList = ['radio','checkbox'].includes(type);
@@ -44,7 +44,9 @@ export const FormHelper = {
                 const input = `
                     <input ${datafields}
                         class="${genInputsClasses(validatorClass, cmpId, fName, val, isOptList)} ${cmp.cmpInternalId}-${fName} ${className || ''}"
-                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx} ${validateEvt} ${vlidtor} ${checked}>
+                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx}
+                        ${validateEvt} ${vlidtor} ${checked}
+                    >
                 `;
                 return {
                     add(cb = function(input){}, subContainer = null){

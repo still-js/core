@@ -90,7 +90,7 @@ export class BaseComponent extends BehaviorComponent {
     async load() { }
     async onRender() { this.stOnRender(); }
     async stOnUpdate() { }
-    async stAfterInit() { }
+    async stAfterInit({nodeUpdate} = {nodeUpdate: false}) { }
     async stOnUnload() { }
     async stOnRender() { }
     reRender() { }

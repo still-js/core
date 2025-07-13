@@ -781,7 +781,10 @@ export class Components {
                         Components.prevLoadLoopContainer.add(loadKey);                    
 
                     if(result.obj != null){
-                        childResult += result.obj?.getBoundTemplate();
+                        let content = result.obj?.getBoundTemplate();
+                        
+                        if(result.dynId) content = content.replace('<st-wrap','<st-wrap id="'+rec['id']+'"');
+                        childResult += content;
                         fullRerender = true;
                     }
 
@@ -800,14 +803,23 @@ export class Components {
                                 false, null, field
                             );
 
+                        let updateStat = {};
                         if(cmp[`$_stupt${field}`] === true){
-                            if(result.nodeChanged !== false || result.appending) 
-                                await instance.stAfterInit();
-                        }else{
-                            if('nodeChanged' in result){
-                                if(!result.nodeChanged) return;
+                            if(result.nodeChanged !== false || result.appending){
+                                if(result.nodeChanged) updateStat = { nodeUpdate: true };
+                                await instance.stAfterInit(updateStat);
                             }
-                            await instance.stAfterInit();
+                        }else{
+
+                            if(result?.appending){
+                                await instance.stAfterInit(updateStat);
+                            }else{
+                                if('nodeChanged' in result)
+                                    if(!result.nodeChanged) return;
+    
+                                if(result.nodeChanged) updateStat = { nodeUpdate: true };
+                                await instance.stAfterInit(updateStat);
+                            }
                         }
                         
                     }, 10);
@@ -893,7 +905,8 @@ export class Components {
                 if(!container && obj.$parent.loopPrnt)
                     container = document.getElementsByClassName(`listenChangeOn-${cmp.cmpInternalId}-${field}`)[0];
 
-                obj['#stAppndId'] = obj['#stLpIdDesc']; 
+                obj['#stAppndId'] = obj['#stLpIdDesc'];
+                if(rec['id']) content = content.replace('<st-wrap','<st-wrap id="'+rec['id']+'"');
                 container.insertAdjacentHTML('beforeend', content);
                 nodeChanged = false, existingNode = true, appending = true;
 
@@ -908,11 +921,11 @@ export class Components {
                     existingNode.parentNode.innerHTML = content.replace('<st-wrap>','').replace('<st-wrap>','');
                 }
             }
-        }
+        } 
         
         return existingNode 
             ? { nodeChanged, existingNode, obj: null, content, instance: obj, appending } 
-            : { obj };
+            : { obj, dynId: rec['id'] };
     }
 
     /** @param {ViewComponent} cmp */
@@ -1798,7 +1811,7 @@ export class Components {
     }
 
     static runAfterInit(cmp) {
-        (async () => await cmp.stAfterInit())();
+        (async () => await cmp.stAfterInit({}))();
         if ('stillDevidersCmp' in cmp) {
             Components.obj().setVertDivider(cmp);
             Components.obj().setHrzntlDevider(cmp);

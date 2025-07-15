@@ -75,7 +75,7 @@ export class BehaviorComponent {
 
         if(isOptList || inpt.multiple){
             if(fieldType == 'checkbox'){
-                let currentValues = ['',undefined].includes(fieldSrc[field].value) ? [] : fieldSrc[field].value;
+                let currentValues = ['',undefined].includes(fieldSrc[field]?.value) ? [] : fieldSrc[field]?.value;
                 if(inpt?.checked) currentValues.push(inpt.value);
                 else {
                     currentValues = currentValues.filter(v => v != inpt.value);

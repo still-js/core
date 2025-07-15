@@ -921,6 +921,7 @@ export class Components {
                     content = obj?.getBoundTemplate();
                     existingNode.parentNode.innerHTML = content.replace('<st-wrap>','').replace('<st-wrap>','');
                 }
+                setTimeout(async () => await obj.stOnDOMUpdate(),10);
             }
         } 
         

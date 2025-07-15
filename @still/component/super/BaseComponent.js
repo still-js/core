@@ -90,6 +90,7 @@ export class BaseComponent extends BehaviorComponent {
     async load() { }
     async onRender() { this.stOnRender(); }
     async stOnUpdate() { }
+    async stOnDOMUpdate(){ }
     async stAfterInit({nodeUpdate} = {nodeUpdate: false}) { }
     async stOnUnload() { }
     async stOnRender() { }
@@ -238,9 +239,12 @@ export class BaseComponent extends BehaviorComponent {
         let tmpltWthState = this.template, formsRef = [];
         tmpltWthState = tmpltWthState.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
         if(this['#stLpChild']){
-            const cls = ` class="child-${this.$parent.cmpInternalId}-${this['#stLpId']}" stinternalid="${this.cmpInternalId}" 
-                            stLpStat='${this['#stLpStat']}' id=${this['#stLpIdDesc']}`;
-            tmpltWthState = `<st-wrap>${tmpltWthState.replace(/\>/,`${cls}>`)}</st-wrap>`;
+            const cls = ` child-${this.$parent.cmpInternalId}-${this['#stLpId']}` 
+            const complt = `stinternalid="${this.cmpInternalId}" stLpStat='${this['#stLpStat']}' id=${this['#stLpIdDesc']}`;
+            if(tmpltWthState.indexOf('class="') > 0) {
+                tmpltWthState = '<st-wrap>'+tmpltWthState.replace('class="', `${complt} class="${cls} `)+'</st-wrap>';
+            }
+            else tmpltWthState = `<st-wrap>${tmpltWthState.replace(/\>/,` class="${cls}"" ${complt}>`)}</st-wrap>`;
         }
 
         /** Bind @dynCmpGeneratedId which takes place in special situation that 
@@ -1071,7 +1075,8 @@ export class BaseComponent extends BehaviorComponent {
 
                 /** If statement is in place to not parse skip method 
                  * parsing when it finds a comment annotation */
-                if (!mt.includes('(') && mt.indexOf('State<') < 0) {
+                const listState = mt.match(/\@type[\s\S]{0,}ListState<[\s\S]{0,}>/);
+                if ((!mt.includes('(') && mt.indexOf('State<') < 0) || listState) {
                     const commentEndPos = mt.indexOf('*/') + 2;
                     const propertyName = mt.slice(commentEndPos).replace('\n', '').trim();
 
@@ -1096,7 +1101,7 @@ export class BaseComponent extends BehaviorComponent {
                             cmp.#handleServiceInjection(cmp, propertyName, type, service, svcPath, controller);
                         }
                     }
-                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing, svcPath });
+                    cmp.#annotations.set(propertyName, { type, inject, proxy, prop, propParsing, svcPath, listState: !!listState });
 
                 }
             });

@@ -3,6 +3,57 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-07-13
+## [Version] - 1.2.13
+Diferent improvements and bugfixes.
+ 
+- <b>MINOR</b> - `stAfterInit()` to allow identifying when there is node update in the DOM tree
+    <br>
+
+    -  This is a contrast to the stOnUpdate() but only works for DOM tree update, as updated node optimally gets recreated with the new state.
+    <br>
+    Example:
+
+        <br/>
+
+        ```{.javascript .numberLines .lineAnchors}
+        // .... import statements above
+        export class HomeComponent extends ViewComponent {
+
+            stAfterInit({ nodeUpdate }){
+                if(nodeUpdate){
+                    //DO SOMETHING
+                }
+            }
+        }
+        ```
+<br>  
+
+
+### Fixed
+- Text area binding changes detection console error.
+- Dynamic input generation type definition.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-07-06
 ## [Version] - 1.2.12
 Diferent improvements and bugfixes.

@@ -36,17 +36,16 @@ export const FormHelper = {
                 const mn = `${min ? `min="${min}"` : ''}`, mx = `${max ? `max="${max}"` : ''}`;
                 const req = `${required ? ' (required)="true" ' : ''}`, wrn = `${warn ? ` (validator-warn)="${warn}"` : ''}`;
                 const checked = `${ ['checkbox','radio'].includes(type) && value === true ? `checked="true"` : "" }`;
+                const evt = ['checkbox','radio'].includes(type) ? `onclick` : `onkeyup`;
                 
                 const validatorClass = required ? BehaviorComponent.setOnValueInput(req, cmp, fName, (formRef?.name || null)) : '';
-                const validateEvt = `onkeyup="$still.c.ref('${cmp.cmpInternalId}').onValueInput(event,'${fName}',this, '${formRef.name}')"`;
+                const validateEvt = `${evt}="$still.c.ref('${cmp.cmpInternalId}').onValueInput(event,'${fName}',this, '${formRef.name}')"`;
                 const vlidtor = `${validator ? `(validator)=${validator}`: ''}`;
                 const cmpId = cmp.cmpInternalId?.replace('/','').replace('@','');
                 const input = `
                     <input ${datafields}
                         class="${genInputsClasses(validatorClass, cmpId, fName, val, isOptList)} ${cmp.cmpInternalId}-${fName} ${className || ''}"
-                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx}
-                        ${validateEvt} ${vlidtor} ${checked}
-                    >
+                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx} ${validateEvt} ${vlidtor} ${checked}>
                 `;
                 return {
                     add(cb = function(input){}, subContainer = null){

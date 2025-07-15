@@ -377,16 +377,18 @@ export class Components {
         const mainCnter = document.getElementsByClassName(cntrId)[0];
         let removingId;
         removingList.forEach(itm => {
-            const container = mainCnter.getElementsByClassName(`child-${mainCnter.getAttribute('jstid')}-${itm.id}`)[0];
+            let container = mainCnter.getElementsByClassName(`child-${mainCnter.getAttribute('jstid')}-${itm.id}`)[0];
             if(itm?.childs){
                 itm?.childs.forEach(subItm => {
                     const childIdCmplt = container.getAttribute('stinternalid');
-                    const subSubItm = container.getElementsByClassName(`child-${childIdCmplt}-${subItm.id}`)[0];                                      
-                    removingId = subSubItm.getAttribute('stinternalid');
+                    let subSubItm = container.getElementsByClassName(`child-${childIdCmplt}-${subItm.id}`)[0];                                      
+                    removingId = subSubItm.getAttribute('stinternalid');                    
+                    if(subSubItm.parentElement.tagName === 'ST-WRAP') subSubItm = document.getElementById(subItm.id);
                     subSubItm.parentElement.removeChild(subSubItm);
                 });
             }else{
                 removingId = container.getAttribute('stinternalid');
+                if(container.parentElement.tagName === 'ST-WRAP') container = document.getElementById(itm.id);
                 container.parentElement.removeChild(container);
             }
             $still.c.ref(removingId).unload();
@@ -539,7 +541,7 @@ export class Components {
 
     /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field, chkBoxOpts = {}) {
-        if(field?.startsWith('$_stup')) return;
+        if(field?.startsWith('$_stup') || field?.endsWith('CmpltCbs')) return;
         const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
@@ -732,13 +734,13 @@ export class Components {
 
     }
 
+    static loadedTemplates = new Set();
+
     async parseForEachTemplate(tmpltContent, cmp, field, result, childCmp = null, wasPrntLoad = false) {
 
-        let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '', content = '';
+        let template = tmpltContent.replace('display:none;', ''), childTmpl, childResult = '', tmpltChk = Components.loadedTemplates;
         let totalLoopItm = cmp['$still_' + field].length, loopCount = 0, childLvl = 1, fullRerender = false;
         if(template.indexOf('</st-lstgp>')) template = template.replace('display:none;', '');
-
-        console.log(`IS IT DELETING: `,cmp[`$_stdel${field}`]);
 
         if (cmp['$still_' + field] instanceof Array) {
 
@@ -754,8 +756,7 @@ export class Components {
 
                 let prntId = cmp.cmpInternalId;
                 if(cmp.$parent) {
-                    prntId = cmp.$parent.cmpInternalId;
-                    childLvl = 2;
+                    prntId = cmp.$parent.cmpInternalId, childLvl = 2;
                 };
                 const loadKey = (childLvl == 2 ? cmp.cmpInternalId+prntId : prntId)+childCmp.stElement;
                 wasPrntLoad = Components.prevLoadLoopContainer.has(loadKey);
@@ -764,7 +765,9 @@ export class Components {
                     /** @type { ViewComponent } */
                     const inCmp = new childInstance._class();
                     inCmp.cmpInternalId = 'dynamic-' + inCmp.getUUID();
-                    inCmp.template = childTmpl;
+                    
+                    inCmp.template = (tmpltChk.has(childCmp.stElement) ? childTmpl.replace(/<style>[\s\S]{0,}<\/style>/gi,'') : childTmpl);
+                    tmpltChk.add(childCmp.stElement);
                     inCmp.dynLoopObject = true;
                     inCmp.stillElement = true;
                     inCmp.parentVersionId = cmp.versionId;
@@ -798,27 +801,24 @@ export class Components {
                         //    result.existingNode.parentElement.innerHTML = result.content;
                         
                         (new Components)
-                            .parseGetsAndSets(
-                                ComponentRegistror.component(instance.cmpInternalId),
-                                false, null, field
-                            );
+                            .parseGetsAndSets(ComponentRegistror.component(instance.cmpInternalId),false, null, field);
 
                         let updateStat = {};
                         if(cmp[`$_stupt${field}`] === true){
                             if(result.nodeChanged !== false || result.appending){
                                 if(result.nodeChanged) updateStat = { nodeUpdate: true };
-                                await instance.stAfterInit(updateStat);
+                                Components.runAfterInit(instance, updateStat);
                             }
                         }else{
 
                             if(result?.appending){
-                                await instance.stAfterInit(updateStat);
+                                Components.runAfterInit(instance, updateStat);
                             }else{
                                 if('nodeChanged' in result)
                                     if(!result.nodeChanged) return;
     
                                 if(result.nodeChanged) updateStat = { nodeUpdate: true };
-                                await instance.stAfterInit(updateStat);
+                                Components.runAfterInit(instance, updateStat);
                             }
                         }
                         
@@ -909,6 +909,7 @@ export class Components {
                 if(rec['id']) content = content.replace('<st-wrap','<st-wrap id="'+rec['id']+'"');
                 container.insertAdjacentHTML('beforeend', content);
                 nodeChanged = false, existingNode = true, appending = true;
+                setTimeout(async () => await obj.stOnDOMUpdate(),10);
 
             }else{
                 nodeChanged = existingNode?.getAttribute('stLpStat') != obj['#stLpStat'];
@@ -1810,8 +1811,11 @@ export class Components {
         });
     }
 
-    static runAfterInit(cmp) {
-        (async () => await cmp.stAfterInit({}))();
+    static runAfterInit(cmp, params = {}) {
+        setTimeout(async () => {
+            await cmp.stOnDOMUpdate();
+            setTimeout(async () => await cmp.stAfterInit(params),20);
+        } ,10);
         if ('stillDevidersCmp' in cmp) {
             Components.obj().setVertDivider(cmp);
             Components.obj().setHrzntlDevider(cmp);

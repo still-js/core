@@ -345,6 +345,74 @@ export class BaseComponent extends BehaviorComponent {
         return template;
     }
 
+    parseAtForachLogic(template){
+
+        const forEachRE = /@for\s*\([^)]+\)|@endfor/g;
+
+        let depth = 0, realFor, uniqVarName, loopVar;
+        template = template.replace(/\t{0,}/,'');
+
+        template = template.replace(forEachRE, ($1, pos) => {
+            const line = $1.trim();
+            if(line.startsWith('@for')){
+                
+                depth++;
+                const iterSource = line.replace(/[\(\)]/g,'').split(' in ');
+                uniqVarName = `_${String(Math.random()).replace('.','')}`;
+                loopVar = `${uniqVarName}_${iterSource[1]}`;
+                realFor = $1.replace('@','').replace(' in ',' of ').replace('(','(let ');
+                if(depth === 1) realFor = realFor.replace(iterSource[1],loopVar);
+
+                if(typeof window != 'undefined') window[loopVar] = this[iterSource[1]];
+                else global[`${loopVar}`] = this[iterSource[1]];
+
+                if((depth - 1) === 0) 
+                    return '<start-tag id="'+uniqVarName+'">\n let '+uniqVarName+"='';\n"+realFor+'{';
+                return realFor+'{';
+            }
+
+            if(line.startsWith('@endfor')){
+                realFor = $1.replace('@endfor','}'), depth--;
+                if((depth) === 0) return realFor+'\n</start-tag>';
+                return realFor;
+            }
+        });
+
+        template = template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
+            
+            let lines = loop.split('\n'), content = '', variable, result;
+            for(let line of lines){
+                const lnContnt = line.trim();
+                if(lnContnt != ''){
+                    if(lnContnt.startsWith('let _')){
+
+                        variable = `${lnContnt.replace('let ','').replace("='';",'')}`;
+                        if(typeof window != 'undefined') window[variable] = '';
+                        else global[`${variable}`] = '';
+
+                    }
+                    else if(lnContnt.startsWith('console.log')) content += lnContnt;
+                    else if (lnContnt.startsWith('@if(')) content += lnContnt.replace('@if','if')+'{';
+                    else if (lnContnt.startsWith('@endif')) content += lnContnt.replace('@endif','}');
+                    else if(!lnContnt.startsWith('for(') && lnContnt != '}')
+                       content += variable + '+=`'+lnContnt+'`;';
+                    else content += line; 
+                }
+            }
+            content = content.replaceAll('{{','${').replaceAll('}}','}');
+            result = eval(content);
+            result = eval(variable);
+
+            if(typeof window != 'undefined') delete window[variable];
+            else delete global[`${variable}`];
+
+            return `<start-tag id="${variable}">${result}</start-tag>`;
+        });
+
+        return template;
+        
+    }
+
     getBoundProps(template) {
         /** Inject/Bind the component props/params to the referenced place */
         Object.entries(this.cmpProps).forEach(([key, value]) => {
@@ -749,6 +817,7 @@ export class BaseComponent extends BehaviorComponent {
         /** Bind the component state and return it (template)
          * NOTE: Needs to be always the first to be called */
         let template = this.getBoundState(isReloading);
+        template = this.parseAtForachLogic(template);
         template = Components.obj().parseAdjustable(template, this);
         template = Components.obj().parseLocalLoader(template, this);
         template = this.getBoundRender(template);

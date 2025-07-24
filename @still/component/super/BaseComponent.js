@@ -380,7 +380,7 @@ export class BaseComponent extends BehaviorComponent {
 
         template = template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
             
-            let lines = loop.split('\n'), content = '', variable, result;
+            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result;            
             for(let line of lines){
                 const lnContnt = line.trim();
                 if(lnContnt != ''){
@@ -399,13 +399,13 @@ export class BaseComponent extends BehaviorComponent {
                     else content += line; 
                 }
             }
+            
             content = content.replaceAll('{{','${').replaceAll('}}','}');
-            result = eval(content);
-            result = eval(variable);
+            result = eval(content);//Runs the for loop scope
+            result = eval(variable);//Grabs the for loop result from the variable
 
             if(typeof window != 'undefined') delete window[variable];
             else delete global[`${variable}`];
-
             return `<start-tag id="${variable}">${result}</start-tag>`;
         });
 

@@ -1163,10 +1163,9 @@ export class Components {
 
             /** Preventing this component to be instantiated in case it should not be 
              * rendered due to the (renderIf) flag value is found to be false */
-            if (parentClss?.contains($stillconst.PART_REMOVE_CSS))
-                continue;
+            if (parentClss?.contains($stillconst.PART_REMOVE_CSS)) continue;
 
-            const { proxy, component, props, annotations, ref, loopPrnt } = cmpParts[idx];
+            const { proxy, component, props, annotations, ref, loopPrnt, itm } = cmpParts[idx];
             if (component == undefined) continue;
 
             (async () => {
@@ -1183,8 +1182,7 @@ export class Components {
                 ).newInstance;
 
                 let cmpName, canHandle = true;
-                if (!Components.obj().canHandleCmpPart(instance))
-                    return;
+                if (!Components.obj().canHandleCmpPart(instance)) return;
 
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
                 /** In case the parent component is Lone component, then child component will also be */
@@ -1206,55 +1204,65 @@ export class Components {
 
                 //if (cmpInternalId != 'fixed-part') {
                 Components.parseProxy(proxy, cmp, parentCmp, annotations);
-                cmp['stName'] = cmpName;
-                StillAppSetup.register(cmp);
+                cmp['stName'] = cmpName, StillAppSetup.register(cmp);
 
-                const allProps = Object.entries(props);
+                let items = {};
+                if(props.item) {
+                    items = JSON.parse(props.item), cmp['stDynAtFor'] = true;
+                    delete props.item;
+                }
+
+                const allProps = Object.entries({...props, ...items});
                 for (let [prop, value] of allProps) {
 
                     if (prop == 'ref') ComponentRegistror.add(value, cmp);
-
                     //Proxy gets ignored becuase it was assigned above and it should be the child class
                     if (prop != 'proxy' && prop != 'component') {
-                        if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
-                            const method = prop.replace('(', '').replace(')', '');
-                            cmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
-                            continue;
-                        }
 
-                        let prefix = String(value).toLowerCase();
+                        if(typeof value !== 'string'){
+                            cmp[prop] = value;
+                        }else{
 
-                        if (prop in instance && !value?.startsWith('parent.') && !value?.startsWith('self.')) {
-                            //Because this assignement will trigger getters for flag, passing an object 
-                            //with v field will allow identify that this is framework initial instance assignement
-                            const _value = ['false', false].includes(value) ? { v: false, stBVal: true } : ['true', true].includes(value) ? { v: true, stBVal: true } : value;
-                            
-                            if(cmpInternalId != 'fixed-part') instance[prop] =  _value;
-                            if(cmpInternalId == 'fixed-part') {
-                                instance[prop] = _value?.stBVal ? _value.v : _value;
-                                instance.__defineGetter__(prop, () => _value?.stBVal ? _value.v : _value);
+                            if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
+                                const method = prop.replace('(', '').replace(')', '');
+                                cmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
+                                continue;
                             }
-                            continue;
-                        }
+    
+                            let prefix = String(value).toLowerCase();
+                            if (prop in instance && !value?.startsWith('parent.') && !value?.startsWith('self.')) {
+                                //Because this assignement will trigger getters for flag, passing an object 
+                                //with v field will allow identify that this is framework initial instance assignement
+                                const _value = ['false', false].includes(value) ? { v: false, stBVal: true } : ['true', true].includes(value) ? { v: true, stBVal: true } : value;
+                                
+                                if(cmpInternalId != 'fixed-part') instance[prop] =  _value;
+                                if(cmpInternalId == 'fixed-part') {
+                                    instance[prop] = _value?.stBVal ? _value.v : _value;
+                                    instance.__defineGetter__(prop, () => _value?.stBVal ? _value.v : _value);
+                                }
+                                continue;
+                            }
+    
+                            if (prefix.startsWith('parent.')) prefix = 'parent.';
+                            else if (prefix.startsWith('self.')) prefix = 'self.';
+                            else prefix = '';
+                            
+                            if (prefix == '' && typeof value === 'string') {
+                                value = value.trim();
+                                if (!isNaN(value) || (value.startsWith('\'') && value.endsWith('\''))) 
+                                    cmp[prop] = value;
+                            }
+    
+                            else if ((String(value).toLowerCase().startsWith(prefix) || prefix == '') && typeof value === 'string') {
 
-                        if (prefix.startsWith('parent.')) prefix = 'parent.';
-                        else if (prefix.startsWith('self.')) prefix = 'self.';
-                        else prefix = '';
-
-                        if (prefix == '') {
-                            value = value.trim();
-                            if (!isNaN(value) || (value.startsWith('\'') && value.endsWith('\''))) 
+                                const parentProp = parentCmp[value.replace(prefix, '').trim()];
+                                if (parentProp?.onlyPropSignature) cmp[prop] = parentProp.value;
+                                else cmp[prop] = parentProp?.value || parentProp;
+    
+                            } else
                                 cmp[prop] = value;
                         }
 
-                        else if (String(value).toLowerCase().startsWith(prefix) || prefix == '') {
-
-                            const parentProp = parentCmp[value.replace(prefix, '').trim()];
-                            if (parentProp?.onlyPropSignature) cmp[prop] = parentProp.value;
-                            else cmp[prop] = parentProp?.value || parentProp;
-
-                        } else
-                            cmp[prop] = value;
                     }
                     /** Replace the parent component on the registror So that it get's
                      * updated with the new and fresh data, properties and proxies */

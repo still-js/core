@@ -35,14 +35,16 @@ class ComponentPart {
     /** @type { ViewComponent } */
     component;
     loopPrnt;
+    itm;
 
-    constructor({ template, component, proxy, props, annotations, loopPrnt }) {
+    constructor({ template, component, proxy, props, annotations, loopPrnt, itm }) {
         this.template = template;
         this.component = component;
         this.proxy = proxy;
         this.props = props;
         this.annotations = annotations;
         this.loopPrnt = loopPrnt;
+        this.itm = itm;
     }
 
 }
@@ -141,7 +143,7 @@ export class BaseComponent extends BehaviorComponent {
             'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', '#stLpChild','#stLpId','#stLpIdDesc',
             '#stLpStat','new', 'cmpInternalId', 'routableCmp', '$stillLoadCounter', 'subscribers', '#stAppndId',
             '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields', 
-            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount',
+            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stDynAtFor',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 
             'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',
@@ -365,8 +367,13 @@ export class BaseComponent extends BehaviorComponent {
                 if(!iterSource[1].startsWith('this.'))
                     if(depth === 1) realFor = realFor.replace(iterSource[1],loopVar);
 
-                if(typeof window != 'undefined') window[loopVar] = this[iterSource[1]];
-                else global[`${loopVar}`] = this[iterSource[1]];
+                if(typeof window != 'undefined') {                    
+                    if(this['stDynAtFor']) window[loopVar] = this[iterSource[1]].value;
+                    else window[loopVar] = this[iterSource[1]];
+                } else {
+                    if(this['stDynAtFor']) global[`${loopVar}`] = this[iterSource[1]].value;
+                    else global[`${loopVar}`] = this[iterSource[1]];
+                }
 
                 if((depth - 1) === 0) 
                     return '<start-tag id="'+uniqVarName+'">\n let '+uniqVarName+"='';\n"+realFor+'{';
@@ -398,10 +405,18 @@ export class BaseComponent extends BehaviorComponent {
                     else if (lnContnt.startsWith('@if(')) content += lnContnt.replace('@if','if')+'{';
                     else if (lnContnt.startsWith('@endif')) content += lnContnt.replace('@endif','}');
                     else if(!lnContnt.startsWith('for(') && lnContnt != '}')
-                       content += variable + '+=`'+lnContnt+'`;';
+                        content += variable + '+=`'+lnContnt.replace(/\{([^}]+)\}/gi,(_, bind) => bind ? '$'+_ : _)+'`;';
                     else content += line; 
                 }
             }
+        
+            const re = /{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}|item="{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}"/gi
+            content = content.replace(re, (mt, _, ds, pos) => {
+                if(content.slice(pos-7, pos).startsWith('item="$')) {
+                    return '{JSON.stringify('+_+')}';
+                }
+                else return mt.replaceAll('{{','${').replaceAll('}}','}')
+            });
             
             content = content.replaceAll('{{','${').replaceAll('}}','}');
             result = eval(content);//Runs the for loop scope
@@ -412,8 +427,8 @@ export class BaseComponent extends BehaviorComponent {
             return `<start-tag id="${variable}">${result}</start-tag>`;
         });
         
-        template = template.replace(/\${([\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (ee, ff) => eval(`${ff}`));
-        return template.replace(/{{/,'${').replace(/}}/,'}');
+        template = template.replace(/\${([\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, field) => eval(`${field}`));
+        return template;
         
     }
 
@@ -931,7 +946,6 @@ export class BaseComponent extends BehaviorComponent {
 
         this.versionId = UUIDUtil.newId();
         template = template.replace(re, (mt) => {
-
             if (matchCounter == 0) {
                 if (this.cmpInternalId in Components.componentPartsMap)
                     delete Components.componentPartsMap[this.cmpInternalId];
@@ -948,10 +962,10 @@ export class BaseComponent extends BehaviorComponent {
             }
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
-
-            this.setTempProxy(parentCmp, propMap);
-
+            
+            this.setTempProxy(parentCmp, propMap);            
             const { component, ref, proxy: p, each, ...tagProps } = propMap;
+            
             const foundProps = Object.values(tagProps);
             const isThereProp = foundProps.some(r => !r?.startsWith('item.'))
                 || foundProps.length == 0;
@@ -965,7 +979,7 @@ export class BaseComponent extends BehaviorComponent {
                 Components.componentPartsMap[this.cmpInternalId].push(
                     new ComponentPart({
                         template: null, component: propMap['component'], props: propMap,
-                        proxy: propMap['proxy'], annotations: this.#annotations, loopPrnt
+                        proxy: propMap['proxy'], annotations: this.#annotations, loopPrnt, itm: propMap.item
                     })
                 );
             }
@@ -1016,15 +1030,25 @@ export class BaseComponent extends BehaviorComponent {
     /** @param { ViewComponent } assigneToCmp */
     parseStTag(mt, type, assigneToCmp = null) {
 
-        const props = mt
+        let item = null;
+        const content = mt.replace(/item="({.*})"|item="([\s\S]*)"/ig, (_, value, str) => {
+            if(value) {
+                item = value;
+                return ''
+            }
+            return _.replaceAll('""','"');      
+        });
+
+        const props = content
             .replace(type == 'fixed-part' ? '<st-fixed' : '<st-element', '')
             .replaceAll('\t', '')
             .replaceAll('\n', '')
             //.replaceAll(' ', '')
             .replaceAll('=', '')
             .replace('>', '').split('"');
-
+            
         const result = {};
+        item != null ? result['item'] = item : '';
         if (props.length >= 3) props.pop();
 
         let idx = 0

@@ -229,14 +229,14 @@ export class BaseComponent extends BehaviorComponent {
         return this.$stillIsThereForm;
     }
 
-    getBoundState(isReloading = false) {
+    getBoundState(template, isReloading = false) {
 
         const allowfProp = true, currentClass = this, clsName = this.cmpInternalId;
         const fields = this.getProperties(allowfProp);
 
-        if (this.template instanceof Array) this.template = this.template.join('');
+        if (template instanceof Array) template = template.join('');
         
-        let tmpltWthState = this.template, formsRef = [];
+        let tmpltWthState = template, formsRef = [];
         tmpltWthState = tmpltWthState.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
         if(this['#stLpChild']){
             const cls = ` child-${this.$parent.cmpInternalId}-${this['#stLpId']}` 
@@ -345,8 +345,9 @@ export class BaseComponent extends BehaviorComponent {
         return template;
     }
 
-    parseAtForachLogic(template){
+    parseAtForachLogic(){
 
+        let template = this.template;
         const forEachRE = /@for\s*\([^)]+\)|@endfor/g;
 
         let depth = 0, realFor, uniqVarName, loopVar;
@@ -361,7 +362,8 @@ export class BaseComponent extends BehaviorComponent {
                 uniqVarName = `_${String(Math.random()).replace('.','')}`;
                 loopVar = `${uniqVarName}_${iterSource[1]}`;
                 realFor = $1.replace('@','').replace(' in ',' of ').replace('(','(let ');
-                if(depth === 1) realFor = realFor.replace(iterSource[1],loopVar);
+                if(!iterSource[1].startsWith('this.'))
+                    if(depth === 1) realFor = realFor.replace(iterSource[1],loopVar);
 
                 if(typeof window != 'undefined') window[loopVar] = this[iterSource[1]];
                 else global[`${loopVar}`] = this[iterSource[1]];
@@ -380,7 +382,8 @@ export class BaseComponent extends BehaviorComponent {
 
         template = template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
             
-            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result;            
+            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result;
+
             for(let line of lines){
                 const lnContnt = line.trim();
                 if(lnContnt != ''){
@@ -408,8 +411,9 @@ export class BaseComponent extends BehaviorComponent {
             else delete global[`${variable}`];
             return `<start-tag id="${variable}">${result}</start-tag>`;
         });
-
-        return template;
+        
+        template = template.replace(/\${([\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (ee, ff) => eval(`${ff}`));
+        return template.replace(/{{/,'${').replace(/}}/,'}');
         
     }
 
@@ -816,8 +820,8 @@ export class BaseComponent extends BehaviorComponent {
         this.#parseAnnotations();
         /** Bind the component state and return it (template)
          * NOTE: Needs to be always the first to be called */
-        let template = this.getBoundState(isReloading);
-        template = this.parseAtForachLogic(template);
+        let template = this.parseAtForachLogic();
+        template = this.getBoundState(template, isReloading);
         template = Components.obj().parseAdjustable(template, this);
         template = Components.obj().parseLocalLoader(template, this);
         template = this.getBoundRender(template);

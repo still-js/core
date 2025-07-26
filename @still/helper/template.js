@@ -28,10 +28,10 @@ export class TemplateLogicHandler {
                     if(depth === 1) realFor = realFor.replace(iterSrc[1],loopVar);
 
                 if(typeof window != 'undefined') {                    
-                    if(obj['stDynAtFor']) window[loopVar] = obj[iterSrc[1]].value;
+                    if(obj['stEmbededAtFor']) window[loopVar] = obj[iterSrc[1]].value;
                     else window[loopVar] = obj[iterSrc[1]];
                 } else {
-                    if(obj['stDynAtFor']) global[`${loopVar}`] = obj[iterSrc[1]].value;
+                    if(obj['stEmbededAtFor']) global[`${loopVar}`] = obj[iterSrc[1]].value;
                     else global[`${loopVar}`] = obj[iterSrc[1]];
                 }
 
@@ -52,9 +52,10 @@ export class TemplateLogicHandler {
     static runTopLevelAtIf(obj, template){        
         const RE = /<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g;
         template = template.replace(RE, (a) => a.replace(/@if|@endif/g,(mt) => `enc${mt.slice(1)}`));
-        return template.replace(/@if(\([\[\]\)\(0-9A-Z\+\-\_\%\/\\\*\$\s\=\!\.\'\"]*\))[\s\S]*?@endif/ig, 
+        return template.replace(/@if(\([\?\>\<\&\|\[\]\)\(0-9A-Z\+\-\_\%\/\\\*\$\s\=\!\.\'\"]*\))[\s\S]*?@endif/ig, 
             (_, $1) => {
-                const isTrue = eval(`${$1.slice(1,-1).replace('this.','obj.')}`);
+                const exp = $1.replace(/this.[A-Z0-1\$\_]{0,}/gi,(_) => _.replace('this.','obj.') + (obj['stEmbededAtFor'] ? '.value' : ''))
+                const isTrue = eval(`${exp}`);
                 if(!isTrue) return ''
                 else return _.replace('@if'+$1,'').replace('@endif','');                
             }

@@ -144,7 +144,7 @@ export class BaseComponent extends BehaviorComponent {
             'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', '#stLpChild','#stLpId','#stLpIdDesc',
             '#stLpStat','new', 'cmpInternalId', 'routableCmp', '$stillLoadCounter', 'subscribers', '#stAppndId',
             '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields', 
-            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stDynAtFor',
+            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 
             'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',

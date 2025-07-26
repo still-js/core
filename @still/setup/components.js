@@ -1208,7 +1208,7 @@ export class Components {
 
                 let items = {};
                 if(props.item) {
-                    items = JSON.parse(props.item), cmp['stDynAtFor'] = true;
+                    items = JSON.parse(props.item), cmp['stEmbededAtFor'] = true;
                     delete props.item;
                 }
 

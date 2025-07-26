@@ -356,8 +356,9 @@ export class BaseComponent extends BehaviorComponent {
         template = template.replace(/\t{0,}/,'');
         // Parse @for and @if (in case it exists inside for loop)
         template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, counterName, rplcCnter);
+        template = TemplateLogicHandler.runTopLevelAtIf(this, template, counterName, rplcCnter);
         template = TemplateLogicHandler.runAtForAndIfStatement(template, counterName, rplcCnter);
-        template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, field) => eval(`${field}`));
+        template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, exp) => eval(`${exp}`));
         return template;
         
     }

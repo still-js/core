@@ -2,7 +2,7 @@ export class TemplateLogicHandler {
 
     static parseAtForAndIfStatement(obj, template, cnterName = {}, rplcCnter = {}){
 
-        let depth = 0, realFor, uniqVarName, loopVar, countVar = '', countIncr = '';
+        let depth = 0, realFor, uniqVarName, loopVar, countVar = null;
         const forEachRE = /@for\s*\([^)]+\)|@endfor/g;
 
         return template.replace(forEachRE, ($1) => {
@@ -11,53 +11,45 @@ export class TemplateLogicHandler {
                 
                 depth++;
                 uniqVarName = `_${String(Math.random()).replace('.','')}`;
-                line = line.replace(/\;([\sA-Z0-9\$\_]*)\=[\s]*\$count/i, (_, cnt) => {
-                    cnterName[uniqVarName] = cnt.trim();
-                    rplcCnter[uniqVarName] = `${uniqVarName}${cnterName[uniqVarName]}`;
-                    countVar = `let ${rplcCnter[uniqVarName]} = 0;\n`, countIncr = `${rplcCnter[uniqVarName]}++;\n`;
+                line = line.replace(/\;([\sA-Z0-9\$\_]*)\=[\s]*\$[a-z]*/i, (_, cnt) => {
+                    if(_.slice(-6) === '$count')cnterName[uniqVarName] = cnt.trim(), countVar = true;
                     return ''
                 });
+                
                 line = line.replace(/this./g,'');           
-                const iterSource = line.replace(/[\(\)]/g,'').split(' in ');
-                loopVar = `${uniqVarName}_${iterSource[1]}`;
-                realFor = line.replace('@','').replace(' in ',' of ').replace('(','(let ');
-                if(!iterSource[1].startsWith('this.'))
-                    if(depth === 1) realFor = realFor.replace(iterSource[1],loopVar);
+                const iterSrc = line.replace(/[\(\)]/g,'').split(' in ');
+                loopVar = `${uniqVarName}_${iterSrc[1]}`;
+                if(countVar)
+                    realFor = 'for(const ['+cnterName[uniqVarName]+','+iterSrc[0].replace('@for','')+'] of '+iterSrc[1]+'.entries())';
+                else realFor = 'for(const '+iterSrc[0].replace('@for','')+' of '+iterSrc[1]+')';
+        
+                countVar = null;
+                if(!iterSrc[1].startsWith('this.'))
+                    if(depth === 1) realFor = realFor.replace(iterSrc[1],loopVar);
 
                 if(typeof window != 'undefined') {                    
-                    if(obj['stDynAtFor']) window[loopVar] = obj[iterSource[1]].value;
-                    else window[loopVar] = obj[iterSource[1]];
-                    
-                    if(cnterName[uniqVarName]) window[rplcCnter[uniqVarName]] = 0;
+                    if(obj['stDynAtFor']) window[loopVar] = obj[iterSrc[1]].value;
+                    else window[loopVar] = obj[iterSrc[1]];
                 } else {
-                    if(obj['stDynAtFor']) global[`${loopVar}`] = obj[iterSource[1]].value;
-                    else global[`${loopVar}`] = obj[iterSource[1]];
-                    // This is for Server side Rendering (SSR)
-                    if(cnterName[uniqVarName]) global[rplcCnter[uniqVarName]] = 0;
+                    if(obj['stDynAtFor']) global[`${loopVar}`] = obj[iterSrc[1]].value;
+                    else global[`${loopVar}`] = obj[iterSrc[1]];
                 }
 
-                if((depth - 1) === 0)
-                    return '<start-tag id="'+uniqVarName+'">\n'+countVar+'let '+uniqVarName+"='';\n"+realFor+'{';
+                if((depth - 1) === 0) return '<start-tag id="'+uniqVarName+'">\nlet '+uniqVarName+"='';\n"+realFor+'{';
                 return realFor+'{';
             }
 
             if(line.startsWith('@endfor')){
                 depth--;
-                if((depth) === 0){                   
-                    realFor = $1.replace('@endfor',countIncr+'}');
-                    countVar = '', countIncr = '';
-                    return realFor+'\n</start-tag>';
-                }else{
-                    realFor = $1.replace('@endfor','}')
-                }
-                    
+                if((depth) === 0) return $1.replace('@endfor','}')+'\n</start-tag>';
+                else realFor = $1.replace('@endfor','}')  
                 return realFor;
             }
         });
 
     }
     
-    static runTopLevelAtIf(obj, template){
+    static runTopLevelAtIf(obj, template){        
         const RE = /<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g;
         template = template.replace(RE, (a) => a.replace(/@if|@endif/g,(mt) => `enc${mt.slice(1)}`));
         return template.replace(/@if(\([\[\]\)\(0-9A-Z\+\-\_\%\/\\\*\$\s\=\!\.\'\"]*\))[\s\S]*?@endif/ig, 
@@ -72,10 +64,7 @@ export class TemplateLogicHandler {
     static runAtForAndIfStatement(template, cnterName = {}, rplcCnter = {}){
         // Run/Prosecute the statemants - @for and @if (in case it exists inside for loop)
         return template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
-            
-            if(cnterName[$2]) 
-                loop = loop.replace(new RegExp(`\\b${cnterName[$2]}\\b`,'g'),rplcCnter[$2]);
-            
+
             let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result;
 
             for(let line of lines){

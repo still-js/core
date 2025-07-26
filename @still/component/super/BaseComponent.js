@@ -1,6 +1,7 @@
 import { StillAppSetup } from "../../../config/app-setup.js";
 import { stillRoutesMap as DefaultstillRoutesMap } from "../../../config/route.map.js";
 import { genInputsClasses } from "../../helper/form.js";
+import { TemplateLogicHandler } from "../../helper/template.js";
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
@@ -239,7 +240,6 @@ export class BaseComponent extends BehaviorComponent {
         if (template instanceof Array) template = template.join('');
         
         let tmpltWthState = template, formsRef = [];
-        tmpltWthState = tmpltWthState.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
         if(this['#stLpChild']){
             const cls = ` child-${this.$parent.cmpInternalId}-${this['#stLpId']}` 
             const complt = `stinternalid="${this.cmpInternalId}" stLpStat='${this['#stLpStat']}' id=${this['#stLpIdDesc']}`;
@@ -350,84 +350,14 @@ export class BaseComponent extends BehaviorComponent {
     parseAtForachLogic(){
 
         let template = this.template;
-        const forEachRE = /@for\s*\([^)]+\)|@endfor/g;
+        template = template.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
 
-        let depth = 0, realFor, uniqVarName, loopVar;
+        let counterName = {}, rplcCnter = {};
         template = template.replace(/\t{0,}/,'');
-
-        template = template.replace(forEachRE, ($1, pos) => {
-            const line = $1.trim();
-            if(line.startsWith('@for')){
-                
-                depth++;
-                const iterSource = line.replace(/[\(\)]/g,'').split(' in ');
-                uniqVarName = `_${String(Math.random()).replace('.','')}`;
-                loopVar = `${uniqVarName}_${iterSource[1]}`;
-                realFor = $1.replace('@','').replace(' in ',' of ').replace('(','(let ');
-                if(!iterSource[1].startsWith('this.'))
-                    if(depth === 1) realFor = realFor.replace(iterSource[1],loopVar);
-
-                if(typeof window != 'undefined') {                    
-                    if(this['stDynAtFor']) window[loopVar] = this[iterSource[1]].value;
-                    else window[loopVar] = this[iterSource[1]];
-                } else {
-                    if(this['stDynAtFor']) global[`${loopVar}`] = this[iterSource[1]].value;
-                    else global[`${loopVar}`] = this[iterSource[1]];
-                }
-
-                if((depth - 1) === 0) 
-                    return '<start-tag id="'+uniqVarName+'">\n let '+uniqVarName+"='';\n"+realFor+'{';
-                return realFor+'{';
-            }
-
-            if(line.startsWith('@endfor')){
-                realFor = $1.replace('@endfor','}'), depth--;
-                if((depth) === 0) return realFor+'\n</start-tag>';
-                return realFor;
-            }
-        });
-
-        template = template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
-            
-            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result;
-
-            for(let line of lines){
-                const lnContnt = line.trim();
-                if(lnContnt != ''){
-                    if(lnContnt.startsWith('let _')){
-
-                        variable = `${lnContnt.replace('let ','').replace("='';",'')}`;
-                        if(typeof window != 'undefined') window[variable] = '';
-                        else global[`${variable}`] = '';
-
-                    }
-                    else if(lnContnt.startsWith('console.log')) content += lnContnt;
-                    else if (lnContnt.startsWith('@if(')) content += lnContnt.replace('@if','if')+'{';
-                    else if (lnContnt.startsWith('@endif')) content += lnContnt.replace('@endif','}');
-                    else if(!lnContnt.startsWith('for(') && lnContnt != '}')
-                        content += variable + '+=`'+lnContnt.replace(/\{([^}]+)\}/gi,(_, bind) => bind ? '$'+_ : _)+'`;';
-                    else content += line; 
-                }
-            }
-        
-            const re = /{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}|item="{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}"/gi
-            content = content.replace(re, (mt, _, ds, pos) => {
-                if(content.slice(pos-7, pos).startsWith('item="$')) {
-                    return '{JSON.stringify('+_+')}';
-                }
-                else return mt.replaceAll('{{','${').replaceAll('}}','}')
-            });
-            
-            content = content.replaceAll('{{','${').replaceAll('}}','}');
-            result = eval(content);//Runs the for loop scope
-            result = eval(variable);//Grabs the for loop result from the variable
-
-            if(typeof window != 'undefined') delete window[variable];
-            else delete global[`${variable}`];
-            return `<start-tag id="${variable}">${result}</start-tag>`;
-        });
-        
-        template = template.replace(/\${([\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, field) => eval(`${field}`));
+        // Parse @for and @if (in case it exists inside for loop)
+        template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, counterName, rplcCnter);
+        template = TemplateLogicHandler.runAtForAndIfStatement(template, counterName, rplcCnter);
+        template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, field) => eval(`${field}`));
         return template;
         
     }

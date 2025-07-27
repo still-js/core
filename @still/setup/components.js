@@ -373,26 +373,35 @@ export class Components {
     }
 
     static deleteDomNode(removingList, cmp, field){
-        const cntrId = `listenChangeOn-${cmp.cmpInternalId}-${field}`;
-        const mainCnter = document.getElementsByClassName(cntrId)[0];
-        let removingId;
-        removingList.forEach(itm => {
-            let container = mainCnter.getElementsByClassName(`child-${mainCnter.getAttribute('jstid')}-${itm.id}`)[0];
-            if(itm?.childs){
-                itm?.childs.forEach(subItm => {
-                    const childIdCmplt = container.getAttribute('stinternalid');
-                    let subSubItm = container.getElementsByClassName(`child-${childIdCmplt}-${subItm.id}`)[0];                                      
-                    removingId = subSubItm.getAttribute('stinternalid');                    
-                    if(subSubItm.parentElement.tagName === 'ST-WRAP') subSubItm = document.getElementById(subItm.id);
-                    subSubItm.parentElement.removeChild(subSubItm);
-                });
-            }else{
-                removingId = container.getAttribute('stinternalid');
-                if(container.parentElement.tagName === 'ST-WRAP') container = document.getElementById(itm.id);
-                container.parentElement.removeChild(container);
-            }
-            $still.c.ref(removingId).unload();
-        });
+        
+        if(typeof removingList[0] === 'number' || typeof removingList[0] === 'string'){
+            removingList.forEach(itmId => {
+                const node = document.getElementById(cmp.cmpInternalId+itmId);
+                node.parentElement.removeChild(node);
+            });
+        }else{
+            //typeof removingList[0] === 'object' && !Array.isArray(removingList[0])
+            const cntrId = `listenChangeOn-${cmp.cmpInternalId}-${field}`;
+            const mainCnter = document.getElementsByClassName(cntrId)[0];
+            let removingId;
+            removingList.forEach(itm => {
+                let container = mainCnter.getElementsByClassName(`child-${mainCnter.getAttribute('jstid')}-${itm.id}`)[0];
+                if(itm?.childs){
+                    itm?.childs.forEach(subItm => {
+                        const childIdCmplt = container.getAttribute('stinternalid');
+                        let subSubItm = container.getElementsByClassName(`child-${childIdCmplt}-${subItm.id}`)[0];                                      
+                        removingId = subSubItm.getAttribute('stinternalid');                    
+                        if(subSubItm.parentElement.tagName === 'ST-WRAP') subSubItm = document.getElementById(subItm.id);
+                        subSubItm.parentElement.removeChild(subSubItm);
+                    });
+                }else{
+                    removingId = container.getAttribute('stinternalid');
+                    if(container.parentElement.tagName === 'ST-WRAP') container = document.getElementById(itm.id);
+                    container.parentElement.removeChild(container);
+                }
+                $still.c.ref(removingId).unload();
+            });
+        }
     }
 
     parseOnChange = () => this;
@@ -576,7 +585,7 @@ export class Components {
                     const match = result.match(re);                  
                     node.innerHTML = match[1], node.dataset.stvalue = newValue;
                 }
-            });   
+            });
         }
 
         if(isChkbox || (multpl && !cmp['stClk' + f])){

@@ -548,6 +548,17 @@ export class Components {
 
     static firstPropagation = {};
 
+    static handleAtForNewNode(variableName, itm, tagName, f, cmp){
+        window[`${variableName}_${f}`] = [itm], window[`${variableName}`] = '';
+        
+        eval(`${cmp['loopTmplt'][variableName]}`);
+        const result = eval(`${variableName}`);
+
+        const re = new RegExp(`<${tagName}[\\s\\S]*?>([\\s\\S]*?)</${tagName}>`,'i');                    
+        const match = result.match(re);                  
+        return match[1];
+    }
+
     /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field, chkBoxOpts = {}) {
         
@@ -573,17 +584,18 @@ export class Components {
         if(document.querySelector(atFor) && cmp[`$_stupt${f}`]){
             value.forEach(itm => {
                 const newValue = JSON.stringify(itm), node = document.getElementById(cpName+itm.id);
-                const willNodeChange = !(node.dataset.stvalue == newValue);
-                if(willNodeChange){
-                    const tagName = node.tagName, variableName = node.dataset.stvariable;
-                    window[`${variableName}_${f}`] = [itm], window[`${variableName}`] = '';
-    
-                    eval(`${cmp['loopTmplt'][variableName]}`);
-                    const result = eval(`${variableName}`);
-
-                    const re = new RegExp(`<${tagName}[\\s\\S]*?>([\\s\\S]*?)</${tagName}>`,'i');                    
-                    const match = result.match(re);                  
-                    node.innerHTML = match[1], node.dataset.stvalue = newValue;
+                if(node){
+                    const willNodeChange = !(node.dataset.stvalue == newValue);
+                    if(willNodeChange){
+                        const { tagName, dataset: { stvariable: variableName } } = node;
+                        node.dataset.stvalue = newValue;
+                        node.innerHTML = Components.handleAtForNewNode(variableName, itm, tagName, f, cmp);
+                    }
+                }else{
+                    const { parentElement, tagName, dataset: { stvariable: variableName } } = document.querySelector(atFor);
+                    const node = document.createElement(tagName);
+                    node.innerHTML = Components.handleAtForNewNode(variableName, itm, tagName, f, cmp);
+                    parentElement.appendChild(node);
                 }
             });
         }

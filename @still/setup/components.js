@@ -353,7 +353,7 @@ export class Components {
                 onComplete: (cb = () => { }) => cmp[`$${f}CmpltCbs`].push(cb),
                 firstPropag: false, onlyPropSignature: true,
                 set: (val) => { cmp[f] = val, cmp[`$_stset${f}`] = true; },
-                update: (val) => { cmp[f] = val, cmp[`$_stupt${f}`] = true; },
+                update: (val) => { cmp[`$_stupt${f}`] = true; cmp[f] = val; },
                 delete: (val) => { Components.deleteDomNode(val, cmp, f); },
             };
             if(optLst?.chkBox) r.isChkbox = true;
@@ -541,22 +541,43 @@ export class Components {
 
     /** @param { ViewComponent } cmp */
     propageteChanges(cmp, field, chkBoxOpts = {}) {
+        
         if(field?.startsWith('$_stup') || field?.endsWith('CmpltCbs')) return;
         const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
+        const atFor = `.listenChangeAtFor-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
-
+        
         if (subscribers && !cmp['stOptListFieldMap']?.has(f)){
             subscribers.forEach(/**@type {HTMLElement}*/elm => 
                 this.dispatchPropagation(elm, f, cmp)
             );
         }
-
+        
         const cssRefCombo = `.listenChangeOn-${cpName}-${f}-combobox`;
         const subscribersCombo = document.querySelectorAll(cssRefCombo);
         const stateChange = `.state-change-${cpName}-${f}`;
         const stateChangeSubsribers = document.querySelectorAll(stateChange);
         const { isChkbox, isRadio, multpl, value } = cmp[f];       
+        
+        // this is for Node update when it was generated using @for template logic
+        if(document.querySelector(atFor) && cmp[`$_stupt${f}`]){
+            value.forEach(itm => {
+                const newValue = JSON.stringify(itm), node = document.getElementById(cpName+itm.id);
+                const willNodeChange = !(node.dataset.stvalue == newValue);
+                if(willNodeChange){
+                    const tagName = node.tagName, variableName = node.dataset.stvariable;
+                    window[`${variableName}_${f}`] = [itm], window[`${variableName}`] = '';
+    
+                    eval(`${cmp['loopTmplt'][variableName]}`);
+                    const result = eval(`${variableName}`);
+
+                    const re = new RegExp(`<${tagName}[\\s\\S]*?>([\\s\\S]*?)</${tagName}>`,'i');                    
+                    const match = result.match(re);                  
+                    node.innerHTML = match[1], node.dataset.stvalue = newValue;
+                }
+            });   
+        }
 
         if(isChkbox || (multpl && !cmp['stClk' + f])){
             // chkBoxOpts.A = add, chkBoxOpts.C = click
@@ -580,11 +601,7 @@ export class Components {
         if(isRadio){
             if(chkBoxOpts.A && !chkBoxOpts.C){
                 const opt = document.querySelector(`.${cpName}-${f}-val-${value}`);
-                if(opt) {
-                    //cmp['$still_' + f] = value;
-                    opt.checked = true;
-                }
-                
+                if(opt) opt.checked = true; //cmp['$still_' + f] = value;
             }
         }
 

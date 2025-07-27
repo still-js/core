@@ -146,7 +146,7 @@ export class BaseComponent extends BehaviorComponent {
             '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields', 
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 
-            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat',
+            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
         ];
@@ -352,12 +352,12 @@ export class BaseComponent extends BehaviorComponent {
         let template = this.template;
         template = template.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
 
-        let counterName = {}, rplcCnter = {};
+        let counterName = {}, dataSrc = {}, iterVar = {};
         template = template.replace(/\t{0,}/,'');
         // Parse @for and @if (in case it exists inside for loop)
-        template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, counterName, rplcCnter);
-        template = TemplateLogicHandler.runTopLevelAtIf(this, template, counterName, rplcCnter);
-        template = TemplateLogicHandler.runAtForAndIfStatement(template, counterName, rplcCnter);
+        template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, counterName, dataSrc, iterVar);
+        template = TemplateLogicHandler.runTopLevelAtIf(this, template, counterName, dataSrc);
+        template = TemplateLogicHandler.runAtForAndIfStatement(this, template, counterName, dataSrc, iterVar);
         template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, exp) => eval(`${exp}`));
         return template;
         

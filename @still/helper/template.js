@@ -1,6 +1,6 @@
 export class TemplateLogicHandler {
 
-    static parseAtForAndIfStatement(obj, template, cnterName = {}, rplcCnter = {}){
+    static parseAtForAndIfStatement(obj, template, cnterName = {}, dataSrc = {}, iterVar = {}){
 
         let depth = 0, realFor, uniqVarName, loopVar, countVar = null;
         const forEachRE = /@for\s*\([^)]+\)|@endfor/g;
@@ -12,16 +12,16 @@ export class TemplateLogicHandler {
                 depth++;
                 uniqVarName = `_${String(Math.random()).replace('.','')}`;
                 line = line.replace(/\;([\sA-Z0-9\$\_]*)\=[\s]*\$[a-z]*/i, (_, cnt) => {
-                    if(_.slice(-6) === '$count')cnterName[uniqVarName] = cnt.trim(), countVar = true;
+                    if(_.slice(-6) === '$count') cnterName[uniqVarName] = cnt.trim(), countVar = true;
                     return ''
                 });
                 
                 line = line.replace(/this./g,'');           
                 const iterSrc = line.replace(/[\(\)]/g,'').split(' in ');
-                loopVar = `${uniqVarName}_${iterSrc[1]}`;
+                loopVar = `${uniqVarName}_${iterSrc[1]}`, dataSrc[uniqVarName] = iterSrc[1], iterVar[uniqVarName] = iterSrc[0].replace('@for','');
                 if(countVar)
                     realFor = 'for(const ['+cnterName[uniqVarName]+','+iterSrc[0].replace('@for','')+'] of '+iterSrc[1]+'.entries())';
-                else realFor = 'for(const '+iterSrc[0].replace('@for','')+' of '+iterSrc[1]+')';
+                else realFor = 'for(const '+iterVar[uniqVarName]+' of '+iterSrc[1]+')';
         
                 countVar = null;
                 if(!iterSrc[1].startsWith('this.'))
@@ -62,14 +62,15 @@ export class TemplateLogicHandler {
         );
     }
 
-    static runAtForAndIfStatement(template, cnterName = {}, rplcCnter = {}){
+    static runAtForAndIfStatement(obj, template, cnterName = {}, dataSrc = {}, iterVar = {}){
         // Run/Prosecute the statemants - @for and @if (in case it exists inside for loop)
         return template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
 
-            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result;
+            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result, nodeUpdtble = false;
+            obj['loopTmplt'] = {};
 
             for(let line of lines){
-                const lnContnt = line.trim();
+                let lnContnt = line.trim();
                 if(lnContnt != ''){
                     if(lnContnt.startsWith('let _')){
                         if(cnterName[$2] && lnContnt.includes(cnterName[$2])) {}
@@ -79,12 +80,24 @@ export class TemplateLogicHandler {
                             else global[`${variable}`] = '';
                         }
                     }
-                    else if (lnContnt.indexOf('++;') > 0) content += lnContnt+';';
                     else if(lnContnt.startsWith('console.log')) content += lnContnt;
                     else if (lnContnt.startsWith('encif(')) content += lnContnt.replace('encif','if')+'{';
                     else if (lnContnt.startsWith('encendif')) content += lnContnt.replace('encendif','}');
-                    else if(!lnContnt.startsWith('for(') && lnContnt != '}')
+                    else if(!lnContnt.startsWith('for(') && lnContnt != '}'){
+                        lnContnt = lnContnt.replace(/<[\s\S]{0,}(id=\"[\s\S]*?\")>/,(_,$1) => {
+
+                            nodeUpdtble = true;
+                            const id = $1.split('"')[1], cmpId = obj.cmpInternalId.replace('/','').replace('@','')
+                            const idValue = `id="${cmpId}${id}"`, hasCls = _.indexOf('class="') > 0, lstnFlag = `listenChangeAtFor-${cmpId}-${dataSrc[$2]}`;
+                            if(hasCls) _ = _.replace('class="',`class="${lstnFlag} `).replace(`id="${id}"`,idValue);
+                            else _ = _.replace($1,`class="${lstnFlag} atForLoop " ${idValue}`);
+                            _ = _.replace('>',`data-stvariable="${variable}" data-stvalue='{JSON.stringify(${iterVar[$2]})}'>`);
+
+                            return _;
+
+                        });
                         content += variable + '+=`'+lnContnt.replace(/\{([^}]+)\}/gi,(_, bind) => bind ? '$'+_ : _)+'`;';
+                    }
                     else content += line; 
                 }
             }
@@ -93,7 +106,7 @@ export class TemplateLogicHandler {
                 if(content.slice(pos-7, pos).startsWith('item="$')) return '{JSON.stringify('+_+')}';
                 else return mt
             });
-
+            if(nodeUpdtble) obj['loopTmplt'][variable] = content;
             result = eval(content);//Runs the for loop scope
             result = eval(variable);//Grabs the for loop result from the variable
 

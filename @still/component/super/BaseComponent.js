@@ -143,7 +143,7 @@ export class BaseComponent extends BehaviorComponent {
         const excludingFields = [
             'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', '#stLpChild','#stLpId','#stLpIdDesc',
             '#stLpStat','new', 'cmpInternalId', 'routableCmp', '$stillLoadCounter', 'subscribers', '#stAppndId',
-            '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields', 
+            '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields','stRunTime','stAtForInitLoad', 
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 
             'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt',
@@ -352,12 +352,12 @@ export class BaseComponent extends BehaviorComponent {
         let template = this.template;
         template = template.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
 
-        let counterName = {}, dataSrc = {}, iterVar = {};
+        let counterName = {}, loopVar = {}, dataSrc = {}, iterVar = {};
         template = template.replace(/\t{0,}/,'');
         // Parse @for and @if (in case it exists inside for loop)
-        template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, counterName, dataSrc, iterVar);
+        template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, loopVar, counterName, dataSrc, iterVar);
         template = TemplateLogicHandler.runTopLevelAtIf(this, template, counterName, dataSrc);
-        template = TemplateLogicHandler.runAtForAndIfStatement(this, template, counterName, dataSrc, iterVar);
+        template = TemplateLogicHandler.runAtForAndIfStatement(this, template, loopVar, counterName, dataSrc, iterVar);
         template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, exp) => eval(`${exp}`));
         return template;
         

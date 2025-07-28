@@ -1,8 +1,8 @@
 export class TemplateLogicHandler {
 
-    static parseAtForAndIfStatement(obj, template, cnterName = {}, dataSrc = {}, iterVar = {}){
+    static parseAtForAndIfStatement(obj, template, loopVar = {}, cnterName = {}, dataSrc = {}, iterVar = {}){
 
-        let depth = 0, realFor, uniqVarName, loopVar, countVar = null;
+        let depth = 0, realFor, uniqVarName, countVar = null;
         const forEachRE = /@for\s*\([^)]+\)|@endfor/g;
 
         return template.replace(forEachRE, ($1) => {
@@ -18,21 +18,21 @@ export class TemplateLogicHandler {
                 
                 line = line.replace(/this./g,'');           
                 const iterSrc = line.replace(/[\(\)]/g,'').split(' in ');
-                loopVar = `${uniqVarName}_${iterSrc[1]}`, dataSrc[uniqVarName] = iterSrc[1], iterVar[uniqVarName] = iterSrc[0].replace('@for','');
+                loopVar[uniqVarName] = `${uniqVarName}_${iterSrc[1]}`, dataSrc[uniqVarName] = iterSrc[1], iterVar[uniqVarName] = iterSrc[0].replace('@for','');
                 if(countVar)
                     realFor = 'for(const ['+cnterName[uniqVarName]+','+iterSrc[0].replace('@for','')+'] of '+iterSrc[1]+'.entries())';
                 else realFor = 'for(const '+iterVar[uniqVarName]+' of '+iterSrc[1]+')';
         
                 countVar = null;
                 if(!iterSrc[1].startsWith('this.'))
-                    if(depth === 1) realFor = realFor.replace(iterSrc[1],loopVar);
+                    if(depth === 1) realFor = realFor.replace(iterSrc[1],loopVar[uniqVarName]);
 
                 if(typeof window != 'undefined') {                    
-                    if(obj['stEmbededAtFor']) window[loopVar] = obj[iterSrc[1]].value;
-                    else window[loopVar] = obj[iterSrc[1]];
+                    if(obj['stEmbededAtFor']) window[loopVar[uniqVarName]] = obj[iterSrc[1]].value;
+                    else window[loopVar[uniqVarName]] = obj[iterSrc[1]];
                 } else {
-                    if(obj['stEmbededAtFor']) global[`${loopVar}`] = obj[iterSrc[1]].value;
-                    else global[`${loopVar}`] = obj[iterSrc[1]];
+                    if(obj['stEmbededAtFor']) global[`${loopVar[uniqVarName]}`] = obj[iterSrc[1]].value;
+                    else global[`${loopVar[uniqVarName]}`] = obj[iterSrc[1]];
                 }
 
                 if((depth - 1) === 0) return '<start-tag id="'+uniqVarName+'">\nlet '+uniqVarName+"='';\n"+realFor+'{';
@@ -62,20 +62,22 @@ export class TemplateLogicHandler {
         );
     }
 
-    static runAtForAndIfStatement(obj, template, cnterName = {}, dataSrc = {}, iterVar = {}){
+    static runAtForAndIfStatement(obj, template, loopVar = {}, cnterName = {}, dataSrc = {}, iterVar = {}){
         // Run/Prosecute the statemants - @for and @if (in case it exists inside for loop)
         return template.replace(/<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g,($1, $2, loop) => {
 
-            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result, nodeUpdtble = false;
-            obj['loopTmplt'] = {};
-
+            let lines = loop.replace(/^\s*\n/gm,'').split('\n'), content = '', variable, result, nodeUpdtble = false, cmpId, containerId;
+            obj['loopTmplt'] = {}, obj['stRunTime'] = {}, obj['stAtForInitLoad'] = {};
+            
             for(let line of lines){
                 let lnContnt = line.trim();
                 if(lnContnt != ''){
                     if(lnContnt.startsWith('let _')){
                         if(cnterName[$2] && lnContnt.includes(cnterName[$2])) {}
                         else{
-                            variable = `${lnContnt.replace('let ','').replace("='';",'')}`;
+                            variable = `${lnContnt.replace('let ','').replace("='';",'')}`, cmpId = obj.cmpInternalId.replace('/','').replace('@','');
+                            containerId = cmpId+dataSrc[$2];
+                            content += variable + '+=`<for-loop id="'+containerId+'">`;\n';
                             if(typeof window != 'undefined') window[variable] = '';
                             else global[`${variable}`] = '';
                         }
@@ -87,7 +89,7 @@ export class TemplateLogicHandler {
                         lnContnt = lnContnt.replace(/<[\s\S]{0,}(id=\"[\s\S]*?\")>/,(_,$1) => {
 
                             nodeUpdtble = true;
-                            const id = $1.split('"')[1], cmpId = obj.cmpInternalId.replace('/','').replace('@','')
+                            const id = $1.split('"')[1];
                             const idValue = `id="${cmpId}${id}"`, hasCls = _.indexOf('class="') > 0, lstnFlag = `listenChangeAtFor-${cmpId}-${dataSrc[$2]}`;
                             if(hasCls) _ = _.replace('class="',`class="${lstnFlag} `).replace(`id="${id}"`,idValue);
                             else _ = _.replace($1,`class="${lstnFlag} atForLoop " ${idValue}`);
@@ -101,13 +103,26 @@ export class TemplateLogicHandler {
                     else content += line; 
                 }
             }
+            content += variable + '+=`</for-loop>`';
             const re = /{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}|item="{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}"/gi
             content = content.replace(re, (mt, _, ds, pos) => {
                 if(content.slice(pos-7, pos).startsWith('item="$')) return '{JSON.stringify('+_+')}';
                 else return mt
             });
-            if(nodeUpdtble) obj['loopTmplt'][variable] = content;
-            result = eval(content);//Runs the for loop scope
+            
+            if(obj[dataSrc[$2]].length === 0){
+                if(!(`${loopVar[$2]}` in obj['stRunTime'])) obj['stRunTime'][dataSrc[$2]] = {};
+                obj['stAtForInitLoad'][dataSrc[$2]] = false;
+                obj['stRunTime'][dataSrc[$2]][variable+'_'+dataSrc[$2]] = function(data){
+                    const content = obj['loopTmplt'][variable];
+                    window[loopVar[$2]] = data, window[variable] = '';
+                    eval(content);
+                    document.getElementById(containerId).innerHTML = eval(variable);
+                };
+            }
+            
+            obj['loopTmplt'][variable] = content;
+            eval(content);//Runs the for loop scope
             result = eval(variable);//Grabs the for loop result from the variable
 
             if(typeof window != 'undefined') {

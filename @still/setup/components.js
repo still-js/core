@@ -580,6 +580,10 @@ export class Components {
         const stateChangeSubsribers = document.querySelectorAll(stateChange);
         const { isChkbox, isRadio, multpl, value } = cmp[f];       
         
+        if(cmp['stAtForInitLoad'][`${f}`] === false && !cmp[`$_stupt${f}`]){
+            Object.entries(cmp['stRunTime'][f]).forEach(([_, cb]) => cb(cmp[f].value));
+        }
+
         // this is for Node update when it was generated using @for template logic
         if(document.querySelector(atFor) && cmp[`$_stupt${f}`]){
             value.forEach(itm => {

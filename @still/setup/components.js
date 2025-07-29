@@ -4,6 +4,7 @@ import { $still, ComponentNotFoundException, ComponentRegistror } from "../compo
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
 import { ViewComponent as DefaultViewComponent } from "../component/super/ViewComponent.js";
+import { TemplateReactiveResponde } from "../helper/template.js";
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { checkPropBind } from "../util/componentUtil.js";
@@ -565,7 +566,6 @@ export class Components {
         if(field?.startsWith('$_stup') || field?.endsWith('CmpltCbs')) return;
         const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
-        const atFor = `.listenChangeAtFor-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
         
         if (subscribers && !cmp['stOptListFieldMap']?.has(f)){
@@ -579,30 +579,13 @@ export class Components {
         const stateChange = `.state-change-${cpName}-${f}`;
         const stateChangeSubsribers = document.querySelectorAll(stateChange);
         const { isChkbox, isRadio, multpl, value } = cmp[f];       
-        
-        if(cmp['stAtForInitLoad'][`${f}`] === false && !cmp[`$_stupt${f}`]){
-            Object.entries(cmp['stRunTime'][f]).forEach(([_, cb]) => cb(cmp[f].value));
-        }
 
-        // this is for Node update when it was generated using @for template logic
-        if(document.querySelector(atFor) && cmp[`$_stupt${f}`]){
-            value.forEach(itm => {
-                const newValue = JSON.stringify(itm), node = document.getElementById(cpName+itm.id);
-                if(node){
-                    const willNodeChange = !(node.dataset.stvalue == newValue);
-                    if(willNodeChange){
-                        const { tagName, dataset: { stvariable: variableName } } = node;
-                        node.dataset.stvalue = newValue;
-                        node.innerHTML = Components.handleAtForNewNode(variableName, itm, tagName, f, cmp);
-                    }
-                }else{
-                    const { parentElement, tagName, dataset: { stvariable: variableName } } = document.querySelector(atFor);
-                    const node = document.createElement(tagName);
-                    node.innerHTML = Components.handleAtForNewNode(variableName, itm, tagName, f, cmp);
-                    parentElement.appendChild(node);
-                }
-            });
-        }
+        // @if -> Top level statement variables on the condition change
+        TemplateReactiveResponde.detectAtIfTopLevelConditionChange(cmp, f);
+        // @for -> Gets called when data source (state variable) value got changed
+        TemplateReactiveResponde.reloadeContainerOnDataSourceChange(cmp, f);
+        // @for -> this is for Node update when it was generated using template logic
+        TemplateReactiveResponde.updateDomTreeOnAtForDataSourceChange(cmp, f, value, cpName);
 
         if(isChkbox || (multpl && !cmp['stClk' + f])){
             // chkBoxOpts.A = add, chkBoxOpts.C = click

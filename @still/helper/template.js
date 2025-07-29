@@ -1,3 +1,5 @@
+import { UUIDUtil } from "../util/UUIDUtil.js";
+
 export class TemplateLogicHandler {
 
     static parseAtForAndIfStatement(obj, template, loopVar = {}, cnterName = {}, dataSrc = {}, iterVar = {}){
@@ -50,14 +52,28 @@ export class TemplateLogicHandler {
     }
     
     static runTopLevelAtIf(obj, template){        
-        const RE = /<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g;
+        const RE = /<start-tag id="([\_0-9]*)">([\s\S]*?)<\/start-tag>/g, RE_VAR = /[\!]{0,}this.([A-Z0-9\$\_]{0,})/ig;
         template = template.replace(RE, (a) => a.replace(/@if|@endif/g,(mt) => `enc${mt.slice(1)}`));
-        return template.replace(/@if(\([\?\>\<\&\|\[\]\)\(0-9A-Z\+\-\_\%\/\\\*\$\s\=\!\.\'\"]*\))[\s\S]*?@endif/ig, 
-            (_, $1) => {
-                const exp = $1.replace(/this.[A-Z0-1\$\_]{0,}/gi,(_) => _.replace('this.','obj.') + (obj['stEmbededAtFor'] ? '.value' : ''))
+        return template.replace(/@if(\([\?\>\<\&\|\[\]\)\(0-9A-Z\+\-\_\%\/\\\*\$\s\=\!\.\'\"]*\))([\s\S]*?)@endif/ig, 
+            (_, $1, $2) => {
+
+
+                const uniqId = '_'+UUIDUtil.newId();
+                if(!obj['stOnChangeAtIf']) {
+                    obj['stOnChangeAtIf'] = {}, obj['stAtIfContent'] = {};
+                }
+
+                obj['stOnChangeAtIf'][uniqId] = $1.replace(RE_VAR, (_, $var) => `${_.startsWith('!') ? '!' : ''}cmp.${$var}.value`);
+
+                const exp = $1.replace(RE_VAR,(_,$var) => {
+                    if(!obj['stAtIfContent'][$var]) obj['stAtIfContent'][$var] = {};
+                    obj['stAtIfContent'][$var][uniqId] = $2;
+                    return _.replace('this.','obj.') + (obj['stEmbededAtFor'] ? '.value' : '');
+                });
+
                 const isTrue = eval(`${exp}`);
-                if(!isTrue) return ''
-                else return _.replace('@if'+$1,'').replace('@endif','');                
+                if(!isTrue) return '<if-stmt id="'+uniqId+'"></if-stmt>'
+                else return '<if-stmt id="'+uniqId+'">'+_.replace('@if'+$1,'').replace('@endif','')+'</if-stmt>';                
             }
         );
     }
@@ -134,6 +150,48 @@ export class TemplateLogicHandler {
             }
             return `<start-tag id="${variable}">${result}</start-tag>`;
         });
+    }
+
+}
+
+
+export class TemplateReactiveResponde {
+
+    static detectAtIfTopLevelConditionChange(cmp, f){
+        if(!cmp['stAtIfContent']) return;
+        if(f in cmp['stAtIfContent']){
+            Object.entries(cmp['stAtIfContent'][f]).forEach(([id,content]) => {
+                if(eval(cmp['stOnChangeAtIf'][id]) === true) document.getElementById(id).innerHTML = content;
+                if(eval(cmp['stOnChangeAtIf'][id]) === false) document.getElementById(id).innerHTML = '';
+            });
+        }
+    }
+
+    static updateDomTreeOnAtForDataSourceChange(cmp, f, value, cpName){
+        const atFor = `.listenChangeAtFor-${cpName}-${f}`;
+        if(document.querySelector(atFor) && cmp[`$_stupt${f}`]){
+            value.forEach(itm => {
+                const newValue = JSON.stringify(itm), node = document.getElementById(cpName+itm.id);
+                if(node){
+                    const willNodeChange = !(node.dataset.stvalue == newValue);
+                    if(willNodeChange){
+                        const { tagName, dataset: { stvariable: variableName } } = node;
+                        node.dataset.stvalue = newValue;
+                        node.innerHTML = Components.handleAtForNewNode(variableName, itm, tagName, f, cmp);
+                    }
+                }else{
+                    const { parentElement, tagName, dataset: { stvariable: variableName } } = document.querySelector(atFor);
+                    const node = document.createElement(tagName);
+                    node.innerHTML = Components.handleAtForNewNode(variableName, itm, tagName, f, cmp);
+                    parentElement.appendChild(node);
+                }
+            });
+        }
+    }
+
+    static reloadeContainerOnDataSourceChange(cmp, f){
+        if(cmp['stAtForInitLoad'][`${f}`] === false && !cmp[`$_stupt${f}`])
+            Object.entries(cmp['stRunTime'][f]).forEach(([_, cb]) => cb(cmp[f].value));
     }
 
 }

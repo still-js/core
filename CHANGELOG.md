@@ -3,6 +3,130 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-07-29
+## [Version] - 1.3.0
+Enabling template business logic capabilities trough @for, @if and inline (${\`expression\`}) expression.
+ 
+- <b>MAJOR</b> - `@for` Multi-level/Nesting iteration following regular for loop approach
+    <br>
+    - Example:
+
+        <b>In the template (.html or embedded in the component)</b>
+        ```{.html .numberLines .lineAnchors}
+        <ul (showIf)="self.hasPermission">
+            @for(role in this.rolesList)
+            <li>
+            {role.title}
+                <ul style="margin-left: 15px;">
+                @for(subRole in role.children)
+                    <li>{subRole.title}</li>  
+                @endfor
+                </ul>
+            </li>
+            @endfor
+        </ul>
+        ```
+
+        <br>
+
+        <b>In the component (.js)</b>
+        ```{.javascript .numberLines .lineAnchors}
+        // .... In the component (.js) data assignment
+        
+        // Data is statically assigned, but could be API
+        // ListState type is convinient for better experience
+        /** @type { ListState<Array> } */
+        rolesList = [{
+             "title": "Chief Executive Officer",
+             "children": [
+                {
+                  "title": "Vice President of Marketing",
+                  "children": [
+                    {
+                      "title": "Marketing Manager",
+                      "children": [
+                          {
+                          "title": "Marketing Specialist"
+                          }
+                      ]
+                    }
+                  ]
+                }
+             ]
+        }];
+        ```
+<br>  
+
+
+- <b>MAJOR</b> - `@if` to be used straight in the template without else statement. Behaves reactively in general except when wrapping `@for`
+    <br>
+    - Example:
+
+        <b>In the template (.html or embedded in the component)</b>
+        ```{.html .numberLines .lineAnchors}
+        @if(this.userPermission === 'Admin')
+          <div>Full User Privileges</div>
+        @endif
+    
+        @if(this.userPermission !== 'Admin')
+          <div>Limitted User Privileges</div>
+        @endif
+        ```
+
+        <br>
+
+        <b>In the component (.js)</b>
+        ```{.javascript .numberLines .lineAnchors}
+        // .... In the component (.js) data assignment
+
+        userPermission = 'regular';
+        ```
+<br>
+
+- <b>MAJOR</b> - `inline expression` for conditional scenario.
+    <br>
+    - Example:
+
+        <b>In the template (.html or embedded in the component)</b>
+        ```{.html .numberLines .lineAnchors}
+        ${ this.userPermission === 'Admin' ? 'Full User Privileges' : 'Limitted User Privileges' }
+        ```
+
+        <br>
+
+        <b>In the component (.js)</b>
+        ```{.javascript .numberLines .lineAnchors}
+        // .... In the component (.js) data assignment
+
+        userPermission = 'regular';
+        ```
+<br>
+
+
+### Fixed
+- Text area binding changes detection console error.
+- Dynamic input generation type definition.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-07-13
 ## [Version] - 1.2.13
 Diferent improvements and bugfixes.

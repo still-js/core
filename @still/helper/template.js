@@ -161,6 +161,8 @@ export class TemplateReactiveResponde {
         if(!cmp['stAtIfContent']) return;
         if(f in cmp['stAtIfContent']){
             Object.entries(cmp['stAtIfContent'][f]).forEach(([id,content]) => {
+                const isItLoop = content.indexOf('let _') > 0 && content.indexOf('for(') > 0;
+                if(isItLoop) return;
                 if(eval(cmp['stOnChangeAtIf'][id]) === true) document.getElementById(id).innerHTML = content;
                 if(eval(cmp['stOnChangeAtIf'][id]) === false) document.getElementById(id).innerHTML = '';
             });
@@ -190,8 +192,10 @@ export class TemplateReactiveResponde {
     }
 
     static reloadeContainerOnDataSourceChange(cmp, f){
-        if(cmp['stAtForInitLoad'][`${f}`] === false && !cmp[`$_stupt${f}`])
-            Object.entries(cmp['stRunTime'][f]).forEach(([_, cb]) => cb(cmp[f].value));
+        if(cmp['stAtForInitLoad']){
+            if(cmp['stAtForInitLoad'][`${f}`] === false && !cmp[`$_stupt${f}`])
+                Object.entries(cmp['stRunTime'][f]).forEach(([_, cb]) => cb(cmp[f].value));
+        }
     }
 
 }

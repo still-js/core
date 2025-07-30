@@ -1,10 +1,13 @@
+![NPM Version](https://img.shields.io/npm/v/%40stilljs%2Fcore)
+![NPM Downloads](https://img.shields.io/npm/d18m/%40stilljs%2Fcore)
+![jsDelivr hits (npm)](https://img.shields.io/jsdelivr/npm/hy/%40stilljs%2Fcore)
+![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC1uLPIxSD62bQFGFiBouHRA)
+
+<br>
+
 <div style="display:flex; justify-content: center">
     <img src="@still/img/logo-no-bg.png" style="width: 5em;"/>
 </div>
-
-![NPM Version](https://img.shields.io/npm/v/%40stilljs%2Fcore)
-
-
 
 # Still.js Framework
 

@@ -1,6 +1,7 @@
 import { StillAppSetup } from "../../../config/app-setup.js";
 import { stillRoutesMap as DefaultstillRoutesMap } from "../../../config/route.map.js";
 import { genInputsClasses } from "../../helper/form.js";
+import { TemplateLogicHandler } from "../../helper/template.js";
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
 import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
@@ -35,14 +36,16 @@ class ComponentPart {
     /** @type { ViewComponent } */
     component;
     loopPrnt;
+    itm;
 
-    constructor({ template, component, proxy, props, annotations, loopPrnt }) {
+    constructor({ template, component, proxy, props, annotations, loopPrnt, itm }) {
         this.template = template;
         this.component = component;
         this.proxy = proxy;
         this.props = props;
         this.annotations = annotations;
         this.loopPrnt = loopPrnt;
+        this.itm = itm;
     }
 
 }
@@ -140,10 +143,10 @@ export class BaseComponent extends BehaviorComponent {
         const excludingFields = [
             'settings', 'componentName', 'template', 'cmpProps', 'htmlRefId', '#stLpChild','#stLpId','#stLpIdDesc',
             '#stLpStat','new', 'cmpInternalId', 'routableCmp', '$stillLoadCounter', 'subscribers', '#stAppndId',
-            '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields', 
-            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount',
-            'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 
-            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat',
+            '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields','stRunTime','stAtForInitLoad', 
+            '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor', 'stAtIfContent',
+            'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 'stOnChangeAtIf',
+            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
         ];
@@ -229,15 +232,14 @@ export class BaseComponent extends BehaviorComponent {
         return this.$stillIsThereForm;
     }
 
-    getBoundState(isReloading = false) {
+    getBoundState(template, isReloading = false) {
 
         const allowfProp = true, currentClass = this, clsName = this.cmpInternalId;
         const fields = this.getProperties(allowfProp);
 
-        if (this.template instanceof Array) this.template = this.template.join('');
+        if (template instanceof Array) template = template.join('');
         
-        let tmpltWthState = this.template, formsRef = [];
-        tmpltWthState = tmpltWthState.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
+        let tmpltWthState = template, formsRef = [];
         if(this['#stLpChild']){
             const cls = ` child-${this.$parent.cmpInternalId}-${this['#stLpId']}` 
             const complt = `stinternalid="${this.cmpInternalId}" stLpStat='${this['#stLpStat']}' id=${this['#stLpIdDesc']}`;
@@ -343,6 +345,22 @@ export class BaseComponent extends BehaviorComponent {
         .replaceAll('each="item"', 'style="display:none;"');
         if(this['#stLoopFields'].size === 0) delete this['#stLoopFields'];
         return template;
+    }
+
+    parseAtForachLogic(){
+
+        let template = this.template;
+        template = template.replace(/<!--[\s\S]*?-->/g, ''); //Remove comments
+
+        let counterName = {}, loopVar = {}, dataSrc = {}, iterVar = {};
+        template = template.replace(/\t{0,}/,'');
+        // Parse @for and @if (in case it exists inside for loop)
+        template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, loopVar, counterName, dataSrc, iterVar);
+        template = TemplateLogicHandler.runTopLevelAtIf(this, template, counterName, dataSrc);
+        template = TemplateLogicHandler.runAtForAndIfStatement(this, template, loopVar, counterName, dataSrc, iterVar);
+        template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, exp) => eval(`${exp}`));
+        return template;
+        
     }
 
     getBoundProps(template) {
@@ -748,7 +766,8 @@ export class BaseComponent extends BehaviorComponent {
         this.#parseAnnotations();
         /** Bind the component state and return it (template)
          * NOTE: Needs to be always the first to be called */
-        let template = this.getBoundState(isReloading);
+        let template = this.parseAtForachLogic();
+        template = this.getBoundState(template, isReloading);
         template = Components.obj().parseAdjustable(template, this);
         template = Components.obj().parseLocalLoader(template, this);
         template = this.getBoundRender(template);
@@ -858,7 +877,6 @@ export class BaseComponent extends BehaviorComponent {
 
         this.versionId = UUIDUtil.newId();
         template = template.replace(re, (mt) => {
-
             if (matchCounter == 0) {
                 if (this.cmpInternalId in Components.componentPartsMap)
                     delete Components.componentPartsMap[this.cmpInternalId];
@@ -875,10 +893,10 @@ export class BaseComponent extends BehaviorComponent {
             }
             let checkStyle = mt.match(styleRe), foundStyle = false;
             if (checkStyle?.length == 3) foundStyle = mt.match(styleRe)[2];
-
-            this.setTempProxy(parentCmp, propMap);
-
+            
+            this.setTempProxy(parentCmp, propMap);            
             const { component, ref, proxy: p, each, ...tagProps } = propMap;
+            
             const foundProps = Object.values(tagProps);
             const isThereProp = foundProps.some(r => !r?.startsWith('item.'))
                 || foundProps.length == 0;
@@ -892,7 +910,7 @@ export class BaseComponent extends BehaviorComponent {
                 Components.componentPartsMap[this.cmpInternalId].push(
                     new ComponentPart({
                         template: null, component: propMap['component'], props: propMap,
-                        proxy: propMap['proxy'], annotations: this.#annotations, loopPrnt
+                        proxy: propMap['proxy'], annotations: this.#annotations, loopPrnt, itm: propMap.item
                     })
                 );
             }
@@ -943,15 +961,25 @@ export class BaseComponent extends BehaviorComponent {
     /** @param { ViewComponent } assigneToCmp */
     parseStTag(mt, type, assigneToCmp = null) {
 
-        const props = mt
+        let item = null;
+        const content = mt.replace(/item="({.*})"|item="([\s\S]*)"/ig, (_, value, str) => {
+            if(value) {
+                item = value;
+                return ''
+            }
+            return _.replaceAll('""','"');      
+        });
+
+        const props = content
             .replace(type == 'fixed-part' ? '<st-fixed' : '<st-element', '')
             .replaceAll('\t', '')
             .replaceAll('\n', '')
             //.replaceAll(' ', '')
             .replaceAll('=', '')
             .replace('>', '').split('"');
-
+            
         const result = {};
+        item != null ? result['item'] = item : '';
         if (props.length >= 3) props.pop();
 
         let idx = 0

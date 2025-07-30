@@ -47,8 +47,6 @@ $stillconst = {
         DONE: 'done'
     },
 
-
-
     /**
      * Bellow constants for error messages are assigned
      */
@@ -76,12 +74,14 @@ $stillconst = {
     EVT: {
         LONE_LOADED: 'LONE_LOADED'
     },
+    NEGATE_FLAG: 'negate-flag',
+    FLAG: 'flag-',
+    LOOP_PREV_LOAD: 'loop-prev-loaded'
 
 }
 
 export const ST_RE = {
-    st_element: /\<st-element[\> \@ \/ \. \" \, \w \s \= \- \ \( \)]{0,}/g,
+    st_element: /\<st-element[\>\@\/\.\"\,\w\s\=\-\( \)\[\]\{\}\:\;\'\*\&\^\%\#\!\+\_\%\$\`\~]{0,}]{0,}/g,
     st_fixed: /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}[\/\>]{0,}/g,
     bind_css: /(style\=\"(.*)\")/
 }
-

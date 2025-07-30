@@ -48,7 +48,7 @@ export class BehaviorComponent {
      * @param {{ value: string, required: Blob, pattern: RegExp }} inpt 
      */
     onValueInput(e, field, inpt, formRef, cmp = null, reset = false) {
-
+        if(inpt === null) return;
         const fieldType = inpt?.type?.toLowerCase();
         const fieldSrc = this.constructor.name == 'BehaviorComponent' ? cmp : this;
 
@@ -75,7 +75,7 @@ export class BehaviorComponent {
 
         if(isOptList || inpt.multiple){
             if(fieldType == 'checkbox'){
-                let currentValues = ['',undefined].includes(fieldSrc[field].value) ? [] : fieldSrc[field].value;
+                let currentValues = ['',undefined].includes(fieldSrc[field]?.value) ? [] : fieldSrc[field]?.value;
                 if(inpt?.checked) currentValues.push(inpt.value);
                 else {
                     currentValues = currentValues.filter(v => v != inpt.value);
@@ -342,15 +342,13 @@ export class BehaviorComponent {
             BehaviorComponent.currentFormsValidators[fieldPath][field]['inputClass'] = specificValidatorClass;
             return validatorClass;
         }
-
         return '';
-
-
     }
 
     static validateForm(fieldPath, cmp, formRefObj = {}, reset = false) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
+        if(formFields === undefined) return;
         let valid = true;
         const intValidators = Object.entries(formFields);
         const behaviorInstance = new BehaviorComponent();
@@ -381,6 +379,7 @@ export class BehaviorComponent {
             if (validator.inputClass) {
                 const obj = new BehaviorComponent();
                 const inpt = document.querySelector('.' + validator.inputClass);
+                if(inpt === null) return;
                 if (!validator.isValid && !['checkbox','radio'].includes(inpt.type)) {
                     obj.#handleValidationWarning('add', inpt, fieldPath);
                 } else {

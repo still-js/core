@@ -1,56 +1,72 @@
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
+import { ViewComponent } from "../component/super/ViewComponent.js";
+import { STForm } from "../component/type/ComponentType.js";
 
 class InParams {
     className; 
     id; 
     datasets = {}; 
-    type; 
+    value; type; 
     placeholder; 
-    min; max; r
-    equired; 
+    min; max; required; warn;
     /** @type { 'number'|'alhpanumeric'|'text'|'email'|'phone'|'date'|'dateUS' } */
     validator;
 } ;
 
 export const FormHelper = {
-    newField(cmp, formRef, fieldName, value = null){
+    /**
+     * @param { ViewComponent } cmp Component instance
+     * @param { STForm } formRef Form Reference
+     * @param { String } fName Field name
+     * @param { String } value Initial value */
+    newField(cmp, formRef, fName, value = null){
         //Components is available globally from import { Components } from "../setup/components";        
-        Components.ref(cmp.cmpInternalId).setDynamicField(fieldName, value);
-        Components.obj().parseGetsAndSets(cmp, false,fieldName);
+        Components.ref(cmp.cmpInternalId).setDynamicField(fName, value);
+        Components.obj().parseGetsAndSets(cmp, false,fName);
+
         return {
             /** @param { InParams } params  */
-            getInput(params = inParams){
-                const {className, id, datasets = {}, type, placeholder, min, max, required, validator} = params;
+            input(params = inParams){
+                if(formRef === undefined) return;
+                const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn, value} = params;
                 const datafields = Object.entries(datasets).map(([f,v]) => (`data-${f}="${v}"`)).join(' ');
                 const ftype=`type="${type || 'text'}"`, isOptList = ['radio','checkbox'].includes(type);
                 const hint = `${placeholder ? `placeholder="${placeholder}"` : ''}`;
                 const val = `${value ? `value="${value}"` : ''}`, _id = `${id ? `id="${id}"` : ''}`;
                 const mn = `${min ? `min="${min}"` : ''}`, mx = `${max ? `max="${max}"` : ''}`;
-                const req = `${required ? ' (required)="true" ' : ''}`;
-                const validatorClass = BehaviorComponent.setOnValueInput(req, cmp, fieldName, (formRef.name || null));
-                const validateEvt = required ?
-                 `onkeyup="$still.component.ref('${cmp.cmpInternalId}').onValueInput(event,'${fieldName}',this, '${formRef.name}')"`
-                 : '';
+                const req = `${required ? ' (required)="true" ' : ''}`, wrn = `${warn ? ` (validator-warn)="${warn}"` : ''}`;
+                const checked = `${ ['checkbox','radio'].includes(type) && value === true ? `checked="true"` : "" }`;
+                const evt = ['checkbox','radio'].includes(type) ? `onclick` : `onkeyup`;
+                
+                const validatorClass = required ? BehaviorComponent.setOnValueInput(req, cmp, fName, (formRef?.name || null)) : '';
+                const validateEvt = `${evt}="$still.c.ref('${cmp.cmpInternalId}').onValueInput(event,'${fName}',this, '${formRef.name}')"`;
                 const vlidtor = `${validator ? `(validator)=${validator}`: ''}`;
-                const cmpId = this.cmpInternalId?.replace('/','').replace('@','');
+                const cmpId = cmp.cmpInternalId?.replace('/','').replace('@','');
                 const input = `
                     <input ${datafields}
-                        class="${genInputsClasses(validatorClass, cmpId, fieldName, val, isOptList)} ${cmp.cmpInternalId}-${fieldName} ${className || ''}"
-                        ${ftype} ${val} ${_id} ${req.trim()} ${hint} ${mn} ${mx}
-                        ${validateEvt} ${vlidtor}
-                    >
+                        class="${genInputsClasses(validatorClass, cmpId, fName, val, isOptList)} ${cmp.cmpInternalId}-${fName} ${className || ''}"
+                        ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx} ${validateEvt} ${vlidtor} ${checked}>
                 `;
                 return {
                     add(cb = function(input){}, subContainer = null){
                         let cnt = cb(input), ctr = document.getElementById(formRef.formId);
                         if(subContainer) ctr = ctr.querySelector(subContainer);
-                        ctr.insertAdjacentHTML('beforeend', cnt || input);
+                        ctr.insertAdjacentHTML('beforeend', `<span>${cnt || input}</span>`);
                     },
                     element: input 
                 }
             }
         }
     },
+    /**
+    * @param { ViewComponent } cmp Component instance
+    * @param { STForm } formRef Form Reference
+    * @param { String } fName Field name */
+   delField(cmp, formRef, fName){        
+        delete BehaviorComponent.currentFormsValidators[cmp.cmpInternalId+'-'+formRef.name][fName];
+        const inpt = document.getElementsByClassName(`listenChangeOn-${cmp.cmpInternalId}-${fName}`)[0];
+        inpt.parentElement.removeChild(inpt);
+    }
 }
 
 export function genInputsClasses(validatorClass, cmpId, field, optValue, isOptList = false, isThereComboBox = false){

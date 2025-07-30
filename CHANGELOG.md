@@ -3,7 +3,280 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
-## [Released] - 2025-05-30
+## [Released] - 2025-07-29
+## [Version] - 1.3.0
+Enabling template business logic capabilities trough @for, @if and inline (${\`expression\`}) expression.
+ 
+- <b>MAJOR</b> - `@for` Multi-level/Nesting iteration following regular for loop approach
+    <br>
+    - Example:
+
+        <b>In the template (.html or embedded in the component)</b>
+        ```{.html .numberLines .lineAnchors}
+        <ul (showIf)="self.hasPermission">
+            @for(role in this.rolesList)
+            <li>
+            {role.title}
+                <ul style="margin-left: 15px;">
+                @for(subRole in role.children)
+                    <li>{subRole.title}</li>  
+                @endfor
+                </ul>
+            </li>
+            @endfor
+        </ul>
+        ```
+
+        <br>
+
+        <b>In the component (.js)</b>
+        ```{.javascript .numberLines .lineAnchors}
+        // .... In the component (.js) data assignment
+        
+        // Data is statically assigned, but could be API
+        // ListState type is convinient for better experience
+        /** @type { ListState<Array> } */
+        rolesList = [{
+             "title": "Chief Executive Officer",
+             "children": [
+                {
+                  "title": "Vice President of Marketing",
+                  "children": [
+                    {
+                      "title": "Marketing Manager",
+                      "children": [
+                          {
+                          "title": "Marketing Specialist"
+                          }
+                      ]
+                    }
+                  ]
+                }
+             ]
+        }];
+        ```
+<br>  
+
+
+- <b>MAJOR</b> - `@if` to be used straight in the template without else statement. Behaves reactively in general except when wrapping `@for`
+    <br>
+    - Example:
+
+        <b>In the template (.html or embedded in the component)</b>
+        ```{.html .numberLines .lineAnchors}
+        @if(this.userPermission === 'Admin')
+          <div>Full User Privileges</div>
+        @endif
+    
+        @if(this.userPermission !== 'Admin')
+          <div>Limitted User Privileges</div>
+        @endif
+        ```
+
+        <br>
+
+        <b>In the component (.js)</b>
+        ```{.javascript .numberLines .lineAnchors}
+        // .... In the component (.js) data assignment
+
+        userPermission = 'regular';
+        ```
+<br>
+
+- <b>MAJOR</b> - `inline expression` for conditional scenario.
+    <br>
+    - Example:
+
+        <b>In the template (.html or embedded in the component)</b>
+        ```{.html .numberLines .lineAnchors}
+        ${ this.userPermission === 'Admin' ? 'Full User Privileges' : 'Limitted User Privileges' }
+        ```
+
+        <br>
+
+        <b>In the component (.js)</b>
+        ```{.javascript .numberLines .lineAnchors}
+        // .... In the component (.js) data assignment
+
+        userPermission = 'regular';
+        ```
+<br>
+
+
+### Fixed
+- Text area binding changes detection console error.
+- Dynamic input generation type definition.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-07-13
+## [Version] - 1.2.13
+Diferent improvements and bugfixes.
+ 
+- <b>MINOR</b> - `stAfterInit()` to allow identifying when there is node update in the DOM tree
+    <br>
+
+    -  This is a contrast to the stOnUpdate() but only works for DOM tree update, as updated node optimally gets recreated with the new state.
+    <br>
+    Example:
+
+        <br/>
+
+        ```{.javascript .numberLines .lineAnchors}
+        // .... import statements above
+        export class HomeComponent extends ViewComponent {
+
+            stAfterInit({ nodeUpdate }){
+                if(nodeUpdate){
+                    //DO SOMETHING
+                }
+            }
+        }
+        ```
+<br>  
+
+
+### Fixed
+- Text area binding changes detection console error.
+- Dynamic input generation type definition.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-07-06
+## [Version] - 1.2.12
+Diferent improvements and bugfixes.
+ 
+- <b>MIDDLE</b> - List rerender capabilities by using ListState type of state variable
+    <br>
+
+    -  When it comes a a large list, you can define it as a ListState thereby being provided with `update` and `delete` methods which are more performant in the rerender perspective:
+
+        <br/>
+
+        In the AppTemplate (line 16 to 18) one fixed part is being added.
+        ```{.javascript .numberLines .lineAnchors}
+        // .... import statements above
+        export class TodoApp extends ViewComponent {
+
+            //Declaration, the id is mandatory and needs to be unique
+            /**
+            * @type { ListState<Array<{ id, status, title }>> }
+            */
+            taskList = [
+                { id: 1, title: "Do something", status: "todo"},
+                { id: 5, title: "Do another thing", status: "todo"},
+                { id: 20, title: "Last thing", status: "todo"},
+            ];
+
+            updateStatus(){
+                const data = this.taskList.value;
+                //Updates first and last task
+                data[0].status = "done";
+                data[2].status = "done";
+                // Updates last and first tasks
+                this.taskList.update(data);
+            }
+
+            deleteTask(){
+                // Receives a list of objects with the id field
+                this.taskList.update([{ id: 1 }, { id: 20 }]);
+            }
+
+        }
+        ```
+<br>  
+
+- <b>MINOR</b> - Dynamic Form field removal. 
+
+### Fixed
+- Dynamic Form Field validator, removed the required as default.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-06-29
+## [Version] - 1.2.11
+Improvements on the (showIf) and validator. Fixing `stAfterInit()` in looping.
+ 
+- <b>MINOR</b> - (showIf) flag multi value tracking (`<st-element>`) 
+<br>  
+
+- <b>MINOR</b> - Moved (formRef) id to component internal id. 
+
+### Fixed
+- `stAfterInit()` in the `(forEach)` context.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [Released] - 2025-06-15
 ## [Version] - 1.2.10
 Adjustments on the Lone component/Microfrotend loading and event handling in the integration with React.
  
@@ -11,6 +284,7 @@ Adjustments on the Lone component/Microfrotend loading and event handling in the
 <br>  
 
 - <b>MINOR</b> - `stRef` for providing a reference to allow comunication from external app (e.g. React). 
+
 
 <br>
 <hr>

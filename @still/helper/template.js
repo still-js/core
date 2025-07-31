@@ -1,3 +1,4 @@
+import { Components } from "../setup/components.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 
 export class TemplateLogicHandler {

@@ -554,8 +554,7 @@ export class Components {
         
         eval(`${cmp['loopTmplt'][variableName]}`);
         const result = eval(`${variableName}`);
-
-        const re = new RegExp(`<${tagName}[\\s\\S]*?>([\\s\\S]*?)</${tagName}>`,'i');                    
+        const re = new RegExp(`<for-loop[\\s\\S]*?>([\\s\\S]*?)</for-loop>`,'i');                    
         const match = result.match(re);                  
         return match[1];
     }

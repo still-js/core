@@ -4,9 +4,9 @@
 ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC1uLPIxSD62bQFGFiBouHRA)
 
 <br>
-
-![Still.js logo](./@still/img/logo-no-bg.png)
-
+<div style="display:flex; justify-content: center">
+    <img src="@still/img/logo-no-bg.png" style="width: 5em;"/>
+</div>
 # **Still.js** Framework
 
 StillJS is a Web UI Framework which uses Vanilla JavaScript to help you to build user interfaces, but focuses on a component approach, allowing you to modularize your UI in the same fashion as React and Angular. Visit the [official documentation](https://stilljs.dev) for a deeper overview.

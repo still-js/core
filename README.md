@@ -39,7 +39,7 @@ As an Open Source project, we welcome any contributions to **Still.js**. You can
 
 ### Installation
 
-The official documentation concerning environment set up and project creation can be found <a href="https://still-js.github.io/stilljs-site/installation-and-running/" target="_blank">here</a>.  Install with *npm* (using the <b>`-g`</b> flag) as follow:
+The official documentation concerning environment set up and project creation can be found <a href="https://still-js.github.io/stilljs-site/installation-and-running/" target="_blank">here</a>.  Install with *npm* (using the **`-g`** flag) as follow:
 
 
 ```

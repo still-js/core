@@ -6,7 +6,7 @@
 <br>
 
 <div style="display:flex; justify-content: center; width: 5em;">
-    ![Still.js logo](/img/logo-no-bg.png)
+    ![Still.js logo](/@still/img/logo-no-bg.png)
 </div>
 
 # **Still.js** Framework

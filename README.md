@@ -11,7 +11,7 @@
 
 # Still.js Framework
 
-StillJS is a Web UI Framework which helps you to build your user interfaces which uses Vanilla JavaScript, yet the component approach is the main focus allowing you to modulrize your UI in the same fashion we do with React and Angular. visit the <a href="https://stilljs.dev">official documentation</a> for deeper overview.
+StillJS is a Web UI Framework which uses Vanilla JavaScript to help you to build user interfaces, but focuses on a component approach, allowing you to modularize your UI in the same fashion as React and Angular. Visit the <a href="https://stilljs.dev">official documentation</a> for a deeper overview.
 
 <div style="padding: 15px; padding-bottom:0px; display:flex; border: 1px solid transparent; border-color: transparent; margin-bottom: 20px; border-radius: 4px; color: #a94442; background-color: #f2dede; border-color: #ebccd1;">
 
@@ -21,14 +21,10 @@ StillJS is a Web UI Framework which helps you to build your user interfaces whic
 <br>
 
 ### Documentation
-A complete documentation is not yet available as the work is in progress, anyway there is quite of content and documentation available on <a href="https://stilljs.dev" target="_blank">https://stilljs.dev</a> or the <a href="https://still-js.github.io/stilljs-site/" target="_blank">Github</a>.
-
-The <b>@stilljs/core</b> itself is the set of classes, structures and features concerning the Framework, in order to use it we need to instal the cli tool globally (using <b>`-g`</b> flag) as follow:
-
-<br>
+Complete documentation is not yet available, as the work is in progress. Still, there is quite a lot of content and documentation available on <a href="https://stilljs.dev" target="_blank">https://stilljs.dev</a> and on <a href="https://still-js.github.io/stilljs-site/" target="_blank">Github</a>.
 
 ### Community
-As a new project, Still.js is being built, you're more than welcome to join the discord channel.
+Still.js is in development. You are more than welcome to join the discord channel.
 <a href="https://discord.gg/fUVJRTmQ9f">
 <svg xmlns="http://www.w3.org/2000/svg" width="25" style="float: left; padding-right: 5px;" viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M524.5 69.8a1.5 1.5 0 0 0 -.8-.7A485.1 485.1 0 0 0 404.1 32a1.8 1.8 0 0 0 -1.9 .9 337.5 337.5 0 0 0 -14.9 30.6 447.8 447.8 0 0 0 -134.4 0 309.5 309.5 0 0 0 -15.1-30.6 1.9 1.9 0 0 0 -1.9-.9A483.7 483.7 0 0 0 116.1 69.1a1.7 1.7 0 0 0 -.8 .7C39.1 183.7 18.2 294.7 28.4 404.4a2 2 0 0 0 .8 1.4A487.7 487.7 0 0 0 176 479.9a1.9 1.9 0 0 0 2.1-.7A348.2 348.2 0 0 0 208.1 430.4a1.9 1.9 0 0 0 -1-2.6 321.2 321.2 0 0 1 -45.9-21.9 1.9 1.9 0 0 1 -.2-3.1c3.1-2.3 6.2-4.7 9.1-7.1a1.8 1.8 0 0 1 1.9-.3c96.2 43.9 200.4 43.9 295.5 0a1.8 1.8 0 0 1 1.9 .2c2.9 2.4 6 4.9 9.1 7.2a1.9 1.9 0 0 1 -.2 3.1 301.4 301.4 0 0 1 -45.9 21.8 1.9 1.9 0 0 0 -1 2.6 391.1 391.1 0 0 0 30 48.8 1.9 1.9 0 0 0 2.1 .7A486 486 0 0 0 610.7 405.7a1.9 1.9 0 0 0 .8-1.4C623.7 277.6 590.9 167.5 524.5 69.8zM222.5 337.6c-29 0-52.8-26.6-52.8-59.2S193.1 219.1 222.5 219.1c29.7 0 53.3 26.8 52.8 59.2C275.3 311 251.9 337.6 222.5 337.6zm195.4 0c-29 0-52.8-26.6-52.8-59.2S388.4 219.1 417.9 219.1c29.7 0 53.3 26.8 52.8 59.2C470.7 311 447.5 337.6 417.9 337.6z"/></svg> Still.js on discord
 </a>
@@ -36,7 +32,7 @@ As a new project, Still.js is being built, you're more than welcome to join the 
 <br>
 
 ### Contributions
-As an Open Source project, it's more than welcome any contributions Still.js, you can start by joining the Discord channel, bellow are some ways one might contribute:
+As an Open Source project, we welcome any contributions to Still.js. You can start by joining the Discord channel, below are some ways one might contribute:
 
 1. Report Bugs
 2. Implement new Features
@@ -47,12 +43,13 @@ As an Open Source project, it's more than welcome any contributions Still.js, yo
 
 ### Getting Started
 
-<b>Still.js</b> project creation is to be done through the <b><a href="https://www.npmjs.com/package/@stilljs/cli" target="_blank">still-cli tool npm package</a></b>, therefore it's to be avoided to install @stilljs/core package since the idea is to create a project instead.
+<b>Still.js</b> project creation is to be done through the <b><a href="https://www.npmjs.com/package/@stilljs/cli" target="_blank">*still-cli* tool npm package</a></b>, therefore do not directly install the @stilljs/core package for your project. The idea is to create a project instead.
 
 
-#### Instalation
+#### Installation
 
-The official documentation concerning environment set up and project creation can be found <a href="https://still-js.github.io/stilljs-site/installation-and-running/" target="_blank">here</a>.
+The official documentation concerning environment set up and project creation can be found <a href="https://still-js.github.io/stilljs-site/installation-and-running/" target="_blank">here</a>.  Install with *npm* (using the <b>`-g`</b> flag) as follow:
+
 
 ```
 npm i @stilljs/cli -g
@@ -61,24 +58,24 @@ npm i @stilljs/cli -g
 <br>
 
 #### Creating a project
-Create a folder for you project (e.g. project-name) and from inside such folder init the project as the bellow instruction
+Create a folder for your project (e.g. project-name) and from inside that folder initialize the project as shown below:
 ```
 npx still init
 ```
 
-After initiating, the project the framework structure and files are download to the folder.
+After initializing, the project the framework structure and files are downloaded to the folder.
 
 <br>
 
 ##### Project structure
 ```js
-    project-name/ //My project folder
+    project-name/ //Your project folder
     |___ @still/ // Still.js framework
-    |___ app/ // Folder which holdes to app files
+    |___ app/ // Folder which holdes app files
     |     |__ HomeComponent.js //Component generated automatically when creating project
-    |__ config/ //Folder which holds application configuration files
+    |__ config/ //Folder containing application configuration files
     |     |__ app-setup.js //App configuration file/class
-    |     |__ app-template.js //App template scheleton
+    |     |__ app-template.js //App template skeleton
     |     |__ route.map.json //Component routing and path file
     |__ index.html //Application container
     |__ jsconfig.js //Basic configuration for vscode
@@ -95,9 +92,9 @@ import { ViewComponent } from "../../@still/component/super/ViewComponent.js";
 export class HomeComponent extends ViewComponent {
 
     /** 
-     * isPublic flag is needed for any component that is publicly accessible, therefore, 
-     * when dealing with authentication and permission scenario any component requiring
-     * user permission the flag will be removed or turned to false
+     * isPublic flag is needed for any component that is publicly accessible, therefore 
+     * when dealing with scenarios like authentication and permission, or any component requiring
+     * user permissions, this flag will be removed or set to false
      */
     isPublic = true;
     template = `
@@ -114,7 +111,7 @@ export class HomeComponent extends ViewComponent {
 
 #### Running the project
 
-From the project folder, use still-cli to run the app as follow:
+From the project folder, use the *still cli* to run the app as follow:
 ```
 npx still serve
 ```
@@ -122,7 +119,7 @@ npx still serve
 
 #### Alternative from CDN
 
-When using CDN Still.js provides also with the capability of creating powerfull Microfrontend solutions in addition to regular component approach, follow the official documentation on how to set it up <a href="https://still-js.github.io/stilljs-site/installation-and-running-cdn/" target="_blank">here</a>.
+When using CDN, Still.js provides the capability of creating powerful micro-front-end solutions along with a component approach Follow the official documentation on how to set it up <a href="https://still-js.github.io/stilljs-site/installation-and-running-cdn/" target="_blank">here</a>.
 
 ```
 <script src="https://cdn.jsdelivr.net/npm/@stilljs/core@latest/@still/lone.js" type="module"><script>

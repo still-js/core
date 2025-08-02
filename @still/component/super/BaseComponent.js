@@ -1067,9 +1067,7 @@ export class BaseComponent extends BehaviorComponent {
         }else
             evt = `onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
 
-        if (!(isThereComboBox))
-            replacer = `${forEachValue} ${complmnt} ${subscrtionCls} ${evt}`;
-
+        if (!(isThereComboBox)) replacer = `${forEachValue} ${complmnt} ${subscrtionCls} ${evt}`;
         return { mt, replacer };
 
     }

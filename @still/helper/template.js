@@ -1,3 +1,6 @@
+import { StillAppSetup } from "../../config/app-setup.js";
+import { ComponentRegistror } from "../component/manager/registror.js";
+import { Components } from "../setup/components.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 
 export class TemplateLogicHandler {
@@ -198,4 +201,16 @@ export class TemplateReactiveResponde {
         }
     }
 
+}
+
+
+export class TemplateBinding {
+    static handleReferenceName(cmp, value, childCmp){
+        const [srvcOrController, variable] = value.split('.');
+        if(variable){
+            const annot = cmp.myAnnotations().get(srvcOrController);
+            if(annot.inject) value = StillAppSetup.get()?.services.get(annot.type)[variable];
+        }
+        ComponentRegistror.add(value, childCmp, true);
+    }
 }

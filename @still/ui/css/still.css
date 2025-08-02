@@ -361,7 +361,7 @@ END LOADING STYLE
 body {
     margin: 0;
     height: 100vh;
-    overflow: hidden;
+    /*overflow: hidden;*/
     display: flex;
 }
 

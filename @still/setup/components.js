@@ -4,7 +4,7 @@ import { $still, ComponentNotFoundException, ComponentRegistror } from "../compo
 import { BaseComponent } from "../component/super/BaseComponent.js";
 import { BehaviorComponent } from "../component/super/BehaviorComponent.js";
 import { ViewComponent as DefaultViewComponent } from "../component/super/ViewComponent.js";
-import { TemplateReactiveResponde } from "../helper/template.js";
+import { TemplateBinding, TemplateReactiveResponde } from "../helper/template.js";
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { checkPropBind } from "../util/componentUtil.js";
@@ -1238,8 +1238,8 @@ export class Components {
 
                 const allProps = Object.entries({...props, ...items});
                 for (let [prop, value] of allProps) {
-
-                    if (prop == 'ref') ComponentRegistror.add(value, cmp);
+                                        
+                    if (prop == 'ref') TemplateBinding.handleReferenceName(parentCmp, value, cmp);
                     //Proxy gets ignored becuase it was assigned above and it should be the child class
                     if (prop != 'proxy' && prop != 'component') {
 

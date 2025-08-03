@@ -165,7 +165,7 @@ export class Components {
             }
 
             const tmplt = cmpCls[clsName].toString();
-            WorkerHelper.parseDelaySetup(tmplt, newInstance, clsName);
+            WorkerHelper.parseDelaySetup(tmplt, newInstance, false, clsName);
 
             return {
                 newInstance, template: newInstance.template,
@@ -1191,6 +1191,7 @@ export class Components {
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS)) continue;
 
             const { proxy, component, props, annotations, ref, loopPrnt, itm } = cmpParts[idx];
+            
             if (component == undefined) continue;
 
             (async () => {
@@ -1201,12 +1202,13 @@ export class Components {
                         BaseComponent.importScript(`${cmpPath}/${r}`);
                     });
                 } */
-               
                const instance = await (
                    await Components.produceComponent({ cmp: component, parentCmp })
                 ).newInstance;
                 
-                const { build: buildTime } = instance['stSetDelay']
+                let cmpTmp;
+                let { build: buildTime } = instance['stSetDelay'];
+                if(props['@delayed']) buildTime = WorkerHelper.parseTime(props['@delayed'], component, parentCmp.getName());
                 //Delaying component building for the specified time in case defined
                 if(buildTime) await new Promise((res, rej) => setTimeout(() => res(''), buildTime))
                 
@@ -1229,33 +1231,33 @@ export class Components {
                     cmpName = 'constructor' in instance ? instance.constructor.name : null;
 
                 /** REINSTANTIATE */
-                const cmp = (new Components).getNewParsedComponent(instance, cmpName, true);
-                cmp.parentVersionId = cmpVersionId;
+                cmpTmp = (new Components).getNewParsedComponent(instance, cmpName, true);
+                cmpTmp.parentVersionId = cmpVersionId;
 
                 //if (cmpInternalId != 'fixed-part') {
-                Components.parseProxy(proxy, cmp, parentCmp, annotations);
-                cmp['stName'] = cmpName, StillAppSetup.register(cmp);
+                Components.parseProxy(proxy, cmpTmp, parentCmp, annotations);
+                cmpTmp['stName'] = cmpName, StillAppSetup.register(cmpTmp);
 
                 let items = {};
                 if(props.item) {
-                    items = JSON.parse(props.item), cmp['stEmbededAtFor'] = true;
+                    items = JSON.parse(props.item), cmpTmp['stEmbededAtFor'] = true;
                     delete props.item;
                 }
 
                 const allProps = Object.entries({...props, ...items});
                 for (let [prop, value] of allProps) {
                                         
-                    if (prop == 'ref') refName = TemplateBinding.handleReferenceName(parentCmp, value, cmp);
+                    if (prop == 'ref') refName = TemplateBinding.handleReferenceName(parentCmp, value, cmpTmp);
                     //Proxy gets ignored becuase it was assigned above and it should be the child class
                     if (prop != 'proxy' && prop != 'component') {
 
                         if(typeof value !== 'string'){
-                            cmp[prop] = value;
+                            cmpTmp[prop] = value;
                         }else{
 
                             if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
                                 const method = prop.replace('(', '').replace(')', '');
-                                cmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
+                                cmpTmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
                                 continue;
                             }
     
@@ -1280,7 +1282,7 @@ export class Components {
                             if (prefix == '' && typeof value === 'string') {
                                 value = value.trim();
                                 if (!isNaN(value) || (value.startsWith('\'') && value.endsWith('\''))) 
-                                    cmp[prop] = value;
+                                    cmpTmp[prop] = value;
                             }
     
                             else if ((String(value).toLowerCase().startsWith(prefix) || prefix == '') && typeof value === 'string') {
@@ -1290,7 +1292,7 @@ export class Components {
                                 else cmp[prop] = parentProp?.value || parentProp;
     
                             } else
-                                cmp[prop] = value;
+                            cmpTmp[prop] = value;
                         }
 
                     }
@@ -1305,14 +1307,14 @@ export class Components {
 
                 //replaces the actual template in the <st-element> component placeholder
                 placeHolders[idx]
-                    ?.insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+                    ?.insertAdjacentHTML('afterbegin', cmpTmp.getBoundTemplate());
                 // Renders second level of nesting
-                if(cmp?.nstngCount == 1) Components.handleInPlaceParts(cmp);
+                if(cmpTmp?.nstngCount == 1) Components.handleInPlaceParts(cmpTmp);
                 setTimeout(async () => {
                     /** Runs the load method which is supposed to implement what should be run
                      * for the component to be displayed accordingly in the User interface */
-                    await cmp.load();
-                    setTimeout(() => Components.runAfterInit(cmp), 120);
+                    await cmpTmp.load();
+                    setTimeout(() => Components.runAfterInit(cmpTmp), 120);
                     //setTimeout(() => Components.emitAction(refName), 120);
                     if ((idx + 1) == cmpParts.length && cmpInternalId != 'fixed-part')
                         setTimeout(() => Components.emitAction('runImport'), 120);

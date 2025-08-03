@@ -963,8 +963,14 @@ export class BaseComponent extends BehaviorComponent {
     /** @param { ViewComponent } assigneToCmp */
     parseStTag(mt, type, assigneToCmp = null) {
 
-        let item = null;
-        const content = mt.replace(/item="({.*})"|item="([\s\S]*)"/ig, (_, value, str) => {
+        let item = null, delay = null;
+        const content = mt.replace(/item="({.*})"|item="([\s\S]*)|@delayed="([0-9hms]*)"/ig, (_, value, str) => {
+            
+            if(_.trim().startsWith('@delayed')){
+                delay = _.split('"')[1];
+                return '';
+            }
+
             if(value) {
                 item = value;
                 return ''
@@ -982,6 +988,7 @@ export class BaseComponent extends BehaviorComponent {
             
         const result = {};
         item != null ? result['item'] = item : '';
+        delay != null ? result['@delayed'] = delay : '';
         if (props.length >= 3) props.pop();
 
         let idx = 0
@@ -1113,7 +1120,7 @@ export class BaseComponent extends BehaviorComponent {
                     const key = mtdName+'-'+ref+'-'+cmpId;
                     const cmp = WorkerHelper.traceCmp[cmpId];
 
-                    if(cmp['#stIsTopLvlCmp'] === true && mtdName === 'stAfterInit') WorkerHelper.parseDelaySetup(cmp.toString(), cmp, true);
+                    if(cmp['#stIsTopLvlCmp'] === true && mtdName === 'stAfterInit') WorkerHelper.parseDelaySetup(cmp.toString(), cmp, true, cmpName);
                     
                     if(!(ref in WorkerHelper.methodOffloadContainer)) 
                         WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
@@ -1129,9 +1136,8 @@ export class BaseComponent extends BehaviorComponent {
                             const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
                             WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = cmp[mtdName]
                             WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  {
-                                try {
-                                    eval(scope)
-                                } catch (error) {
+                                try { eval(scope) } 
+                                catch (error) {
                                     console.error(`RuntimeError: Error while trynig to run ${mtdName} in ${cmpName}\n\t`,error.message); 
                                 }
                             } };

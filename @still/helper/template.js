@@ -216,15 +216,17 @@ export class TemplateBinding {
         ComponentRegistror.add(value, childCmp, true);
         Object.values(WorkerHelper.methodOffloadContainer).forEach(ref => {
             [...ref.subscrbrs].forEach(itm => {
-                Object.entries(WorkerHelper.processedCpm[itm]).forEach(([cmpId, method]) => {
-                    method.count--;
-                    if(method.count === 0) {
-                        method.method();
-                        delete WorkerHelper.processedCpm[itm][cmpId]
-                        if(Object.keys(WorkerHelper.processedCpm[itm]).length == 0)
-                            delete WorkerHelper.processedCpm[itm];
-                    }
-                });
+                if(WorkerHelper.processedCpm[itm]){
+                    Object.entries(WorkerHelper.processedCpm[itm]).forEach(([cmpId, method]) => {
+                        method.count--;
+                        if(method.count === 0) {
+                            method.method();
+                            delete WorkerHelper.processedCpm[itm][cmpId]
+                            if(Object.keys(WorkerHelper.processedCpm[itm]).length == 0)
+                                delete WorkerHelper.processedCpm[itm];
+                        }
+                    });
+                }
             });
         })
         

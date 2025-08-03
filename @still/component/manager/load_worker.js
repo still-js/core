@@ -31,7 +31,7 @@ function parseDelayedProp(evt){
 
 function parseMethod(content, cmpId, cmpName, mtdName, buildTime, isTopLvlCpm) {
     const RE = /\/[A-Z0-9\;\/\*\@\s\{\}]{1,}\*\//ig, RE_METHD_END = /[\s\S]*\}/i;
-    const RE_REF_SUBSCRT = /Components\.ref\(\'([\s\S]*?)\'\)\.([A-Z0-9\$\_]{1,}?)\.onChange\(/ig;
+    const RE_REF_SUBSCRT = /Components\.ref\(\'([A-Z0-9\$\_]*?)\'\)\.([A-Z0-9\$\_]{1,}?)\.onChange\(/ig;
     
     const codeLines = content.replace(RE,'').replace(/^\s*[\r\n]/gm,'').split('\n');
     let openCloseToken = 0, posCounter = 0, currMethod = '', startedMethod = false, cmpRefSubscriptionsMap = null;

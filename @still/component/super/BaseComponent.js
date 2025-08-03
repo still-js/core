@@ -149,7 +149,7 @@ export class BaseComponent extends BehaviorComponent {
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor', 'stAtIfContent',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 'stOnChangeAtIf',
             'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt','#stOffloadInit',
-            'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',
+            'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap','stSetDelay',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
         ];
         return fields.filter(
@@ -1124,7 +1124,13 @@ export class BaseComponent extends BehaviorComponent {
                         if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[cmpId])){
                             const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
                             WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = cmp[mtdName]
-                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  eval(scope) };
+                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  {
+                                try {
+                                    eval(scope)
+                                } catch (error) {
+                                    console.error(`RuntimeError: Error while trynig to run ${mtdName} in ${cmpName}\n\t`,error.message); 
+                                }
+                            } };
                         }
                         cmp[mtdName] = () => {};
                         WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`].count++;

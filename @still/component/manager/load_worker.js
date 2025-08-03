@@ -19,8 +19,8 @@ self.addEventListener('message', event => {
 
 function parseDelayedProp(evt){
     const { data: {cmpId, content: cmpContent, cmpName} } = evt;
-    const RE = /\/[\*\s\t\n]*?\@DelayProp[\*\s\t\n]*?\/([A-Z\$\#\_\t\s\n]*?)\(/ig;
-    cmpContent.replace(RE, (_, mtdName, pos) => {
+    const RE = /\/[\*\s\t\n]*?\@Delayed[\*\s\t\n]*?\/([A-Z\$\#\_\t\s\n]*?)\(/ig;
+    cmpContent.replace(RE, (_, mtdName) => {
         const content = cmpContent.slice(cmpContent.indexOf(mtdName));
         parseMethod(content, cmpId, cmpName, mtdName);
     });

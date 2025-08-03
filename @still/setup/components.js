@@ -9,7 +9,7 @@ import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { checkPropBind, WorkerHelper } from "../util/componentUtil.js";
 import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
-import { $stillconst, authErrorMessage, WORKER_EVT } from "./constants.js";
+import { $stillconst, authErrorMessage, ST_RE, WORKER_EVT } from "./constants.js";
 import { StillError } from "./error.js";
 
 const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
@@ -164,6 +164,20 @@ export class Components {
                 if (template) newInstance.template = template;
             }
 
+            const tmplt = cmpCls[clsName].toString();
+            tmplt.replace(ST_RE.at_delay_annot_constr, (_, time, mtdName) => {
+                if(mtdName.trim() === 'stAfterInit') newInstance['stSetDelay'] = { ...newInstance['stSetDelay'], init: true };
+                if(mtdName.trim() === 'constructor') {
+                    const t = time.toLowerCase(), v = parseInt(time.slice(0,-1));
+
+                    if(!isNaN(v)) {
+                        const build = t.endsWith('m') ? (v * 60 * 1000) : t.endsWith('h') ? (v * 60 * 60 * 1000) : (v * 1000);
+                        newInstance['stSetDelay'] = { ...newInstance['stSetDelay'], build };
+                    } else 
+                        new Error(`Invalid time (${time}) format passed at ${clsName} for @Delayd`)
+                }
+            });
+
             return {
                 newInstance, template: newInstance.template,
                 _class: !registerCls && !url ? null : cmpCls[clsName]
@@ -306,9 +320,7 @@ export class Components {
             this.renderOnViewFor('stillUiPlaceholder', cmp);
             ComponentRegistror.add(cmp.cmpInternalId, cmp);
             const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];
-            setTimeout(() =>
-                Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts)
-            );
+            setTimeout(() => Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts));
             setTimeout(() => Components.runAfterInit(cmp), 120);
             Components.handleMarkedToRemoveParts();
             Components.removeOldParts();
@@ -1200,14 +1212,16 @@ export class Components {
                         BaseComponent.importScript(`${cmpPath}/${r}`);
                     });
                 } */
-                if(component === 'Discord'){
-                    await new Promise((res, rej) => setTimeout(() => res(''), 4000))
-                    //console.log(`COMPONENT IS: `,component);
-                }
-                
-                const instance = await (
-                    await Components.produceComponent({ cmp: component, parentCmp })
+               
+               const instance = await (
+                   await Components.produceComponent({ cmp: component, parentCmp })
                 ).newInstance;
+                
+                const { build: buildTime } = instance['stSetDelay']
+                if(buildTime){
+                    console.log(`COMPONENT IS: `,`${component} WILL WAIT FOR: `,buildTime);
+                    await new Promise((res, rej) => setTimeout(() => res(''), buildTime))
+                }
 
                 let cmpName, canHandle = true, refName;
                 if (!Components.obj().canHandleCmpPart(instance)) return;

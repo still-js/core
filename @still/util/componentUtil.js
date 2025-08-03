@@ -13,4 +13,5 @@ export class WorkerHelper {
     static processedCpm = {};
     static processedKeys = {};
     static traceCmp = {};
+    static delayedComponents = {};
 }

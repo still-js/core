@@ -7,3 +7,9 @@ export function checkPropBind(obj, f){
     }
     return isFieldBound;
 }
+
+export class WorkerHelper {
+    static methodOffloadContainer = {};
+    static processedCpm = {};
+    static processedKeys = {};
+}

@@ -16,6 +16,8 @@ export const StillAppMixin = (Component) =>
 
     class extends Component {
 
+        /** @type { Worker } */ loadWorker;
+        offloadContainers = {};
         entryComponentPath;
         entryComponentName;
         servicePath;

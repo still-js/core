@@ -4,8 +4,9 @@ import { genInputsClasses } from "../../helper/form.js";
 import { TemplateLogicHandler } from "../../helper/template.js";
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
-import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
+import { $stillconst, ST_RE as RE, STATUS, WORKER_EVT } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
+import { WorkerHelper } from "../../util/componentUtil.js";
 import {  getRouter, getRoutesFile, getServicePath } from "../../util/route.js";
 import { $still, ComponentRegistror } from "../manager/registror.js";
 import { STForm } from "../type/ComponentType.js";
@@ -88,6 +89,7 @@ export class BaseComponent extends BehaviorComponent {
     #dynFields = [];
     $parent = null;
     #prntCls = null;
+    #stOffloadInit = new Set();
     
 
     async load() { }
@@ -146,7 +148,7 @@ export class BaseComponent extends BehaviorComponent {
             '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields','stRunTime','stAtForInitLoad', 
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor', 'stAtIfContent',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 'stOnChangeAtIf',
-            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt',
+            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt','#stOffloadInit',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
         ];
@@ -1095,6 +1097,42 @@ export class BaseComponent extends BehaviorComponent {
         } else {
 
             const classDefinition = this.constructor.toString();
+
+            //WorkerHelper.methodOffloadContainer[this.cmpInternalId] = { status: STATUS.START, methods: [] };
+            StillAppSetup.get().loadWorker.postMessage({
+                type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName
+            });
+
+            if(!(this.cmpInternalId in WorkerHelper.processedCpm)){
+                
+                StillAppSetup.get().loadWorker.addEventListener('message', (evt) => {
+                    const { data: { mtdName, cmpName, ref, prop, cmpId } } = evt;
+                    const key = mtdName+'-'+ref+'-'+prop+'-'+cmpId;
+                    
+                    if(!(ref in WorkerHelper.methodOffloadContainer)) 
+                        WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
+                    
+                    if(!(key in WorkerHelper.processedKeys)){
+                        WorkerHelper.processedKeys[key] = true;
+                        
+                        if(!(this.cmpInternalId in WorkerHelper.processedCpm)) WorkerHelper.processedCpm[this.cmpInternalId] = { };
+
+                        console.log(`WILL REPLACE: ${mtdName} `, );
+                        WorkerHelper.methodOffloadContainer[ref].subscrbrs.add(cmpId);
+                        cmp[mtdName] = () => {};
+
+                        if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[this.cmpInternalId])){
+                            const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
+                            WorkerHelper.processedCpm[this.cmpInternalId][`tmp${mtdName}`] = {  count: 0, method: () => eval(scope) };
+                        }
+
+                        WorkerHelper.processedCpm[this.cmpInternalId][`tmp${mtdName}`].count = WorkerHelper.processedCpm[this.cmpInternalId][`tmp${mtdName}`].count + 1;
+                    }
+
+                });
+            }
+
+
             const re = Components.parseAnnottationRE();
 
             classDefinition.replace(new RegExp(re, 'g'), async (mt) => {

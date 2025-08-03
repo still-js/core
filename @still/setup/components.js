@@ -7,9 +7,9 @@ import { ViewComponent as DefaultViewComponent } from "../component/super/ViewCo
 import { TemplateBinding, TemplateReactiveResponde } from "../helper/template.js";
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
-import { checkPropBind } from "../util/componentUtil.js";
+import { checkPropBind, WorkerHelper } from "../util/componentUtil.js";
 import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
-import { $stillconst, authErrorMessage } from "./constants.js";
+import { $stillconst, authErrorMessage, WORKER_EVT } from "./constants.js";
 import { StillError } from "./error.js";
 
 const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
@@ -1200,7 +1200,11 @@ export class Components {
                         BaseComponent.importScript(`${cmpPath}/${r}`);
                     });
                 } */
-
+                if(component === 'Discord'){
+                    await new Promise((res, rej) => setTimeout(() => res(''), 4000))
+                    //console.log(`COMPONENT IS: `,component);
+                }
+                
                 const instance = await (
                     await Components.produceComponent({ cmp: component, parentCmp })
                 ).newInstance;
@@ -1604,8 +1608,15 @@ export class Components {
         if ('serviceWorker' in navigator) {
             const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
             navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                .then(() => setTimeout(() => console.log('Service Worker Registered'), 1000))
-                .catch(err => console.error('SW Registration Failed:', err));
+                .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                .catch(err => console.error('Interceptor SW Registration Failed:', err));
+        }
+    }
+
+    static loadLoadtWorker() {
+        if ('serviceWorker' in navigator) {
+            const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+            StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
         }
     }
 

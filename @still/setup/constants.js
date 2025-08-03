@@ -76,8 +76,17 @@ $stillconst = {
     },
     NEGATE_FLAG: 'negate-flag',
     FLAG: 'flag-',
-    LOOP_PREV_LOAD: 'loop-prev-loaded'
+    LOOP_PREV_LOAD: 'loop-prev-loaded',
 
+
+}
+
+export const WORKER_EVT = {
+    OFFLOAD: 'offloadCmpParsing'
+}
+
+export const STATUS = {
+    START: 'start', PROGRESS: 'progress', DONE: 'done', PAUSE: 'pause'
 }
 
 export const ST_RE = {

@@ -4,8 +4,9 @@ import { genInputsClasses } from "../../helper/form.js";
 import { TemplateLogicHandler } from "../../helper/template.js";
 import { Router as DefaultRouter } from "../../routing/router.js";
 import { Components } from "../../setup/components.js";
-import { $stillconst, ST_RE as RE } from "../../setup/constants.js";
+import { $stillconst, ST_RE as RE, STATUS, WORKER_EVT } from "../../setup/constants.js";
 import { UUIDUtil } from "../../util/UUIDUtil.js";
+import { WorkerHelper } from "../../util/componentUtil.js";
 import {  getRouter, getRoutesFile, getServicePath } from "../../util/route.js";
 import { $still, ComponentRegistror } from "../manager/registror.js";
 import { STForm } from "../type/ComponentType.js";
@@ -88,6 +89,7 @@ export class BaseComponent extends BehaviorComponent {
     #dynFields = [];
     $parent = null;
     #prntCls = null;
+    #stOffloadInit = new Set();
     
 
     async load() { }
@@ -146,8 +148,8 @@ export class BaseComponent extends BehaviorComponent {
             '$stillIsThereForm', '$stillpfx', 'subImported', 'onChangeEventsList', 'isPublic','#stLoopFields','stRunTime','stAtForInitLoad', 
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor', 'stAtIfContent',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 'stOnChangeAtIf',
-            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt',
-            'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap',
+            'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt','#stOffloadInit',
+            'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap','stSetDelay','#stIsTopLvlCmp',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
         ];
         return fields.filter(
@@ -761,7 +763,7 @@ export class BaseComponent extends BehaviorComponent {
     getBoundTemplate(containerId = null, isReloading = false, prntId = null) {
         
         console.time('tamplateBindFor' + this.getName());
-
+        
         if (!this.cmpInternalId) this.cmpInternalId = this.getUUID();
         this.#parseAnnotations();
         /** Bind the component state and return it (template)
@@ -961,8 +963,14 @@ export class BaseComponent extends BehaviorComponent {
     /** @param { ViewComponent } assigneToCmp */
     parseStTag(mt, type, assigneToCmp = null) {
 
-        let item = null;
-        const content = mt.replace(/item="({.*})"|item="([\s\S]*)"/ig, (_, value, str) => {
+        let item = null, delay = null;
+        const content = mt.replace(/item="({.*})"|item="([\s\S]*)|@delayed="([0-9hms]*)"/ig, (_, value, str) => {
+            
+            if(_.trim().startsWith('@delayed')){
+                delay = _.split('"')[1];
+                return '';
+            }
+
             if(value) {
                 item = value;
                 return ''
@@ -980,6 +988,7 @@ export class BaseComponent extends BehaviorComponent {
             
         const result = {};
         item != null ? result['item'] = item : '';
+        delay != null ? result['@delayed'] = delay : '';
         if (props.length >= 3) props.pop();
 
         let idx = 0
@@ -1095,6 +1104,52 @@ export class BaseComponent extends BehaviorComponent {
         } else {
 
             const classDefinition = this.constructor.toString();
+            if(!this.cmpInternalId.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
+
+            WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
+            StillAppSetup.get().loadWorker.postMessage({
+                type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName,
+                isTopLvlCpm: !this.cmpInternalId.startsWith('dynamic-_')
+            });
+
+            if(!(this.cmpInternalId in WorkerHelper.processedCpm)){
+                
+                StillAppSetup.get().loadWorker.addEventListener('message', (evt) => {
+                    
+                    const { data: { mtdName, cmpName, ref, prop, cmpId } } = evt;
+                    const key = mtdName+'-'+ref+'-'+cmpId;
+                    const cmp = WorkerHelper.traceCmp[cmpId];
+
+                    if(cmp['#stIsTopLvlCmp'] === true && mtdName === 'stAfterInit') WorkerHelper.parseDelaySetup(cmp.toString(), cmp, true, cmpName);
+                    
+                    if(!(ref in WorkerHelper.methodOffloadContainer)) 
+                        WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
+                    
+                    if(!(key in WorkerHelper.processedKeys)){
+                        WorkerHelper.processedKeys[key] = true;
+                        
+                        if(!(cmpId in WorkerHelper.processedCpm)) WorkerHelper.processedCpm[cmpId] = { };
+
+                        WorkerHelper.methodOffloadContainer[ref].subscrbrs.add(cmpId);
+
+                        if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[cmpId])){
+                            const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
+                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = cmp[mtdName]
+                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  {
+                                try { eval(scope) } 
+                                catch (error) {
+                                    console.error(`RuntimeError: Error while trynig to run ${mtdName} in ${cmpName}\n\t`,error.message); 
+                                }
+                            } };
+                        }
+                        cmp[mtdName] = () => {};
+                        WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`].count++;
+                    }
+
+                });
+            }
+
+
             const re = Components.parseAnnottationRE();
 
             classDefinition.replace(new RegExp(re, 'g'), async (mt) => {

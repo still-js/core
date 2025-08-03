@@ -7,9 +7,9 @@ import { ViewComponent as DefaultViewComponent } from "../component/super/ViewCo
 import { TemplateBinding, TemplateReactiveResponde } from "../helper/template.js";
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
-import { checkPropBind } from "../util/componentUtil.js";
+import { checkPropBind, WorkerHelper } from "../util/componentUtil.js";
 import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
-import { $stillconst, authErrorMessage } from "./constants.js";
+import { $stillconst, authErrorMessage, ST_RE, WORKER_EVT } from "./constants.js";
 import { StillError } from "./error.js";
 
 const stillRoutesMap = await getRoutesFile(DefaultstillRoutesMap);
@@ -164,6 +164,9 @@ export class Components {
                 if (template) newInstance.template = template;
             }
 
+            const tmplt = cmpCls[clsName].toString();
+            WorkerHelper.parseDelaySetup(tmplt, newInstance, false, clsName);
+
             return {
                 newInstance, template: newInstance.template,
                 _class: !registerCls && !url ? null : cmpCls[clsName]
@@ -306,9 +309,7 @@ export class Components {
             this.renderOnViewFor('stillUiPlaceholder', cmp);
             ComponentRegistror.add(cmp.cmpInternalId, cmp);
             const cmpParts = Components.componentPartsMap[cmp.cmpInternalId];
-            setTimeout(() =>
-                Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts)
-            );
+            setTimeout(() => Components.handleInPartsImpl(cmp, cmp.cmpInternalId, cmpParts));
             setTimeout(() => Components.runAfterInit(cmp), 120);
             Components.handleMarkedToRemoveParts();
             Components.removeOldParts();
@@ -1190,6 +1191,7 @@ export class Components {
             if (parentClss?.contains($stillconst.PART_REMOVE_CSS)) continue;
 
             const { proxy, component, props, annotations, ref, loopPrnt, itm } = cmpParts[idx];
+            
             if (component == undefined) continue;
 
             (async () => {
@@ -1200,12 +1202,18 @@ export class Components {
                         BaseComponent.importScript(`${cmpPath}/${r}`);
                     });
                 } */
-
-                const instance = await (
-                    await Components.produceComponent({ cmp: component, parentCmp })
+               const instance = await (
+                   await Components.produceComponent({ cmp: component, parentCmp })
                 ).newInstance;
+                
+                let cmpTmp;
+                let { build: buildTime } = instance['stSetDelay'];
+                if(props['@delayed']) buildTime = WorkerHelper.parseTime(props['@delayed'], component, parentCmp.getName());
+                //Delaying component building for the specified time in case defined
+                if(buildTime) await new Promise((res, rej) => setTimeout(() => res(''), buildTime))
+                
 
-                let cmpName, canHandle = true;
+                let cmpName, canHandle = true, refName;
                 if (!Components.obj().canHandleCmpPart(instance)) return;
 
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
@@ -1223,33 +1231,33 @@ export class Components {
                     cmpName = 'constructor' in instance ? instance.constructor.name : null;
 
                 /** REINSTANTIATE */
-                const cmp = (new Components).getNewParsedComponent(instance, cmpName, true);
-                cmp.parentVersionId = cmpVersionId;
+                cmpTmp = (new Components).getNewParsedComponent(instance, cmpName, true);
+                cmpTmp.parentVersionId = cmpVersionId;
 
                 //if (cmpInternalId != 'fixed-part') {
-                Components.parseProxy(proxy, cmp, parentCmp, annotations);
-                cmp['stName'] = cmpName, StillAppSetup.register(cmp);
+                Components.parseProxy(proxy, cmpTmp, parentCmp, annotations);
+                cmpTmp['stName'] = cmpName, StillAppSetup.register(cmpTmp);
 
                 let items = {};
                 if(props.item) {
-                    items = JSON.parse(props.item), cmp['stEmbededAtFor'] = true;
+                    items = JSON.parse(props.item), cmpTmp['stEmbededAtFor'] = true;
                     delete props.item;
                 }
 
                 const allProps = Object.entries({...props, ...items});
                 for (let [prop, value] of allProps) {
                                         
-                    if (prop == 'ref') TemplateBinding.handleReferenceName(parentCmp, value, cmp);
+                    if (prop == 'ref') refName = TemplateBinding.handleReferenceName(parentCmp, value, cmpTmp);
                     //Proxy gets ignored becuase it was assigned above and it should be the child class
                     if (prop != 'proxy' && prop != 'component') {
 
                         if(typeof value !== 'string'){
-                            cmp[prop] = value;
+                            cmpTmp[prop] = value;
                         }else{
 
                             if (prop.charAt(0) == '(' && prop.at(-1) == ")") {
                                 const method = prop.replace('(', '').replace(')', '');
-                                cmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
+                                cmpTmp[method] = (...param) => parentCmp[value.split('(')[0]](...param);
                                 continue;
                             }
     
@@ -1274,7 +1282,7 @@ export class Components {
                             if (prefix == '' && typeof value === 'string') {
                                 value = value.trim();
                                 if (!isNaN(value) || (value.startsWith('\'') && value.endsWith('\''))) 
-                                    cmp[prop] = value;
+                                    cmpTmp[prop] = value;
                             }
     
                             else if ((String(value).toLowerCase().startsWith(prefix) || prefix == '') && typeof value === 'string') {
@@ -1284,7 +1292,7 @@ export class Components {
                                 else cmp[prop] = parentProp?.value || parentProp;
     
                             } else
-                                cmp[prop] = value;
+                            cmpTmp[prop] = value;
                         }
 
                     }
@@ -1299,14 +1307,15 @@ export class Components {
 
                 //replaces the actual template in the <st-element> component placeholder
                 placeHolders[idx]
-                    ?.insertAdjacentHTML('afterbegin', cmp.getBoundTemplate());
+                    ?.insertAdjacentHTML('afterbegin', cmpTmp.getBoundTemplate());
                 // Renders second level of nesting
-                if(cmp?.nstngCount == 1) Components.handleInPlaceParts(cmp);
+                if(cmpTmp?.nstngCount == 1) Components.handleInPlaceParts(cmpTmp);
                 setTimeout(async () => {
                     /** Runs the load method which is supposed to implement what should be run
                      * for the component to be displayed accordingly in the User interface */
-                    await cmp.load();
-                    setTimeout(() => Components.runAfterInit(cmp), 120);
+                    await cmpTmp.load();
+                    setTimeout(() => Components.runAfterInit(cmpTmp), 120);
+                    //setTimeout(() => Components.emitAction(refName), 120);
                     if ((idx + 1) == cmpParts.length && cmpInternalId != 'fixed-part')
                         setTimeout(() => Components.emitAction('runImport'), 120);
 
@@ -1604,8 +1613,15 @@ export class Components {
         if ('serviceWorker' in navigator) {
             const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
             navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                .then(() => setTimeout(() => console.log('Service Worker Registered'), 1000))
-                .catch(err => console.error('SW Registration Failed:', err));
+                .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                .catch(err => console.error('Interceptor SW Registration Failed:', err));
+        }
+    }
+
+    static loadLoadtWorker() {
+        if ('serviceWorker' in navigator) {
+            const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+            StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
         }
     }
 
@@ -1846,8 +1862,11 @@ export class Components {
 
     static runAfterInit(cmp, params = {}) {
         setTimeout(async () => {
+            //console.log(`THIS COMPONENT IS ${cmp.getName()} AND `, cmp['stSetDelay'], ' - ',cmp['#stIsTopLvlCmp']);
+            
             await cmp.stOnDOMUpdate();
-            setTimeout(async () => await cmp.stAfterInit(params),20);
+            if(!(cmp['#stIsTopLvlCmp'] === true && cmp['stSetDelay'].init))
+                setTimeout(async () => await cmp.stAfterInit(params),20);
         } ,10);
         if ('stillDevidersCmp' in cmp) {
             Components.obj().setVertDivider(cmp);

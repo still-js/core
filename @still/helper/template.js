@@ -1,6 +1,7 @@
 import { StillAppSetup } from "../../config/app-setup.js";
 import { ComponentRegistror } from "../component/manager/registror.js";
 import { Components } from "../setup/components.js";
+import { WorkerHelper } from "../util/componentUtil.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 
 export class TemplateLogicHandler {
@@ -211,6 +212,24 @@ export class TemplateBinding {
             const annot = cmp.myAnnotations().get(srvcOrController);
             if(annot.inject) value = StillAppSetup.get()?.services.get(annot.type)[variable];
         }
+
         ComponentRegistror.add(value, childCmp, true);
+        Object.values(WorkerHelper.methodOffloadContainer).forEach(ref => {
+            [...ref.subscrbrs].forEach(itm => {
+                if(WorkerHelper.processedCpm[itm]){
+                    Object.entries(WorkerHelper.processedCpm[itm]).forEach(([cmpId, method]) => {
+                        method.count--;
+                        if(method.count === 0) {
+                            method.method();
+                            delete WorkerHelper.processedCpm[itm][cmpId]
+                            if(Object.keys(WorkerHelper.processedCpm[itm]).length == 0)
+                                delete WorkerHelper.processedCpm[itm];
+                        }
+                    });
+                }
+            });
+        })
+        
+        return value;
     }
 }

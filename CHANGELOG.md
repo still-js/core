@@ -3,6 +3,126 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-08-03
+## [Version] - 1.3.2
+Improvements in Component reference capabilities, small bug fixes.
+ 
+- <b>MEDIUM</b> - Annotation `@Delayed` added for be used in the method level
+    <br>
+
+    - <b>Example 1:</b>
+
+        <b>In the component (.js file)</b>
+        When you're embedding a heavy component inside another and want to defer its load to let higher-priority components render first.
+        ```{.js .numberLines .lineAnchors}
+
+        export class Discord extends ViewComponent {
+
+            isPublic = true;
+
+            totalChannels = 0;
+
+            template = `
+                <div>Footer content</div>
+            `;
+
+            /** @Delayed 5s */
+            constructor(){
+                super();
+            }
+
+        }
+        ```
+
+        <br>
+        <br>
+
+    - <b>Example 2:</b>
+        <b>In the component (.js file)</b>
+        Consider the bellow template code (.html or embedded in the component). 
+        We're defining a reference for the Footer embeding.
+        ```{.html .numberLines .lineAnchors}
+        <div>
+            <div>
+                <st-element component="Widget"></st-element>
+                <st-element component="Article"></st-element>
+            </div>
+            <st-element component="DataTable"></st-element>
+            <!-- Every ref needs to be unique through the App -->
+            <st-element component="Footer" ref="HomeFooter"></st-element>
+        </div>
+        ```
+
+        <b>In the component (.js file)</b>
+        Any other component in the application can subscribe or talk to Footer through its reference.
+        ```{.js .numberLines .lineAnchors}
+
+        stAfterInit(){
+            this.subscribeToExtarnalProp();
+        }
+
+        // Here the annotation ensures the referenced component is fully loaded before 
+        // running the method is ran, while other code in stAfterInit() runs immediately.
+        /**  
+        * @Delayed 
+        */
+        subscribeToExtarnalProp(){ 
+            Components.ref('HomeFooter').totalChannels.onChange(value => {
+                console.log(`Total channeld in discord updated: `, value);
+            });
+        }
+        ```
+
+        <br><br>
+    - <b>Example 3:</b>
+
+        Consider the bellow template code (.html or embedded in the component).
+        The delay set during embedding will override the one from the component's constructor.
+        ```{.html .numberLines .lineAnchors}
+        <div style="margin: 20px;">
+            <div>
+                <!-- 
+                    We're annotating the embedding, it'll delay 5s to load
+                    we can also specify m (minutes) and h (hours)
+                -->
+                <st-element component="Widget" @delayed="5s"></st-element>
+                <st-element component="Article"></st-element>
+            </div>
+            <st-element component="DataTable" ref="SecRef"></st-element>
+            <st-element component="Footer"></st-element>
+        </div>
+        ```
+
+<br><br>
+
+
+
+### Fixed
+- Making the scroll enabled by default.
+- Putting back the default margin according to the browser.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-07-29
 ## [Version] - 1.3.0
 Enabling template business logic capabilities trough @for, @if and inline (${\`expression\`}) expression.

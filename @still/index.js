@@ -14,6 +14,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
         .then(async () => {
 
             StillAppSetup.loadInterceptWorker();
+            StillAppSetup.loadLoadtWorker();
 
             StillAppSetup.register(Router);
             StillAppSetup.register(AppTemplate);

@@ -76,12 +76,23 @@ $stillconst = {
     },
     NEGATE_FLAG: 'negate-flag',
     FLAG: 'flag-',
-    LOOP_PREV_LOAD: 'loop-prev-loaded'
+    LOOP_PREV_LOAD: 'loop-prev-loaded',
 
+
+}
+
+export const WORKER_EVT = {
+    OFFLOAD: 'offloadCmpParsing'
+}
+
+export const STATUS = {
+    START: 'start', PROGRESS: 'progress', DONE: 'done', PAUSE: 'pause'
 }
 
 export const ST_RE = {
     st_element: /\<st-element[\>\@\/\.\"\,\w\s\=\-\( \)\[\]\{\}\:\;\'\*\&\^\%\#\!\+\_\%\$\`\~]{0,}]{0,}/g,
     st_fixed: /\<st-fixed[\> \. \" \, \w \s \= \- \ \( \)]{0,}[\/\>]{0,}/g,
-    bind_css: /(style\=\"(.*)\")/
+    bind_css: /(style\=\"(.*)\")/,
+    at_delay_annot: /\/[\*\s\t\n]*?\@Delayed[\s]{0,}([0-9]{0,}[smh]{0,1})[\*\s\t\n]*?\/([A-Z\$\#\_\t\s\n]*?)\(/ig,
+    at_delay_annot_constr: /\/[\*\s\t\n]*?\@Delayed[\s]{0,}([0-9]{0,}[smh]{0,1})[\*\s\t\n]*?\/[\s\t\n]{0,}(constructor|stAfterInit)/
 }

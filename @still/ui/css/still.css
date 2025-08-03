@@ -143,8 +143,8 @@ END LOADING STYLE
 
 
 * {
-    margin: 0;
-    padding: 0;
+    /* margin: 0;
+    padding: 0; */
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
 }
@@ -359,7 +359,7 @@ END LOADING STYLE
 /** STILL DIVIDER STYLESHEETS */
 
 body {
-    margin: 0;
+    /* margin: 0; */
     height: 100vh;
     /*overflow: hidden;*/
     display: flex;

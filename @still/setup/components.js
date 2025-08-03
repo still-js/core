@@ -165,18 +165,7 @@ export class Components {
             }
 
             const tmplt = cmpCls[clsName].toString();
-            tmplt.replace(ST_RE.at_delay_annot_constr, (_, time, mtdName) => {
-                if(mtdName.trim() === 'stAfterInit') newInstance['stSetDelay'] = { ...newInstance['stSetDelay'], init: true };
-                if(mtdName.trim() === 'constructor') {
-                    const t = time.toLowerCase(), v = parseInt(time.slice(0,-1));
-
-                    if(!isNaN(v)) {
-                        const build = t.endsWith('m') ? (v * 60 * 1000) : t.endsWith('h') ? (v * 60 * 60 * 1000) : (v * 1000);
-                        newInstance['stSetDelay'] = { ...newInstance['stSetDelay'], build };
-                    } else 
-                        new Error(`Invalid time (${time}) format passed at ${clsName} for @Delayd`)
-                }
-            });
+            WorkerHelper.parseDelaySetup(tmplt, newInstance, clsName);
 
             return {
                 newInstance, template: newInstance.template,
@@ -1218,10 +1207,9 @@ export class Components {
                 ).newInstance;
                 
                 const { build: buildTime } = instance['stSetDelay']
-                if(buildTime){
-                    console.log(`COMPONENT IS: `,`${component} WILL WAIT FOR: `,buildTime);
-                    await new Promise((res, rej) => setTimeout(() => res(''), buildTime))
-                }
+                //Delaying component building for the specified time in case defined
+                if(buildTime) await new Promise((res, rej) => setTimeout(() => res(''), buildTime))
+                
 
                 let cmpName, canHandle = true, refName;
                 if (!Components.obj().canHandleCmpPart(instance)) return;
@@ -1872,8 +1860,11 @@ export class Components {
 
     static runAfterInit(cmp, params = {}) {
         setTimeout(async () => {
+            //console.log(`THIS COMPONENT IS ${cmp.getName()} AND `, cmp['stSetDelay'], ' - ',cmp['#stIsTopLvlCmp']);
+            
             await cmp.stOnDOMUpdate();
-            setTimeout(async () => await cmp.stAfterInit(params),20);
+            if(!(cmp['#stIsTopLvlCmp'] === true && cmp['stSetDelay'].init))
+                setTimeout(async () => await cmp.stAfterInit(params),20);
         } ,10);
         if ('stillDevidersCmp' in cmp) {
             Components.obj().setVertDivider(cmp);

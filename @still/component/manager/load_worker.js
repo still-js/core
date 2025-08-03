@@ -1,4 +1,5 @@
 import { WORKER_EVT } from "../../setup/constants.js";
+import { WorkerHelper } from "../../util/componentUtil.js";
 
 const procesedCmp = {};
 
@@ -18,16 +19,17 @@ self.addEventListener('message', event => {
 });
 
 function parseDelayedProp(evt){
-    const { data: {cmpId, content: cmpContent, cmpName} } = evt;
-    const RE = /\/[\*\s\t\n]*?\@Delayed[\*\s\t\n]*?\/([A-Z\$\#\_\t\s\n]*?)\(/ig;
-    cmpContent.replace(RE, (_, mtdName) => {
+    const { data: {cmpId, content: cmpContent, cmpName, isTopLvlCpm} } = evt;
+    const RE = /\/[\*\s\t\n]*?\@Delayed([0-9]{0,})[\*\s\t\n]*?\/([A-Z\$\#\_\t\s\n]*?)\(/ig;
+    cmpContent.replace(RE, (_, time, mtdName) => {
+        const buildTime = WorkerHelper.parseTime(time);
         const content = cmpContent.slice(cmpContent.indexOf(mtdName));
-        parseMethod(content, cmpId, cmpName, mtdName);
+        parseMethod(content, cmpId, cmpName, mtdName, buildTime, isTopLvlCpm);
     });
 }
 
 
-function parseMethod(content, cmpId, cmpName, mtdName) {
+function parseMethod(content, cmpId, cmpName, mtdName, buildTime, isTopLvlCpm) {
     const RE = /\/[A-Z0-9\;\/\*\@\s\{\}]{1,}\*\//ig, RE_METHD_END = /[\s\S]*\}/i;
     const RE_REF_SUBSCRT = /Components\.ref\(\'([\s\S]*?)\'\)\.([A-Z0-9\$\_]{1,}?)\.onChange\(/ig;
     
@@ -49,7 +51,7 @@ function parseMethod(content, cmpId, cmpName, mtdName) {
         
         if(startedMethod && openCloseToken === 0){
             currMethod.replace(RE_REF_SUBSCRT, (_, ref, prop) => { 
-                self.postMessage({ mtdName: mtdName.trim(), cmpName, ref, prop, cmpId })
+                self.postMessage({ mtdName: mtdName.trim(), cmpName, ref, prop, cmpId, buildTime, isTopLvlCpm });
             });
 
             break;

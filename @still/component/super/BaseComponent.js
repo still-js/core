@@ -149,7 +149,7 @@ export class BaseComponent extends BehaviorComponent {
             '$stillExternComponentParts', 'dynCmpGeneratedId', 'stillElement', 'proxyName','nstngCount','stEmbededAtFor', 'stAtIfContent',
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 'stOnChangeAtIf',
             'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt','#stOffloadInit',
-            'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap','stSetDelay',
+            'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap','stSetDelay','#stIsTopLvlCmp',
             'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
         ];
         return fields.filter(
@@ -763,7 +763,7 @@ export class BaseComponent extends BehaviorComponent {
     getBoundTemplate(containerId = null, isReloading = false, prntId = null) {
         
         console.time('tamplateBindFor' + this.getName());
-
+        
         if (!this.cmpInternalId) this.cmpInternalId = this.getUUID();
         this.#parseAnnotations();
         /** Bind the component state and return it (template)
@@ -1097,10 +1097,12 @@ export class BaseComponent extends BehaviorComponent {
         } else {
 
             const classDefinition = this.constructor.toString();
+            if(!this.cmpInternalId.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
 
             WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
             StillAppSetup.get().loadWorker.postMessage({
-                type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName
+                type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName,
+                isTopLvlCpm: !this.cmpInternalId.startsWith('dynamic-_')
             });
 
             if(!(this.cmpInternalId in WorkerHelper.processedCpm)){
@@ -1111,6 +1113,8 @@ export class BaseComponent extends BehaviorComponent {
                     const key = mtdName+'-'+ref+'-'+cmpId;
                     const cmp = WorkerHelper.traceCmp[cmpId];
 
+                    if(cmp['#stIsTopLvlCmp'] === true && mtdName === 'stAfterInit') WorkerHelper.parseDelaySetup(cmp.toString(), cmp, true);
+                    
                     if(!(ref in WorkerHelper.methodOffloadContainer)) 
                         WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
                     

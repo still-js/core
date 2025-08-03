@@ -1209,7 +1209,7 @@ export class Components {
                     await Components.produceComponent({ cmp: component, parentCmp })
                 ).newInstance;
 
-                let cmpName, canHandle = true;
+                let cmpName, canHandle = true, refName;
                 if (!Components.obj().canHandleCmpPart(instance)) return;
 
                 instance.dynCmpGeneratedId = `st_${UUIDUtil.numberId()}`;
@@ -1243,7 +1243,7 @@ export class Components {
                 const allProps = Object.entries({...props, ...items});
                 for (let [prop, value] of allProps) {
                                         
-                    if (prop == 'ref') TemplateBinding.handleReferenceName(parentCmp, value, cmp);
+                    if (prop == 'ref') refName = TemplateBinding.handleReferenceName(parentCmp, value, cmp);
                     //Proxy gets ignored becuase it was assigned above and it should be the child class
                     if (prop != 'proxy' && prop != 'component') {
 
@@ -1311,6 +1311,7 @@ export class Components {
                      * for the component to be displayed accordingly in the User interface */
                     await cmp.load();
                     setTimeout(() => Components.runAfterInit(cmp), 120);
+                    //setTimeout(() => Components.emitAction(refName), 120);
                     if ((idx + 1) == cmpParts.length && cmpInternalId != 'fixed-part')
                         setTimeout(() => Components.emitAction('runImport'), 120);
 

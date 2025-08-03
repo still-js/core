@@ -12,4 +12,5 @@ export class WorkerHelper {
     static methodOffloadContainer = {};
     static processedCpm = {};
     static processedKeys = {};
+    static traceCmp = {};
 }

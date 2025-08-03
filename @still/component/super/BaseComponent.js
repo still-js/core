@@ -1098,7 +1098,7 @@ export class BaseComponent extends BehaviorComponent {
 
             const classDefinition = this.constructor.toString();
 
-            //WorkerHelper.methodOffloadContainer[this.cmpInternalId] = { status: STATUS.START, methods: [] };
+            WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
             StillAppSetup.get().loadWorker.postMessage({
                 type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName
             });
@@ -1106,27 +1106,28 @@ export class BaseComponent extends BehaviorComponent {
             if(!(this.cmpInternalId in WorkerHelper.processedCpm)){
                 
                 StillAppSetup.get().loadWorker.addEventListener('message', (evt) => {
-                    const { data: { mtdName, cmpName, ref, prop, cmpId } } = evt;
-                    const key = mtdName+'-'+ref+'-'+prop+'-'+cmpId;
                     
+                    const { data: { mtdName, cmpName, ref, prop, cmpId } } = evt;
+                    const key = mtdName+'-'+ref+'-'+cmpId;
+                    const cmp = WorkerHelper.traceCmp[cmpId];
+
                     if(!(ref in WorkerHelper.methodOffloadContainer)) 
                         WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
                     
                     if(!(key in WorkerHelper.processedKeys)){
                         WorkerHelper.processedKeys[key] = true;
                         
-                        if(!(this.cmpInternalId in WorkerHelper.processedCpm)) WorkerHelper.processedCpm[this.cmpInternalId] = { };
+                        if(!(cmpId in WorkerHelper.processedCpm)) WorkerHelper.processedCpm[cmpId] = { };
 
-                        console.log(`WILL REPLACE: ${mtdName} `, );
                         WorkerHelper.methodOffloadContainer[ref].subscrbrs.add(cmpId);
-                        cmp[mtdName] = () => {};
 
-                        if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[this.cmpInternalId])){
+                        if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[cmpId])){
                             const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
-                            WorkerHelper.processedCpm[this.cmpInternalId][`tmp${mtdName}`] = {  count: 0, method: () => eval(scope) };
+                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = cmp[mtdName]
+                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  eval(scope) };
                         }
-
-                        WorkerHelper.processedCpm[this.cmpInternalId][`tmp${mtdName}`].count = WorkerHelper.processedCpm[this.cmpInternalId][`tmp${mtdName}`].count + 1;
+                        cmp[mtdName] = () => {};
+                        WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`].count++;
                     }
 
                 });

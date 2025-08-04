@@ -1865,7 +1865,7 @@ export class Components {
             //console.log(`THIS COMPONENT IS ${cmp.getName()} AND `, cmp['stSetDelay'], ' - ',cmp['#stIsTopLvlCmp']);
             
             await cmp.stOnDOMUpdate();
-            if(!(cmp['#stIsTopLvlCmp'] === true && cmp['stSetDelay'].init))
+            if(!(cmp['#stIsTopLvlCmp'] === true && cmp['stSetDelay']?.init))
                 setTimeout(async () => await cmp.stAfterInit(params),20);
         } ,10);
         if ('stillDevidersCmp' in cmp) {

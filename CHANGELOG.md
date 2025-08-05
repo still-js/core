@@ -3,6 +3,38 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-08-04
+## [Version] - 1.3.4
+Small Improvements in to allow seamless integration with Next.js framework in the Microfrontend context.
+
+- <b>MINOR</b> - Adding STILL_HOME_PREXI env variable to match with PATH_PREFIX from StillApploader
+
+### Fixed
+- Setup of Service workes loading in the context of microservice.
+- BaseComponent internalId checking.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [Released] - 2025-08-03
 ## [Version] - 1.3.2
 Improvements in Component reference capabilities, small bug fixes.

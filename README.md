@@ -88,6 +88,11 @@ export class HomeComponent extends ViewComponent {
 }
 ```
 
+### IMPORTANT: 
+Since Still.js is written in vanilla JavaScript using ESModules, all imports must include the .js extension. Refer to the documentation for configuring VSCode accordingly:
+
+[VSCode setup documentation](https://still-js.github.io/stilljs-site/basic-vs-code-setup/)
+
 ### Running the project
 
 From the project folder, use the *still cli* to run the app as follow:

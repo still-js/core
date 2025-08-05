@@ -132,15 +132,15 @@ export class Components {
             }
 
             if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
-            baseUrl = Router.getCleanUrl(url, clsName);
+            let prefix = '';
+            if(STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
+            baseUrl = Router.getCleanUrl(url, clsName)+prefix;
             folderPah = `${baseUrl}${cmpRoute}`;
             cmpPath = `${folderPah}/${clsName}`;
         }
 
-        try {
-            let prefix = '';
-            if(STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
-            const cmpCls = await import(`${prefix}${cmpPath}.js`);
+        try {            
+            const cmpCls = await import(`${cmpPath}.js`);
             const parent = parentCmp ? { parent: parentCmp } : '';
 
             newInstance = new cmpCls[clsName](parent);

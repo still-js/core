@@ -1109,7 +1109,7 @@ export class BaseComponent extends BehaviorComponent {
             WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
             StillAppSetup.get().loadWorker.postMessage({
                 type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName,
-                isTopLvlCpm: !this.cmpInternalId.startsWith('dynamic-_')
+                isTopLvlCpm: !this.cmpInternalId?.startsWith('dynamic-_')
             });
 
             if(!(this.cmpInternalId in WorkerHelper.processedCpm)){

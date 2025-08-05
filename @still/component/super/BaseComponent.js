@@ -1104,7 +1104,7 @@ export class BaseComponent extends BehaviorComponent {
         } else {
 
             const classDefinition = this.constructor.toString();
-            if(!this.cmpInternalId.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
+            if(!this.cmpInternalId?.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
 
             WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
             StillAppSetup.get().loadWorker.postMessage({

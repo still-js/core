@@ -1588,13 +1588,15 @@ export class Components {
     static setupImportWorkerState = false;
     setupImportWorker() {
 
-        if (!Components.setupImportWorkerState && !STILL_HOME_PREXIF) {
+        if (!Components.setupImportWorkerState) {
 
-            Components.setupImportWorkerState = true;
-            const worker = new Worker(
-                `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/component/manager/import_worker.js`,
-                { type: 'module' }
-            );
+            try {                
+                Components.setupImportWorkerState = true;
+                const worker = new Worker(
+                    `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/component/manager/import_worker.js`,
+                    { type: 'module' }
+                );
+            } catch (error) {}
 
             worker.postMessage({ components: this['getPrefetchList'](), vendorPath: Components.vendorPath });
             worker.onmessage = function (r) {

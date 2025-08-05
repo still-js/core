@@ -132,13 +132,14 @@ export class Components {
             }
 
             if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
-            baseUrl = Router.getCleanUrl(url, clsName);
+            let prefix = '';
+            if(STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
+            baseUrl = Router.getCleanUrl(url, clsName)+prefix;
             folderPah = `${baseUrl}${cmpRoute}`;
             cmpPath = `${folderPah}/${clsName}`;
         }
 
-        try {
-
+        try {            
             const cmpCls = await import(`${cmpPath}.js`);
             const parent = parentCmp ? { parent: parentCmp } : '';
 
@@ -1589,11 +1590,13 @@ export class Components {
 
         if (!Components.setupImportWorkerState) {
 
-            Components.setupImportWorkerState = true;
-            const worker = new Worker(
-                `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/component/manager/import_worker.js`,
-                { type: 'module' }
-            );
+            try {                
+                Components.setupImportWorkerState = true;
+                const worker = new Worker(
+                    `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/component/manager/import_worker.js`,
+                    { type: 'module' }
+                );
+            } catch (error) {}
 
             worker.postMessage({ components: this['getPrefetchList'](), vendorPath: Components.vendorPath });
             worker.onmessage = function (r) {
@@ -1610,7 +1613,7 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && !STILL_HOME_PREXIF) {
             const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
             navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
                 .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))

@@ -1104,12 +1104,12 @@ export class BaseComponent extends BehaviorComponent {
         } else {
 
             const classDefinition = this.constructor.toString();
-            if(!this.cmpInternalId.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
+            if(!this.cmpInternalId?.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
 
             WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
             StillAppSetup.get().loadWorker.postMessage({
                 type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName,
-                isTopLvlCpm: !this.cmpInternalId.startsWith('dynamic-_')
+                isTopLvlCpm: !this.cmpInternalId?.startsWith('dynamic-_')
             });
 
             if(!(this.cmpInternalId in WorkerHelper.processedCpm)){

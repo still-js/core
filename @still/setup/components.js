@@ -138,8 +138,9 @@ export class Components {
         }
 
         try {
-
-            const cmpCls = await import(`${cmpPath}.js`);
+            let prefix = '';
+            if(STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
+            const cmpCls = await import(`${prefix}${cmpPath}.js`);
             const parent = parentCmp ? { parent: parentCmp } : '';
 
             newInstance = new cmpCls[clsName](parent);

@@ -1588,7 +1588,7 @@ export class Components {
     static setupImportWorkerState = false;
     setupImportWorker() {
 
-        if (!Components.setupImportWorkerState) {
+        if (!Components.setupImportWorkerState && !STILL_HOME_PREXIF) {
 
             Components.setupImportWorkerState = true;
             const worker = new Worker(

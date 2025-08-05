@@ -1624,7 +1624,7 @@ export class Components {
     static loadLoadtWorker() {
         if ('serviceWorker' in navigator) {
             let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-            if(!STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
+            if(STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
             StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
         }
     }

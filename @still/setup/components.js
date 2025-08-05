@@ -1613,12 +1613,14 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-        if ('serviceWorker' in navigator) {
-            const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-            navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
-                .catch(err => console.error('Interceptor SW Registration Failed:', err));
-        }
+        try {            
+            if ('serviceWorker' in navigator) {
+                const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+                    .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                    .catch(err => console.error('Interceptor SW Registration Failed:', err));
+            }
+        } catch (error) {}
     }
 
     static loadLoadtWorker() {

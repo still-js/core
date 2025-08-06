@@ -3,6 +3,19 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-08-06
+## [Version] - 1.3.7
+Hotfix environment variable.
+
+### Fixed
+- STILL_HOME_PREFIX issues.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
 ## [Released] - 2025-08-04
 ## [Version] - 1.3.4
 Small Improvements in to allow seamless integration with Next.js framework in the Microfrontend context.

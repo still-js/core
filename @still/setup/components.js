@@ -133,7 +133,7 @@ export class Components {
 
             if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
             let prefix = '';
-            if(STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
+            if(window.STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
             baseUrl = Router.getCleanUrl(url, clsName)+prefix;
             folderPah = `${baseUrl}${cmpRoute}`;
             cmpPath = `${folderPah}/${clsName}`;
@@ -1613,18 +1613,20 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-        if ('serviceWorker' in navigator && !STILL_HOME_PREXIF) {
-            const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-            navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
-                .catch(err => console.error('Interceptor SW Registration Failed:', err));
+        if(!window.STILL_HOME_PREXIF){
+            if ('serviceWorker' in navigator) {
+                const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+                    .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                    .catch(err => console.error('Interceptor SW Registration Failed:', err));
+            }
         }
     }
 
     static loadLoadtWorker() {
         if ('serviceWorker' in navigator) {
             let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-            if(STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
+            if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
             StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
         }
     }

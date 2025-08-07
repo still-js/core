@@ -1290,7 +1290,7 @@ export class Components {
 
                                 const parentProp = parentCmp[value.replace(prefix, '').trim()];
                                 if (parentProp?.onlyPropSignature) cmp[prop] = parentProp.value;
-                                else cmp[prop] = parentProp?.value || parentProp;
+                                else cmpTmp[prop] = parentProp?.value || parentProp;
     
                             } else
                             cmpTmp[prop] = value;

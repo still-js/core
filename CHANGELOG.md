@@ -3,6 +3,21 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-08-07
+## [Version] - 1.3.9
+Hotfix variable references.
+
+### Fixed
+- @delay build variable.
+- component variable name from cmp to cmpTmp.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
 ## [Released] - 2025-08-06
 ## [Version] - 1.3.7
 Hotfix environment variable.

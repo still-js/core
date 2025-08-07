@@ -1208,7 +1208,7 @@ export class Components {
                 ).newInstance;
                 
                 let cmpTmp;
-                let buildTime = instance['stSetDelay']?.buildTime;
+                let buildTime = instance['stSetDelay']?.build;
                 if(props['@delayed']) buildTime = WorkerHelper.parseTime(props['@delayed'], component, parentCmp.getName());
                 //Delaying component building for the specified time in case defined
                 if(buildTime) await new Promise((res, rej) => setTimeout(() => res(''), buildTime))

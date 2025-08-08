@@ -1106,47 +1106,51 @@ export class BaseComponent extends BehaviorComponent {
             const classDefinition = this.constructor.toString();
             if(!this.cmpInternalId?.startsWith('dynamic-_')) cmp['#stIsTopLvlCmp'] = true;
 
-            WorkerHelper.traceCmp[this.cmpInternalId] = cmp;
-            StillAppSetup.get().loadWorker.postMessage({
-                type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName,
-                isTopLvlCpm: !this.cmpInternalId?.startsWith('dynamic-_')
-            });
+            if(![null,undefined].includes(StillAppSetup.get().loadWorker)){
 
-            if(!(this.cmpInternalId in WorkerHelper.processedCpm)){
-                
-                StillAppSetup.get().loadWorker.addEventListener('message', (evt) => {
-                    
-                    const { data: { mtdName, cmpName, ref, prop, cmpId } } = evt;
-                    const key = mtdName+'-'+ref+'-'+cmpId;
-                    const cmp = WorkerHelper.traceCmp[cmpId];
-
-                    if(cmp['#stIsTopLvlCmp'] === true && mtdName === 'stAfterInit') WorkerHelper.parseDelaySetup(cmp.toString(), cmp, true, cmpName);
-                    
-                    if(!(ref in WorkerHelper.methodOffloadContainer)) 
-                        WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
-                    
-                    if(!(key in WorkerHelper.processedKeys)){
-                        WorkerHelper.processedKeys[key] = true;
-                        
-                        if(!(cmpId in WorkerHelper.processedCpm)) WorkerHelper.processedCpm[cmpId] = { };
-
-                        WorkerHelper.methodOffloadContainer[ref].subscrbrs.add(cmpId);
-
-                        if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[cmpId])){
-                            const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
-                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = cmp[mtdName]
-                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  {
-                                try { eval(scope) } 
-                                catch (error) {
-                                    console.error(`RuntimeError: Error while trynig to run ${mtdName} in ${cmpName}\n\t`,error.message); 
-                                }
-                            } };
-                        }
-                        cmp[mtdName] = () => {};
-                        WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`].count++;
-                    }
-
+                WorkerHelper.traceCmp[this.cmpInternalId] = cmp;            
+                StillAppSetup.get().loadWorker.postMessage({
+                    type: WORKER_EVT.OFFLOAD, content: classDefinition, cmpId: this.cmpInternalId, cmpName,
+                    isTopLvlCpm: !this.cmpInternalId?.startsWith('dynamic-_')
                 });
+    
+                if(!(this.cmpInternalId in WorkerHelper.processedCpm)){
+                    
+                    StillAppSetup.get().loadWorker.addEventListener('message', (evt) => {
+                        
+                        const { data: { mtdName, cmpName, ref, prop, cmpId } } = evt;
+                        const key = mtdName+'-'+ref+'-'+cmpId;
+                        const cmp = WorkerHelper.traceCmp[cmpId];
+    
+                        if(cmp['#stIsTopLvlCmp'] === true && mtdName === 'stAfterInit') WorkerHelper.parseDelaySetup(cmp.toString(), cmp, true, cmpName);
+                        
+                        if(!(ref in WorkerHelper.methodOffloadContainer)) 
+                            WorkerHelper.methodOffloadContainer[ref] = { subscrbrs: new Set() };
+                        
+                        if(!(key in WorkerHelper.processedKeys)){
+                            WorkerHelper.processedKeys[key] = true;
+                            
+                            if(!(cmpId in WorkerHelper.processedCpm)) WorkerHelper.processedCpm[cmpId] = { };
+    
+                            WorkerHelper.methodOffloadContainer[ref].subscrbrs.add(cmpId);
+    
+                            if(!(`tmp${mtdName}` in WorkerHelper.processedCpm[cmpId])){
+                                const scope = cmp[mtdName].toString().trim().replace(new RegExp(`${mtdName}[\\s\\S]*?\\)\\{`),'').slice(0,-1);
+                                WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = cmp[mtdName]
+                                WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`] = {  count: 0, method: () =>  {
+                                    try { eval(scope) } 
+                                    catch (error) {
+                                        console.error(`RuntimeError: Error while trynig to run ${mtdName} in ${cmpName}\n\t`,error.message); 
+                                    }
+                                } };
+                            }
+                            cmp[mtdName] = () => {};
+                            WorkerHelper.processedCpm[cmpId][`tmp${mtdName}`].count++;
+                        }
+    
+                    });
+                }
+                
             }
 
 

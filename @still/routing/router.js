@@ -97,11 +97,8 @@ export class Router {
          * forced to go to the main/home UI after the login,  as the page is not rendered 
          * in case the app was not loaded through StillAppSetup.get().loadComponent() 
          */
-        if (
-            cmp === 'init'
-            ||
-            (AppTemplate.get().isAuthN() && !StillAppSetup.get().isAppLoaded())
-        ) {
+        if (cmp === 'init'||
+            (AppTemplate.get().isAuthN() && !StillAppSetup.get().isAppLoaded())) {
             StillAppSetup.get().loadComponent();
             AppTemplate.get().storageSet('stAppInitStatus', true);
             Router.initRouting = true;
@@ -170,7 +167,7 @@ export class Router {
                     );
                     const ctnrId = isLoneCmp ? Router.clickEvetCntrId : 'stillUiPlaceholder';
                     document.getElementById(ctnrId).innerHTML = template;
-                    setTimeout(() => Router.callCmpAfterInit(null, isHomeCmp, Router.appPlaceholder));
+                    setTimeout(() => Router.callCmpAfterInit(null, isHomeCmp, Router.appPlaceholder, newInstance));
 
                 })();
 
@@ -347,7 +344,7 @@ export class Router {
     }
 
 
-    static callCmpAfterInit(cmpId, isHome, appPlaceholder = null) {
+    static callCmpAfterInit(cmpId, isHome, appPlaceholder = null, newInstance = null) {
 
         /**
          * Timer for keep calling the function wrapped code until it finds that the main 
@@ -356,32 +353,26 @@ export class Router {
         let cmpRef = appPlaceholder;
         if (cmpRef == null) cmpRef = isHome ? $stillconst.TOP_LEVEL_CMP : cmpId;
         const loadTImer = setTimeout(async () => {
-            /**
-             * Check if the main component was loaded/rendered
-             */
+            // Check if the main component was loaded/rendered
             if (document.getElementById(cmpRef)) {
                 clearTimeout(loadTImer);
                 /** @type { ViewComponent } */
                 const cmp = $still.context.currentView;
 
-                /**
-                 * Runs stAfterInit special method in case it exists
-                 */
+                if(newInstance != null) ComponentRegistror.add(newInstance.cmpInternalId, newInstance);
+
+                //Runs stAfterInit special method in case it exists
                 if (!Components.checkStInit(cmp.constructor.name))
                     setTimeout(() => Components.runAfterInit(cmp), 200);
 
-                /**
-                 * Load component parts or sub-components inside the main loaded component
+                /** Load component parts or sub-components inside the main loaded component
                  * if(!Components.stAppInitStatus) is to prevent compoenent parts Parsing
                  * When this is called in the App mounting phase, as this (handleInPlaceParts) 
                  * has been handled previously on the Components Funamentals (components.js)
-                 * by already calling Components.handleInPlaceParts($still.context.currentView))
-                 */
-                if (
-                    (!Components.stAppInitStatus
+                 * by already calling Components.handleInPlaceParts($still.context.currentView)) */
+                if ((!Components.stAppInitStatus
                         || AppTemplate.get().storageGet('stAppInitStatus'))
-                    && !Router.initRouting
-                ) {
+                    && !Router.initRouting) {
                     Components.handleInPlaceParts(cmp);
                 } else if (
                     (

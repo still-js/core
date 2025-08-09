@@ -58,3 +58,15 @@ export function  getServicePath(type, svcPath, injecter) {
     path = getBasePath('service', svcPath) + '' + path;
     return path + '/' + type + '.js';
 }
+
+export function parseNpmToCdn(url){
+    if(url.startsWith('npm/')){
+        const cmpPos = url.lastIndexOf('/');
+        const cmpName = url.slice(cmpPos + 1);
+        return {
+            cdn: `https://cdn.jsdelivr.net/${url.slice(0,cmpPos)}@latest/${cmpName}`,
+            cmp: cmpName
+        }
+    }else
+        return null;
+}

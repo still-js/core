@@ -642,7 +642,8 @@ export class BaseComponent extends BehaviorComponent {
                         try {
                             const value = eval(`cls.${classFlag}`);
                             showFlagValue = { value: value?.parsed ? value.value : value, onlyPropSignature: true };
-                            listenerFlag = `_stFlag${classFlag}_${clsName}_change`;
+                            
+                            listenerFlag = `_stFlag${classFlag}_${(clsName.indexOf('/')) ? clsName.split('/').slice(-1) : clsName}_change`;
                             Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value, parsed: true });
                             this[classFlag] = showFlagValue;
                         } catch (e) {

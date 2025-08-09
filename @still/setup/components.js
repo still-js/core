@@ -1146,16 +1146,14 @@ export class Components {
         for (const [parentId, cmpParts] of allParts) {
             const parentCmp = $still.context.componentRegistror.componentList[parentId]
             if (parentCmp?.instance?.lone) {
-
-                Components.subscribeAction(
-                    parentCmp.instance.getName(),
-                    (placeHolderId) => {
-                        Components.handleInPartsImpl(
-                            parentCmp?.instance, parentId, cmpParts, placeHolderId
-                        );
-                    }
-                );
-
+                if(!('#stLonePartsParsed' in parentCmp)){
+                    parentCmp['#stLonePartsParsed'] = true;
+                    Components.subscribeAction(
+                        parentCmp.instance.getName(),
+                        (placeHolderId) => 
+                            Components.handleInPartsImpl(parentCmp?.instance, parentId, cmpParts, placeHolderId)
+                    );
+                }
             } else
                 Components.handleInPartsImpl(parentCmp?.instance, parentId, cmpParts);
         }
@@ -1877,8 +1875,6 @@ export class Components {
 
     static runAfterInit(cmp, params = {}) {
         setTimeout(async () => {
-            //console.log(`THIS COMPONENT IS ${cmp.getName()} AND `, cmp['stSetDelay'], ' - ',cmp['#stIsTopLvlCmp']);
-            
             await cmp.stOnDOMUpdate();
             if(!(cmp['#stIsTopLvlCmp'] === true && cmp['stSetDelay']?.init))
                 setTimeout(async () => await cmp.stAfterInit(params),20);

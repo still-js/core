@@ -150,7 +150,7 @@ export class BaseComponent extends BehaviorComponent {
             'parentVersionId', 'versionId', 'behaviorEvtSubscriptions', 'wasAnnotParsed', 'stateChangeSubsribers', 'stOnChangeAtIf',
             'bindStatus', 'templateUrl', '$parent', 'dynLoopObject', 'lone', 'loneCntrId', 'stComboStat', 'loopTmplt','#stOffloadInit',
             'setAndGetsParsed', 'navigationId', '$cmpStController', 'stillDevidersCmp', 'stOptListFieldMap','stSetDelay','#stIsTopLvlCmp',
-            'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt'
+            'stillAdjastableCmp', '_const','lang','afterInitEventToParse','baseUrl','isStFixed','loopPrnt','#stLonePartsParsed'
         ];
         return fields.filter(
             field => {

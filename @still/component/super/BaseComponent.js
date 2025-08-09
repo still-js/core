@@ -360,7 +360,7 @@ export class BaseComponent extends BehaviorComponent {
         template = TemplateLogicHandler.parseAtForAndIfStatement(this, template, loopVar, counterName, dataSrc, iterVar);
         template = TemplateLogicHandler.runTopLevelAtIf(this, template, counterName, dataSrc);
         template = TemplateLogicHandler.runAtForAndIfStatement(this, template, loopVar, counterName, dataSrc, iterVar);
-        template = template.replace(/\${([\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, exp) => eval(`${exp}`));
+        template = template.replace(/\${([\!\+\(\)\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}/gi, (_, exp) => eval(`${exp}`));
         return template;
         
     }
@@ -1283,5 +1283,4 @@ export class BaseComponent extends BehaviorComponent {
     unload(){
         ComponentRegistror.desrtroyCmpInstance(this.cmpInternalId);
     }
-
 }

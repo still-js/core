@@ -8,7 +8,7 @@ import { TemplateBinding, TemplateReactiveResponde } from "../helper/template.js
 import { Router as DefaultRouter } from "../routing/router.js";
 import { UUIDUtil } from "../util/UUIDUtil.js";
 import { checkPropBind, WorkerHelper } from "../util/componentUtil.js";
-import { getRouter, getRoutesFile, getViewComponent } from "../util/route.js";
+import { getRouter, getRoutesFile, getViewComponent, parseNpmToCdn } from "../util/route.js";
 import { $stillconst, authErrorMessage, ST_RE, WORKER_EVT } from "./constants.js";
 import { StillError } from "./error.js";
 
@@ -109,41 +109,46 @@ export class Components {
     static async produceComponent(params = ProduceComponentType) {
         if (!params.cmp) return;
         const { cmp, parentCmp, registerCls, urlRequest: url } = params;
-
+        const npmRoute = parseNpmToCdn(cmp);
         let clsName = cmp, isVendorCmp = (cmp || []).at(0) == '@', cmpPath,
             template, folderPah, exception, baseUrl;
 
         /** the bellow line clears previous component from memory
          * @type { ViewComponent } */
-        let newInstance;
+        let newInstance, prefix = '';
 
-        if (isVendorCmp) {
-            const clsPath = cmp.split('/');
-            clsName = clsPath.at(-1);
-            clsPath.pop();
-            const parsedUrl = Components.obj().parseBaseUrl(Components.baseUrl);
-            folderPah = `${parsedUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
-            cmpPath = `${folderPah}/${clsName}`;
-        } else {
-            let cmpRoute = Router.routeMap[clsName]?.path;
-            if (!cmpRoute) {
-                StillError.handleStComponentNotFound('TypeError', parentCmp, clsName);
-                return;
+        if(npmRoute === null){
+    
+            if (isVendorCmp) {
+                const clsPath = cmp.split('/'), parsedUrl = Components.obj().parseBaseUrl(Components.baseUrl);
+                clsName = clsPath.at(-1);
+                clsPath.pop();
+                folderPah = `${parsedUrl}@still/vendors/${clsPath.join('/').slice(1)}`;
+                cmpPath = `${folderPah}/${clsName}`;
+            } else {
+                let cmpRoute = Router.routeMap[clsName]?.path;
+                if (!cmpRoute) 
+                    return StillError.handleStComponentNotFound('TypeError', parentCmp, clsName);
+                if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
+                if(window.STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
+                if(window.STILL_HOME_LOCAL) prefix = STILL_HOME_LOCAL;
+                baseUrl = Router.getCleanUrl(url, clsName)+prefix;
+                folderPah = `${baseUrl}${cmpRoute}`;
+                cmpPath = `${folderPah}/${clsName}`;
             }
-
-            if (cmpRoute.at(-1) == '/') cmpRoute = cmpRoute.slice(0, -1);
-            let prefix = '';
-            if(window.STILL_HOME_PREXIF) prefix = STILL_HOME_PREXIF;
-            baseUrl = Router.getCleanUrl(url, clsName)+prefix;
-            folderPah = `${baseUrl}${cmpRoute}`;
-            cmpPath = `${folderPah}/${clsName}`;
+        }else{
+            const remoteCmp = await (await fetch(npmRoute.cdn+'.js')).text();
+            eval(`${remoteCmp.replace(/import[\s\S]*?\;/g,'').replace(/export[\s]*?class/g,'class')}; window.${npmRoute.cmp} = new ${npmRoute.cmp}()`);
+            newInstance = eval(`${npmRoute.cmp}`);
+            return { newInstance, template: newInstance.template, _class: !registerCls && !url ? null : cmpCls[clsName] };
         }
 
         try {            
+            
             const cmpCls = await import(`${cmpPath}.js`);
             const parent = parentCmp ? { parent: parentCmp } : '';
 
-            newInstance = new cmpCls[clsName](parent);
+            newInstance = new cmpCls[clsName](parent);            
             Components.prevLoadingTracking.add(clsName);
             newInstance.lone = !!params.loneCntrId || params.lone;
             newInstance.loneCntrId = params.loneCntrId || Router.clickEvetCntrId;
@@ -1141,16 +1146,14 @@ export class Components {
         for (const [parentId, cmpParts] of allParts) {
             const parentCmp = $still.context.componentRegistror.componentList[parentId]
             if (parentCmp?.instance?.lone) {
-
-                Components.subscribeAction(
-                    parentCmp.instance.getName(),
-                    (placeHolderId) => {
-                        Components.handleInPartsImpl(
-                            parentCmp?.instance, parentId, cmpParts, placeHolderId
-                        );
-                    }
-                );
-
+                if(!('#stLonePartsParsed' in parentCmp)){
+                    parentCmp['#stLonePartsParsed'] = true;
+                    Components.subscribeAction(
+                        parentCmp.instance.getName(),
+                        (placeHolderId) => 
+                            Components.handleInPartsImpl(parentCmp?.instance, parentId, cmpParts, placeHolderId)
+                    );
+                }
             } else
                 Components.handleInPartsImpl(parentCmp?.instance, parentId, cmpParts);
         }
@@ -1613,9 +1616,10 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-        if(!window.STILL_HOME_PREXIF){
+        if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL){
             if ('serviceWorker' in navigator) {
-                const baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
                 navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
                     .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
                     .catch(err => console.error('Interceptor SW Registration Failed:', err));
@@ -1626,8 +1630,11 @@ export class Components {
     static loadLoadtWorker() {
         if ('serviceWorker' in navigator) {
             let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                        
             if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
-            StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
+            else if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
+            if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL)
+                StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
         }
     }
 
@@ -1868,8 +1875,6 @@ export class Components {
 
     static runAfterInit(cmp, params = {}) {
         setTimeout(async () => {
-            //console.log(`THIS COMPONENT IS ${cmp.getName()} AND `, cmp['stSetDelay'], ' - ',cmp['#stIsTopLvlCmp']);
-            
             await cmp.stOnDOMUpdate();
             if(!(cmp['#stIsTopLvlCmp'] === true && cmp['stSetDelay']?.init))
                 setTimeout(async () => await cmp.stAfterInit(params),20);

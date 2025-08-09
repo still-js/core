@@ -10,7 +10,7 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
 
 (() => {
-    const boolMap = { 'false': false, 'true': true, false: false, true: true, 'no': false, 'yes': true };
+    const boolMap = { 'false': false, 'true': true, false: false, true: true, 'no': false, 'yes': true };  
     Router.parseRouteMap()
         .then(async () => {
 
@@ -29,13 +29,13 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
 
             StillAppSetup.register(ComponentNotFoundException);
             /** Only for dev mode */ StillAppSetup.setDevErrorTracing();
-
+            let componentCounter = 0;
             if (document.readyState != 'loading') {
 
                 const stillDeclarations = document.getElementsByTagName('st-element');
 
                 [...stillDeclarations].forEach(async elm => {
-
+                    componentCounter++;
                     elm.id = `stillLone_${UUIDUtil.newId()}`;
                     const cmpName = elm.getAttribute('component'), ref = elm.getAttribute('stRef');
                     
@@ -69,14 +69,15 @@ import { UUIDUtil } from "./util/UUIDUtil.js";
                     setTimeout(async () => {
                         Components.emitAction(cmp.getName());
                         Components.handleInPlacePartsInit(cmp, cmp.cmpInternalId, cmpParts);
-                        setTimeout(() => Components.runAfterInit(cmp),100);
+                        setTimeout(() => {
+                            Components.runAfterInit(cmp);
+                            if(--componentCounter === 0) window['#stOnEvt']?.forEach(async (listener) => await listener());
+                        },100);
                         Components.handleMarkedToRemoveParts();
                     });
 
                 });
-
             };
 
         });
-
 })()

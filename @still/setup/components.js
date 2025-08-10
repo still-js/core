@@ -570,7 +570,8 @@ export class Components {
     propageteChanges(cmp, field, chkBoxOpts = {}) {
         
         if(field?.startsWith('$_stup') || field?.endsWith('CmpltCbs')) return;
-        const cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
+        let cpName = cmp.cmpInternalId.replace('/', '').replace('@', ''), f = field;
+        if(cpName.indexOf('/') && cpName.indexOf('npm')) cpName = cpName.replace(/\//g,'');
         const cssRef = `.listenChangeOn-${cpName}-${f}`;
         const subscribers = document.querySelectorAll(cssRef);
         

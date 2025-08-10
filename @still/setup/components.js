@@ -1618,20 +1618,21 @@ export class Components {
 
     static loadInterceptWorker() {
         if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL){
-            if ('serviceWorker' in navigator) {
-                let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-                if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
-                navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                    .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
-                    .catch(err => console.error('Interceptor SW Registration Failed:', err));
-            }
+            try {                
+                if ('serviceWorker' in navigator) {
+                    let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                    if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
+                    navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+                        .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                        .catch(err => console.error('Interceptor SW Registration Failed:', err));
+                }
+            } catch (error) {}
         }
     }
 
     static loadLoadtWorker() {
         if ('serviceWorker' in navigator) {
-            let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-                        
+            let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);           
             if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
             else if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
             if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL)
@@ -1686,8 +1687,7 @@ export class Components {
 
     /** 
      * @param { ViewComponent | String } cmp
-     * @param { Object | any | null } data
-     * */
+     * @param { Object | any | null } data */
     static async new(cmp, data = null) {
         let cmpName = cmp;
         if (cmp?.__proto__?.name == 'ViewComponent') cmpName = cmp.name;

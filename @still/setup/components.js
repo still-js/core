@@ -1618,27 +1618,31 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-        try {                
-            if ('serviceWorker' in navigator) {
-                let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-                if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
-                navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                    .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
-                    .catch(err => console.error('Interceptor SW Registration Failed:', err));
-            }
-        } catch (error) { }
+        if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL){
+            try {                
+                if ('serviceWorker' in navigator) {
+                    let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                    if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
+                    navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+                        .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                        .catch(err => console.error('Interceptor SW Registration Failed:', err));
+                }
+            } catch (error) {}
+        }
     }
 
     static loadLoadtWorker() {
-        try {            
-            if ('serviceWorker' in navigator) {
-                let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);           
-                if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
-                else if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
-                if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL)
-                    StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
-            }
-        } catch (error) { }
+        if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL){
+            try {            
+                if ('serviceWorker' in navigator) {
+                    let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);           
+                    if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
+                    else if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
+                    if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL)
+                        StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
+                }
+            } catch (error) { }
+        }
     }
 
     static async #loadConfig(file = null) {

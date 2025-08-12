@@ -140,6 +140,7 @@ export class Components {
             const remoteCmp = await (await fetch(npmRoute.cdn+'.js')).text();
             eval(`${remoteCmp.replace(/import[\s\S]*?\;/g,'').replace(/export[\s]*?class/g,'class')}; window.${npmRoute.cmp} = new ${npmRoute.cmp}()`);
             newInstance = eval(`${npmRoute.cmp}`);
+            newInstance.$parent = parentCmp;
             return { newInstance, template: newInstance.template, _class: !registerCls && !url ? null : cmpCls[clsName] };
         }
 
@@ -1617,27 +1618,27 @@ export class Components {
     static ref = (name) => ComponentRegistror.getFromRef(name);
 
     static loadInterceptWorker() {
-        if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL){
-            try {                
-                if ('serviceWorker' in navigator) {
-                    let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
-                    if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
-                    navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
-                        .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
-                        .catch(err => console.error('Interceptor SW Registration Failed:', err));
-                }
-            } catch (error) {}
-        }
+        try {                
+            if ('serviceWorker' in navigator) {
+                let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);
+                if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
+                navigator.serviceWorker.register(`${baseUrl}@still/component/manager/intercept_worker.js`, { type: 'module' })
+                    .then(() => setTimeout(() => console.log('Interceptor Worker Registered'), 1000))
+                    .catch(err => console.error('Interceptor SW Registration Failed:', err));
+            }
+        } catch (error) { }
     }
 
     static loadLoadtWorker() {
-        if ('serviceWorker' in navigator) {
-            let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);           
-            if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
-            else if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
-            if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL)
-                StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
-        }
+        try {            
+            if ('serviceWorker' in navigator) {
+                let baseUrl = Components.obj().parseBaseUrl(Router.baseUrl);           
+                if(window.STILL_HOME_PREXIF) baseUrl = 'https://cdn.jsdelivr.net/npm/@stilljs/core@latest/';
+                else if(window.STILL_HOME_LOCAL) baseUrl = baseUrl+window.STILL_HOME_LOCAL;
+                if(!window.STILL_HOME_PREXIF || window.STILL_HOME_LOCAL)
+                    StillAppSetup.get().loadWorker = new Worker(`${baseUrl}@still/component/manager/load_worker.js`, { type: 'module' });
+            }
+        } catch (error) { }
     }
 
     static async #loadConfig(file = null) {
@@ -1647,8 +1648,7 @@ export class Components {
             if(properties.status === 404){
                 if(!configFile.endsWith('default.json')) new Error('Config file '+file+' not found');
                 return { };
-            }
-                
+            }   
             return await properties.json();
         } catch (error) {
             console.error(error);

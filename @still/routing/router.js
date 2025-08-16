@@ -492,8 +492,8 @@ export class Router {
         if (!address)
             window.location.assign('#');
 
-        window.addEventListener('popstate', () => {
-
+        window.addEventListener('popstate', (event) => {
+            
             let url = location.href.toString();
             if (
                 url.slice(0, -3) == Router.baseUrl
@@ -509,7 +509,8 @@ export class Router {
             const route = Router.getUrlPath();
 
             if (route.path != '' && route.path != '#/') {
-                if (route.address) Router.goto(route);
+                if(route.path === '/') Router.goto((new StillAppSetup()).entryComponentName);              
+                else if (route.address) Router.goto(route);
                 else {
                     const pathValue = route.path.replace('#/', '/');
                     const err = $stillconst.MSG.UNKNOWN_ROUTE.replace('{{}}', pathValue)

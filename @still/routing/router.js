@@ -275,6 +275,7 @@ export class Router {
 
         const appCntrId = Router.appPlaceholder, isPrivate = !cmp.isPublic;
         let appPlaceholder = document.getElementById(appCntrId), soleRouting;
+        if(!appPlaceholder) appPlaceholder = document.getElementById('stillUiPlaceholder');
         const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
 
         if (isLoneCmp) {

@@ -231,6 +231,13 @@ export class Components {
             Object.freeze(StillAppSetup.config.props);
             $still.context.currentView = await StillAppSetup.instance.init();
             await Components.processInitProperties();
+
+            /** In case the template is defined outside the component (.js) file */
+            if($still.context.currentView.template === undefined){
+                $still.context.currentView = await (
+                    await Components.produceComponent({ cmp: $still.context.currentView.constructor.name })
+                ).newInstance;
+            }
             
             /**  @type { ViewComponent } */
             const currentView = $still.context.currentView;
@@ -241,11 +248,9 @@ export class Components {
                     await Components.produceComponent({ cmp: this.entryComponentName })
                 ).newInstance;
 
-                if (
-                    (!AppTemplate.get().isAuthN()
-                        && !$still.context.currentView.isPublic)
-                    || !Components.obj().isInWhiteList($still.context.currentView)
-                )
+                const isNotAuthorizedUsr = !AppTemplate.get().isAuthN() && !$still.context.currentView.isPublic;
+                const isPrivateCmp = !Components.obj().isInWhiteList($still.context.currentView);
+                if (isNotAuthorizedUsr || isPrivateCmp)
                     return document.write(authErrorMessage());
 
                 setTimeout(() => $still.context.currentView.parseOnChange(), 500);
@@ -257,9 +262,7 @@ export class Components {
                 const { TOP_LEVEL_CMP, ST_HOME_CMP } = $stillconst;
                 this.template = currentView.template.replace(
                     this.stillCmpConst,
-                    `<div id="${this.stillAppConst}" class="${TOP_LEVEL_CMP} ${ST_HOME_CMP}">
-                        ${this.template}
-                    </div>`
+                    `<div id="${this.stillAppConst}" class="${TOP_LEVEL_CMP} ${ST_HOME_CMP}">${this.template}</div>`
                 );
 
                 this.template = (new BaseComponent).parseStSideComponent(
@@ -291,7 +294,6 @@ export class Components {
             Components.runAfterInit($still.context.currentView)
         })();
     }
-
 
     isAppLoaded = () => document.getElementById(this.stillAppConst);
 

@@ -1594,10 +1594,10 @@ export class Components {
     setupImportWorker() {
 
         if (!Components.setupImportWorkerState) {
-
+            let worker;
             try {                
                 Components.setupImportWorkerState = true;
-                const worker = new Worker(
+                worker = new Worker(
                     `${Components.obj().parseBaseUrl(Router.baseUrl)}@still/component/manager/import_worker.js`,
                     { type: 'module' }
                 );

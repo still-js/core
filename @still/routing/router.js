@@ -92,10 +92,9 @@ export class Router {
         Components.prevLoadLoopContainer.clear();
         if (evt?.containerId) Router.clickEvetCntrId = evt.containerId;
         /**
-         * The or (||) conditions serves to mount the application so the user can 
-         * be redirected straight to a specific page/page-component instead of being 
-         * forced to go to the main/home UI after the login,  as the page is not rendered 
-         * in case the app was not loaded through StillAppSetup.get().loadComponent() 
+         * The or (||) conditions serves to mount the application so the user can be redirected straight to 
+         * a specific page/page-component instead of being forced to go to the main/home UI after the login,  
+         * as the page is not rendered in case the app was not loaded through StillAppSetup.get().loadComponent() 
          */
         if (cmp === 'init'||
             (AppTemplate.get().isAuthN() && !StillAppSetup.get().isAppLoaded())) {
@@ -115,31 +114,19 @@ export class Router {
                 Router.getInstance().#data[cmp] = data;
         }
 
-
-        const routeInstance = {
-            route: {
-                ...stillRoutesMap.viewRoutes.lazyInitial,
-                ...stillRoutesMap.viewRoutes.regular
-            }
-        }
-        const route = routeInstance.route[cmp]?.path;
-
         const cmpRegistror = $still.context.componentRegistror.componentList;
-        const cmpInstance = cmpRegistror[cmp]?.instance
+        const instance = cmpRegistror[cmp]?.instance
         const isHomeCmp = StillAppSetup.get().entryComponentName == cmp;
         const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
+
         if (isHomeCmp && isLoneCmp) {
 
             if (cmp in cmpRegistror) {
 
-                $still.context.currentView = cmpInstance;
-                if (
-                    (!AppTemplate.get().isAuthN() && !cmpInstance.isPublic)
-                    || !Components.obj().isInWhiteList(cmpInstance)
-                ) document.write(authErrorMessage());
-
+                $still.context.currentView = instance;
+                const isNotAllowed = (!AppTemplate.get().isAuthN() && !instance.isPublic) || !Components.obj().isInWhiteList(instance);
+                if (isNotAllowed) document.write(authErrorMessage());
                 Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
-
 
             } else {
 
@@ -202,11 +189,12 @@ export class Router {
                             return (new Components()).renderPublicComponent(newInstance);
                         }
                     }
-
+                    
+                    const notAllowed = !newInstance.isPublic && !AppTemplate.get().isAuthN();
                     ComponentRegistror.add(cmp, newInstance);
                     const isWhiteListed = Components.obj().isInWhiteList(newInstance);
-                    if (!document.getElementById($stillconst.APP_PLACEHOLDER)
-                        && !newInstance.isPublic && isWhiteListed
+                    if ((!document.getElementById($stillconst.APP_PLACEHOLDER)
+                        && !newInstance.isPublic && !isWhiteListed) || notAllowed
                     ) return document.write(authErrorMessage());
 
                     newInstance.isRoutable = true;

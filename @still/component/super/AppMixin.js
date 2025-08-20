@@ -90,6 +90,7 @@ export const StillAppMixin = (Component) =>
             }
         }
 
+        isAuthN = () => StillAppSetup.authFlag['authn'];
         setAnauthorizedWarning = (content) => super.injectAnauthorizedMsg(content);
 
         /** @param { Array<ViewComponent> } whiteList */

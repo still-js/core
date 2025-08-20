@@ -1,14 +1,14 @@
 export let $stillconst = { MSG: { CUSTOM_PRIVATE_CMP: null } };
 
-export const authErrorMessage = () => `
+export const authErrorMessage = (place = '') => `
         <div class="st-unauthorized-access" id="${ST_UNAUTHOR_ID}">
             ${!$stillconst.MSG.CUSTOM_PRIVATE_CMP
         ? `<h3 style='color:red;'>
-                    <b>Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
+                    <b>${place}Unauthorized Access:</b> You're trying to access a  a private component or View/Page, 
                     <br>in case you need to access it without making log-in please make isPublic flag true
                 </h3>`
         : $stillconst.MSG.CUSTOM_PRIVATE_CMP}
-            <a href="#" onclick="Router.escape()">Go back<button>
+            <a href="#" onclick="Router.escape()">Go back<a>
         </div>
     `;
 

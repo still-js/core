@@ -859,8 +859,9 @@ export class Components {
                     loopCount++;
                 };
                 // Run all the subscribe methods to onComplete for a specific variable
-                setTimeout(() => cmp[`$${field}CmpltCbs`].forEach(async cb => {
-                    const fn = cmp[`$${field}CmpltCbs`].shift(); await fn();
+                const cmpltCbs = Array.isArray(cmp[`$${field}CmpltCbs`]) ? cmp[`$${field}CmpltCbs`] : cmp[`$${field}CmpltCbs`].value;
+                setTimeout(() => cmpltCbs.forEach(async cb => {
+                    const fn = cmpltCbs.shift(); await fn();
                 }), 250);
             } else {
                 fullRerender = true;
@@ -1683,9 +1684,10 @@ export class Components {
 
     isInWhiteList(cmp) {
         const isInBlackList = StillAppSetup.get().getBlackList().includes(cmp?.getName());
-        const isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmp?.getName());
+        let isInWhiteList = StillAppSetup.get().getWhiteList().includes(cmp?.getName());
         if (!isInBlackList && !isInWhiteList && cmp?.isPublic) return true;
         if (isInBlackList) return false;
+        if(!isInBlackList && !isInWhiteList) isInWhiteList = true;
         return isInWhiteList;
     }
 

@@ -167,6 +167,13 @@ export class TemplateReactiveResponde {
             Object.entries(cmp['stAtIfContent'][f]).forEach(([id,content]) => {
                 const isItLoop = content.indexOf('let _') > 0 && content.indexOf('for(') > 0;
                 if(isItLoop) return;
+                // Parses the variables bound to inside @if statement
+                content = content.replace(/@([A-Z0-9\_\$]{1,})/gi,(_, propName) => {
+                    if(propName.trim() in cmp) {
+                        return cmp['$still_'+propName] ? cmp['$still_'+propName] : cmp[propName];                    
+                    }
+                });
+
                 if(eval(cmp['stOnChangeAtIf'][id]) === true) document.getElementById(id).innerHTML = content;
                 if(eval(cmp['stOnChangeAtIf'][id]) === false) document.getElementById(id).innerHTML = '';
             });

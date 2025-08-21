@@ -1420,6 +1420,7 @@ export class Components {
     static parseProxy(proxy, cmp, parentCmp, annotations) {
         if (proxy) {
             const sbscbrs = parentCmp[proxy].subscribers;
+            delete parentCmp[proxy]; //Because of delay that might happen for nesting component, poxy @annotation parsing might delay
             parentCmp[proxy] = cmp;
             if (sbscbrs && sbscbrs.length) sbscbrs.forEach(async cb => await cb());
         }

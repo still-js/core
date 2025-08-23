@@ -1,4 +1,5 @@
 import { $stillconst } from "../../setup/constants.js";
+import { sleepForSec } from "../manager/timer.js";
 
 export const validationPatterns = {
     'number': /^\d{0,}$/,
@@ -47,10 +48,18 @@ export class BehaviorComponent {
      * @param {*} field 
      * @param {{ value: string, required: Blob, pattern: RegExp }} inpt 
      */
-    onValueInput(e, field, inpt, formRef, cmp = null, reset = false) {
+    async onValueInput(e, field, inpt, formRef, cmp = null, reset = false) {
         if(inpt === null) return;
         const fieldType = inpt?.type?.toLowerCase();
         const fieldSrc = this.constructor.name == 'BehaviorComponent' ? cmp : this;
+
+        if (e?.ctrlKey || e?.metaKey) {
+            if (e?.key?.toLowerCase() === 'v'){
+                await sleepForSec(5);
+                inpt.value = await navigator.clipboard.readText();
+            }
+            else return;
+        }
 
         if(reset){
             fieldSrc[field] = (fieldType == 'checkbox' || inpt.multiple) ? [] : '';

@@ -1075,7 +1075,7 @@ export class BaseComponent extends BehaviorComponent {
             if(mt.toLowerCase().indexOf('onclick="') > 0) mt = mt.replace('onclick="', '');
             else evt = `onclick="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
         }else
-            evt = `onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
+            evt = `onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')" onkeydown="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
 
         if (!(isThereComboBox)) replacer = `${forEachValue} ${complmnt} ${subscrtionCls} ${evt}`;
         return { mt, replacer };

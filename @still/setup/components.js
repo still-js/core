@@ -140,6 +140,7 @@ export class Components {
             const remoteCmp = await (await fetch(npmRoute.cdn+'.js')).text();
             eval(`${remoteCmp.replace(/import[\s\S]*?\;/g,'').replace(/export[\s]*?class/g,'class')}; window.${npmRoute.cmp} = new ${npmRoute.cmp}()`);
             newInstance = eval(`${npmRoute.cmp}`);
+            await newInstance.stBeforeInit();
             newInstance.$parent = parentCmp;
             return { newInstance, template: newInstance.template, _class: !registerCls && !url ? null : cmpCls[clsName] };
         }
@@ -149,7 +150,8 @@ export class Components {
             const cmpCls = await import(`${cmpPath}.js`);
             const parent = parentCmp ? { parent: parentCmp } : '';
 
-            newInstance = new cmpCls[clsName](parent);            
+            newInstance = new cmpCls[clsName](parent);
+            await newInstance.stBeforeInit();          
             Components.prevLoadingTracking.add(clsName);
             newInstance.lone = !!params.loneCntrId || params.lone;
             newInstance.loneCntrId = params.loneCntrId || Router.clickEvetCntrId;

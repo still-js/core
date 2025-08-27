@@ -124,6 +124,8 @@ export class TemplateLogicHandler {
                 }
             }
             content += variable + '+=`</for-loop>`';
+            content = content.replace(/<script [\s\S]*?>[\s\S]*?<\/script>/,'');
+
             const re = /{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}|item="{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}"/gi
             content = content.replace(re, (mt, _, ds, pos) => {
                 if(content.slice(pos-7, pos).startsWith('item="$')) return '{JSON.stringify('+_+')}';
@@ -137,8 +139,10 @@ export class TemplateLogicHandler {
                     let content = obj['loopTmplt'][variable];
                     if (content.includes("component.")) content = content.replaceAll('component.',`$still.component.ref('${obj.cmpInternalId}').`);
                     if (content.includes("controller('")) content = content.replaceAll('component.','$still.controller(\'');
-                    window[loopVar[$2]] = data, window[variable] = '';
-                    eval(content);
+                    if(data === null) return;
+                    window[loopVar[$2]] = data, window[variable] = '';                    
+
+                    eval(content);                    
                     document.getElementById(containerId).innerHTML = eval(variable);
                 };
             }

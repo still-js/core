@@ -524,7 +524,7 @@ export class Components {
                     o.defineSetter(cmp, field);
                     setTimeout(async () => await cmp.stOnUpdate());
 
-                    if (cmp[`$still${field}Subscribers`].length > 0) { 
+                    if (cmp[`$still${field}Subscribers`].length > 0) {
                         setTimeout(() => cmp[`$still${field}Subscribers`].forEach(
                             subscriber => subscriber(cmp['$still_' + field])
                         ));

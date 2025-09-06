@@ -354,7 +354,7 @@ export class BehaviorComponent {
         return '';
     }
 
-    static validateForm(fieldPath, cmp, formRefObj = {}, reset = false) {
+    static async validateForm(fieldPath, cmp, formRefObj = {}, reset = false) {
 
         const formFields = BehaviorComponent.currentFormsValidators[fieldPath];
         if(formFields === undefined) return;
@@ -365,8 +365,7 @@ export class BehaviorComponent {
         fieldPath = fieldPath.slice(0, -(formRef.length + 1));
         const validators = Object
             .entries(intValidators)
-            .map(
-                ([_, stngs]) => {
+            .map(([_, stngs]) => {
                     const field = stngs[0];
                     const inpt = document.querySelector(`.${fieldPath}-${field}`);
                     return [
@@ -379,8 +378,8 @@ export class BehaviorComponent {
 
         if(formRefObj) formRefObj.errorCount = 0;
         for (let [field, validator] of validators) {
-
-            if (!validator.isValid) {
+            const isValid = await validator.isValid;
+            if (!isValid) {
                 if(formRefObj) formRefObj.errorCount++;
                 valid = false;
             }
@@ -389,7 +388,7 @@ export class BehaviorComponent {
                 const obj = new BehaviorComponent();
                 const inpt = document.querySelector('.' + validator.inputClass);
                 if(inpt === null) return;
-                if (!validator.isValid && !['checkbox','radio'].includes(inpt.type)) {
+                if (!isValid && !['checkbox','radio'].includes(inpt.type)) {
                     obj.#handleValidationWarning('add', inpt, fieldPath);
                 } else {
                     if(!['checkbox','radio'].includes(inpt.type))
@@ -398,7 +397,7 @@ export class BehaviorComponent {
             }
         }
 
-        return valid;
+        return formRefObj.errorCount > 0 ? false : true;
 
     }
 
@@ -443,5 +442,4 @@ export class BehaviorComponent {
         }, 200);
         this.behaviorEvtSubscriptions[evt].status = $stillconst.A_STATUS.DONE;
     }
-
 }

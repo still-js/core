@@ -3,6 +3,57 @@
 This log contains all the changes which takes place for StillJS Framework.
 
 
+## [Released] - 2025-10-26
+## [Version] - 1.3.14
+Small improvements and fixes, small new features.
+
+- <b>MINOR</b> - ading `stBeforeInit()` that get's called before stOnRender(), when the component is not loaded yet.
+
+    -  This is suitable for API call in parallel or prior to the component loading. Also can be used for component Assets loading. 
+    <br>
+    Example:
+
+        <br/>
+
+        ```{.javascript .numberLines .lineAnchors}
+        export class DataGrid extends ViewComponent {
+
+            isPublic = true;
+
+            async stBeforeInit(){
+                await Assets.import({ path: '/app/assets/css/grid.css' });
+            }
+        }
+        ```
+
+- <b>MINOR</b> - ading return type on StillHTTPClient which allow to call .json() and/or .text() according to API response.
+
+    <br>
+    Example:
+
+        <br/>
+
+        ```{.javascript .numberLines .lineAnchors}
+        const url = '/path/to/entpoint/';
+        const response = await $still.HTTPClient.post(url, null, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+        // Triggeting JSON result
+        const result = await response.json();
+        ```
+
+- <b>MEDIUM</b> - ading Assets util that allows dynamic asset importing
+
+### Fixed
+- Component reloading flow.
+
+<br>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
 ## [Released] - 2025-08-07
 ## [Version] - 1.3.9
 Hotfix variable references.

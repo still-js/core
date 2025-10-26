@@ -23,7 +23,7 @@ self.addEventListener('fetch', event => {
                 .then(async cache => {
 
                     let response = await cache.match(event.request);
-                    if (response) console.log(`Picking `, event.request.url, ` from cache`);
+                    //if (response) console.log(`Picking `, event.request.url, ` from cache`);
                     if (!response) {
                         response = await fetch(event.request);
                         cache.put(event.request, response.clone());

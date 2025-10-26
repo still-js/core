@@ -61,11 +61,7 @@ export class Router {
         Router.goto(cmp, { data, url, evt: { containerId } });
     }
 
-    /**
-     * 
-
-     * @param {String} data 
-     */
+    /** @param {String} data  */
     static aliasGoto1(cmp, url = false, containerId = null) {
         if (!url) Router.clearUrlPath();
         Router.goto(cmp, { data: {}, url, evt: { containerId } });
@@ -81,10 +77,8 @@ export class Router {
     }
 
     /**
-     *
      * @param {*} cmp 
-     * @param {{data, path}} param1
-     */
+     * @param {{data, path}} param1 */
     static goto(cmp, params = GotoParams) {
 
         const { data, evt, url } = params;
@@ -92,10 +86,9 @@ export class Router {
         Components.prevLoadLoopContainer.clear();
         if (evt?.containerId) Router.clickEvetCntrId = evt.containerId;
         /**
-         * The or (||) conditions serves to mount the application so the user can 
-         * be redirected straight to a specific page/page-component instead of being 
-         * forced to go to the main/home UI after the login,  as the page is not rendered 
-         * in case the app was not loaded through StillAppSetup.get().loadComponent() 
+         * The or (||) conditions serves to mount the application so the user can be redirected straight to 
+         * a specific page/page-component instead of being forced to go to the main/home UI after the login,  
+         * as the page is not rendered in case the app was not loaded through StillAppSetup.get().loadComponent() 
          */
         if (cmp === 'init'||
             (AppTemplate.get().isAuthN() && !StillAppSetup.get().isAppLoaded())) {
@@ -115,31 +108,19 @@ export class Router {
                 Router.getInstance().#data[cmp] = data;
         }
 
-
-        const routeInstance = {
-            route: {
-                ...stillRoutesMap.viewRoutes.lazyInitial,
-                ...stillRoutesMap.viewRoutes.regular
-            }
-        }
-        const route = routeInstance.route[cmp]?.path;
-
         const cmpRegistror = $still.context.componentRegistror.componentList;
-        const cmpInstance = cmpRegistror[cmp]?.instance
+        const instance = cmpRegistror[cmp]?.instance
         const isHomeCmp = StillAppSetup.get().entryComponentName == cmp;
         const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
+
         if (isHomeCmp && isLoneCmp) {
 
             if (cmp in cmpRegistror) {
 
-                $still.context.currentView = cmpInstance;
-                if (
-                    (!AppTemplate.get().isAuthN() && !cmpInstance.isPublic)
-                    || !Components.obj().isInWhiteList(cmpInstance)
-                ) document.write(authErrorMessage());
-
+                $still.context.currentView = instance;
+                const isNotAllowed = (!AppTemplate.get().isAuthN() && !instance.isPublic) || !Components.obj().isInWhiteList(instance);
+                if (isNotAllowed) document.write(authErrorMessage());
                 Router.getAndDisplayPage($still.context.currentView, true, isHomeCmp);
-
 
             } else {
 
@@ -202,11 +183,12 @@ export class Router {
                             return (new Components()).renderPublicComponent(newInstance);
                         }
                     }
-
+                    
+                    const notAllowed = !newInstance.isPublic && !AppTemplate.get().isAuthN();
                     ComponentRegistror.add(cmp, newInstance);
                     const isWhiteListed = Components.obj().isInWhiteList(newInstance);
-                    if (!document.getElementById($stillconst.APP_PLACEHOLDER)
-                        && !newInstance.isPublic && isWhiteListed
+                    if ((!document.getElementById($stillconst.APP_PLACEHOLDER)
+                        && !newInstance.isPublic && !isWhiteListed) || notAllowed
                     ) return document.write(authErrorMessage());
 
                     newInstance.isRoutable = true;
@@ -275,6 +257,7 @@ export class Router {
 
         const appCntrId = Router.appPlaceholder, isPrivate = !cmp.isPublic;
         let appPlaceholder = document.getElementById(appCntrId), soleRouting;
+        if(!appPlaceholder) appPlaceholder = document.getElementById('stillUiPlaceholder');
         const isLoneCmp = Router.clickEvetCntrId != null && Router.clickEvetCntrId != 'null';
 
         if (isLoneCmp) {
@@ -282,15 +265,17 @@ export class Router {
             soleRouting = true;
         }
         const cmpId = cmp.getUUID(), cmpName = cmp.constructor.name;
-        if (isReRender || isLoneCmp) {
+        //TODO: Refactor for component fast reloading mechanisms, for now 1 == 0 is to deactivating it
+        if (1 == 0 && (isReRender || isLoneCmp)) {
             Components
                 .unloadLoadedComponent(soleRouting && appPlaceholder)
                 .then(async () => {
                     Router.handleUnauthorizeIfPresent();
                     if (Router.noPermAccessProcess(isPrivate, appPlaceholder, cmp)) return;
                     if (cmp.subImported) {
+                        //TODO: make adjustements to this flow
                         const pageContent = `
-                        <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName}" style="display:contents;">
+                        <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName} ${cmp.cmpInternalId}" style="display:contents;">
                             ${cmp.getTemplate()}
                         </output>`;
                         appPlaceholder.insertAdjacentHTML('afterbegin', pageContent);
@@ -316,7 +301,7 @@ export class Router {
                     }
 
                     const pageContent = `
-                        <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName}" style="display:contents;">
+                        <output id="${cmpId}-check" class="cmp-name-page-view-${cmpName} ${cmp.cmpInternalId}" style="display:contents;">
                             ${cmp.getTemplate()}
                         </output>`;
 
@@ -591,5 +576,7 @@ export class Router {
         window.location.href = location.origin + '/#/' + Router.preView.getName();
         window.location.reload();
     }
+
+    static getCurrentViewName = () => $still.context.currentView.getName()
 
 }

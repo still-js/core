@@ -35,10 +35,10 @@ export class TemplateLogicHandler {
 
                 if(typeof window != 'undefined') {                    
                     if(obj['stEmbededAtFor']) window[loopVar[uniqVarName]] = obj[iterSrc[1]].value;
-                    else window[loopVar[uniqVarName]] = obj[iterSrc[1]];
+                    else window[loopVar[uniqVarName]] = obj[iterSrc[1]]?.value || obj[iterSrc[1]];
                 } else {
                     if(obj['stEmbededAtFor']) global[`${loopVar[uniqVarName]}`] = obj[iterSrc[1]].value;
-                    else global[`${loopVar[uniqVarName]}`] = obj[iterSrc[1]];
+                    else global[`${loopVar[uniqVarName]}`] = obj[iterSrc[1]]?.value || obj[iterSrc[1]];
                 }
 
                 if((depth - 1) === 0) return '<start-tag id="'+uniqVarName+'">\nlet '+uniqVarName+"='';\n"+realFor+'{';
@@ -124,19 +124,25 @@ export class TemplateLogicHandler {
                 }
             }
             content += variable + '+=`</for-loop>`';
+            content = content.replace(/<script [\s\S]*?>[\s\S]*?<\/script>/,'');
+
             const re = /{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}|item="{([\$\-\s\.\[\]\=\>\<\'\"\@\:\;\?A-Z0-9]*?)}"/gi
             content = content.replace(re, (mt, _, ds, pos) => {
                 if(content.slice(pos-7, pos).startsWith('item="$')) return '{JSON.stringify('+_+')}';
                 else return mt
             });
             
-            if(obj[dataSrc[$2]].length === 0){
+            if(obj[dataSrc[$2]].length === 0 || obj[dataSrc[$2]]?.value?.length === 0){
                 if(!(`${loopVar[$2]}` in obj['stRunTime'])) obj['stRunTime'][dataSrc[$2]] = {};
                 obj['stAtForInitLoad'][dataSrc[$2]] = false;
                 obj['stRunTime'][dataSrc[$2]][variable+'_'+dataSrc[$2]] = function(data){
-                    const content = obj['loopTmplt'][variable];
-                    window[loopVar[$2]] = data, window[variable] = '';
-                    eval(content);
+                    let content = obj['loopTmplt'][variable];
+                    if (content.includes("component.")) content = content.replaceAll('component.',`$still.component.ref('${obj.cmpInternalId}').`);
+                    if (content.includes("controller('")) content = content.replaceAll('component.','$still.controller(\'');
+                    if(data === null) return;
+                    window[loopVar[$2]] = data, window[variable] = '';                    
+
+                    eval(content);                    
                     document.getElementById(containerId).innerHTML = eval(variable);
                 };
             }
@@ -167,6 +173,13 @@ export class TemplateReactiveResponde {
             Object.entries(cmp['stAtIfContent'][f]).forEach(([id,content]) => {
                 const isItLoop = content.indexOf('let _') > 0 && content.indexOf('for(') > 0;
                 if(isItLoop) return;
+                // Parses the variables bound to inside @if statement
+                content = content.replace(/@([A-Z0-9\_\$]{1,})/gi,(_, propName) => {
+                    if(propName.trim() in cmp) {
+                        return cmp['$still_'+propName] ? cmp['$still_'+propName] : cmp[propName];                    
+                    }
+                });
+
                 if(eval(cmp['stOnChangeAtIf'][id]) === true) document.getElementById(id).innerHTML = content;
                 if(eval(cmp['stOnChangeAtIf'][id]) === false) document.getElementById(id).innerHTML = '';
             });

@@ -10,7 +10,7 @@ export class ViewComponent extends BaseComponent {
     }
 
     getTemplate() {
-        this.beforeInit();
+        //this.beforeInit();
         let template = this.getBoundTemplate();
         const cmpUnicClass = this.getUUID();
         const loadCmpClass = $stillconst.ANY_COMPONT_LOADED;

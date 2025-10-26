@@ -96,6 +96,7 @@ export class BaseComponent extends BehaviorComponent {
     async onRender() { this.stOnRender(); }
     async stOnUpdate() { }
     async stOnDOMUpdate(){ }
+    async stBeforeInit() { }
     async stAfterInit({nodeUpdate} = {nodeUpdate: false}) { }
     async stOnUnload() { }
     async stOnRender() { }
@@ -119,13 +120,13 @@ export class BaseComponent extends BehaviorComponent {
         //This is for treeview component edge
         if(content?.content){
             content.content = content.content
-                ?.replace(/parent\.|self\./g,`$still.component.ref('${this.$parent.cmpInternalId}').`)
-                ?.replace(/inner\./g,`$still.component.ref('${this.cmpInternalId}').`)?.replace(/\$event/g,`event`)
+                ?.replace(/parent\.|self\./g,`$still.component.ref('${this?.$parent?.cmpInternalId}').`)
+                ?.replace(/inner\./g,`$still.component.ref('${this?.cmpInternalId}').`)?.replace(/\$event/g,`event`)
             return content;
         }
         return content
-            ?.replace(/parent\.|self\./g,`$still.component.ref('${this.$parent.cmpInternalId}').`)
-            ?.replace(/inner\./g,`$still.component.ref('${this.cmpInternalId}').`)?.replace(/\$event/g,`event`)
+            ?.replace(/parent\.|self\./g,`$still.component.ref('${this?.$parent?.cmpInternalId}').`)
+            ?.replace(/inner\./g,`$still.component.ref('${this?.cmpInternalId}').`)?.replace(/\$event/g,`event`)
     };
 
     /** @param { BaseController } controller */
@@ -212,8 +213,7 @@ export class BaseComponent extends BehaviorComponent {
         else {
 
             if (
-                this.cmpInternalId && !this.isRoutable
-                && !this.getRoutableCmp()
+                this.cmpInternalId && !this.isRoutable && !this.getRoutableCmp()
                 /* && this.cmpInternalId.indexOf(dynamic) == 0 */
             ) {
                 /** If component was generated dynamically in a loop */
@@ -293,7 +293,6 @@ export class BaseComponent extends BehaviorComponent {
                         if((bfrBind.startsWith('="') || bfrBind.startsWith('(\'')) && (aftBind[0] == '"' || aftBind == '\')"')){
                             return data;
                         }
-
                         //this.#stateChangeSubsribers.push(`subrcibe-${clsName}-${field}`);
                         return `<state class="state-change-${clsName}-${field}">${data}</state>`;
 
@@ -340,7 +339,7 @@ export class BaseComponent extends BehaviorComponent {
             this['#stLoopFields'].add(ds);
             mt = mt.replace(`${drctv}="${ds}"`, subscriptionCls);
 
-            return `<output class="${hashValue}"></output>${mt}`;
+            return `<output class="${hashValue} ${internalId}"></output>${mt}`;
 
         })
         // This is to hide the template of the foreach wrapper, and it'll be shown when parsing each element of the list
@@ -423,49 +422,50 @@ export class BaseComponent extends BehaviorComponent {
         this.onChangeEventsList.forEach(elm => {
 
             const evtComposition = elm.evt.split('="')[1].split('(');
-            const evt = evtComposition[0];
-            const paramVal = evtComposition[1].replace(')', '');
-            const uiElm = elm._className;
-            document.querySelector(`.${uiElm}`).onchange = async (event) => {
-                const inpt = event.target, oldValues = [];;
-                const { value, dataset: { formref, field, cls } } = inpt;
-                const fieldPath = `${cls}${formref ? `-${formref}` : ''}`;
-                const { multpl } = (this['stOptListFieldMap'].get(field) || {});
+            const [evt, uiElm] = [evtComposition[0], elm._className];
+            const paramVal = evtComposition[1].replace(')', ''), actualUiCmp = document.querySelector(`.${uiElm}`);
 
-                if(multpl){
-                    event.target.querySelectorAll('option').forEach(r => {
-                        if(r.selected && r.value != '') oldValues.push(r.value);
-                    });
-                    this[field] = oldValues;
-                    this['stClk' + field] = true;
+            if(actualUiCmp){
+
+                document.querySelector(`.${uiElm}`).onchange = async (event) => {
+                    const inpt = event.target, oldValues = [];
+                    const { value, dataset: { formref, field, cls } } = inpt;
+                    const fieldPath = `${cls}${formref ? `-${formref}` : ''}`;
+                    const { multpl } = (this['stOptListFieldMap'].get(field) || {});
+    
+                    if(multpl){
+                        event.target.querySelectorAll('option').forEach(r => {
+                            if(r.selected && r.value != '') oldValues.push(r.value);
+                        });
+                        this[field] = oldValues, this['stClk' + field] = true;
+                    }
+    
+                    let isValid = value == '' ? false : true;
+    
+                    if (!isValid) inpt.classList.add('still-validation-failed-style');
+                    else inpt.classList.remove('still-validation-failed-style');
+    
+                    if (fieldPath && field && (formref && !!(formref)))
+                        BehaviorComponent.currentFormsValidators[this.cmpInternalId+'-'+formref][field]['isValid'] = isValid;
+    
+                    setTimeout(() => {
+                        const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
+                        const instance = eval(this.getClassPath());
+    
+                        if (field != undefined) {
+                            if (!(field in instance)) 
+                                throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
+                            if(!multpl) instance[field] = value;
+                        }
+    
+                        if (evt != 'Components.void') {
+                            if (!(evt in instance)) 
+                                throw new Error(`Method with name ${evt}() is not define in ${this.getName()}`);
+                            instance[evt](param);
+                        }
+                    })
                 }
 
-                let isValid = true;
-                if (value == '') isValid = false;
-
-                if (!isValid) inpt.classList.add('still-validation-failed-style');
-                else inpt.classList.remove('still-validation-failed-style');
-
-                if (fieldPath && field && (formref && !!(formref)))
-                    BehaviorComponent.currentFormsValidators[this.cmpInternalId+'-'+formref][field]['isValid'] = isValid;
-
-                setTimeout(() => {
-                    const param = paramVal.indexOf('$event') == 0 ? event : paramVal;
-                    const instance = eval(this.getClassPath());
-
-                    if (field != undefined) {
-                        if (!(field in instance)) 
-                            throw new Error(`Field with name ${field} is not define in ${this.getName()}`);
-                        if(!multpl) instance[field] = value;
-                    }
-
-                    if (evt != 'Components.void') {
-                        if (!(evt in instance)) 
-                            throw new Error(`Method with name ${evt}() is not define in ${this.getName()}`);
-                        instance[evt](param);
-                    }
-
-                })
             }
         });
     }
@@ -512,7 +512,7 @@ export class BaseComponent extends BehaviorComponent {
         //Bind (value) on the input form
         if (this.isThereAForm()) {
 
-            const extremRe = /[ \r \< \$ \( \) \- \s A-Za-z0-9 \/\:\;\* \{ \} \[ \] \. \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
+            const extremRe = /[ \r \@ \_\< \$ \( \) \-\+\\ \s A-Za-z0-9 \/\:\;\* \{ \} \[ \] \. \, \ç\à\á\ã\â\è\é\ê\ẽ\í\ì\î\ĩ\ó\ò\ô\õ\ú\ù\û\ũ \= \"]{0,}/.source;
             const matchValueBind = /\(value\)\=\"[\w.{}]*\"\s?/.source, matchClose = /[\s]{0,}>/.source;
             const matchForEachRE = '(forEach)=\"', mtchValue = '(value)="', matchChange = '(change)="';
             const valueBindRE = new RegExp(extremRe + matchValueBind + extremRe + matchClose , "gi");
@@ -613,7 +613,7 @@ export class BaseComponent extends BehaviorComponent {
         if(showFlag.startsWith('!')) [showFlag, negateFlag] = [showFlag.slice(1),true];
         else if(showFlag.indexOf('==') > 0){
             [showFlag, flagVal] = showFlag.split('==');
-            litValFlag = `flag-${flagVal?.trim()?.replace(/\'/g,'')?.replace(/\s/g,'-')}`;
+            litValFlag = `flag-${flagVal?.trim()?.replace(/\'/g,'')?.replace(/\s/g,'-')} context-${this.cmpInternalId}`;
         }
 
         return [showFlag, negateFlag, litValFlag, flagVal];
@@ -621,9 +621,7 @@ export class BaseComponent extends BehaviorComponent {
 
     parseShowIf(template, reSIf, matchShowIfRE, handleErrorMessage) {
 
-        const clsName = this.dynLoopObject || this.lone
-            ? this.cmpInternalId
-            : this.constructor.name;
+        const clsName = this.cmpInternalId;
         const cls = this;
 
         return template.replace(reSIf, (mt) => {
@@ -643,9 +641,12 @@ export class BaseComponent extends BehaviorComponent {
                             const value = eval(`cls.${classFlag}`);
                             showFlagValue = { value: value?.parsed ? value.value : value, onlyPropSignature: true };
                             
-                            listenerFlag = `_stFlag${classFlag}_${(clsName.indexOf('/')) ? clsName.split('/').slice(-1) : clsName}_change`;
+                            listenerFlag = `_stFlag${classFlag}_${(clsName.indexOf('/')) ? clsName.replace(/\@|\//g,'') : clsName}_change`;
                             Object.assign(showFlagValue, { listenerFlag, inVal: showFlagValue.value, parsed: true });
-                            this[classFlag] = showFlagValue;
+                            // In some cases the getsAndSets of flag is parse prior (in components.js) the template
+                            if(!this.st_flag_ini_val)
+                                this[classFlag] = showFlagValue;
+
                         } catch (e) {
                             handleErrorMessage(classFlag, matchInstance);
                         }
@@ -1075,7 +1076,7 @@ export class BaseComponent extends BehaviorComponent {
             if(mt.toLowerCase().indexOf('onclick="') > 0) mt = mt.replace('onclick="', '');
             else evt = `onclick="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
         }else
-            evt = `onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
+            evt = `onkeyup="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')" onkeydown="${clsPath}.onValueInput(event,'${field}',this, '${formRef?.formRef || null}')"`;
 
         if (!(isThereComboBox)) replacer = `${forEachValue} ${complmnt} ${subscrtionCls} ${evt}`;
         return { mt, replacer };

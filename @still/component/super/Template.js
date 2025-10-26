@@ -63,11 +63,8 @@ export class Template {
         }
 
         const clsName = this.constructor.name;
-        if (!('storage' in Template.instance[clsName])) {
-            Object.assign(Template.instance[clsName], {
-                storage: {}
-            });
-        }
+        if (!('storage' in Template.instance[clsName])) 
+            Object.assign(Template.instance[clsName], { storage: {}});
 
         if (!(name in Template.instance[clsName]['storage'])) {
             Template.instance[clsName]['storage'][name] = value;
@@ -79,13 +76,11 @@ export class Template {
 
     getStorageValue(name) {
         const clsName = this.constructor.name;
-        if (!('storage' in Template.instance[clsName])) {
+        if (!('storage' in Template.instance[clsName]))
             console.log(`No storage with name ${name} was set`);
-        }
-
-        if (!(name in Template.instance[clsName]['storage'])) {
+        
+        if (!(name in Template.instance[clsName]['storage']))
             console.log(`No storage with name ${name} was set`);
-        }
 
         const storedValue = this.storageGet(name);
         Template.instance[clsName]['storage'][name] = storedValue;
@@ -108,25 +103,19 @@ export class Template {
     }
 
     static hideLoading() {
-
         setTimeout(() => {
             const id = "stllAppGlobalLoadingCurtain";
             const spinner = document.getElementById(id);
             if (spinner) document.body.removeChild(spinner);
         }, 100);
-
     }
 
     static spinnerContent() {
         return `
             <div id="stllAppGlobalLoadingCurtain">
-                
                 <div class="overlay"></div>
                 <div class="page-loader-wrapper">
-                    <div class="loader">
-                        <div class="m-t-30"></div>
-                        <p>Por favor, aguarde...</p>
-                    </div>
+                    <div class="loader"><div class="m-t-30"></div><!-- <p>Por favor, aguarde...</p> --></div>
                 </div>
                 <div class="still-lds-spinner">
                     <div></div><div></div><div></div><div></div><div></div><div></div>
@@ -138,18 +127,20 @@ export class Template {
 
 
     static toast = {
-        error: (message) => Template.launchToast({ status: 'Error', message }),
-        success: (message) => Template.launchToast({ status: 'Success', message })
+        error: /** @param { Number } timeout Time in mileseconds to remove toast */ (message, timeout = 5000) => Template.launchToast({ status: 'Error', message, timeout }),
+        success: /** @param { Number } timeout Time in mileseconds to remove toast */ (message, timeout = 5000) => Template.launchToast({ status: 'Success', message, timeout }),
+        warn: /** @param { Number } timeout Time in mileseconds to remove toast */ (message, timeout = 5000) => Template.launchToast({ status: 'Warn', message, timeout })
     }
 
     /** @param {Object} [param0={}] 
-    * @param {'success'|'Success'|'error'|any} param0.status
+    * @param {'success'|'Success'|'error'|'warn'|any} param0.status
     **/
-    static launchToast({ status, message } = {}) {
+    static launchToast({ status, message, timeout } = {}) {
         const [uuid, stat] = [Template.getToastId(), status || 'Success'];
         const msg = message || 'Operação realizada com sucesso';
         const icons = document.getElementsByClassName('toast-type-icon')[0].children;
-        const statusId = ['success', 'Success'].includes(status) ? 0 : 1;
+        const statusId = ['success', 'Success'].includes(status) ? 0 
+                            : ['warn', 'Warn'].includes(status) ? 2 : 1;
 
         [...icons].forEach((r, idx) => {
             r.style.display = idx == statusId ? 'block' : 'none';
@@ -160,24 +151,21 @@ export class Template {
         document.getElementById(msgPlaceId).innerHTML = msg;
 
         let timer1, timer2;
-        const toast = document.querySelector(".still-toast");
-        const closeIcon = document.querySelector(".close");
+        const toast = document.querySelector(".still-toast"), closeIcon = document.querySelector(".close");
         const progress = document.querySelector(".still-toast-progress");
-        toast.style.setProperty('--toast-stat-color', statusId == 1 ? 'red' : '#2c5e24')
+        toast.style.setProperty('--toast-stat-color', statusId == 1 ? 'red' : statusId == 2 ? 'orange' : '#2c5e24')
 
         toast.classList.add("still-toast-active");
         progress.classList.add("still-toast-active");
-
-        timer1 = setTimeout(() => toast.classList.remove("still-toast-active"), 5000);
-        timer2 = setTimeout(() => progress.classList.remove("still-toast-active"), 5300);
+        let time1 = timeout, time2 = timeout * 0.06;
+        timer1 = setTimeout(() => toast.classList.remove("still-toast-active"), time1);
+        timer2 = setTimeout(() => progress.classList.remove("still-toast-active"), time1 + time2);
 
         closeIcon.addEventListener("click", () => {
             toast.classList.remove("still-toast-active");
-            setTimeout(() => progress.classList.remove("still-toast-active"), 300);
+            setTimeout(() => progress.classList.remove("still-toast-active"), time2);
             [...icons].forEach(r => r.style.display = 'none');
-
-            clearTimeout(timer1);
-            clearTimeout(timer2);
+            clearTimeout(timer1); clearTimeout(timer2);
         });
     }
 
@@ -192,6 +180,7 @@ export class Template {
                     <div class="toast-type-icon">
                         <i style="display:none;" class="fas fa-solid fa-check check"></i>
                         <i style="display:none;" class="fa fa-times-circle" aria-hidden="true"></i>
+                        <i style="display:none;font-size:24px;color:orange;" class="fas fa-exclamation-triangle" aria-hidden="true"></i>
                     </div>
                     <div class="still-toast-message">
                         <span class="text text-1" id="${uuid}-status"></span>

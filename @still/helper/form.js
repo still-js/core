@@ -9,6 +9,8 @@ class InParams {
     value; type; 
     placeholder; 
     min; max; required; warn;
+
+    /** @type { true | false } */ disabled;
     /** @type { 'number'|'alhpanumeric'|'text'|'email'|'phone'|'date'|'dateUS' } */
     validator;
 } ;
@@ -28,7 +30,7 @@ export const FormHelper = {
             /** @param { InParams } params  */
             input(params = inParams){
                 if(formRef === undefined) return;
-                const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn, value} = params;
+                const {className, id, datasets = {}, type, placeholder, min, max, required, validator, warn, value, disabled} = params;
                 const datafields = Object.entries(datasets).map(([f,v]) => (`data-${f}="${v}"`)).join(' ');
                 const ftype=`type="${type || 'text'}"`, isOptList = ['radio','checkbox'].includes(type);
                 const hint = `${placeholder ? `placeholder="${placeholder}"` : ''}`;
@@ -43,7 +45,7 @@ export const FormHelper = {
                 const vlidtor = `${validator ? `(validator)=${validator}`: ''}`;
                 const cmpId = cmp.cmpInternalId?.replace('/','').replace('@','');
                 const input = `
-                    <input ${datafields}
+                    <input ${datafields} ${disabled ? 'disabled="true"' : ''}
                         class="${genInputsClasses(validatorClass, cmpId, fName, val, isOptList)} ${cmp.cmpInternalId}-${fName} ${className || ''}"
                         ${ftype} ${val} ${_id} ${req.trim()} ${wrn} ${hint} ${mn} ${mx} ${validateEvt} ${vlidtor} ${checked}>
                 `;
@@ -70,6 +72,6 @@ export const FormHelper = {
 }
 
 export function genInputsClasses(validatorClass, cmpId, field, optValue, isOptList = false, isThereComboBox = false){
-    const listenCls = isThereComboBox ? '' : `listenChangeOn-${cmpId}-${field}`;
+    const listenCls = isThereComboBox ? `listenChangeOn-${cmpId}-${field}-combobox ` : `listenChangeOn-${cmpId}-${field} `;
     return `${validatorClass} ${listenCls} ${ isOptList ? `${cmpId}-${field}-val-${optValue}` : '' }`;
 }

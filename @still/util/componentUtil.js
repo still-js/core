@@ -41,4 +41,37 @@ export class WorkerHelper {
     }
 }
 
+class AssetType {
+    path;
+    /** @type { 'css'|'js' } */ type;
+}
 
+export class Assets {
+
+    static imported = new Set(); 
+    /**
+     * 
+     * @param {AssetType} param 
+     * @returns 
+     */
+    static async import({ path = '', type = null }){
+        
+        if(Assets.imported.has(path)) return;
+
+        let tag;
+        if(path.endsWith('.css') || type === 'css'){
+            tag = document.createElement('link');
+            [tag.rel, tag.href] = ['stylesheet', tag.href = path];
+        }else if(path.endsWith('.js') || type === 'js'){
+            tag = document.createElement('script');
+            tag.src = path;
+        }
+        
+        Assets.imported.add(path);
+
+        return new Promise((resolve) => {
+            tag.onload = () => resolve('');
+            document.body.appendChild(tag);
+        });
+    }
+}
